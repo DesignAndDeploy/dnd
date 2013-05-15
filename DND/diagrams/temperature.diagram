@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:al="http://eclipse.org/graphiti/mm/algorithms" xmlns:edu.teco.dnd.graphiti.model="http:///edu/teco/dnd/graphiti/model.ecore" xmlns:pi="http://eclipse.org/graphiti/mm/pictograms">
+  <pi:Diagram visible="true" gridUnit="10" diagramTypeId="dataflowgraph" name="temperature" snapToGrid="true" pictogramLinks="/0/@children.0/@link /0/@children.0/@children.1/@link /0/@children.0/@children.3/@link /0/@children.0/@anchors.0/@link /0/@children.0/@children.6/@link /0/@children.0/@children.8/@link /0/@children.1/@link /0/@children.1/@children.1/@link /0/@children.1/@children.3/@link /0/@children.1/@anchors.0/@link /0/@children.1/@anchors.1/@link /0/@children.1/@children.7/@link /0/@children.1/@children.9/@link /0/@children.2/@link /0/@children.2/@children.1/@link /0/@children.2/@children.3/@link /0/@children.2/@anchors.0/@link /0/@children.2/@children.6/@link /0/@children.2/@children.8/@link /0/@connections.0/@link /0/@connections.1/@link" version="0.9.1">
+    <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.1" foreground="/0/@colors.0" lineWidth="1" transparency="0.0" width="1000" height="1000"/>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.2" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="136" x="720" y="40" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/1"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.1">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/1/@inputs.0"/>
+        <location x="9" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="TemperatureActorBlock"/>
+        <link businessObjects="/1"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/1"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="55" value="temperature">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="85" value="url:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="85" horizontalAlignment="ALIGNMENT_RIGHT" value="http://cumulus.teco.edu:51525/actuator/entity/"/>
+        <link businessObjects="/1/@options.0"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="107" value="heaterID:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="107" horizontalAlignment="ALIGNMENT_RIGHT" value="Living_Lab"/>
+        <link businessObjects="/1/@options.1"/>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.5" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="136" x="390" y="40" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/2"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.0">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/2/@inputs.0"/>
+        <location x="9" y="63"/>
+      </anchors>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" outgoingConnections="/0/@connections.1">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.6" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-9" y="-7"/>
+        <link businessObjects="/2/@outputs.0"/>
+        <location x="241" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="TemperatureLogicBlock"/>
+        <link businessObjects="/2"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/2"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="55" value="roomTemperature">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="85" height="15" x="144" y="55" horizontalAlignment="ALIGNMENT_RIGHT" value="heaterTemperature">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="85" value="temperature:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="85" horizontalAlignment="ALIGNMENT_RIGHT" value="22"/>
+        <link businessObjects="/2/@options.0"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="107" value="threshold:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="107" horizontalAlignment="ALIGNMENT_RIGHT" value="18"/>
+        <link businessObjects="/2/@options.1"/>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.7" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="136" x="80" y="40" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/3"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" outgoingConnections="/0/@connections.0">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.6" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-9" y="-7"/>
+        <link businessObjects="/3/@outputs.0"/>
+        <location x="241" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="TemperatureSensorBlock"/>
+        <link businessObjects="/3"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/3"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="85" height="15" x="144" y="55" horizontalAlignment="ALIGNMENT_RIGHT" value="temperature">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="85" value="url:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="85" horizontalAlignment="ALIGNMENT_RIGHT" value="http://cumulus.teco.edu:51525/sensor/entity/"/>
+        <link businessObjects="/3/@options.0"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="107" value="uPartID:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="107" horizontalAlignment="ALIGNMENT_RIGHT" value="1.2.3.4.0.6.1.133"/>
+        <link businessObjects="/3/@options.1"/>
+      </children>
+    </children>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.2/@anchors.0" end="/0/@children.1/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/2/@inputs.0"/>
+    </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.1/@anchors.1" end="/0/@children.0/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/1/@inputs.0"/>
+    </connections>
+    <colors red="227" green="238" blue="249"/>
+    <colors red="255" green="255" blue="255"/>
+    <colors red="188" green="128" blue="255"/>
+    <colors/>
+    <colors red="255" green="255"/>
+    <colors red="170" green="170" blue="170"/>
+    <colors red="65" green="219"/>
+    <colors red="35" green="139" blue="194"/>
+    <colors red="255"/>
+    <fonts name="Arial" size="8" bold="true"/>
+  </pi:Diagram>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.temperature.TemperatureActorBlock" iD="_nOGAgG8FEeKwG-glx_kx7g">
+    <inputs name="temperature" output="/2/@outputs.0" type="java.lang.Integer"/>
+    <options type="java.lang.String" value="aced000574002e687474703a2f2f63756d756c75732e7465636f2e6564753a35313532352f6163747561746f722f656e746974792f" name="url"/>
+    <options type="java.lang.String" value="aced000574000a4c6976696e675f4c6162" name="heaterID"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.temperature.TemperatureLogicBlock" iD="_nn19QG8FEeKwG-glx_kx7g">
+    <inputs name="roomTemperature" output="/3/@outputs.0" type="java.lang.Integer"/>
+    <outputs name="heaterTemperature" inputs="/1/@inputs.0" type="java.lang.Integer"/>
+    <options type="java.lang.Integer" value="aced0005737200116a6176612e6c616e672e496e746567657212e2a0a4f781873802000149000576616c7565787200106a6176612e6c616e672e4e756d62657286ac951d0b94e08b020000787000000016" name="temperature"/>
+    <options type="java.lang.Integer" value="aced0005737200116a6176612e6c616e672e496e746567657212e2a0a4f781873802000149000576616c7565787200106a6176612e6c616e672e4e756d62657286ac951d0b94e08b020000787000000012" name="threshold"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.temperature.TemperatureSensorBlock" iD="_oJB-wG8FEeKwG-glx_kx7g">
+    <outputs name="temperature" inputs="/2/@inputs.0" type="java.lang.Integer"/>
+    <options type="java.lang.String" value="aced000574002c687474703a2f2f63756d756c75732e7465636f2e6564753a35313532352f73656e736f722f656e746974792f" name="url"/>
+    <options type="java.lang.String" value="aced0005740011312e322e332e342e302e362e312e313333" name="uPartID"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+</xmi:XMI>

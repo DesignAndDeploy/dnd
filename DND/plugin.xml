@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.graphiti.ui.diagramTypes">
+      <diagramType
+            id="edu.teco.dnd.graphiti.DNDDiagramType"
+            name="Data flow graph"
+            type="dataflowgraph">
+      </diagramType>
+   </extension>
+   <extension
+         point="org.eclipse.graphiti.ui.diagramTypeProviders">
+      <diagramTypeProvider
+            class="edu.teco.dnd.graphiti.DNDDiagramTypeProvider"
+            id="edu.teco.dnd.graphiti.DNDDiagramTypeProvider"
+            name="Data flow editor">
+         <diagramType
+               id="edu.teco.dnd.graphiti.DNDDiagramType">
+         </diagramType>
+      </diagramTypeProvider>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="DND"
+            id="DND">
+      </category>
+      <view
+            category="DND"
+            class="edu.teco.dnd.eclipse.view.DiscoveryView"
+            icon="icons/discovery.png"
+            id="edu.teco.dnd.eclipse.view.DiscoveryView"
+            name="Discovery View">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="edu.teco.dns.views.DeployView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   
+      <extension point="org.eclipse.emf.ecore.generated_package">
+      <package
+            uri="http:///edu/teco/dnd/graphiti/model.ecore"
+            class="edu.teco.dnd.graphiti.model.ModelPackage"
+            genModel="model/graphiti.genmodel"/>
+   </extension>
+      <extension
+            point="org.eclipse.ui.editors">
+         <editor
+               class="edu.teco.dnd.eclipse.view.DeployEditor"
+               default="true"
+               extensions="diagram"
+               icon="icons/deploy.png"
+               id="edu.teco.dnd.eclipse.view.DeployView"
+               name="Deploy Editor">
+         </editor>
+      </extension>
+
+</plugin>

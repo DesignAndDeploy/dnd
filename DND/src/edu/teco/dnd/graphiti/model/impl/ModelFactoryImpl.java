@@ -1,0 +1,241 @@
+/**
+ */
+package edu.teco.dnd.graphiti.model.impl;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.graphiti.model.*;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.ModelFactory;
+import edu.teco.dnd.graphiti.model.ModelPackage;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.impl.EFactoryImpl;
+import org.eclipse.emf.ecore.plugin.EcorePlugin;
+
+/**
+ * <!-- begin-user-doc --> An implementation of the model <b>Factory</b>. <!-- end-user-doc -->
+ * @generated
+ */
+public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
+	/**
+	 * Creates the default factory implementation.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public static ModelFactory init() {
+		try {
+			ModelFactory theModelFactory = (ModelFactory)EPackage.Registry.INSTANCE.getEFactory("http:///edu/teco/dnd/graphiti/model.ecore"); 
+			if (theModelFactory != null) {
+				return theModelFactory;
+			}
+		}
+		catch (Exception exception) {
+			EcorePlugin.INSTANCE.log(exception);
+		}
+		return new ModelFactoryImpl();
+	}
+
+	/**
+	 * Creates an instance of the factory.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ModelFactoryImpl() {
+		super();
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EObject create(EClass eClass) {
+		switch (eClass.getClassifierID()) {
+			case ModelPackage.FUNCTION_BLOCK_MODEL: return createFunctionBlockModel();
+			case ModelPackage.INPUT_MODEL: return createInputModel();
+			case ModelPackage.OPTION_MODEL: return createOptionModel();
+			case ModelPackage.OUTPUT_MODEL: return createOutputModel();
+			default:
+				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Object createFromString(EDataType eDataType, String initialValue) {
+		switch (eDataType.getClassifierID()) {
+			case ModelPackage.SERIALIZABLE:
+				return createSerializableFromString(eDataType, initialValue);
+			case ModelPackage.FUNCTION_BLOCK:
+				return createFunctionBlockFromString(eDataType, initialValue);
+			default:
+				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String convertToString(EDataType eDataType, Object instanceValue) {
+		switch (eDataType.getClassifierID()) {
+			case ModelPackage.SERIALIZABLE:
+				return convertSerializableToString(eDataType, instanceValue);
+			case ModelPackage.FUNCTION_BLOCK:
+				return convertFunctionBlockToString(eDataType, instanceValue);
+			default:
+				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public FunctionBlockModel createFunctionBlockModel() {
+		FunctionBlockModelImpl functionBlockModel = new FunctionBlockModelImpl();
+		return functionBlockModel;
+	}
+
+	public FunctionBlockModel createFunctionBlockModel(Class<? extends FunctionBlock> cls) {
+		FunctionBlockModelImpl functionBlockModel = new FunctionBlockModelImpl(cls);
+		return functionBlockModel;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public InputModel createInputModel() {
+		InputModelImpl inputModel = new InputModelImpl();
+		return inputModel;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public OptionModel createOptionModel() {
+		OptionModelImpl optionModel = new OptionModelImpl();
+		return optionModel;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public OutputModel createOutputModel() {
+		OutputModelImpl outputModel = new OutputModelImpl();
+		return outputModel;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 */
+	public Serializable createSerializableFromString(EDataType eDataType, String initialValue) {
+		try {
+			return (Serializable) new ObjectInputStream(new ByteArrayInputStream(hexToByte(initialValue)))
+					.readObject();
+		} catch (
+				ClassNotFoundException | IOException e) {
+			throw new IllegalArgumentException("cannot convert String to object", e);
+		}
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 */
+	public String convertSerializableToString(EDataType eDataType, Object instanceValue) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			new ObjectOutputStream(baos).writeObject(instanceValue);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("cannot convert object to string", e);
+		}
+		return byteToHex(baos.toByteArray());
+	}
+
+	private static String byteToHex(byte[] bs) {
+		if (bs == null) {
+			return "";
+		}
+		StringBuffer sb = new StringBuffer(bs.length * 2);
+		for (byte b : bs) {
+			if (b >= 0 && b < 16) {
+				sb.append('0');
+			}
+			sb.append(Integer.toHexString(((int) b) & 0xFF));
+		}
+		return sb.toString();
+	}
+
+	private static byte[] hexToByte(String hex) {
+		if (hex == null) {
+			return new byte[0];
+		}
+		if (hex.length() % 2 != 0) {
+			throw new IllegalArgumentException("hex string must be an even number of characters");
+		}
+		byte[] bs = new byte[hex.length() / 2];
+		for (int i = 0; i < bs.length; i++) {
+			try {
+				bs[i] = (byte) (int) Integer.valueOf(hex.substring(2 * i, 2 * i + 2), 16);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("String is not hex", e);
+			}
+		}
+		return bs;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public FunctionBlock createFunctionBlockFromString(EDataType eDataType, String initialValue) {
+		return (FunctionBlock)super.createFromString(eDataType, initialValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertFunctionBlockToString(EDataType eDataType, Object instanceValue) {
+		return super.convertToString(eDataType, instanceValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ModelPackage getModelPackage() {
+		return (ModelPackage)getEPackage();
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @deprecated
+	 * @generated
+	 */
+	@Deprecated
+	public static ModelPackage getPackage() {
+		return ModelPackage.eINSTANCE;
+	}
+
+} // ModelFactoryImpl

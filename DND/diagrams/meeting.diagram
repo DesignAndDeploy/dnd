@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:al="http://eclipse.org/graphiti/mm/algorithms" xmlns:edu.teco.dnd.graphiti.model="http:///edu/teco/dnd/graphiti/model.ecore" xmlns:pi="http://eclipse.org/graphiti/mm/pictograms">
+  <pi:Diagram visible="true" gridUnit="10" diagramTypeId="dataflowgraph" name="meetingraum" snapToGrid="true" pictogramLinks="/0/@children.0/@link /0/@children.0/@children.1/@link /0/@children.0/@children.3/@link /0/@children.0/@anchors.0/@link /0/@children.0/@children.6/@link /0/@children.0/@children.8/@link /0/@children.1/@link /0/@children.1/@children.1/@link /0/@children.1/@children.3/@link /0/@children.1/@anchors.0/@link /0/@children.2/@link /0/@children.2/@children.1/@link /0/@children.2/@children.3/@link /0/@children.2/@anchors.0/@link /0/@children.2/@anchors.1/@link /0/@children.3/@link /0/@children.3/@children.1/@link /0/@children.3/@children.3/@link /0/@children.3/@anchors.0/@link /0/@children.3/@anchors.1/@link /0/@children.3/@anchors.2/@link /0/@children.4/@link /0/@children.4/@children.1/@link /0/@children.4/@children.3/@link /0/@children.4/@anchors.0/@link /0/@children.4/@anchors.1/@link /0/@children.4/@children.7/@link /0/@children.5/@link /0/@children.5/@children.1/@link /0/@children.5/@children.3/@link /0/@children.5/@anchors.0/@link /0/@children.5/@children.6/@link /0/@children.5/@children.8/@link /0/@children.6/@link /0/@children.6/@children.1/@link /0/@children.6/@children.3/@link /0/@children.6/@anchors.0/@link /0/@children.6/@children.6/@link /0/@children.6/@children.8/@link /0/@connections.0/@link /0/@connections.1/@link /0/@connections.2/@link /0/@connections.3/@link /0/@connections.4/@link /0/@connections.5/@link" version="0.9.1">
+    <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.1" foreground="/0/@colors.0" lineWidth="1" transparency="0.0" width="1000" height="1000"/>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.2" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="136" x="1300" y="50" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/1"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.4">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/1/@inputs.0"/>
+        <location x="9" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="BeamerActorBlock"/>
+        <link businessObjects="/1"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/1"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="55" value="beamer">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="85" value="outletID:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="85" horizontalAlignment="ALIGNMENT_RIGHT" value="000D6F0000768B58"/>
+        <link businessObjects="/1/@options.0"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="107" value="url:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="107" horizontalAlignment="ALIGNMENT_RIGHT" value="http://cumulus.teco.edu:5000/plugwise/"/>
+        <link businessObjects="/1/@options.1"/>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.2" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="92" x="1300" y="250" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/2"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.5">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/2/@inputs.0"/>
+        <location x="9" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="DisplayActorBlock"/>
+        <link businessObjects="/2"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/2"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="55" value="text">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.5" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="92" x="950" y="250" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/3"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.3">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/3/@inputs.0"/>
+        <location x="9" y="63"/>
+      </anchors>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" outgoingConnections="/0/@connections.5">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.6" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-9" y="-7"/>
+        <link businessObjects="/3/@outputs.0"/>
+        <location x="241" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="DisplayOperatorBlock"/>
+        <link businessObjects="/3"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/3"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="55" value="meeting">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="85" height="15" x="144" y="55" horizontalAlignment="ALIGNMENT_RIGHT" value="text">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.5" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="114" x="950" y="50" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/4"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.0">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/4/@inputs.0"/>
+        <location x="9" y="63"/>
+      </anchors>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.2">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/4/@inputs.1"/>
+        <location x="9" y="85"/>
+      </anchors>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" outgoingConnections="/0/@connections.4">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.6" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-9" y="-7"/>
+        <link businessObjects="/4/@outputs.0"/>
+        <location x="241" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="BeamerOperatorBlock"/>
+        <link businessObjects="/4"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/4"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="55" value="outlet">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="77" value="meeting">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="85" height="15" x="144" y="55" horizontalAlignment="ALIGNMENT_RIGHT" value="beamer">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.5" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="114" x="599" y="147" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/5"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" incomingConnections="/0/@connections.1">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.4" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-5" y="-7"/>
+        <link businessObjects="/5/@inputs.0"/>
+        <location x="9" y="63"/>
+      </anchors>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" outgoingConnections="/0/@connections.2 /0/@connections.3">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.6" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-9" y="-7"/>
+        <link businessObjects="/5/@outputs.0"/>
+        <location x="241" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="MeetingOperatorBlock"/>
+        <link businessObjects="/5"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/5"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="104" height="15" x="19" y="55" value="lights">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="85" height="15" x="144" y="55" horizontalAlignment="ALIGNMENT_RIGHT" value="meeting">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="85" value="threshold:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="85" horizontalAlignment="ALIGNMENT_RIGHT" value="20"/>
+        <link businessObjects="/5/@options.0"/>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.7" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="136" x="200" y="50" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/6"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" outgoingConnections="/0/@connections.0">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.6" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-9" y="-7"/>
+        <link businessObjects="/6/@outputs.0"/>
+        <location x="241" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="OutletSensorBlock"/>
+        <link businessObjects="/6"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/6"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="85" height="15" x="144" y="55" horizontalAlignment="ALIGNMENT_RIGHT" value="outlet">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="85" value="outletID:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="85" horizontalAlignment="ALIGNMENT_RIGHT" value="000D6F0000768B58"/>
+        <link businessObjects="/6/@options.0"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="107" value="url:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="107" horizontalAlignment="ALIGNMENT_RIGHT" value="http://cumulus.teco.edu:51525/sensor/entity/"/>
+        <link businessObjects="/6/@options.1"/>
+      </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:RoundedRectangle" background="/0/@colors.7" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="250" height="136" x="200" y="206" cornerHeight="5" cornerWidth="5"/>
+      <link businessObjects="/7"/>
+      <anchors xsi:type="pi:FixPointAnchor" visible="true" active="true" outgoingConnections="/0/@connections.1">
+        <graphicsAlgorithm xsi:type="al:Ellipse" background="/0/@colors.6" foreground="/0/@colors.3" lineWidth="2" transparency="0.0" width="15" height="15" x="-9" y="-7"/>
+        <link businessObjects="/7/@outputs.0"/>
+        <location x="241" y="63"/>
+      </anchors>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.3" lineWidth="2" filled="false" transparency="0.0">
+          <points y="20"/>
+          <points x="250" y="20"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="250" height="20" font="/0/@fonts.0" horizontalAlignment="ALIGNMENT_CENTER" value="LightSensorBlock"/>
+        <link businessObjects="/7"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="28" value="Position:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="28" horizontalAlignment="ALIGNMENT_RIGHT" value=""/>
+        <link businessObjects="/7"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="85" height="15" x="144" y="55" horizontalAlignment="ALIGNMENT_RIGHT" value="lights">
+          <properties key="connection" value="connection"/>
+        </graphicsAlgorithm>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="85" value="uPartID:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="85" horizontalAlignment="ALIGNMENT_RIGHT" value="1.2.3.4.0.6.1.133"/>
+        <link businessObjects="/7/@options.0"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="7" y="107" value="url:"/>
+      </children>
+      <children visible="true">
+        <graphicsAlgorithm xsi:type="al:Text" foreground="/0/@colors.3" lineWidth="1" filled="false" transparency="0.0" width="111" height="15" x="132" y="107" horizontalAlignment="ALIGNMENT_RIGHT" value="http://cumulus.teco.edu:51525/sensor/entity/"/>
+        <link businessObjects="/7/@options.1"/>
+      </children>
+    </children>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.5/@anchors.0" end="/0/@children.3/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/4/@inputs.0"/>
+    </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.6/@anchors.0" end="/0/@children.4/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/5/@inputs.0"/>
+    </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.4/@anchors.1" end="/0/@children.3/@anchors.1">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/4/@inputs.1"/>
+    </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.4/@anchors.1" end="/0/@children.2/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/3/@inputs.0"/>
+    </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.3/@anchors.2" end="/0/@children.0/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/1/@inputs.0"/>
+    </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.2/@anchors.1" end="/0/@children.1/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.8" lineWidth="2" filled="false" transparency="0.0"/>
+      <link businessObjects="/2/@inputs.0"/>
+    </connections>
+    <colors red="227" green="238" blue="249"/>
+    <colors red="255" green="255" blue="255"/>
+    <colors red="188" green="128" blue="255"/>
+    <colors/>
+    <colors red="255" green="255"/>
+    <colors red="170" green="170" blue="170"/>
+    <colors red="65" green="219"/>
+    <colors red="35" green="139" blue="194"/>
+    <colors red="255"/>
+    <fonts name="Arial" size="8" bold="true"/>
+  </pi:Diagram>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.meeting.BeamerActorBlock" iD="_w2esgG8EEeKwG-glx_kx7g">
+    <inputs name="beamer" output="/4/@outputs.0" type="java.lang.Boolean"/>
+    <options type="java.lang.String" value="aced000574001030303044364630303030373638423538" name="outletID"/>
+    <options type="java.lang.String" value="aced0005740026687474703a2f2f63756d756c75732e7465636f2e6564753a353030302f706c7567776973652f" name="url"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.meeting.DisplayActorBlock" iD="_yDaZsG8EEeKwG-glx_kx7g">
+    <inputs name="text" output="/3/@outputs.0" type="java.lang.String"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.meeting.DisplayOperatorBlock" iD="_y2KsUG8EEeKwG-glx_kx7g">
+    <inputs name="meeting" output="/5/@outputs.0" type="java.lang.Boolean"/>
+    <outputs name="text" inputs="/2/@inputs.0" type="java.lang.String"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.meeting.BeamerOperatorBlock" iD="_z0hK8G8EEeKwG-glx_kx7g">
+    <inputs name="outlet" output="/6/@outputs.0" type="java.lang.Integer"/>
+    <inputs name="meeting" output="/5/@outputs.0" type="java.lang.Boolean"/>
+    <outputs name="beamer" inputs="/1/@inputs.0" type="java.lang.Boolean"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.meeting.MeetingOperatorBlock" iD="_0VaRgG8EEeKwG-glx_kx7g">
+    <inputs name="lights" output="/7/@outputs.0" type="java.lang.Integer"/>
+    <outputs name="meeting" inputs="/4/@inputs.1 /3/@inputs.0" type="java.lang.Boolean"/>
+    <options type="java.lang.Integer" value="aced0005737200116a6176612e6c616e672e496e746567657212e2a0a4f781873802000149000576616c7565787200106a6176612e6c616e672e4e756d62657286ac951d0b94e08b020000787000000014" name="threshold"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.meeting.OutletSensorBlock" iD="_02SxAG8EEeKwG-glx_kx7g">
+    <outputs name="outlet" inputs="/4/@inputs.0" type="java.lang.Integer"/>
+    <options type="java.lang.String" value="aced000574001030303044364630303030373638423538" name="outletID"/>
+    <options type="java.lang.String" value="aced000574002c687474703a2f2f63756d756c75732e7465636f2e6564753a35313532352f73656e736f722f656e746974792f" name="url"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+  <edu.teco.dnd.graphiti.model:FunctionBlockModel type="edu.teco.dnd.meeting.LightSensorBlock" iD="_1leLMG8EEeKwG-glx_kx7g">
+    <outputs name="lights" inputs="/5/@inputs.0" type="java.lang.Integer"/>
+    <options type="java.lang.String" value="aced0005740011312e322e332e342e302e362e312e313333" name="uPartID"/>
+    <options type="java.lang.String" value="aced000574002c687474703a2f2f63756d756c75732e7465636f2e6564753a35313532352f73656e736f722f656e746974792f" name="url"/>
+  </edu.teco.dnd.graphiti.model:FunctionBlockModel>
+</xmi:XMI>

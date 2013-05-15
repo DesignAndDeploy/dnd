@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/DND/src" modelPluginID="DND" modelName="Graphiti"
+    importerID="org.eclipse.emf.importer.java" complianceLevel="7.0" copyrightFields="false">
+  <foreignModel>@model</foreignModel>
+  <genPackages prefix="Model" basePackage="edu.teco.dnd.graphiti" disposableProviderFactory="true"
+      ecorePackage="model.ecore#/">
+    <genDataTypes ecoreDataType="model.ecore#//Serializable"/>
+    <genDataTypes ecoreDataType="model.ecore#//FunctionBlock"/>
+    <genClasses ecoreClass="model.ecore#//FunctionBlockModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//FunctionBlockModel/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference model.ecore#//FunctionBlockModel/inputs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference model.ecore#//FunctionBlockModel/outputs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference model.ecore#//FunctionBlockModel/options"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//FunctionBlockModel/iD"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//FunctionBlockModel/position"/>
+    </genClasses>
+    <genClasses ecoreClass="model.ecore#//InputModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//InputModel/name"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference model.ecore#//InputModel/functionBlock"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference model.ecore#//InputModel/output"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//InputModel/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//InputModel/queued"/>
+    </genClasses>
+    <genClasses ecoreClass="model.ecore#//OptionModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//OptionModel/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//OptionModel/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//OptionModel/name"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference model.ecore#//OptionModel/functionBlock"/>
+    </genClasses>
+    <genClasses ecoreClass="model.ecore#//OutputModel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//OutputModel/name"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference model.ecore#//OutputModel/functionBlock"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference model.ecore#//OutputModel/inputs"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//OutputModel/type"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
