@@ -90,7 +90,7 @@ public final class EclipseUtil {
 		if (project == null) {
 			return Collections.emptySet();
 		}
-		Set<IPath> paths = new HashSet<>();
+		Set<IPath> paths = new HashSet<IPath>();
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		IJavaProject javaProject = JavaCore.create(project);
 		try {

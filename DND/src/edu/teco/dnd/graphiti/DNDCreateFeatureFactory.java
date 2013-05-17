@@ -22,7 +22,7 @@ public final class DNDCreateFeatureFactory {
 	/**
 	 * Registered block types.
 	 */
-	private Set<Class<? extends FunctionBlock>> types = new HashSet<>();
+	private Set<Class<? extends FunctionBlock>> types = new HashSet<Class<? extends FunctionBlock>>();
 
 	/**
 	 * Returns a create feature for the given block type. If the block has not been registered it will
@@ -55,7 +55,7 @@ public final class DNDCreateFeatureFactory {
 	 * @return all create features
 	 */
 	public Set<DNDCreateBlockFeature> getCreateFeatures(final IFeatureProvider fp) {
-		Set<DNDCreateBlockFeature> features = new HashSet<>(types.size());
+		Set<DNDCreateBlockFeature> features = new HashSet<DNDCreateBlockFeature>(types.size());
 		for (Class<? extends FunctionBlock> type : types) {
 			features.add(new DNDCreateBlockFeature(fp, type));
 		}

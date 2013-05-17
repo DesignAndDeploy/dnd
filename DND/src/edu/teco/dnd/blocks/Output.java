@@ -24,7 +24,7 @@ public class Output<T extends Serializable> implements Serializable {
 	/**
 	 * The {@link ConnectionTarget}s connected to this output.
 	 */
-	private final Set<ConnectionTarget> connectedTargets = new HashSet<>();
+	private final Set<ConnectionTarget> connectedTargets = new HashSet<ConnectionTarget>();
 
 	/**
 	 * The type of this output.

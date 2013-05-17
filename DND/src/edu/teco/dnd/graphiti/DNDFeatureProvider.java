@@ -129,7 +129,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		if (!factoryInitialised) {
 			IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(
 					getDiagramTypeProvider().getDiagram()).toString()));
-			Set<URL> urls = new HashSet<>();
+			Set<URL> urls = new HashSet<URL>();
 			Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(project);
 			for (IPath path : paths) {
 				try {

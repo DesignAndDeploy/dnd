@@ -31,7 +31,7 @@ public abstract class FunctionBlock implements Serializable {
 	/**
 	 * Stores all {@link ConnectionTarget}s used by this function block. Mapped from their name.
 	 */
-	private final Map<String, ConnectionTarget> connectionTargets = new HashMap<>();
+	private final Map<String, ConnectionTarget> connectionTargets = new HashMap<String, ConnectionTarget>();
 
 	/**
 	 * Stores all {@link Output}s used by this function block. Mapped from their name. Lazily initialized by
@@ -42,7 +42,7 @@ public abstract class FunctionBlock implements Serializable {
 	/**
 	 * Stores all {@link Option}s used by this function block.
 	 */
-	private final Set<String> options = new HashSet<>();
+	private final Set<String> options = new HashSet<String>();
 
 	/**
 	 * The timer used by this function block.
@@ -66,8 +66,8 @@ public abstract class FunctionBlock implements Serializable {
 		if (cls == null) {
 			throw new IllegalArgumentException("cls must not be null");
 		}
-		Set<Field> inputs = new HashSet<>();
-		Set<String> names = new HashSet<>();
+		Set<Field> inputs = new HashSet<Field>();
+		Set<String> names = new HashSet<String>();
 		for (Class<?> c = cls; c != null; c = c.getSuperclass()) {
 			for (Field field : c.getDeclaredFields()) {
 				Input inputAnnotation = field.getAnnotation(Input.class);
@@ -92,8 +92,8 @@ public abstract class FunctionBlock implements Serializable {
 		if (cls == null) {
 			throw new IllegalArgumentException("cls must not be null");
 		}
-		Set<Field> outputs = new HashSet<>();
-		Set<String> names = new HashSet<>();
+		Set<Field> outputs = new HashSet<Field>();
+		Set<String> names = new HashSet<String>();
 		for (Class<?> c = cls; c != null; c = c.getSuperclass()) {
 			for (Field field : c.getDeclaredFields()) {
 				if (Output.class.isAssignableFrom(field.getType()) && !names.contains(field.getName())) {
@@ -117,8 +117,8 @@ public abstract class FunctionBlock implements Serializable {
 		if (cls == null) {
 			throw new IllegalArgumentException("cls must not be null");
 		}
-		Set<Field> options = new HashSet<>();
-		Set<String> names = new HashSet<>();
+		Set<Field> options = new HashSet<Field>();
+		Set<String> names = new HashSet<String>();
 		for (Class<?> c = cls; c != null; c = c.getSuperclass()) {
 			for (Field field : c.getDeclaredFields()) {
 				Option optionAnnotation = field.getAnnotation(Option.class);
@@ -202,14 +202,16 @@ public abstract class FunctionBlock implements Serializable {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public final synchronized Map<String, Output<?>> getOutputs() throws InvalidFunctionBlockException {
 		if (outputs == null) {
-			outputs = new HashMap<>();
+			outputs = new HashMap<String, Output<?>>();
 			for (Field output : getOutputs(getClass())) {
 				output.setAccessible(true);
 				Output<?> out = null;
 				try {
 					out = (Output<?>) output.get(this);
 				} catch (
-						IllegalArgumentException | IllegalAccessException e) {
+						IllegalArgumentException e) {
+					throw new InvalidFunctionBlockException("Cannot get Output '" + output.getName() + "'", e);
+				} catch (IllegalAccessException e) {
 					throw new InvalidFunctionBlockException("Cannot get Output '" + output.getName() + "'", e);
 				}
 				if (out == null) {
@@ -217,7 +219,10 @@ public abstract class FunctionBlock implements Serializable {
 					try {
 						output.set(this, out);
 					} catch (
-							IllegalArgumentException | IllegalAccessException e) {
+							IllegalArgumentException e) {
+						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName()
+								+ "'", e);
+					} catch (IllegalAccessException e) {
 						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName()
 								+ "'", e);
 					}
@@ -240,7 +245,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @return all Options used by this function block
 	 */
 	public final Map<String, Type> getOptions() {
-		Map<String, Type> opts = new HashMap<>();
+		Map<String, Type> opts = new HashMap<String, Type>();
 		for (String name : options) {
 			Field field = null;
 			for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
@@ -248,8 +253,8 @@ public abstract class FunctionBlock implements Serializable {
 					field = c.getDeclaredField(name);
 					opts.put(name, field.getType());
 					break;
-				} catch (
-						NoSuchFieldException | SecurityException e) {
+				} catch (NoSuchFieldException e) {
+				} catch (SecurityException e) {
 				}
 			}
 		}
@@ -274,8 +279,8 @@ public abstract class FunctionBlock implements Serializable {
 		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
 			try {
 				field = c.getDeclaredField(name);
-			} catch (
-					NoSuchFieldException | SecurityException e1) {
+			} catch (NoSuchFieldException e) {
+			} catch (SecurityException e) {
 			}
 		}
 		if (field == null) {
@@ -287,8 +292,9 @@ public abstract class FunctionBlock implements Serializable {
 		field.setAccessible(true);
 		try {
 			field.set(this, value);
-		} catch (
-				IllegalArgumentException | IllegalAccessException e) {
+		} catch (IllegalArgumentException e) {
+			throw new AssignmentException("Cannot assign option '" + name + "'", e);
+		} catch (IllegalAccessException e) {
 			throw new AssignmentException("Cannot assign option '" + name + "'", e);
 		}
 	}
@@ -311,8 +317,8 @@ public abstract class FunctionBlock implements Serializable {
 			try {
 				field = c.getDeclaredField(name);
 				break;
-			} catch (
-					NoSuchFieldException | SecurityException e1) {
+			} catch (NoSuchFieldException e) {
+			} catch (SecurityException e) {
 			}
 		}
 		if (field == null) {
@@ -322,8 +328,9 @@ public abstract class FunctionBlock implements Serializable {
 		field.setAccessible(true);
 		try {
 			result = (Serializable) field.get(this);
-		} catch (
-				IllegalArgumentException | IllegalAccessException e) {
+		} catch (IllegalArgumentException e) {
+			throw new RetrievementException("Cannot get option '" + name + "'", e);
+		} catch (IllegalAccessException e) {
 			throw new RetrievementException("Cannot get option '" + name + "'", e);
 		}
 		return result;

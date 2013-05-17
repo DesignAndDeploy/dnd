@@ -57,8 +57,11 @@ public class OutletReader {
 		Gson gson = gsonBuilder.create();
 		try {
 			return gson.fromJson(new InputStreamReader(url.openStream()), Outlet.class);
-		} catch (
-				JsonSyntaxException | JsonIOException | IOException e) {
+		} catch (JsonSyntaxException e) {
+			throw new SensorException("failed to parse JSON data", e);
+		} catch (JsonIOException e) {
+			throw new SensorException("failed to parse JSON data", e);
+		} catch (IOException e) {
 			throw new SensorException("failed to parse JSON data", e);
 		}
 	}

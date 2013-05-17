@@ -192,9 +192,12 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			try {
 				Constructor<? extends FunctionBlock> constructor = cls.getConstructor(String.class);
 				block = constructor.newInstance("id");
-			} catch (
-					InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			} catch (InstantiationException e) {
+			} catch (IllegalAccessException e) {
+			} catch (IllegalArgumentException e) {
+			} catch (InvocationTargetException e) {
+			} catch (NoSuchMethodException e) {
+			} catch (SecurityException e) {
 			}
 			if (block != null) {
 				for (OptionModel option : getOptions()) {
@@ -511,23 +514,29 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		Class<? extends FunctionBlock> cls = null;
 		try {
 			cls = (Class<? extends FunctionBlock>) cl.loadClass(type);
-		} catch (
-				ClassNotFoundException | ClassCastException e) {
+		} catch (ClassNotFoundException e) {
+			throw new InvalidFunctionBlockException("Could not get block class", e);
+		} catch (ClassCastException e) {
 			throw new InvalidFunctionBlockException("Could not get block class", e);
 		}
 		Constructor<? extends FunctionBlock> constructor = null;
 		try {
 			constructor = cls.getConstructor(String.class);
-		} catch (
-				NoSuchMethodException | SecurityException e) {
+		} catch (NoSuchMethodException e) {
+			throw new InvalidFunctionBlockException("Could not find constructor", e);
+		} catch (SecurityException e) {
 			throw new InvalidFunctionBlockException("Could not find constructor", e);
 		}
 		FunctionBlock block = null;
 		try {
 			block = constructor.newInstance(getID());
-		} catch (
-				InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
+		} catch (InstantiationException e) {
+			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
+		} catch (IllegalAccessException e) {
+			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
+		} catch (IllegalArgumentException e) {
+			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
+		} catch (InvocationTargetException e) {
 			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
 		}
 		for (OptionModel option : getOptions()) {

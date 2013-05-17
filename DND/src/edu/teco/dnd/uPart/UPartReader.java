@@ -68,8 +68,11 @@ public class UPartReader {
 		Gson gson = gsonBuilder.create();
 		try {
 			return gson.fromJson(new InputStreamReader(url.openStream()), UPart.class);
-		} catch (
-				JsonSyntaxException | JsonIOException | IOException e) {
+		} catch (JsonSyntaxException e) {
+			throw new SensorException("failed to parse JSON data/open URL.", e);
+		} catch (JsonIOException e) {
+			throw new SensorException("failed to parse JSON data/open URL.", e);
+		} catch (IOException e) {
 			throw new SensorException("failed to parse JSON data/open URL.", e);
 		}
 	}

@@ -80,8 +80,9 @@ public class SimpleConnectionTarget extends ConnectionTarget {
 					this.field.setAccessible(true);
 					try {
 						this.field.set(this.functionBlock, this.newValue);
-					} catch (
-							IllegalArgumentException | IllegalAccessException e) {
+					} catch (IllegalArgumentException e) {
+						throw new AssignmentException("Failed to set input '" + field.getName() + "'", e);
+					} catch (IllegalAccessException e) {
 						throw new AssignmentException("Failed to set input '" + field.getName() + "'", e);
 					}
 					this.dirty = false;

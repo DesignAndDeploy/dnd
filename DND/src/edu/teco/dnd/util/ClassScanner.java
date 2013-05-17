@@ -97,7 +97,7 @@ public class ClassScanner {
 	 * @return a set containing all classes in the given directories that were accepted by the filter
 	 */
 	public Set<Class<?>> getClasses(final String... files) {
-		Set<Class<?>> classes = new HashSet<>();
+		Set<Class<?>> classes = new HashSet<Class<?>>();
 		for (String f : files) {
 			classes.addAll(getClasses(new File(f)));
 		}
@@ -112,7 +112,7 @@ public class ClassScanner {
 	 * @return a set containing all classes in the given directories that were accepted by the filter
 	 */
 	public Set<Class<?>> getClasses(final File... files) {
-		Set<Class<?>> classes = new HashSet<>();
+		Set<Class<?>> classes = new HashSet<Class<?>>();
 		for (File f : files) {
 			classes.addAll(getClasses(f));
 		}
@@ -157,7 +157,7 @@ public class ClassScanner {
 		} catch (IOException e) {
 			return Collections.emptySet();
 		}
-		Set<Class<?>> classes = new HashSet<>();
+		Set<Class<?>> classes = new HashSet<Class<?>>();
 		Enumeration<? extends ZipEntry> entries = zip.entries();
 		for (ZipEntry entry = null; entries.hasMoreElements();) {
 			entry = entries.nextElement();
@@ -202,7 +202,7 @@ public class ClassScanner {
 		assert directory.isDirectory();
 		assert base != null;
 		LOGGER.entry(directory, base);
-		Set<Class<?>> classes = new HashSet<>();
+		Set<Class<?>> classes = new HashSet<Class<?>>();
 		for (File f : directory.listFiles()) {
 			if (f.isDirectory()) {
 				classes.addAll(getClassesDirectory(f, (base.isEmpty() ? "" : base + ".") + f.getName()));

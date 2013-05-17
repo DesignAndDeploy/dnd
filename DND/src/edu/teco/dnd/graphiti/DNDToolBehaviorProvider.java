@@ -42,7 +42,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	 */
 	@Override
 	public IPaletteCompartmentEntry[] getPalette() {
-		List<IPaletteCompartmentEntry> palette = new ArrayList<>();
+		List<IPaletteCompartmentEntry> palette = new ArrayList<IPaletteCompartmentEntry>();
 		PaletteCompartmentEntry connections = new PaletteCompartmentEntry("Connections", null);
 		palette.add(connections);
 		DNDCreateDataConnectionFeature dataConnectionFeature = new DNDCreateDataConnectionFeature(
@@ -51,7 +51,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 				dataConnectionFeature.getName(), dataConnectionFeature.getDescription(), null, null);
 		connections.addToolEntry(connectionCreationToolEntry);
 		connectionCreationToolEntry.addCreateConnectionFeature(dataConnectionFeature);
-		Map<String, List<ICreateFeature>> categories = new HashMap<>();
+		Map<String, List<ICreateFeature>> categories = new HashMap<String, List<ICreateFeature>>();
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
 			String category = "Other";
 			if (cf instanceof DNDCreateBlockFeature) {
@@ -66,7 +66,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 			}
 			categories.get(category).add(cf);
 		}
-		List<String> categoryList = new ArrayList<>(categories.keySet());
+		List<String> categoryList = new ArrayList<String>(categories.keySet());
 		Collections.sort(categoryList);
 		for (String category : categoryList) {
 			PaletteCompartmentEntry pce = new PaletteCompartmentEntry(category, null);
