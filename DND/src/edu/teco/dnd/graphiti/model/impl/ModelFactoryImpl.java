@@ -1,38 +1,37 @@
 /**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
  */
 package edu.teco.dnd.graphiti.model.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import edu.teco.dnd.blocks.FunctionBlock;
+
 import edu.teco.dnd.graphiti.model.*;
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.ModelFactory;
-import edu.teco.dnd.graphiti.model.ModelPackage;
-import edu.teco.dnd.graphiti.model.OptionModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
+
+import java.io.Serializable;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
+
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
 /**
- * <!-- begin-user-doc --> An implementation of the model <b>Factory</b>. <!-- end-user-doc -->
+ * <!-- begin-user-doc -->
+ * An implementation of the model <b>Factory</b>.
+ * <!-- end-user-doc -->
  * @generated
  */
 public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	/**
 	 * Creates the default factory implementation.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public static ModelFactory init() {
@@ -50,7 +49,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 
 	/**
 	 * Creates an instance of the factory.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public ModelFactoryImpl() {
@@ -58,10 +58,10 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL: return createFunctionBlockModel();
@@ -74,10 +74,10 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
 	public Object createFromString(EDataType eDataType, String initialValue) {
 		switch (eDataType.getClassifierID()) {
 			case ModelPackage.SERIALIZABLE:
@@ -90,10 +90,10 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
 	public String convertToString(EDataType eDataType, Object instanceValue) {
 		switch (eDataType.getClassifierID()) {
 			case ModelPackage.SERIALIZABLE:
@@ -106,7 +106,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public FunctionBlockModel createFunctionBlockModel() {
@@ -120,7 +121,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public InputModel createInputModel() {
@@ -129,7 +131,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public OptionModel createOptionModel() {
@@ -138,7 +141,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public OutputModel createOutputModel() {
@@ -147,65 +151,26 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
 	 */
 	public Serializable createSerializableFromString(EDataType eDataType, String initialValue) {
-		try {
-			return (Serializable) new ObjectInputStream(new ByteArrayInputStream(hexToByte(initialValue)))
-					.readObject();
-		} catch (
-				ClassNotFoundException | IOException e) {
-			throw new IllegalArgumentException("cannot convert String to object", e);
-		}
+		return (Serializable)super.createFromString(eDataType, initialValue);
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
 	 */
 	public String convertSerializableToString(EDataType eDataType, Object instanceValue) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
-			new ObjectOutputStream(baos).writeObject(instanceValue);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("cannot convert object to string", e);
-		}
-		return byteToHex(baos.toByteArray());
-	}
-
-	private static String byteToHex(byte[] bs) {
-		if (bs == null) {
-			return "";
-		}
-		StringBuffer sb = new StringBuffer(bs.length * 2);
-		for (byte b : bs) {
-			if (b >= 0 && b < 16) {
-				sb.append('0');
-			}
-			sb.append(Integer.toHexString(((int) b) & 0xFF));
-		}
-		return sb.toString();
-	}
-
-	private static byte[] hexToByte(String hex) {
-		if (hex == null) {
-			return new byte[0];
-		}
-		if (hex.length() % 2 != 0) {
-			throw new IllegalArgumentException("hex string must be an even number of characters");
-		}
-		byte[] bs = new byte[hex.length() / 2];
-		for (int i = 0; i < bs.length; i++) {
-			try {
-				bs[i] = (byte) (int) Integer.valueOf(hex.substring(2 * i, 2 * i + 2), 16);
-			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException("String is not hex", e);
-			}
-		}
-		return bs;
+		return super.convertToString(eDataType, instanceValue);
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public FunctionBlock createFunctionBlockFromString(EDataType eDataType, String initialValue) {
@@ -213,7 +178,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public String convertFunctionBlockToString(EDataType eDataType, Object instanceValue) {
@@ -221,7 +187,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	public ModelPackage getModelPackage() {
@@ -229,13 +196,13 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
 	public static ModelPackage getPackage() {
 		return ModelPackage.eINSTANCE;
 	}
 
-} // ModelFactoryImpl
+} //ModelFactoryImpl

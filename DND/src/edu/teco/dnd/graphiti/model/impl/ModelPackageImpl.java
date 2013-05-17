@@ -1,8 +1,13 @@
 /**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
  */
 package edu.teco.dnd.graphiti.model.impl;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.ModelFactory;
@@ -15,7 +20,6 @@ import java.io.Serializable;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
-import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
@@ -438,10 +442,6 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		setName(eNAME);
 		setNsPrefix(eNS_PREFIX);
 		setNsURI(eNS_URI);
-
-		// Create type parameters
-
-		// Set bounds for type parameters
 
 		// Add supertypes to classes
 

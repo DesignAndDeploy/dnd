@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" output="testbin" path="test"/>
-	<classpathentry kind="src" path="util"/>
-	<classpathentry exported="true" kind="lib" path="bin/"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.2.jar" sourcepath="lib/gson-2.2.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DesignAndDeploy/lib/gson-2.2.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-api-2.0-beta3.jar" sourcepath="lib/log4j-api-2.0-beta3-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/log4j-api-2.0-beta3-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DesignAndDeploy/lib/log4j-api-2.0-beta3-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-core-2.0-beta3.jar" sourcepath="lib/log4j-core-2.0-beta3-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/log4j-core-2.0-beta3-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DesignAndDeploy/lib/log4j-core-2.0-beta3-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/gson-2.2.2.jar" sourcepath="lib/gson-2.2.2-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/gson-2.2.2-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

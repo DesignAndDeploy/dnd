@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import edu.teco.dnd.module.Module;
-
 /**
  * Base class function blocks. Subclasses have to implement {@link #init()} and {@link #update()}.
  * 
@@ -174,8 +172,6 @@ public abstract class FunctionBlock implements Serializable {
 	 * Returns the type identifier for this block.
 	 * 
 	 * @return the type identifier for this block
-	 * @see Module#getCanRun()
-	 * @see Module#getIsRunning()
 	 */
 	public abstract String getType();
 

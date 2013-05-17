@@ -2,7 +2,6 @@ package edu.teco.dnd.graphiti.model;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.module.RemoteConnectionTarget;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -94,7 +93,7 @@ public interface FunctionBlockModel extends EObject {
 
 	/**
 	 * Creates a FunctionBlock matching this model. It is of the type set in the model, the options are set
-	 * and {@link RemoteConnectionTarget}s are created for all connected inputs. The default class loader for
+	 * and RemoteConnectionTargets are created for all connected inputs. The default class loader for
 	 * this class is used.
 	 * 
 	 * @return the created block

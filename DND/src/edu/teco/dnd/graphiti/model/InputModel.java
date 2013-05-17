@@ -14,9 +14,7 @@ public interface InputModel extends EObject {
 	/**
 	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#getName <em>Name</em>}' attribute.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @param value
-	 *            the new value of the '<em>Name</em>' attribute.
+	 * @param value the new value of the '<em>Name</em>' attribute.
 	 * @see #getName()
 	 * @generated
 	 */
@@ -28,11 +26,9 @@ public interface InputModel extends EObject {
 	FunctionBlockModel getFunctionBlock();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#getFunctionBlock
-	 * <em>Function Block</em>}' container reference. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @param value
-	 *            the new value of the '<em>Function Block</em>' container reference.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#getFunctionBlock <em>Function Block</em>}' container reference.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Function Block</em>' container reference.
 	 * @see #getFunctionBlock()
 	 * @generated
 	 */
@@ -44,11 +40,9 @@ public interface InputModel extends EObject {
 	OutputModel getOutput();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#getOutput <em>Output</em>}'
-	 * reference. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @param value
-	 *            the new value of the '<em>Output</em>' reference.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#getOutput <em>Output</em>}' reference.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Output</em>' reference.
 	 * @see #getOutput()
 	 * @generated
 	 */
@@ -62,9 +56,7 @@ public interface InputModel extends EObject {
 	/**
 	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#getType <em>Type</em>}' attribute.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @param value
-	 *            the new value of the '<em>Type</em>' attribute.
+	 * @param value the new value of the '<em>Type</em>' attribute.
 	 * @see #getType()
 	 * @generated
 	 */
@@ -76,11 +68,9 @@ public interface InputModel extends EObject {
 	boolean isQueued();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#isQueued <em>Queued</em>}'
-	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @param value
-	 *            the new value of the '<em>Queued</em>' attribute.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#isQueued <em>Queued</em>}' attribute.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Queued</em>' attribute.
 	 * @see #isQueued()
 	 * @generated
 	 */
