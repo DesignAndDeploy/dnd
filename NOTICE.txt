@@ -32,3 +32,13 @@ This product contains Log4j2, a Java logging framework.
 		* license/license.log4j2.txt (Apache License 2.0)
 	* HOMEPAGE:
 		* http://logging.apache.org/log4j/2.x/
+
+
+This product contains Netty, an asynchronous event-driven network application
+framework.
+
+	* LICENSE:
+		* license/license.netty.txt (Apache License 2.0)
+	* HOMEPAGE:
+		* http://netty.io/
+		* https://github.com/netty/netty
