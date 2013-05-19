@@ -21,7 +21,7 @@ under the License.
 This product contains Gson, a Java JSON-decoder and -encoder.
 
 	* LICENSE:
-		* license/LICENSE.gson.txt (Apache License 2.0)
+		* license/license.gson.txt (Apache License 2.0)
 	* HOMEPAGE:
 		* http://code.google.com/p/google-gson/
 
@@ -29,6 +29,6 @@ This product contains Gson, a Java JSON-decoder and -encoder.
 This product contains Log4j2, a Java logging framework.
 
 	* LICENSE:
-		* license/LICENSE.log4j2.txt (Apache License 2.0)
+		* license/license.log4j2.txt (Apache License 2.0)
 	* HOMEPAGE:
 		* http://logging.apache.org/log4j/2.x/
