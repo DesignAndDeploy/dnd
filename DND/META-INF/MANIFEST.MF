@@ -13,8 +13,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.emf.ecore.xmi;bundle-version="2.7.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: bin/,
- lib/gson-2.2.2.jar,
- lib/log4j-api-2.0-beta3.jar,
- lib/log4j-core-2.0-beta3.jar,
- .
+Bundle-ClassPath: .,
+ bin/,
+ lib/gson-2.2.4.jar,
+ lib/log4j-api-2.0-beta6.jar,
+ lib/log4j-core-2.0-beta6.jar,
+ lib/netty-all-4.0.0.CR3.jar
