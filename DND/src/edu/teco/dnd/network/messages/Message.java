@@ -1,4 +1,4 @@
-package edu.teco.dnd.network;
+package edu.teco.dnd.network.messages;
 
 /**
  * This is a marker interface for Message that will be send.

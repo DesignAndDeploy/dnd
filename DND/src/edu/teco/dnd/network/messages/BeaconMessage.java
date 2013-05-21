@@ -1,8 +1,9 @@
-package edu.teco.dnd.network;
+package edu.teco.dnd.network.messages;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.UUID;
+
 
 public class BeaconMessage implements Message {
 	/**
@@ -33,6 +34,7 @@ public class BeaconMessage implements Message {
 	/**
 	 * Constructor without arguments for Gson.
 	 */
+	@SuppressWarnings("unused")
 	private BeaconMessage() {
 	}
 	

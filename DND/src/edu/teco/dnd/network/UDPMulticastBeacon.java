@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import edu.teco.dnd.network.messages.BeaconMessage;
+
 /**
  * This class can be used to send beacons using UDP multicast. The format of the beacons is explained in the
  * <a href="https://github.com/DesignAndDeploy/dnd/wiki/Network-Protocol#udp-multicast">GitHub wiki</a>.

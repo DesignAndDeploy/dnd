@@ -3,6 +3,8 @@ package edu.teco.dnd.network;
 import java.util.List;
 import java.util.UUID;
 
+import edu.teco.dnd.network.messages.Message;
+
 /**
  * A ConnectionManager is used to create and use connections between modules. It is responsible for initiating
  * connections, accepting incoming connections, route incoming messages to the appropriate handlers and send
