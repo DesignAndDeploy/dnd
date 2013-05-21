@@ -42,3 +42,29 @@ framework.
 	* HOMEPAGE:
 		* http://netty.io/
 		* https://github.com/netty/netty
+
+This product uses Eclipse, an open source, robust, full-featured,
+commercial-quality, industry platform for the development of highly integrated
+tools and rich client applications.
+
+	* LICENSE:
+		* license/license.eclipse.html (Eclipse Public License 1.0)
+	* HOMEPAGE:
+		* http://www.eclipse.org/
+
+This product uses the Eclipse Modeling Framework Project (EMF), a modeling
+framework and code generation facility for building tools and other
+applications based on a structured data model.
+
+	* LICENSE:
+		* license/license.emf.html (Eclipse Public License 1.0)
+	* HOMEPAGE:
+		* http://eclipse.org/modeling/emf/
+
+This product uses Graphiti, an Eclipse-based graphics framework that enables
+rapid development of state-of-the-art diagram editors for domain models.
+
+	* LICENSE:
+		* license/license.graphiti.html (Eclipse Public License 1.0)
+	* HOMEPAGE:
+		* http://www.eclipse.org/graphiti/
