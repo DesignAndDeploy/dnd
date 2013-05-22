@@ -1,20 +1,17 @@
 package edu.teco.dnd.module.config;
 
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.eclipse.EclipseUtil;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public abstract class ConfigReader {
-	
-	private static final Logger LOGGER = LogManager.getLogger(EclipseUtil.class);
-	
+
+	private static final Logger LOGGER = LogManager.getLogger(ConfigReader.class);
+
 	/**
 	 * restores the config from a savefile
 	 * 
@@ -22,65 +19,42 @@ public abstract class ConfigReader {
 	 *            the savefile is stored in (can be e.g. a url if class is
 	 *            prepared to handle this, however pathes with special meaning
 	 *            must not map to real FS pathes)
-	 * @return false only if action failed. True if unsure/successfull)
+	 * @return false only if action failed. True if unsure/successfull
 	 */
-	public abstract boolean restore(String path);
+	public abstract boolean load(String path);
 
 	/** optional, override if desired */
-	public boolean save(String path) {
+	public boolean store(String path) {
 		LOGGER.warn("saving not implemented.");
 		return false;
 	}
+
 	public abstract String getName();
 
 	public abstract UUID getUuid();
 
-	public abstract NetworkInterface[] getListen();
+	public abstract InetSocketAddress[] getListen();
 
-	public abstract NetworkInterface[] getAnnounce();
+	public abstract InetSocketAddress[] getAnnounce();
 
-	public abstract NetworkInterface[] getMulticast();
+	public abstract NetConnection[] getMulticast();
 
 	/**
 	 * @return a set of blocks allowed to run and their amounts (encoded in
 	 *         BlockType). Key is the <i>name</i> of the block/(group of blocks)
 	 *         (by definition).
 	 */
-	public abstract Set<BlockType> getAllowedBlocks();
+	public abstract Map<String, BlockType> getAllowedBlocks();
 
-	/**
-	 * only name is compared in equals!
-	 * 
-	 * @author cryptkiddy
-	 * 
-	 */
-	protected static class BlockType {
-		String name;
-		/** null if none */
-		BlockType supertype = null;
-		/** allowed blocks of this type, <0 means infinity. */
-		int amount = -1;
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			return prime + ((name == null) ? 0 : name.hashCode());
+	public class NetConnection {
+		InetSocketAddress socket = null;
+		NetworkInterface interf = null;
+		
+		public NetConnection() {}
+		public NetConnection(InetSocketAddress socket, NetworkInterface interf) {
+			this.socket = socket;
+			this.interf = interf;
 		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null || getClass() != obj.getClass()) {
-				return false;
-			}
-			BlockType other = (BlockType) obj;
-
-			if ((name == null && other.name != null)
-					|| !name.equals(other.name)) {
-				return false;
-			}
-			return true;
-		}
-
 	}
 
 }
