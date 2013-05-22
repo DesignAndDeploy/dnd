@@ -52,7 +52,6 @@ public class ModuleMain {
 			System.exit(1);
 		}
 		
-		final Module module = new Module(moduleConfig.getUuid(), moduleConfig.getName());
 		
 		// TODO: add config options to allow selection of netty engine and number of application threads
 		// TODO: name threads
@@ -72,7 +71,7 @@ public class ModuleMain {
 						return new NioSocketChannel();
 					}
 				},
-				module.getUUID()
+				moduleConfig.getUuid()
 			);
 		for (final InetSocketAddress address : moduleConfig.getListen()) {
 			connectionManager.startListening(address);
