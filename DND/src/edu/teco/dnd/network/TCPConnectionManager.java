@@ -5,11 +5,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
@@ -21,7 +21,6 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.net.InetSocketAddress;
@@ -212,7 +211,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * @param clientChannelFactory a factory for new client channels
 	 * @param uuid the UUID of the module this TCPConnectionManager is running on
 	 */
-	public TCPConnectionManager(final EventLoopGroup networkEventLoopGroup, final EventExecutor applicationExecutor,
+	public TCPConnectionManager(final EventLoopGroup networkEventLoopGroup,
+			final EventExecutorGroup applicationExecutor,
 			final ChannelFactory<? extends ServerSocketChannel> serverChannelFactory,
 			final ChannelFactory<? extends Channel> clientChannelFactory, final UUID uuid) {
 		this(networkEventLoopGroup, applicationExecutor, serverChannelFactory, clientChannelFactory, uuid, false);

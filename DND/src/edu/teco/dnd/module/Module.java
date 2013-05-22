@@ -1,47 +1,44 @@
 package edu.teco.dnd.module;
 
-import java.io.IOException;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import edu.teco.dnd.module.config.ConfigReader;
-import edu.teco.dnd.module.config.JsonConfig;
 
 public class Module {
 	/**
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(Module.class);
+	
 	/**
-	 * The ModuleConfig describing this module.
+	 * The UUID of this module.
 	 */
-	private ConfigReader moduleConfig = null;
+	private final UUID uuid;
+	
+	/**
+	 * The name of this module.
+	 */
+	private final String name;
 
 	/**
-	 * constructor for a Module with a configuration.
+	 * Initializes a new Module.
 	 * 
-	 * @param confPath
-	 *            path to the configuration file
-	 * @throws IOException
-	 *             if config file not readable
+	 * @param uuid the UUID of the module
+	 * @param name the name of the module
 	 */
-	public Module(final String confPath) throws IOException {
-		if (confPath == null) {
-			throw new IllegalArgumentException();
-		}
-		LOGGER.debug("Loading config file ({})", confPath);
-
-		moduleConfig = new JsonConfig(confPath);
-	}
-
-	/**
-	 * Returns the ModuleConfig for this module.
-	 * 
-	 * @return the ModuleConfig for this module
-	 */
-	public ConfigReader getModuleConfig() {
-		return moduleConfig;
+	public Module(final UUID uuid, final String name) {
+		LOGGER.entry(uuid, name);
+		this.uuid = uuid;
+		this.name = name;
+		LOGGER.exit();
 	}
 	
+	public UUID getUUID() {
+		return uuid;
+	}
+	
+	public String getName() {
+		return name;
+	}
 }
