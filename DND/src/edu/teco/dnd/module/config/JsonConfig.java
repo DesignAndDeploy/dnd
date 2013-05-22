@@ -20,6 +20,8 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import edu.teco.dnd.util.InetSocketAddressAdapter;
+
 public class JsonConfig extends ConfigReader {
 	private String name;
 	private UUID uuid;
@@ -29,7 +31,14 @@ public class JsonConfig extends ConfigReader {
 	private BlockType allowedBlocks; // the rootBlock
 
 	private static transient final Logger LOGGER = LogManager.getLogger(JsonConfig.class);
-	private transient Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	private static transient final Gson gson;
+	static {
+		GsonBuilder builder = new GsonBuilder();
+		builder.setPrettyPrinting();
+		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+		gson = builder.create();
+	}
+	
 	private transient Map<String, BlockType> blockQuickaccess = new HashMap<String, BlockType>();
 
 	public JsonConfig() {
@@ -108,20 +117,20 @@ public class JsonConfig extends ConfigReader {
 		// ////////////////////
 
 		if (allowedBlocks != null) {
-			fillQuickaccess(blockQuickaccess, allowedBlocks);
+			fillInternalVariables(blockQuickaccess, allowedBlocks);
 		}
 
 		return true;
 	}
 
-	private void fillQuickaccess(Map<String, BlockType> blockQuickaccess, final BlockType currentBlock) {
+	private void fillInternalVariables(Map<String, BlockType> blockQuickaccess, final BlockType currentBlock) {
 		Set<BlockType> children = currentBlock.getChildren();
 		if (children == null) {
 			blockQuickaccess.put(currentBlock.type, currentBlock);
 		} else {
 			for (BlockType child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
-				fillQuickaccess(blockQuickaccess, child);
+				fillInternalVariables(blockQuickaccess, child);
 			}
 		}
 	}

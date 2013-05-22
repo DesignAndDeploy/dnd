@@ -16,9 +16,8 @@ public abstract class ConfigReader {
 	 * restores the config from a savefile
 	 * 
 	 * @param path
-	 *            the savefile is stored in (can be e.g. a url if class is
-	 *            prepared to handle this, however pathes with special meaning
-	 *            must not map to real FS pathes)
+	 *            path the savefile is stored in (can be e.g. a url if concrete childclass is
+	 *            prepared to handle this.)
 	 * @return false only if action failed. True if unsure/successfull
 	 */
 	public abstract boolean load(String path);
