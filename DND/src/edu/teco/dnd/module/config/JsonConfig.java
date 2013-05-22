@@ -106,7 +106,8 @@ public class JsonConfig extends ConfigReader {
 
 		multicast = new NetConnection[1];
 		try {
-			multicast[0] = new NetConnection(new InetSocketAddress("localhost", 1111), NetworkInterface.getByIndex(0));
+			multicast[0] = new NetConnection(new InetSocketAddress("localhost", 1111),
+					NetworkInterface.getNetworkInterfaces().nextElement());
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
