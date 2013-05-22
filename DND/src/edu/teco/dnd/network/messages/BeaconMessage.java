@@ -55,4 +55,15 @@ public class BeaconMessage implements Message {
 	public List<InetSocketAddress> getAddresses() {
 		return null;
 	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("BeaconMessage[uuid=")
+			.append(uuid)
+			.append(",addresses=")
+			.append(addresses)
+			.append("]");
+		return sb.toString();
+	}
 }
