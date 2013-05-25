@@ -36,6 +36,7 @@ public class JsonConfig extends ConfigReader {
 		GsonBuilder builder = new GsonBuilder();
 		builder.setPrettyPrinting();
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		gson = builder.create();
 	}
 	
@@ -84,38 +85,7 @@ public class JsonConfig extends ConfigReader {
 		 * b.addChild(new BlockType("child2Type", 2));
 		 * allowedBlocks.addChild(b); allowedBlocks.addChild(new
 		 * BlockType("child2TYPE", 1));
-		 * 
-		 * 
-		 * 
-		 * 
-		 * //////////////////////////
 		 */
-		this.listen = new InetSocketAddress[3];
-		listen[0] = new InetSocketAddress("localhost", 8888);
-		listen[1] = new InetSocketAddress(4242);
-		try {
-			listen[2] = new InetSocketAddress(InetAddress.getByName("localhost"), 1212);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		this.announce = new InetSocketAddress[2];
-		announce[0] = new InetSocketAddress("localhost", 8888);
-		announce[1] = new InetSocketAddress(4242);
-
-		multicast = new NetConnection[1];
-		try {
-			multicast[0] = new NetConnection(new InetSocketAddress("localhost", 1111),
-					NetworkInterface.getNetworkInterfaces().nextElement());
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		this.store("newmod.cfg");
-
-		// ////////////////////
 
 		if (allowedBlocks != null) {
 			fillInternalVariables(blockQuickaccess, allowedBlocks);

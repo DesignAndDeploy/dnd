@@ -46,7 +46,7 @@ public abstract class ConfigReader {
 	 */
 	public abstract Map<String, BlockType> getAllowedBlocks();
 
-	public class NetConnection {
+	public static class NetConnection {
 		private final InetSocketAddress address;
 		private final NetworkInterface interf;
 		

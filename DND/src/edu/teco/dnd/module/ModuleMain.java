@@ -31,7 +31,7 @@ public class ModuleMain {
 	/**
 	 * Default path for config file.
 	 */
-	public static final String DEFAULT_CONFIG_PATH = "./module.cfg";
+	public static final String DEFAULT_CONFIG_PATH = "module.cfg";
 
 	public static void main(final String[] args) {
 		String configPath = DEFAULT_CONFIG_PATH;
