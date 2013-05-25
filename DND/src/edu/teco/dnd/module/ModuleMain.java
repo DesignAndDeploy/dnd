@@ -2,6 +2,7 @@ package edu.teco.dnd.module;
 
 import io.netty.bootstrap.ChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
@@ -85,7 +86,8 @@ public class ModuleMain {
 			public OioDatagramChannel newChannel() {
 				return new OioDatagramChannel();
 			}
-		}, networkEventLoopGroup, networkEventLoopGroup, moduleConfig.getUuid());
+		}, new OioEventLoopGroup(), networkEventLoopGroup, moduleConfig.getUuid());
+		beacon.addListener(connectionManager);
 		beacon.setAnnounceAddresses(Arrays.asList(moduleConfig.getAnnounce()));
 		for (final NetConnection address : moduleConfig.getMulticast()) {
 			beacon.addAddress(address.getInterface(), address.getAddress());

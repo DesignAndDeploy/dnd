@@ -170,7 +170,7 @@ public class UDPMulticastBeacon {
 					.addLast(stringEncoder)
 					.addLast(stringDecoder)
 					.addLast(gsonCodec)
-					.addLast(beaconHandler);
+					.addLast(beaconHandler); // TODO: add executor group
 				
 				// Move TARGET_ADDRESS from channel context to handler context
 				channel.pipeline().context(DatagramPacketWrapper.class).attr(DatagramPacketWrapper.TARGET_ADDRESS)
