@@ -1,5 +1,6 @@
 package edu.teco.dnd.module.config;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.util.Map;
@@ -20,7 +21,7 @@ public abstract class ConfigReader {
 	 *            prepared to handle this.)
 	 * @return false only if action failed. True if unsure/successfull
 	 */
-	public abstract boolean load(String path);
+	public abstract void load(String path) throws IOException;
 
 	/** optional, override if desired */
 	public boolean store(String path) {
@@ -46,8 +47,8 @@ public abstract class ConfigReader {
 	public abstract Map<String, BlockType> getAllowedBlocks();
 
 	public class NetConnection {
-		InetSocketAddress socket = null;
-		NetworkInterface interf = null;
+		public InetSocketAddress socket = null;
+		public NetworkInterface interf = null;
 		
 		public NetConnection() {}
 		public NetConnection(InetSocketAddress socket, NetworkInterface interf) {

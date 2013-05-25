@@ -63,14 +63,14 @@ public class JsonConfig extends ConfigReader {
 	}
 
 	@Override
-	public boolean load(String path) {
+	public void load(String path) throws IOException {
 		FileReader reader = null;
 		try {
 			reader = new FileReader(path);
 			setTo((JsonConfig) gson.fromJson(reader, this.getClass()));
 		} catch (FileNotFoundException e) {
 			LOGGER.catching(e);
-			return false;
+			throw e;
 		} finally {
 			try {
 				reader.close();
@@ -120,8 +120,6 @@ public class JsonConfig extends ConfigReader {
 		if (allowedBlocks != null) {
 			fillInternalVariables(blockQuickaccess, allowedBlocks);
 		}
-
-		return true;
 	}
 
 	private void fillInternalVariables(Map<String, BlockType> blockQuickaccess, final BlockType currentBlock) {
