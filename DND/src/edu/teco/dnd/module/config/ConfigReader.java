@@ -47,13 +47,24 @@ public abstract class ConfigReader {
 	public abstract Map<String, BlockType> getAllowedBlocks();
 
 	public class NetConnection {
-		public InetSocketAddress socket = null;
-		public NetworkInterface interf = null;
+		private final InetSocketAddress address;
+		private final NetworkInterface interf;
 		
-		public NetConnection() {}
-		public NetConnection(InetSocketAddress socket, NetworkInterface interf) {
-			this.socket = socket;
+		public NetConnection(final InetSocketAddress address, final NetworkInterface interf) {
+			this.address = address;
 			this.interf = interf;
+		}
+		
+		public NetConnection() {
+			this(null, null);
+		}
+		
+		public InetSocketAddress getAddress() {
+			return address;
+		}
+		
+		public NetworkInterface getInterface() {
+			return interf;
 		}
 	}
 

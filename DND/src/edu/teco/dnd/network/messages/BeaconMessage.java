@@ -1,6 +1,8 @@
 package edu.teco.dnd.network.messages;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,21 +16,28 @@ public class BeaconMessage implements Message {
 	/**
 	 * The UUID of the module that send this message.
 	 */
-	private final UUID uuid = null;
+	private final UUID uuid;
 	
 	/**
 	 * The addresses of the module that send this message.
 	 */
-	private final List<InetSocketAddress> addresses = null;
+	// TODO: add Gson deserializer that keeps addresses unmodifiable
+	private final List<InetSocketAddress> addresses;
 	
 	/**
 	 * Initializes a new BeaconMessage.
 	 * 
 	 * @param uuid the UUID of the module
 	 * @param addresses the addresses the module that can be used to initiate a connection. The list is copied to make
-	 * 		it unmodifiable
+	 * 		it unmodifiable. Can be null to use an empty list.
 	 */
 	public BeaconMessage(final UUID uuid, final List<InetSocketAddress> addresses) {
+		this.uuid = uuid;
+		if (addresses == null) {
+			this.addresses = Collections.unmodifiableList(Collections.<InetSocketAddress>emptyList());
+		} else {
+			this.addresses = Collections.unmodifiableList(new ArrayList<InetSocketAddress>(addresses));
+		}
 	}
 	
 	/**
@@ -36,6 +45,7 @@ public class BeaconMessage implements Message {
 	 */
 	@SuppressWarnings("unused")
 	private BeaconMessage() {
+		this(null, null);
 	}
 	
 	/**
@@ -44,7 +54,7 @@ public class BeaconMessage implements Message {
 	 * @return the UUID of the module
 	 */
 	public UUID getUUID() {
-		return null;
+		return uuid;
 	}
 	
 	/**
@@ -53,7 +63,7 @@ public class BeaconMessage implements Message {
 	 * @return the addresses of the module
 	 */
 	public List<InetSocketAddress> getAddresses() {
-		return null;
+		return addresses;
 	}
 	
 	@Override

@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 
+// TODO: replace with subclass of AbstractBootstrap
 class TCPServerChannelFactory {
 	/**
 	 * The logger for this class.

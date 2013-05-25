@@ -252,7 +252,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 					}
 				} else {
 					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("bind failed");
+						LOGGER.warn("bind {} failed", future);
 					}
 				}
 			}

@@ -4,17 +4,20 @@ import io.netty.bootstrap.ChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.oio.OioDatagramChannel;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
-import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.module.config.ConfigReader.NetConnection;
 import edu.teco.dnd.network.TCPConnectionManager;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 
 /**
  * The main class that is started on a Module.
@@ -77,6 +80,17 @@ public class ModuleMain {
 			connectionManager.startListening(address);
 		}
 		
-		// TODO: start multicast beacon
+		final UDPMulticastBeacon beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
+			@Override
+			public OioDatagramChannel newChannel() {
+				return new OioDatagramChannel();
+			}
+		}, networkEventLoopGroup, networkEventLoopGroup, moduleConfig.getUuid());
+		beacon.setAnnounceAddresses(Arrays.asList(moduleConfig.getAnnounce()));
+		for (final NetConnection address : moduleConfig.getMulticast()) {
+			beacon.addAddress(address.getInterface(), address.getAddress());
+		}
 	}
+	
+	// TODO: add method for shutdown
 }
