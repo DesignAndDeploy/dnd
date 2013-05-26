@@ -1,5 +1,6 @@
 package edu.teco.dnd.network;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,9 +44,9 @@ public interface ConnectionManager {
 	public void addHandler(MessageHandler handler);
 	
 	/**
-	 * Returns a list of connected modules.
+	 * Returns a collection of connected modules.
 	 * 
-	 * @return a list of connected modules
+	 * @return a collection of connected modules
 	 */
-	public List<UUID> getConnectedModules();
+	public Collection<UUID> getConnectedModules();
 }

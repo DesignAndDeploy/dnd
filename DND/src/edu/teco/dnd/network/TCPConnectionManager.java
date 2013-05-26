@@ -10,27 +10,21 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -45,6 +39,7 @@ import com.google.gson.GsonBuilder;
 
 import edu.teco.dnd.network.codecs.GsonCodec;
 import edu.teco.dnd.network.codecs.MessageAdapter;
+import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.BeaconMessage;
 import edu.teco.dnd.network.messages.ConnectionClosedMessage;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
@@ -94,6 +89,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * Handlers for given application IDs.
 	 */
 	private final Map<UUID, MessageHandler> handlers = new HashMap<UUID, MessageHandler>();
+	
+	/**
+	 * Lock for reading/writing to {@link #handlers}.
+	 */
+	private final ReadWriteLock handlersLock = new ReentrantReadWriteLock();
 	
 	/**
 	 * Factory used to connect to other TCPConnectionManagers.
@@ -224,25 +224,61 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	
 	@Override
 	public void beaconFound(final BeaconMessage beacon) {
-		// FIXME: only tries to connect to the first address in the beacon
-		connectTo(beacon.getAddresses().get(0));
+		// TODO: Maybe store addresses somewhere in case beacons have a high package loss
+		clientChannelsLock.readLock().lock();
+		try {
+			if (clientChannels.containsKey(beacon.getUUID())) {
+				return;
+			}
+		} finally {
+			clientChannelsLock.readLock().unlock();
+		}
+		for (final InetSocketAddress address : beacon.getAddresses()) {
+			connectTo(address);
+		}
 	}
 
 	@Override
 	public void sendMessage(final UUID uuid, final Message message) {
+		Channel channel = null;
+		clientChannelsLock.readLock().lock();
+		try {
+			channel = clientChannels.get(uuid);
+		} finally {
+			clientChannelsLock.readLock().unlock();
+		}
+		if (channel != null) {
+			channel.write(message);
+		}
 	}
 
 	@Override
 	public void addHandler(final UUID appid, final MessageHandler handler) {
+		handlersLock.writeLock().lock();
+		try {
+			if (handler == null) {
+				handlers.remove(appid);
+			} else {
+				handlers.put(appid, handler);
+			}
+		} finally {
+			handlersLock.writeLock().unlock();
+		}
 	}
 
 	@Override
 	public void addHandler(final MessageHandler handler) {
+		addHandler(APPID_DEFAULT, handler);
 	}
 
 	@Override
-	public List<UUID> getConnectedModules() {
-		return null;
+	public Set<UUID> getConnectedModules() {
+		clientChannelsLock.readLock().lock();
+		try {
+			return Collections.unmodifiableSet(clientChannels.keySet());
+		} finally {
+			clientChannelsLock.readLock().unlock();
+		}
 	}
 	
 	@Sharable
@@ -346,6 +382,10 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				handleConnectionClosedMessage(ctx, (ConnectionClosedMessage) msg);
 			} else if (msg instanceof ConnectionEstablishedMessage) {
 				handleConnectionEstablishedMessage(ctx, (ConnectionEstablishedMessage) msg);
+			} else if (msg instanceof ApplicationSpecificMessage) {
+				handleApplicationSpecificMessage(ctx, (ApplicationSpecificMessage) msg);
+			} else {
+				handleGenericMessage(ctx, msg);
 			}
 			LOGGER.exit();
 			ThreadContext.remove("remoteUUID");
@@ -443,6 +483,47 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			clientChannelsLock.readLock().unlock();
 			ctx.close();
 			LOGGER.exit();
+		}
+		
+		private void handleApplicationSpecificMessage(final ChannelHandlerContext ctx,
+				final ApplicationSpecificMessage msg) {
+			if (msg.getApplicationID() == null) {
+				LOGGER.debug("{} does not have an application UUID, using generic handler");
+				handleGenericMessage(ctx, msg);
+				return;
+			}
+			MessageHandler handler = null;
+			handlersLock.readLock().lock();
+			try {
+				handler = handlers.get(((ApplicationSpecificMessage) msg).getApplicationID());
+			} finally {
+				handlersLock.readLock().unlock();
+			}
+			if (handler != null) {
+				LOGGER.debug("using handler {} to handle {}", handler, msg);
+				handler.handleMessage(msg);
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("got {}, but no handler is registered for {}", msg,
+							((ApplicationSpecificMessage) msg).getApplicationID());
+				}
+			}
+		}
+		
+		private void handleGenericMessage(final ChannelHandlerContext ctx, final Message msg) {
+			MessageHandler handler = null;
+			handlersLock.readLock().lock();
+			try {
+				handler = handlers.get(APPID_DEFAULT);
+			} finally {
+				handlersLock.readLock().unlock();
+			}
+			if (handler != null) {
+				LOGGER.debug("using default handler {} to handle {}", handler, msg);
+				handler.handleMessage(msg);
+			} else {
+				LOGGER.warn("got {}, but no default handler is installed", msg);
+			}
 		}
 
 		@Override
