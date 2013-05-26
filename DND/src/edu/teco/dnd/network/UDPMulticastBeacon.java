@@ -106,22 +106,6 @@ public class UDPMulticastBeacon {
 	 */
 	private final AtomicReference<BeaconMessage> beacon;
 	
-	
-	
-	// FIXME: only for testing
-	public static void main(final String[] args) throws SocketException {
-		new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
-			@Override
-			public OioDatagramChannel newChannel() {
-				return new OioDatagramChannel();
-			}
-		},new OioEventLoopGroup(), new NioEventLoopGroup(), UUID.randomUUID())
-		.addAddress(NetworkInterface.getByName("lo"), new InetSocketAddress("224.0.0.1", 5000));
-	}
-	
-	
-	
-	
 	/**
 	 * Creates a new UDPMulticastBeacon.
 	 * 

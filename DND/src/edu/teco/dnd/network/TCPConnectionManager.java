@@ -115,53 +115,6 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 */
 	private final UUID localUUID;
 	
-	
-	
-	
-	// FIXME: only for testing
-	public static void main(final String[] args) throws InterruptedException {
-		int port = Integer.parseInt(args[0]);
-		List<InetSocketAddress> target = new ArrayList<InetSocketAddress>();
-		for (int i = 1; i < args.length; i++) {
-			int index = args[i].indexOf(':');
-			target.add(new InetSocketAddress(args[i].substring(0, index), Integer.parseInt(args[i].substring(index + 1))));
-		}
-		final TCPConnectionManager cm = new TCPConnectionManager(new NioEventLoopGroup(),
-				new DefaultEventExecutorGroup(8),
-				new ChannelFactory<NioServerSocketChannel>() {
-					@Override
-					public NioServerSocketChannel newChannel() {
-						return new NioServerSocketChannel();
-					}
-				},
-				new ChannelFactory<NioSocketChannel>() {
-					@Override
-					public NioSocketChannel newChannel() {
-						return new NioSocketChannel();
-					}
-				},
-				UUID.randomUUID(),
-				true);
-		cm.startListening(new InetSocketAddress(port));
-		Thread.sleep(1000);
-		for (InetSocketAddress isa : target) {
-			cm.connectTo(isa);
-		}
-		Thread.sleep(5000);
-		cm.clientChannelsLock.readLock().lock();
-		System.out.println("connections:");
-		for (Entry<UUID, Channel> entry : cm.clientChannels.entrySet()) {
-			System.out.println(entry.getKey() + " " + entry.getValue());
-		}
-		cm.clientChannelsLock.readLock().unlock();
-	}
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * Creates a new TCPConnectionManager.
 	 * 
