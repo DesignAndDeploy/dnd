@@ -31,5 +31,11 @@
              name="Modules"
           class="edu.teco.dnd.eclipse.ModuleView"
           />
+	</extension>
+	<extension point="org.eclipse.ui.views">
+        <view id="edu.teco.dnd.eclipse.AppView"
+             name="Applications"
+          class="edu.teco.dnd.eclipse.AppView"
+          />
 </extension>
 </plugin>

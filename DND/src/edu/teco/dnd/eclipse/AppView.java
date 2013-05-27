@@ -9,11 +9,11 @@ import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.network.ConnectionManager;
 
-public class FunctionBlocksView extends ViewPart {
+public class AppView extends ViewPart {
 	 private Label label;
      ConnectionManager manager;
      
-     public FunctionBlocksView() {
+     public AppView() {
              super();
              manager = Activator.getDefault().getConnectionManager();
      }
@@ -23,8 +23,8 @@ public class FunctionBlocksView extends ViewPart {
   
   public void createPartControl(Composite parent) {
              label = new Label(parent, 0);
-             label.setText("Modules");
-             label.setToolTipText("Shows available modules");
+             label.setText("Applications");
+             label.setToolTipText("Shows running function blocks");
      
             createFunctionBlockTable(parent);
   }

@@ -12,8 +12,10 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.internal.dnd.SwtUtil;
 import org.eclipse.ui.part.ViewPart;
 
+import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
 
@@ -22,7 +24,7 @@ import edu.teco.dnd.network.TCPConnectionManager;
  * @author jung
  *
  */
-public class ModuleView extends ViewPart {
+public class ModuleView extends ViewPart implements ConnectionListener {
 	private Label label;
     ConnectionManager manager;
     private Table moduleTable;
@@ -65,6 +67,7 @@ public class ModuleView extends ViewPart {
 
          
          synchronized(this){
+        	 manager.addConnectionListener(this);
         	 //Set<UUID> modules = getModules();
         	 Collection<UUID> modules = manager.getConnectedModules();
          
@@ -72,17 +75,14 @@ public class ModuleView extends ViewPart {
         	 connectionEstablished(moduleID);
          	}
          }
-         
      }
-   
    
      public synchronized void connectionEstablished(UUID id){
     	 if(!map.containsKey(id)){
-    		  TableItem item = new TableItem(moduleTable, SWT.NONE);
-    		  item.setText(0, id.toString());
-    		  map.put(id, item);
+    		 TableItem item = new TableItem(moduleTable, SWT.NONE);
+    		 item.setText(0, id.toString());
+    		 map.put(id, item);
     	 }
-    	
      }
      
      public synchronized void connectionClosed(UUID id){
@@ -92,7 +92,6 @@ public class ModuleView extends ViewPart {
     		 map.remove(id);
     	 }
      }
-     
      
     /**
       * Used to get the Set of currently running modules. Now random, to be replaced by TCPConnectionManager later on.
