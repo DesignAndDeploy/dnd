@@ -1,6 +1,7 @@
 package edu.teco.dnd.network;
 
 import io.netty.bootstrap.ChannelFactory;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
@@ -15,9 +16,12 @@ import io.netty.util.AttributeKey;
 
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -203,9 +207,22 @@ public class UDPMulticastBeacon {
 	 * 
 	 * @param address the multicast address to use for sending. Must not be null, must be resolved and must be a
 	 *		multicast address.
+	 * @throws SocketException if an I/O error occurs
 	 */
-	public void addAddress(final InetSocketAddress address) {
-		// TODO
+	public void addAddress(final InetSocketAddress address) throws SocketException {
+		LOGGER.entry(address);
+		channelLock.writeLock().lock();
+		try {
+			for (final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+					interfaces.hasMoreElements(); ) {
+				final NetworkInterface inf = interfaces.nextElement();
+				LOGGER.trace("adding address {} for interface {}", address, inf);
+				addAddress(inf, address);
+			}
+		} finally {
+			channelLock.writeLock().unlock();
+		}
+		LOGGER.exit();
 	}
 	
 	/**
@@ -216,7 +233,20 @@ public class UDPMulticastBeacon {
 	 * @param address the address that should be removed
 	 */
 	public void removeAddress(final NetworkInterface inf, final InetSocketAddress address) {
-		// TODO
+		LOGGER.entry(inf, address);
+		final Entry<NetworkInterface, InetSocketAddress> key =
+				new SimpleEntry<NetworkInterface, InetSocketAddress>(inf, address);
+		Channel channel = null;
+		channelLock.writeLock().lock();
+		try {
+			channel = channels.remove(key);
+		} finally {
+			channelLock.writeLock().unlock();
+		}
+		if (channel != null) {
+			channel.close();
+		}
+		LOGGER.exit();
 	}
 	
 	/**
@@ -224,9 +254,22 @@ public class UDPMulticastBeacon {
 	 * interfaces. If the addresses is missing on some interfaces nothing is done for these interfaces.
 	 * 
 	 * @param address the address that should be removed
+	 * @throws SocketException if an I/O error occurs
 	 */
-	public void removeAddress(final InetSocketAddress address) {
-		// TODO
+	public void removeAddress(final InetSocketAddress address) throws SocketException {
+		LOGGER.entry(address);
+		channelLock.writeLock().lock();
+		try {
+			for (final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+					interfaces.hasMoreElements(); ) {
+				final NetworkInterface interf = interfaces.nextElement();
+				LOGGER.trace("removing address {} from {}", address, interf);
+				removeAddress(interf, address);
+			}
+		} finally {
+			channelLock.writeLock().unlock();
+		}
+		LOGGER.exit();
 	}
 	
 	/**
