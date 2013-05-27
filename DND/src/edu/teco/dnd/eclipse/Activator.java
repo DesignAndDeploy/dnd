@@ -61,8 +61,9 @@ public class Activator extends AbstractUIPlugin {
 				},
 				uuid
 			);
+		this.connectionManager = connectionManager;
 		
-		final UDPMulticastBeacon beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
+		beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
 			@Override
 			public OioDatagramChannel newChannel() {
 				return new OioDatagramChannel();

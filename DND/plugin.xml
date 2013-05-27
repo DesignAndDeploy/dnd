@@ -27,9 +27,9 @@
             genModel="model/graphiti.genmodel"/>
    </extension>
    <extension point="org.eclipse.ui.views">
-        <view id="edu.teco.dnd.eclipse.DiscoveryView"
-             name="Discovery"
-          class="edu.teco.dnd.eclipse.DiscoveryView"
+        <view id="edu.teco.dnd.eclipse.ModuleView"
+             name="Modules"
+          class="edu.teco.dnd.eclipse.ModuleView"
           />
 </extension>
 </plugin>
