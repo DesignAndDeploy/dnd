@@ -26,4 +26,10 @@
             class="edu.teco.dnd.graphiti.model.ModelPackage"
             genModel="model/graphiti.genmodel"/>
    </extension>
+   <extension point="org.eclipse.ui.views">
+        <view id="edu.teco.dnd.eclipse.DiscoveryView"
+             name="Discovery"
+          class="edu.teco.dnd.eclipse.DiscoveryView"
+          />
+</extension>
 </plugin>
