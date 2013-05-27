@@ -13,6 +13,7 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -111,17 +112,17 @@ public class UDPMulticastBeacon {
 	 * 
 	 * @param factory a ChannelFactory
 	 * @param group the EventLoopGroup to use for channels and the timer
-	 * @param the UUID to announce
+	 * @param executor the executor for application code and a timer for regularly sending the beacon
+	 * @param uuid the UUID to announce
 	 * @param interval the interval at which to send beacons
 	 * @param unit the unit for interval
 	 */
-	// TODO: add EventExecutorGroup
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
-			final EventLoopGroup scheduler, final UUID uuid, final long interval, final TimeUnit unit) {
+			final EventExecutorGroup executor, final UUID uuid, final long interval, final TimeUnit unit) {
 		beacon = new AtomicReference<BeaconMessage>(
 				new BeaconMessage(uuid, Collections.<InetSocketAddress>emptyList()));
 		
-		scheduler.scheduleAtFixedRate(new Runnable() {
+		executor.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 				sendBeacon();
@@ -154,7 +155,7 @@ public class UDPMulticastBeacon {
 					.addLast(stringEncoder)
 					.addLast(stringDecoder)
 					.addLast(gsonCodec)
-					.addLast(beaconHandler); // TODO: add executor group
+					.addLast(executor, beaconHandler);
 				
 				// Move TARGET_ADDRESS from channel context to handler context
 				channel.pipeline().context(DatagramPacketWrapper.class).attr(DatagramPacketWrapper.TARGET_ADDRESS)
@@ -164,15 +165,17 @@ public class UDPMulticastBeacon {
 	}
 	
 	/**
-	 * Creates a new UDPMulticastBeacon. Beacons will be send at intervals defined by {@link #DEFAULT_INTERVAL} and {@link #DEFAULT_INTERVAL_UNIT}.
+	 * Creates a new UDPMulticastBeacon. Beacons will be send at intervals defined by {@link #DEFAULT_INTERVAL} and
+	 * {@link #DEFAULT_INTERVAL_UNIT}.
 	 * 
 	 * @param factory a ChannelFactory
 	 * @param group the EventLoopGroup to use for channels and the timer
-	 * @param the UUID to announce
+	 * @param executor the executor for application code and a timer for regularly sending the beacon
+	 * @param uuid the UUID to announce
 	 */
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
-			final EventLoopGroup scheduler, final UUID uuid) {
-		this(factory, group, scheduler, uuid, DEFAULT_INTERVAL, DEFAULT_INTERVAL_UNIT);
+			final EventExecutorGroup executor, final UUID uuid) {
+		this(factory, group, executor, uuid, DEFAULT_INTERVAL, DEFAULT_INTERVAL_UNIT);
 	}
 	
 	/**
