@@ -10,8 +10,6 @@ import io.netty.channel.socket.oio.OioDatagramChannel;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,11 +17,8 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.config.ConfigReader.NetConnection;
-import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
-import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
-import edu.teco.dnd.network.messages.Message;
 
 /**
  * The main class that is started on a Module.
@@ -60,6 +55,8 @@ public class ModuleMain {
 			LOGGER.error("could not load config", e);
 			System.exit(1);
 		}
+		
+		ModuleApplicationManager.localeModuleId = moduleConfig.getUuid();
 		
 		
 		// TODO: add config options to allow selection of netty engine and number of application threads

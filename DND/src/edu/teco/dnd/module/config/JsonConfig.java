@@ -4,11 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -79,13 +75,15 @@ public class JsonConfig extends ConfigReader {
 			}
 		}
 
-		/*
-		 * //TODO allowedBlocks = new BlockType(0); BlockType b = new
-		 * BlockType(1); b.addChild(new BlockType("child1Type", 2));
-		 * b.addChild(new BlockType("child2Type", 2));
-		 * allowedBlocks.addChild(b); allowedBlocks.addChild(new
-		 * BlockType("child2TYPE", 1));
-		 */
+		
+		  //TODO set up base config for testing
+//		  allowedBlocks = new BlockType(0); 
+//		  BlockType b = new BlockType(1); 
+//		  b.addChild(new BlockType("child1Type", 2));
+//		  b.addChild(new BlockType("child2Type", 2));
+//		  allowedBlocks.addChild(b); 
+//		  allowedBlocks.addChild(new BlockType("child2TYPE", 1));
+		 
 
 		if (allowedBlocks != null) {
 			fillInternalVariables(blockQuickaccess, allowedBlocks);
