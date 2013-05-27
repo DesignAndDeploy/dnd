@@ -1,7 +1,6 @@
 package edu.teco.dnd.network;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Message;
@@ -49,4 +48,18 @@ public interface ConnectionManager {
 	 * @return a collection of connected modules
 	 */
 	public Collection<UUID> getConnectedModules();
+	
+	/**
+	 * Adds a listener that is informed if new connections are made or old connections are lost.
+	 * 
+	 * @param listener the listener to add
+	 */
+	public void addConnectionListener(ConnectionListener listener);
+	
+	/**
+	 * Removes a listener.
+	 * 
+	 * @param listener the listener to remove
+	 */
+	public void removeConnectionListener(ConnectionListener listener);
 }

@@ -103,6 +103,16 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	private final ReadWriteLock handlersLock = new ReentrantReadWriteLock();
 	
 	/**
+	 * A set containing all listeners that are informed about new/lost connections.
+	 */
+	private final Set<ConnectionListener> listeners = new HashSet<ConnectionListener>();
+	
+	/**
+	 * Used to synchronize {@link #listeners}.
+	 */
+	private final ReadWriteLock listenersLock = new ReentrantReadWriteLock();
+	
+	/**
 	 * Factory used to connect to other TCPConnectionManagers.
 	 */
 	private final TCPClientChannelFactory clientFactory;
@@ -458,6 +468,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				channelsLock.readLock().unlock();
 				if (establish) {
 					ctx.write(new ConnectionEstablishedMessage());
+					notifyEstablished(remoteUUID);
 				} else {
 					LOGGER.debug("we already have a connection, closing");
 					ctx.write(new ConnectionClosedMessage());
@@ -490,6 +501,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			}
 			clientChannels.put(remoteUUID, ctx.channel());
 			channelsLock.writeLock().unlock();
+			notifyEstablished(remoteUUID);
 			LOGGER.exit();
 		}
 		
@@ -517,6 +529,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			}
 			channelsLock.readLock().unlock();
 			ctx.close();
+			notifyClosed(remoteUUID);
 			LOGGER.exit();
 		}
 		
@@ -567,6 +580,48 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			LOGGER.entry(ctx);
 			ctx.write(firstMessage);
 			LOGGER.exit();
+		}
+	}
+
+	@Override
+	public void addConnectionListener(final ConnectionListener listener) {
+		listenersLock.writeLock().lock();
+		try {
+			listeners.add(listener);
+		} finally {
+			listenersLock.writeLock().unlock();
+		}
+	}
+
+	@Override
+	public void removeConnectionListener(ConnectionListener listener) {
+		listenersLock.writeLock().lock();
+		try {
+			listeners.remove(listener);
+		} finally {
+			listenersLock.writeLock().unlock();
+		}
+	}
+	
+	private void notifyEstablished(final UUID uuid) {
+		listenersLock.readLock().lock();
+		try {
+			for (final ConnectionListener listener : listeners) {
+				listener.connectionEstablished(uuid);
+			}
+		} finally {
+			listenersLock.readLock().unlock();
+		}
+	}
+	
+	private void notifyClosed(final UUID uuid) {
+		listenersLock.readLock().lock();
+		try {
+			for (final ConnectionListener listener : listeners) {
+				listener.connectionClosed(uuid);
+			}
+		} finally {
+			listenersLock.readLock().unlock();
 		}
 	}
 }
