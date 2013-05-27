@@ -21,6 +21,8 @@ import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,16 +76,21 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 */
 	private final Set<ServerSocketChannel> serverChannels = new HashSet<ServerSocketChannel>();
 	
-	// TODO: a list of channels that have been created but didn't complete the handshake yet is probably needed
+	/**
+	 * Holds all channels that are created but did not complete the handshake.
+	 */
+	private final Collection<Channel> unconnectedChannels = new ArrayList<Channel>();
+	
 	/**
 	 * Contains all client channels with an established connection.
 	 */
 	private final Map<UUID, Channel> clientChannels = new HashMap<UUID, Channel>();
 	
 	/**
-	 * Lock used for synchronizing access to {@link #clientChannels}.
+	 * Lock used for synchronizing access to {@link #serverChannels}, {@link #clientChannels} and
+	 * {@link #unconnectedChannels}.
 	 */
-	private final ReadWriteLock clientChannelsLock = new ReentrantReadWriteLock();
+	private final ReadWriteLock channelsLock = new ReentrantReadWriteLock();
 	
 	/**
 	 * Handlers for given application IDs.
@@ -195,17 +202,36 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	public void startListening(final InetSocketAddress address) {
 		// FIXME: if the channel future has not yet finished there is no way to cancel the bind
 		LOGGER.entry(address);
-		serverFactory.bind(address).addListener(new ChannelFutureListener() {
+		final ChannelFuture future = serverFactory.bind(address);
+		channelsLock.writeLock().lock();
+		try {
+			unconnectedChannels.add(future.channel());
+		} finally {
+			channelsLock.writeLock().unlock();
+		}
+		future.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(final ChannelFuture future) throws Exception {
 				if (future.isSuccess()) {
 					LOGGER.debug("bind {} successful, registering server channel", future);
-					synchronized (serverChannels) {
+					// TODO: this is blocking code, so maybe it should not be run in the IO event loop
+					channelsLock.writeLock().lock();
+					try {
+						unconnectedChannels.remove(future);
 						serverChannels.add((ServerSocketChannel) future.channel());
+					} finally {
+						channelsLock.writeLock().unlock();
 					}
 				} else {
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn("bind {} failed", future);
+					}
+					future.channel().close();
+					channelsLock.writeLock().lock();
+					try {
+						unconnectedChannels.remove(future);
+					} finally {
+						channelsLock.writeLock().unlock();
 					}
 				}
 			}
@@ -219,19 +245,25 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * @param address the address to connect to
 	 */
 	public void connectTo(final InetSocketAddress address) {
-		clientFactory.connect(address);
+		final ChannelFuture future = clientFactory.connect(address);
+		channelsLock.writeLock().lock();
+		try {
+			unconnectedChannels.add(future.channel());
+		} finally {
+			channelsLock.writeLock().unlock();
+		}
 	}
 	
 	@Override
 	public void beaconFound(final BeaconMessage beacon) {
 		// TODO: Maybe store addresses somewhere in case beacons have a high package loss
-		clientChannelsLock.readLock().lock();
+		channelsLock.readLock().lock();
 		try {
 			if (clientChannels.containsKey(beacon.getUUID())) {
 				return;
 			}
 		} finally {
-			clientChannelsLock.readLock().unlock();
+			channelsLock.readLock().unlock();
 		}
 		for (final InetSocketAddress address : beacon.getAddresses()) {
 			connectTo(address);
@@ -241,11 +273,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	@Override
 	public void sendMessage(final UUID uuid, final Message message) {
 		Channel channel = null;
-		clientChannelsLock.readLock().lock();
+		channelsLock.readLock().lock();
 		try {
 			channel = clientChannels.get(uuid);
 		} finally {
-			clientChannelsLock.readLock().unlock();
+			channelsLock.readLock().unlock();
 		}
 		if (channel != null) {
 			channel.write(message);
@@ -273,11 +305,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 
 	@Override
 	public Set<UUID> getConnectedModules() {
-		clientChannelsLock.readLock().lock();
+		channelsLock.readLock().lock();
 		try {
 			return Collections.unmodifiableSet(clientChannels.keySet());
 		} finally {
-			clientChannelsLock.readLock().unlock();
+			channelsLock.readLock().unlock();
 		}
 	}
 	
@@ -412,18 +444,18 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			}
 			if (localUUID.compareTo(remoteUUID) < 0) {
 				boolean establish = false;
-				clientChannelsLock.readLock().lock();
+				channelsLock.readLock().lock();
 				if (!clientChannels.containsKey(remoteUUID)) {
-					clientChannelsLock.readLock().unlock();
-					clientChannelsLock.writeLock().lock();
+					channelsLock.readLock().unlock();
+					channelsLock.writeLock().lock();
 					if (!clientChannels.containsKey(remoteUUID)) {
 						clientChannels.put(remoteUUID, ctx.channel());
 						establish = true;
 					}
-					clientChannelsLock.readLock().lock();
-					clientChannelsLock.writeLock().unlock();
+					channelsLock.readLock().lock();
+					channelsLock.writeLock().unlock();
 				}
-				clientChannelsLock.readLock().unlock();
+				channelsLock.readLock().unlock();
 				if (establish) {
 					ctx.write(new ConnectionEstablishedMessage());
 				} else {
@@ -449,14 +481,15 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				LOGGER.exit();
 				return;
 			}
-			clientChannelsLock.writeLock().lock();
+			channelsLock.writeLock().lock();
 			final Channel channel = clientChannels.get(remoteUUID);
 			if (channel != null && !channel.equals(ctx.channel())) {
 				LOGGER.info("got {} but there is already another connection ({}), closing that");
+				unconnectedChannels.remove(channel);
 				channel.close();
 			}
 			clientChannels.put(remoteUUID, ctx.channel());
-			clientChannelsLock.writeLock().unlock();
+			channelsLock.writeLock().unlock();
 			LOGGER.exit();
 		}
 		
@@ -467,20 +500,22 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				LOGGER.exit();
 				return;
 			}
-			clientChannelsLock.readLock().lock();
+			channelsLock.readLock().lock();
 			if (ctx.channel().equals(clientChannels.get(remoteUUID))) {
-				clientChannelsLock.readLock().unlock();
-				clientChannelsLock.writeLock().lock();
+				channelsLock.readLock().unlock();
+				channelsLock.writeLock().lock();
 				if (ctx.channel().equals(clientChannels.get(remoteUUID))) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("removing {} for {}", ctx.channel(), remoteUUID);
 					}
 					clientChannels.remove(remoteUUID);
 				}
-				clientChannelsLock.readLock().lock();
-				clientChannelsLock.writeLock().unlock();
+				channelsLock.readLock().lock();
+				channelsLock.writeLock().unlock();
+			} else {
+				unconnectedChannels.remove(ctx.channel());
 			}
-			clientChannelsLock.readLock().unlock();
+			channelsLock.readLock().unlock();
 			ctx.close();
 			LOGGER.exit();
 		}
