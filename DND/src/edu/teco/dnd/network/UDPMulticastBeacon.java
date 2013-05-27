@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
@@ -141,12 +142,7 @@ public class UDPMulticastBeacon {
 			private final StringEncoder stringEncoder = new StringEncoder();
 			private final StringDecoder stringDecoder = new StringDecoder();
 			private final GsonCodec gsonCodec = new GsonCodec(gson, Message.class);
-			private final ChannelHandler beaconHandler = new ChannelInboundMessageHandlerAdapter<BeaconMessage>() {
-				@Override
-				public void messageReceived(final ChannelHandlerContext ctx, final BeaconMessage msg) {
-					handleBeacon(msg);
-				}
-			};
+			private final ChannelHandler beaconHandler = new BeaconHandler();
 			
 			@Override
 			protected void initChannel(final DatagramChannel channel) {
@@ -351,4 +347,12 @@ public class UDPMulticastBeacon {
 		}
 		LOGGER.exit();
 	}
+	
+	@Sharable
+	private class BeaconHandler extends ChannelInboundMessageHandlerAdapter<BeaconMessage> {
+		@Override
+		public void messageReceived(final ChannelHandlerContext ctx, final BeaconMessage msg) {
+			handleBeacon(msg);
+		}
+	};
 }
