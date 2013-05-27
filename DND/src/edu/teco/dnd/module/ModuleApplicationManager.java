@@ -1,6 +1,7 @@
 package edu.teco.dnd.module;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -9,11 +10,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.module.config.BlockTypeHolder;
+import edu.teco.dnd.module.config.ConfigReader;
 
 public class ModuleApplicationManager {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleApplicationManager.class);
 	public static UUID localeModuleId;
+	public static ConfigReader moduleConfig;
 	private static Map<UUID, Application> runningApps;
 
 	/**
@@ -29,7 +32,7 @@ public class ModuleApplicationManager {
 	 * @return true iff setting was successful.
 	 */
 	public static boolean sendValue(String funcBlock, String input, Serializable val) {
-		// TODO
+		// TODO tell networking, that we want to send this value :)
 		return false;
 	}
 
@@ -48,6 +51,7 @@ public class ModuleApplicationManager {
 	public static boolean startApplication(UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("starting app {} ({}), as requested by {}", name, appId, deployingAgentId);
 		// TODO scheduling/thread/forking
+		// TODO tell network part that we have a new app?
 		runningApps.put(appId, new Application(appId, deployingAgentId, name));
 
 		return false;
@@ -84,6 +88,16 @@ public class ModuleApplicationManager {
 	 * @return true iff starting was successful.
 	 */
 	public static boolean startBlock(UUID appId, FunctionBlock func) {
+		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(func.getType());
+		if (blockAllowed == null) {
+			LOGGER.info("Block {} not allowed in App {}({})", func, runningApps.get(appId), appId);
+			return false;
+		}
+
+		if (blockAllowed.tryDecrease()) {
+			LOGGER.info("Blockamount of {} exceeded. Not starting!", func.getType());
+			return false;
+		}
 		if (!runningApps.get(appId).startBlock(func)) {
 			LOGGER.warn("Can not start block {} in App {}({})", func, runningApps.get(appId), appId);
 			return false;
@@ -123,11 +137,23 @@ public class ModuleApplicationManager {
 	 */
 	public static boolean stopApplication(UUID appId) {
 		LOGGER.entry(appId);
-		if (!runningApps.get(appId).shutdown()) {
+		Application app = runningApps.get(appId);
+		if (app == null) {
+			return false;
+		}
+
+		Collection<FunctionBlock> blocksKilled = app.getAllBlocks();
+
+		if (!app.shutdown()) {
 			LOGGER.warn("Can not stop App {}({})", runningApps.get(appId), appId);
 			return false;
 		}
 		runningApps.remove(appId);
+		for (FunctionBlock block : blocksKilled) {
+			moduleConfig.getAllowedBlocks().get(block.getType()).increase();
+		}
+
+		// TODO tell internet, that the app is stopped?
 		return true;
 	}
 

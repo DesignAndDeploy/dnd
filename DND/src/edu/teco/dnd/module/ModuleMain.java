@@ -52,11 +52,12 @@ public class ModuleMain {
 		try {
 			moduleConfig = new JsonConfig(configPath);
 		} catch (IOException e) {
-			LOGGER.error("could not load config", e);
+			LOGGER.fatal("could not load config", e);
 			System.exit(1);
 		}
 		
 		ModuleApplicationManager.localeModuleId = moduleConfig.getUuid();
+		ModuleApplicationManager.moduleConfig = moduleConfig;
 		
 		
 		// TODO: add config options to allow selection of netty engine and number of application threads

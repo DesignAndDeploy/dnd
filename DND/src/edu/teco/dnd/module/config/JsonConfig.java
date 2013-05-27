@@ -24,7 +24,7 @@ public class JsonConfig extends ConfigReader {
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
-	private BlockType allowedBlocks; // the rootBlock
+	private BlockTypeHolder allowedBlocks; // the rootBlock
 
 	private static transient final Logger LOGGER = LogManager.getLogger(JsonConfig.class);
 	private static transient final Gson gson;
@@ -36,7 +36,7 @@ public class JsonConfig extends ConfigReader {
 		gson = builder.create();
 	}
 	
-	private transient Map<String, BlockType> blockQuickaccess = new HashMap<String, BlockType>();
+	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
 
 	public JsonConfig() {
 	}
@@ -86,18 +86,18 @@ public class JsonConfig extends ConfigReader {
 		 
 
 		if (allowedBlocks != null) {
-			fillInternalVariables(blockQuickaccess, allowedBlocks);
+			fillTransientVariables(blockQuickaccess, allowedBlocks);
 		}
 	}
 
-	private void fillInternalVariables(Map<String, BlockType> blockQuickaccess, final BlockType currentBlock) {
-		Set<BlockType> children = currentBlock.getChildren();
+	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess, final BlockTypeHolder currentBlock) {
+		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children == null) {
 			blockQuickaccess.put(currentBlock.type, currentBlock);
 		} else {
-			for (BlockType child : currentBlock.getChildren()) {
+			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
-				fillInternalVariables(blockQuickaccess, child);
+				fillTransientVariables(blockQuickaccess, child);
 			}
 		}
 	}
@@ -145,11 +145,11 @@ public class JsonConfig extends ConfigReader {
 		return multicast;
 	}
 
-	public BlockType getBlockRoot() {
+	public BlockTypeHolder getBlockRoot() {
 		return allowedBlocks;
 	}
 
-	public Map<String, BlockType> getAllowedBlocks() {
+	public Map<String, BlockTypeHolder> getAllowedBlocks() {
 		return blockQuickaccess;
 	}
 

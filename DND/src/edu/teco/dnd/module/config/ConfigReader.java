@@ -41,10 +41,9 @@ public abstract class ConfigReader {
 
 	/**
 	 * @return a set of blocks allowed to run and their amounts (encoded in
-	 *         BlockType). Key is the <i>name</i> of the block/(group of blocks)
-	 *         (by definition).
+	 *         BlockType). Key is the <i>name</i> of the block.
 	 */
-	public abstract Map<String, BlockType> getAllowedBlocks();
+	public abstract Map<String, BlockTypeHolder> getAllowedBlocks();
 
 	public static class NetConnection {
 		private final InetSocketAddress address;
