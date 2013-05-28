@@ -19,11 +19,7 @@ public class Application {
 
 	private UUID ownAppId;
 	public final String name;
-	/**
-	 * the scheduler this appAgent uses.
-	 */
-	private final Scheduler scheduler = new Scheduler();
-
+	private Scheduler scheduler;
 	/**
 	 * mapping of active blocks to their ID, used e.g. to pass values to inputs.
 	 */
@@ -36,9 +32,10 @@ public class Application {
 		return funcBlockById.values();
 	}
 
-	public Application(UUID appId, UUID deployingAgentId, String name) {
-		ownAppId = appId;
+	public Application(UUID appId, UUID deployingAgentId, String name, Scheduler scheduler) {
+		this.ownAppId = appId;
 		this.name = name;
+		this.scheduler = scheduler;
 	}
 
 	/**
@@ -65,7 +62,7 @@ public class Application {
 	 * @return true iff block was successfully started.
 	 */
 	public boolean startBlock(FunctionBlock block) {
-		scheduler.addFunctionBlock(block);
+		scheduler.addFunctionBlock(block,ownAppId);
 		funcBlockById.put(block.getID(), block);
 		return true;
 	}

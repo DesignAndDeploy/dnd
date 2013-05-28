@@ -2,6 +2,7 @@ package edu.teco.dnd.module;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -15,9 +16,23 @@ import edu.teco.dnd.module.config.ConfigReader;
 
 public class ModuleApplicationManager {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleApplicationManager.class);
-	public static UUID localeModuleId;
-	public static ConfigReader moduleConfig;
-	private static Map<UUID, Application> runningApps;
+	
+	public  UUID localeModuleId;
+	public  ConfigReader moduleConfig;
+	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
+	public int maxAllowedThreads; 
+	public final Scheduler scheduler;
+	
+	
+
+	public ModuleApplicationManager(int maxAllowedThreads, UUID localeModuleId, ConfigReader moduleConfig) {
+		this.localeModuleId = localeModuleId;
+		this.maxAllowedThreads = maxAllowedThreads;
+		this.moduleConfig = moduleConfig;
+		
+		
+		this.scheduler = new Scheduler(maxAllowedThreads);
+	}
 
 	/**
 	 * called from this module, when a value is supposed to be send to another
@@ -31,7 +46,7 @@ public class ModuleApplicationManager {
 	 *            the value to be send.
 	 * @return true iff setting was successful.
 	 */
-	public static boolean sendValue(String funcBlock, String input, Serializable val) {
+	public boolean sendValue(String funcBlock, String input, Serializable val) {
 		// TODO tell networking, that we want to send this value :)
 		return false;
 	}
@@ -48,11 +63,11 @@ public class ModuleApplicationManager {
 	 * 
 	 * @return true iff successful.
 	 */
-	public static boolean startApplication(UUID appId, UUID deployingAgentId, String name) {
+	public boolean startApplication(UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("starting app {} ({}), as requested by {}", name, appId, deployingAgentId);
 		// TODO scheduling/thread/forking
 		// TODO tell network part that we have a new app?
-		runningApps.put(appId, new Application(appId, deployingAgentId, name));
+		runningApps.put(appId, new Application(appId, deployingAgentId, name, scheduler));
 
 		return false;
 	}
@@ -68,7 +83,7 @@ public class ModuleApplicationManager {
 	 *            name of the main class, which triggered the loading.
 	 * @return true iff successful.
 	 */
-	public static boolean loadClass(UUID appId, Set<String> classnames, String mainclassname) {
+	public boolean loadClass(UUID appId, Set<String> classnames, String mainclassname) {
 		// TODO is this actually needed?
 		if (!runningApps.get(appId).loadClass(classnames, mainclassname)) {
 			LOGGER.warn("Can not loadClass {} - ({}) in App {} ({})", classnames, mainclassname,
@@ -87,7 +102,7 @@ public class ModuleApplicationManager {
 	 *            the block to start.
 	 * @return true iff starting was successful.
 	 */
-	public static boolean startBlock(UUID appId, FunctionBlock func) {
+	public boolean startBlock(UUID appId, FunctionBlock func) {
 		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(func.getType());
 		if (blockAllowed == null) {
 			LOGGER.info("Block {} not allowed in App {}({})", func, runningApps.get(appId), appId);
@@ -119,7 +134,7 @@ public class ModuleApplicationManager {
 	 *            the value to be handed to the functionBlock
 	 * @return true iff the action succeeded.
 	 */
-	public static boolean receiveValue(UUID appId, String funcBlockId, String input, Serializable value) {
+	public boolean receiveValue(UUID appId, String funcBlockId, String input, Serializable value) {
 		if (!runningApps.get(appId).receiveValue(funcBlockId, input, value)) {
 			LOGGER.info("Can not receive value {} @ input {}.{} in App {}({})", value, funcBlockId, input,
 					runningApps.get(appId), appId);
@@ -135,7 +150,7 @@ public class ModuleApplicationManager {
 	 *            the id of the app to be stopped
 	 * @return true iff successful
 	 */
-	public static boolean stopApplication(UUID appId) {
+	public boolean stopApplication(UUID appId) {
 		LOGGER.entry(appId);
 		Application app = runningApps.get(appId);
 		if (app == null) {

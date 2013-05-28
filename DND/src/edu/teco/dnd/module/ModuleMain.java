@@ -10,6 +10,7 @@ import io.netty.channel.socket.oio.OioDatagramChannel;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,7 +48,7 @@ public class ModuleMain {
 				configPath = args[0];
 			}
 		}
- 
+
 		ConfigReader moduleConfig = null;
 		try {
 			moduleConfig = new JsonConfig(configPath);
@@ -55,35 +56,31 @@ public class ModuleMain {
 			LOGGER.fatal("could not load config", e);
 			System.exit(1);
 		}
+		ModuleApplicationManager appMan = new ModuleApplicationManager(5, moduleConfig.getUuid(), moduleConfig);
+		// TODO proper config option for this.
+
 		
-		ModuleApplicationManager.localeModuleId = moduleConfig.getUuid();
-		ModuleApplicationManager.moduleConfig = moduleConfig;
-		
-		
-		// TODO: add config options to allow selection of netty engine and number of application threads
+		// TODO: add config options to allow selection of netty engine and
+		// number of application threads
 		// TODO: name threads
 		final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
-		
+
 		final TCPConnectionManager connectionManager = new TCPConnectionManager(networkEventLoopGroup,
-				networkEventLoopGroup,
-				new ChannelFactory<NioServerSocketChannel>() {
+				networkEventLoopGroup, new ChannelFactory<NioServerSocketChannel>() {
 					@Override
 					public NioServerSocketChannel newChannel() {
 						return new NioServerSocketChannel();
 					}
-				},
-				new ChannelFactory<NioSocketChannel>() {
+				}, new ChannelFactory<NioSocketChannel>() {
 					@Override
 					public NioSocketChannel newChannel() {
 						return new NioSocketChannel();
 					}
-				},
-				moduleConfig.getUuid()
-			);
+				}, moduleConfig.getUuid());
 		for (final InetSocketAddress address : moduleConfig.getListen()) {
 			connectionManager.startListening(address);
 		}
-		
+
 		final UDPMulticastBeacon beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
 			@Override
 			public OioDatagramChannel newChannel() {
@@ -96,6 +93,6 @@ public class ModuleMain {
 			beacon.addAddress(address.getInterface(), address.getAddress());
 		}
 	}
-	
+
 	// TODO: add method for shutdown
 }

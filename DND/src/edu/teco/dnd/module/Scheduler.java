@@ -1,14 +1,13 @@
 package edu.teco.dnd.module;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.FunctionBlock;
 
 import org.apache.logging.log4j.LogManager;
@@ -24,116 +23,53 @@ public class Scheduler {
 	private static final Logger LOGGER = LogManager.getLogger(Scheduler.class);
 
 	/**
-	 * A thread that updates a single FunctionBlock.
-	 */
-	private static class Updater extends Thread {
-		/**
-		 * Time to wait if no timer is used.
-		 */
-		public static final long DEFAULT_WAIT = 1000L;
-
-		/**
-		 * Lock used for {@link #needsUpdate}.
-		 */
-		private final Lock lock = new ReentrantLock();
-
-		/**
-		 * Is used to signal that an input has changed.
-		 */
-		private final Condition needsUpdate = lock.newCondition();
-
-		/**
-		 * The FunctionBlock this Updater updates.
-		 */
-		private final FunctionBlock functionBlock;
-
-		/**
-		 * Whether to keep running or stop updating.
-		 */
-		private final AtomicBoolean keepRunning = new AtomicBoolean(true);
-
-		/**
-		 * Initializes a new Updater.
-		 * 
-		 * @param functionBlock
-		 *            the FunctionBlock to update
-		 */
-		public Updater(final FunctionBlock functionBlock) {
-			this.functionBlock = functionBlock;
-
-		}
-
-		/**
-		 * Updates the FunctionBlock.
-		 */
-		@Override
-		public void run() {
-			functionBlock.init();
-			functionBlock.resetTimer();
-			while (keepRunning.get()) {
-				if (functionBlock.isDirty()) {
-					try {
-						functionBlock.doUpdate();
-					} catch (AssignmentException e) {
-						e.printStackTrace();
-					}
-				}
-				lock.lock();
-				long timeToTick = functionBlock.getTimeToNextTick();
-				if (timeToTick < 0) {
-					timeToTick = DEFAULT_WAIT;
-				}
-				try {
-					needsUpdate.await(timeToTick, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException e) {
-					LOGGER.catching(e);
-				}
-				lock.unlock();
-			}
-		}
-
-		/**
-		 * Signals the Updater that it should stop updating.
-		 */
-		public void stopRunning() {
-			keepRunning.set(false);
-		}
-
-		/**
-		 * Notifies the updater that a ConnectionTarget has a new value.
-		 */
-		public void notifyChanged() {
-			lock.lock();
-			needsUpdate.signal();
-			lock.unlock();
-		}
-	}
-
-	/**
 	 * Maps from FunctionBlock ID to Updater.
 	 */
 	private final Map<String, Updater> updaters = new HashMap<String, Updater>();
 
+	public final int maxAllowedThreads;
+	private final ExecutorService updaterPool;
 	/**
-	 * Adds a FunctionBlock to update.
-	 * 
-	 * @param functionBlock
-	 *            the FunctionBlock to update
+	 * <app uuid, functionBlocks of the app>
 	 */
-	public final void addFunctionBlock(final FunctionBlock functionBlock) {
-		if (functionBlock == null) {
-			throw new IllegalArgumentException("functionBlock must not be null");
-		}
-		if (!updaters.containsKey(functionBlock.getID())) {
-			Updater updater = new Updater(functionBlock);
-			updaters.put(functionBlock.getID(), updater);
-			updater.start();  //TODO use threadpool to limit the amount of threads.
-			LOGGER.info("Started updater for {}", functionBlock.getID());
+	private Map<UUID /* appid */, Set<FunctionBlock>> runnableBlocks;
+	private Map<UUID/* appid */, Set<FunctionBlock>> blocksNeedingInit = new HashMap<UUID, Set<FunctionBlock>>();
+	private Set<UUID/*appid*/> applist = new HashSet<UUID>();
+
+	public Scheduler(int maxAllowedThreads) {
+		this.maxAllowedThreads = maxAllowedThreads;
+		updaterPool = Executors.newFixedThreadPool(maxAllowedThreads);
+		for (int i = 0; i < maxAllowedThreads; i++) {
+			updaterPool.execute(new Updater(applist, runnableBlocks, blocksNeedingInit));
 		}
 	}
 
 	/**
-	 * Notifies the Scheduler that a ConnectionTarget of a FunctionBlock has changed.
+	 * Adds a FunctionBlock to update. An app exists in the system exactly when
+	 * at least one function block of it exists.
+	 * 
+	 * @param functionBlock
+	 *            the FunctionBlock to update
+	 */
+	public final void addFunctionBlock(final FunctionBlock functionBlock, UUID appId) {
+		if (functionBlock == null || appId == null) {
+			throw new IllegalArgumentException("functionBlock/appID must not be null");
+		}
+		
+		if(!applist.contains(appId)){
+			applist.add(appId);
+			blocksNeedingInit.put(appId, new HashSet<FunctionBlock>());
+			runnableBlocks.put(appId, new HashSet<FunctionBlock>());
+		}
+		
+		blocksNeedingInit.get(appId).add(functionBlock); //TODO upon init put into runnableBlocks list
+
+		LOGGER.info("Started updater for {}", functionBlock.getID());
+	}
+
+	/**
+	 * Notifies the Scheduler that a ConnectionTarget of a FunctionBlock has
+	 * changed.
 	 * 
 	 * @param id
 	 *            the ID of the block
@@ -141,7 +77,7 @@ public class Scheduler {
 	public final void notifyChanged(final String id) {
 		Updater updater = updaters.get(id);
 		if (updater != null) {
-			updater.notifyChanged();
+			//TODO fix this. updater.notifyChanged();
 		}
 	}
 
@@ -155,16 +91,6 @@ public class Scheduler {
 		}
 	}
 
-	/**
-	 * Waits for all threads used by the Scheduler to finish.
-	 * 
-	 * @throws InterruptedException
-	 *             if the current thread gets interrupted
-	 */
-	public final void joinAll() throws InterruptedException {
-		LOGGER.info("joining all updaters started");
-		for (Updater updater : updaters.values()) {
-			updater.join();
-		}
-	}
+
+
 }
