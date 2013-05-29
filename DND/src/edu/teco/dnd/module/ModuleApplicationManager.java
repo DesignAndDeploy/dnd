@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,30 +14,28 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.network.ConnectionManager;
 
 public class ModuleApplicationManager {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleApplicationManager.class);
-	
-	public  UUID localeModuleId;
-	public  ConfigReader moduleConfig;
-	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
-	public int maxAllowedThreads; 
-	public final Scheduler scheduler;
-	
-	
 
-	public ModuleApplicationManager(int maxAllowedThreads, UUID localeModuleId, ConfigReader moduleConfig) {
+	public UUID localeModuleId;
+	public ConfigReader moduleConfig;
+	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
+	public int maxAllowedThreads;
+	private final Map<UUID, ScheduledThreadPoolExecutor> scheduledAppPools = new HashMap<UUID, ScheduledThreadPoolExecutor>();
+	private final ConnectionManager connMan;
+
+	public ModuleApplicationManager(int maxAllowedThreads, int minThreadsPerApp, UUID localeModuleId,
+			ConfigReader moduleConfig, ConnectionManager connMan) {
 		this.localeModuleId = localeModuleId;
 		this.maxAllowedThreads = maxAllowedThreads;
 		this.moduleConfig = moduleConfig;
-		
-		
-		this.scheduler = new Scheduler(maxAllowedThreads);
+		this.connMan = connMan;
 	}
 
 	/**
-	 * called from this module, when a value is supposed to be send to another
-	 * block (potentially on another Module).
+	 * called from this module, when a value is supposed to be send to another block (potentially on another Module).
 	 * 
 	 * @param funcBlock
 	 *            the receiving functionBlock.
@@ -67,9 +66,16 @@ public class ModuleApplicationManager {
 		LOGGER.info("starting app {} ({}), as requested by {}", name, appId, deployingAgentId);
 		// TODO scheduling/thread/forking
 		// TODO tell network part that we have a new app?
-		runningApps.put(appId, new Application(appId, deployingAgentId, name, scheduler));
+		// TODO calculate proper size.
+		ScheduledThreadPoolExecutor pool = scheduledAppPools.get(appId);
+		if (pool == null) {
+			pool = new ScheduledThreadPoolExecutor(maxAllowedThreads);
+			scheduledAppPools.put(appId, pool);
+		}
 
-		return false;
+		runningApps.put(appId, new Application(appId, deployingAgentId, name, pool));
+
+		return true;
 	}
 
 	/**
@@ -121,8 +127,7 @@ public class ModuleApplicationManager {
 	}
 
 	/**
-	 * called, when a value for a given local functionblock.input was received.
-	 * Passes the value on to the input.
+	 * called, when a value for a given local functionblock.input was received. Passes the value on to the input.
 	 * 
 	 * @param appId
 	 *            the id of the app the block belongs to.
@@ -134,13 +139,15 @@ public class ModuleApplicationManager {
 	 *            the value to be handed to the functionBlock
 	 * @return true iff the action succeeded.
 	 */
-	public boolean receiveValue(UUID appId, String funcBlockId, String input, Serializable value) {
-		if (!runningApps.get(appId).receiveValue(funcBlockId, input, value)) {
+	public void receiveValue(UUID appId, String funcBlockId, String input, Serializable value) {
+		try {
+			runningApps.get(appId).receiveValue(funcBlockId, input, value);
+		} catch (IllegalAccessException e) {
+			LOGGER.catching(e);
 			LOGGER.info("Can not receive value {} @ input {}.{} in App {}({})", value, funcBlockId, input,
 					runningApps.get(appId), appId);
-			return false;
+			
 		}
-		return true;
 	}
 
 	/**
@@ -150,26 +157,22 @@ public class ModuleApplicationManager {
 	 *            the id of the app to be stopped
 	 * @return true iff successful
 	 */
-	public boolean stopApplication(UUID appId) {
+	public void stopApplication(UUID appId) {
 		LOGGER.entry(appId);
 		Application app = runningApps.get(appId);
 		if (app == null) {
-			return false;
+			return;
 		}
 
 		Collection<FunctionBlock> blocksKilled = app.getAllBlocks();
 
-		if (!app.shutdown()) {
-			LOGGER.warn("Can not stop App {}({})", runningApps.get(appId), appId);
-			return false;
-		}
+		app.shutdown();
 		runningApps.remove(appId);
 		for (FunctionBlock block : blocksKilled) {
 			moduleConfig.getAllowedBlocks().get(block.getType()).increase();
 		}
 
 		// TODO tell internet, that the app is stopped?
-		return true;
 	}
 
 }

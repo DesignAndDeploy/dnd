@@ -10,8 +10,6 @@ import io.netty.channel.socket.oio.OioDatagramChannel;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
-import java.util.concurrent.Executors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,10 +54,7 @@ public class ModuleMain {
 			LOGGER.fatal("could not load config", e);
 			System.exit(1);
 		}
-		ModuleApplicationManager appMan = new ModuleApplicationManager(5, moduleConfig.getUuid(), moduleConfig);
-		// TODO proper config option for this.
 
-		
 		// TODO: add config options to allow selection of netty engine and
 		// number of application threads
 		// TODO: name threads
@@ -92,6 +87,11 @@ public class ModuleMain {
 		for (final NetConnection address : moduleConfig.getMulticast()) {
 			beacon.addAddress(address.getInterface(), address.getAddress());
 		}
+
+		ModuleApplicationManager appMan = new ModuleApplicationManager(5, 1, moduleConfig.getUuid(), moduleConfig,
+				connectionManager);
+		// TODO proper config option for maxThreads, minThreadPerApp.
+
 	}
 
 	// TODO: add method for shutdown

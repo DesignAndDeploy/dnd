@@ -55,8 +55,8 @@ public abstract class FunctionBlock implements Serializable {
 	private String position = null;
 
 	/**
-	 * Returns all inputs defined in the given class. If a subclass has an input with the same name as a
-	 * superclass the input of the subclass takes precedence.
+	 * Returns all inputs defined in the given class. If a subclass has an input with the same name as a superclass the
+	 * input of the subclass takes precedence.
 	 * 
 	 * @param cls
 	 *            the class to inspect. Must not be null.
@@ -81,8 +81,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns a set containing all fields that are Outputs. If a subclass has an output with the same name as
-	 * a superclass the output of the subclass takes precedence.
+	 * Returns a set containing all fields that are Outputs. If a subclass has an output with the same name as a
+	 * superclass the output of the subclass takes precedence.
 	 * 
 	 * @param cls
 	 *            the class to inspect. Must not be null.
@@ -106,8 +106,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns a set containing all fields that are marked as Options. If a subclass has an option with the
-	 * same name as a superclass the option of the subclass takes precedence.
+	 * Returns a set containing all fields that are marked as Options. If a subclass has an option with the same name as
+	 * a superclass the option of the subclass takes precedence.
 	 * 
 	 * @param cls
 	 *            the class to inspect. Must not be null.
@@ -132,8 +132,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Queries all {@link Input}s and {@link Option}s for the function block and creates a timer as specified
-	 * by a {@link Timed} annotation (if present).
+	 * Queries all {@link Input}s and {@link Option}s for the function block and creates a timer as specified by a
+	 * {@link Timed} annotation (if present).
 	 * 
 	 * @param id
 	 *            the ID of this FunctionBlock
@@ -169,6 +169,21 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
+	 * returns the timeinterval this block wishes to be scheduled at.
+	 * 
+	 * @return the timeinterval this block wishes to be scheduled at, a value less than 0 if no timer is desired.
+	 */
+	public long getTimebetweenSchedules() {
+		// TODO remove unnecessary timer elements.
+		Timed timed = getClass().getAnnotation(Timed.class);
+		if (timed != null && timed.value() > 0) {
+			return timed.value();
+		} else {
+			return -1;
+		}
+	}
+
+	/**
 	 * Returns the type identifier for this block.
 	 * 
 	 * @return the type identifier for this block
@@ -176,14 +191,14 @@ public abstract class FunctionBlock implements Serializable {
 	public abstract String getType();
 
 	/**
-	 * Can be used to initialize data used by the function block. All {@link Option}s will have been set and
-	 * will not change afterwards. Will be called before {@link #update()} is called.
+	 * Can be used to initialize data used by the function block. All {@link Option}s will have been set and will not
+	 * change afterwards. Will be called before {@link #update()} is called.
 	 */
 	public abstract void init();
 
 	/**
-	 * Returns all {@link ConnectionTarget}s used by this function block. The key is the name of the input,
-	 * the value is the matching ConnnectionTarget.
+	 * Returns all {@link ConnectionTarget}s used by this function block. The key is the name of the input, the value is
+	 * the matching ConnnectionTarget.
 	 * 
 	 * @return a Map from input names to ConnectionTargets
 	 */
@@ -192,8 +207,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all {@link Output}s used by this function block. The key is the name of the output, the value
-	 * is the matching ConnectionTarget.
+	 * Returns all {@link Output}s used by this function block. The key is the name of the output, the value is the
+	 * matching ConnectionTarget.
 	 * 
 	 * @return a Map from output names to Outputs.
 	 * @throws InvalidFunctionBlockException
@@ -208,8 +223,7 @@ public abstract class FunctionBlock implements Serializable {
 				Output<?> out = null;
 				try {
 					out = (Output<?>) output.get(this);
-				} catch (
-						IllegalArgumentException e) {
+				} catch (IllegalArgumentException e) {
 					throw new InvalidFunctionBlockException("Cannot get Output '" + output.getName() + "'", e);
 				} catch (IllegalAccessException e) {
 					throw new InvalidFunctionBlockException("Cannot get Output '" + output.getName() + "'", e);
@@ -218,19 +232,15 @@ public abstract class FunctionBlock implements Serializable {
 					out = new Output(output.getName());
 					try {
 						output.set(this, out);
-					} catch (
-							IllegalArgumentException e) {
-						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName()
-								+ "'", e);
+					} catch (IllegalArgumentException e) {
+						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName() + "'", e);
 					} catch (IllegalAccessException e) {
-						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName()
-								+ "'", e);
+						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName() + "'", e);
 					}
 				}
 				if (output.getGenericType() instanceof ParameterizedType
 						&& ((ParameterizedType) output.getGenericType()).getActualTypeArguments().length == 1) {
-					out.setType((Class) ((ParameterizedType) output.getGenericType())
-							.getActualTypeArguments()[0]);
+					out.setType((Class) ((ParameterizedType) output.getGenericType()).getActualTypeArguments()[0]);
 				}
 				outputs.put(output.getName(), out);
 			}
@@ -239,8 +249,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all {@link Option}s used by this function block. The key is the name of the option, the value
-	 * is the type.
+	 * Returns all {@link Option}s used by this function block. The key is the name of the option, the value is the
+	 * type.
 	 * 
 	 * @return all Options used by this function block
 	 */
@@ -346,9 +356,9 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns whether or not the block needs an update. This will also reset the timer if it is the reason
-	 * for the update. The default implementation returns true if the timer wants to trigger an update or if
-	 * any ConnectionTarget is dirty.
+	 * Returns whether or not the block needs an update. This will also reset the timer if it is the reason for the
+	 * update. The default implementation returns true if the timer wants to trigger an update or if any
+	 * ConnectionTarget is dirty.
 	 * 
 	 * @return true if the block needs an update, false otherwise
 	 */
@@ -375,8 +385,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the time in milliseconds until the next tick is scheduled. Returns a negative number if the
-	 * time is unknown or no tick is scheduled.
+	 * Returns the time in milliseconds until the next tick is scheduled. Returns a negative number if the time is
+	 * unknown or no tick is scheduled.
 	 * 
 	 * @return the time in milliseconds until the next tick is scheduled. Negative if unknown.
 	 */
@@ -390,8 +400,8 @@ public abstract class FunctionBlock implements Serializable {
 	protected abstract void update();
 
 	/**
-	 * Updates the block. This includes calling {@link ConnectionTarget#update()} on all ConnectionTargets
-	 * that say that they are dirty and calling {@link #update()} afterwards.
+	 * Updates the block. This includes calling {@link ConnectionTarget#update()} on all ConnectionTargets that say that
+	 * they are dirty and calling {@link #update()} afterwards.
 	 * 
 	 * @throws AssignmentException
 	 *             if assigning a variable fails
