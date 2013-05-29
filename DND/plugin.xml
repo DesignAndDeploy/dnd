@@ -38,4 +38,13 @@
           class="edu.teco.dnd.eclipse.AppView"
           />
 </extension>
+ <extension
+       point="org.eclipse.ui.preferencePages">
+    <page
+          class="edu.teco.dnd.eclipse.Preferences"
+          id="DND preferences"
+          name="DND">
+    </page>
+ </extension>
+
 </plugin>
