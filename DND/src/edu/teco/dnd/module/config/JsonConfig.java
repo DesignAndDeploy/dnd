@@ -20,7 +20,7 @@ import edu.teco.dnd.util.InetSocketAddressAdapter;
 
 public class JsonConfig extends ConfigReader {
 	private String name;
-	private UUID uuid;
+	private UUID uuid = UUID.randomUUID();
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
@@ -52,7 +52,9 @@ public class JsonConfig extends ConfigReader {
 		}
 
 		this.name = oldConf.name;
-		this.uuid = oldConf.uuid;
+		if (oldConf.uuid != null) {
+			this.uuid = oldConf.uuid;
+		}
 		this.listen = oldConf.listen;
 		this.announce = oldConf.announce;
 		this.multicast = oldConf.multicast;
