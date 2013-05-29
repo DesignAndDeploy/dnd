@@ -21,14 +21,18 @@ import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -69,7 +73,18 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 */
 	public static final Charset CHARSET = Charset.forName("UTF-8");
 	
+	/**
+	 * Attribute key for the remote UUID which is stored in the pipeline context.
+	 */
 	public static final AttributeKey<UUID> REMOTE_UUID_KEY = new AttributeKey<UUID>("remoteUUID");
+	
+	/**
+	 * These classes can not be used to register a MessageHandler with the {@link ConnectionManager#APPID_DEFAULT}.
+	 */
+	@SuppressWarnings("unchecked")
+	public static final Collection<Class<? extends Message>> PROTECTED_MESSAGE_TYPES = 
+			Collections.unmodifiableCollection(Arrays.<Class<? extends Message>>asList(
+					HelloMessage.class, ConnectionEstablishedMessage.class,	ConnectionClosedMessage.class));
 	
 	/**
 	 * Contains all active server channels.
@@ -93,9 +108,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	private final ReadWriteLock channelsLock = new ReentrantReadWriteLock();
 	
 	/**
-	 * Handlers for given application IDs.
+	 * Handlers for given application IDs and Message classes.
 	 */
-	private final Map<UUID, MessageHandler> handlers = new HashMap<UUID, MessageHandler>();
+	private final Map<Entry<UUID, Class<? extends Message>>, Entry<MessageHandler<? extends Message>, Executor>> 
+		handlers =
+		new HashMap<Map.Entry<UUID,Class<? extends Message>>, Map.Entry<MessageHandler<? extends Message>,Executor>>();
 	
 	/**
 	 * Lock for reading/writing to {@link #handlers}.
@@ -169,6 +186,21 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		
 		this.clientFactory = new TCPClientChannelFactory(clientChannelFactory, networkEventLoopGroup,
 				channelInitializer);
+
+		this.handlers.put(
+				new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(APPID_DEFAULT, HelloMessage.class),
+				new AbstractMap.SimpleEntry<MessageHandler<? extends Message>, Executor>(
+						new HelloMessageHandler(), null));
+		this.handlers.put(
+				new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(
+						APPID_DEFAULT, ConnectionEstablishedMessage.class),
+				new AbstractMap.SimpleEntry<MessageHandler<? extends Message>, Executor>(
+						new ConnectionEstablishedMessageHandler(), null));
+		this.handlers.put(
+				new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(
+						APPID_DEFAULT, ConnectionClosedMessage.class),
+				new AbstractMap.SimpleEntry<MessageHandler<? extends Message>, Executor>(
+						new ConnectionClosedMessageHandler(), null));
 		LOGGER.exit();
 	}
 	
@@ -295,13 +327,18 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	@Override
-	public void addHandler(final UUID appid, final MessageHandler handler) {
+	public <T extends Message> void addHandler(final UUID appid, final Class<? extends T> msgType,
+			final MessageHandler<? super T> handler, final Executor executor) {
+		if (APPID_DEFAULT.equals(appid) && PROTECTED_MESSAGE_TYPES.contains(msgType)) {
+			throw new IllegalArgumentException("can't override handler for protected message type " + msgType);
+		}
 		handlersLock.writeLock().lock();
 		try {
 			if (handler == null) {
-				handlers.remove(appid);
+				handlers.remove(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appid, msgType));
 			} else {
-				handlers.put(appid, handler);
+				handlers.put(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appid, msgType),
+						new AbstractMap.SimpleEntry<MessageHandler<? extends Message>, Executor>(handler, executor));
 			}
 		} finally {
 			handlersLock.writeLock().unlock();
@@ -309,8 +346,21 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	@Override
-	public void addHandler(final MessageHandler handler) {
-		addHandler(APPID_DEFAULT, handler);
+	public <T extends Message> void addHandler(final UUID appid, final Class<? extends T> msgType,
+			final MessageHandler<? super T> handler) {
+		addHandler(appid, msgType, handler, null);
+	}
+
+	@Override
+	public <T extends Message> void addHandler(final Class<? extends T> msgType,
+			final MessageHandler<? super T> handler, final Executor executor) {
+		addHandler(APPID_DEFAULT, msgType, handler, executor);
+	}
+
+	@Override
+	public <T extends Message> void addHandler(final Class<? extends T> msgType,
+			final MessageHandler<? super T> handler) {
+		addHandler(APPID_DEFAULT, msgType, handler, null);
 	}
 
 	@Override
@@ -415,26 +465,73 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		
 		@Override
 		public void messageReceived(final ChannelHandlerContext ctx, final Message msg) {
+			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
 			ThreadContext.put("remoteAddress", ctx.channel().remoteAddress().toString());
-			ThreadContext.put("remoteUUID", ctx.attr(REMOTE_UUID_KEY).toString());
+			if (remoteUUID != null) {
+				ThreadContext.put("remoteUUID", remoteUUID.toString());
+			}
 			LOGGER.entry(ctx, msg);
-			if (msg instanceof HelloMessage) {
-				handleHelloMessage(ctx, (HelloMessage) msg);
-			} else if (msg instanceof ConnectionClosedMessage) {
-				handleConnectionClosedMessage(ctx, (ConnectionClosedMessage) msg);
-			} else if (msg instanceof ConnectionEstablishedMessage) {
-				handleConnectionEstablishedMessage(ctx, (ConnectionEstablishedMessage) msg);
-			} else if (msg instanceof ApplicationSpecificMessage) {
-				handleApplicationSpecificMessage(ctx, (ApplicationSpecificMessage) msg);
-			} else {
-				handleGenericMessage(ctx, msg);
+			UUID appID = APPID_DEFAULT;
+			if (msg instanceof ApplicationSpecificMessage) {
+				final ApplicationSpecificMessage appMsg = (ApplicationSpecificMessage) msg;
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("got application specific message for {}", appMsg.getApplicationID());
+				}
+				appID = appMsg.getApplicationID();
+				if (appID == null) {
+					appID = APPID_DEFAULT;
+				}
+			}
+			Entry<MessageHandler<? extends Message>, Executor> handler = handlers.get(
+					new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appID, msg.getClass()));
+			if (handler != null) {
+				final MessageHandler<? extends Message> messageHandler = handler.getKey();
+				final Executor executor = handler.getValue() == null ? ctx.executor() : handler.getValue();
+				if (messageHandler instanceof TCPMessageHandler<?>) {
+					executor.execute(new Runnable() {
+						@SuppressWarnings("unchecked")
+						@Override
+						public void run() {
+							((TCPMessageHandler<Message>) messageHandler).handleMessage(ctx, msg);
+						}
+					});
+				} else {
+					executor.execute(new Runnable() {
+						@SuppressWarnings("unchecked")
+						@Override
+						public void run() {
+							((MessageHandler<Message>) messageHandler).handleMessage(remoteUUID, msg);
+						}
+					});
+				}
 			}
 			LOGGER.exit();
 			ThreadContext.remove("remoteUUID");
 			ThreadContext.remove("remoteAddress");
 		}
-		
-		private void handleHelloMessage(final ChannelHandlerContext ctx, final HelloMessage msg) {
+
+		@Override
+		public void channelActive(ChannelHandlerContext ctx) {
+			ThreadContext.put("remoteAddress", ctx.channel().remoteAddress().toString());
+			LOGGER.entry(ctx);
+			ctx.write(firstMessage);
+			LOGGER.exit();
+		}
+	}
+	
+	private static interface TCPMessageHandler<T extends Message> extends MessageHandler<T> {
+		public void handleMessage(ChannelHandlerContext ctx, T msg);
+	}
+	
+	private static abstract class AbstractTCPMessageHandler<T extends Message> implements TCPMessageHandler<T> {
+		public void handleMessage(final UUID remoteUUID, final T msg) {
+			throw new IllegalAccessError("tried to call handleMessage(UUID, Message) on AbstractTCPMessageHandler");
+		}
+	}
+	
+	private class HelloMessageHandler extends AbstractTCPMessageHandler<HelloMessage> {
+		@Override
+		public void handleMessage(ChannelHandlerContext ctx, HelloMessage msg) {
 			LOGGER.entry(ctx, msg);
 			if (ctx.attr(REMOTE_UUID_KEY).get() != null) {
 				if (LOGGER.isWarnEnabled()) {
@@ -477,9 +574,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			}
 			LOGGER.exit();
 		}
-		
-		private void handleConnectionEstablishedMessage(final ChannelHandlerContext ctx,
-				final ConnectionEstablishedMessage msg) {
+	}
+	
+	private class ConnectionEstablishedMessageHandler extends AbstractTCPMessageHandler<ConnectionEstablishedMessage> {
+		@Override
+		public void handleMessage(ChannelHandlerContext ctx, ConnectionEstablishedMessage msg) {
 			LOGGER.entry(ctx, msg);
 			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
 			if (remoteUUID == null) {
@@ -504,8 +603,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			notifyEstablished(remoteUUID);
 			LOGGER.exit();
 		}
-		
-		private void handleConnectionClosedMessage(final ChannelHandlerContext ctx, final ConnectionClosedMessage msg) {
+	}
+	
+	private class ConnectionClosedMessageHandler extends AbstractTCPMessageHandler<ConnectionClosedMessage> {
+		@Override
+		public void handleMessage(ChannelHandlerContext ctx, ConnectionClosedMessage msg) {
 			LOGGER.entry(ctx, msg);
 			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
 			if (remoteUUID == null) {
@@ -530,55 +632,6 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			channelsLock.readLock().unlock();
 			ctx.close();
 			notifyClosed(remoteUUID);
-			LOGGER.exit();
-		}
-		
-		private void handleApplicationSpecificMessage(final ChannelHandlerContext ctx,
-				final ApplicationSpecificMessage msg) {
-			if (msg.getApplicationID() == null) {
-				LOGGER.debug("{} does not have an application UUID, using generic handler");
-				handleGenericMessage(ctx, msg);
-				return;
-			}
-			MessageHandler handler = null;
-			handlersLock.readLock().lock();
-			try {
-				handler = handlers.get(((ApplicationSpecificMessage) msg).getApplicationID());
-			} finally {
-				handlersLock.readLock().unlock();
-			}
-			if (handler != null) {
-				LOGGER.debug("using handler {} to handle {}", handler, msg);
-				handler.handleMessage(msg);
-			} else {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("got {}, but no handler is registered for {}", msg,
-							((ApplicationSpecificMessage) msg).getApplicationID());
-				}
-			}
-		}
-		
-		private void handleGenericMessage(final ChannelHandlerContext ctx, final Message msg) {
-			MessageHandler handler = null;
-			handlersLock.readLock().lock();
-			try {
-				handler = handlers.get(APPID_DEFAULT);
-			} finally {
-				handlersLock.readLock().unlock();
-			}
-			if (handler != null) {
-				LOGGER.debug("using default handler {} to handle {}", handler, msg);
-				handler.handleMessage(msg);
-			} else {
-				LOGGER.warn("got {}, but no default handler is installed", msg);
-			}
-		}
-
-		@Override
-		public void channelActive(ChannelHandlerContext ctx) {
-			ThreadContext.put("remoteAddress", ctx.channel().remoteAddress().toString());
-			LOGGER.entry(ctx);
-			ctx.write(firstMessage);
 			LOGGER.exit();
 		}
 	}

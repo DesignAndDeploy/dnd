@@ -1,6 +1,6 @@
 package edu.teco.dnd.network;
 
-import java.util.Map;
+import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Message;
 
@@ -9,20 +9,13 @@ import edu.teco.dnd.network.messages.Message;
  * 
  * @author Philipp Adolf
  */
-public interface MessageHandler {
+public interface MessageHandler<T extends Message> {
 	/**
 	 * This method is called if a new message is received. This method may be called from multiple Threads
 	 * simultaneously.
 	 * 
+	 * @param remtoeUUID the UUID of the module that sent the message
 	 * @param message the message that was received
 	 */
-	void handleMessage(Message message);
-	
-	/**
-	 * Returns a list of all Message types this handler uses (either receiving or sending). The value can be null; if
-	 * that is the case reflection is used.
-	 * 
-	 * @return a map containing all message types this handler uses
-	 */
-	Map<Class<? extends Message>, String> getMessageTypes();
+	void handleMessage(UUID remoteUUID, T message);
 }

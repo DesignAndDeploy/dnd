@@ -2,6 +2,7 @@ package edu.teco.dnd.network;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 import edu.teco.dnd.network.messages.Message;
 
@@ -29,18 +30,47 @@ public interface ConnectionManager {
 	/**
 	 * Adds an handler for a given application ID. If another handler was registered for the ID it is replaced.
 	 * 
-	 * @param appid the application ID the handler should be used for
-	 * @param handler the handler for the application ID. Use null to remove the handler.
+	 * @param <T> type of Message that should be handled
+	 * @param appid the ID of the application. Use {@link #APPID_DEFAULT} for non application messages
+	 * @param msgType the class of Messages that the handler will receive. Must be an exact match.
+	 * @param handler the handler that should receive the Messages
+	 * @param executor the executor that should execute {@link MessageHandler#handleMessage(Message)}. Can be null.
 	 */
-	public void addHandler(UUID appid, MessageHandler handler);
+	public <T extends Message> void addHandler(UUID appid, Class<? extends T> msgType,
+			MessageHandler<? super T> handler, Executor executor);
 	
 	/**
-	 * Registers a handler for {@link #APPID_DEFAULT}.
+	 * Adds an handler for a given application ID. If another handler was registered for the ID it is replaced.
 	 * 
-	 * @param handler the handler to register
-	 * @see #addHandler(UUID, MessageHandler)
+	 * @param <T> type of Message that should be handled
+	 * @param appid the ID of the application. Use {@link #APPID_DEFAULT} for non application messages
+	 * @param msgType the class of Messages that the handler will receive. Must be an exact match.
+	 * @param handler the handler that should receive the Messages
 	 */
-	public void addHandler(MessageHandler handler);
+	public <T extends Message> void addHandler(UUID appid, Class<? extends T> msgType,
+			MessageHandler<? super T> handler);
+	
+	/**
+	 * Adds an handler for the {@link #APPID_DEFAULT}. If another handler was registered for the ID it is replaced.
+	 * 
+	 * @param <T> type of Message that should be handled
+	 * @param msgType the class of Messages that the handler will receive. Must be an exact match.
+	 * @param handler the handler that should receive the Messages
+	 * @param executor the executor that should execute {@link MessageHandler#handleMessage(Message)}. Can be null.
+	 */
+	public <T extends Message> void addHandler(Class<? extends T> msgType,
+			MessageHandler<? super T> handler, Executor executor);
+	
+	/**
+	 * Adds an handler for the {@link #APPID_DEFAULT}. If another handler was registered for the ID it is replaced.
+	 * 
+	 * @param <T> type of Message that should be handled
+	 * @param appid the ID of the application. Use {@link #APPID_DEFAULT} for non application messages
+	 * @param msgType the class of Messages that the handler will receive. Must be an exact match.
+	 * @param handler the handler that should receive the Messages
+	 */
+	public <T extends Message> void addHandler(Class<? extends T> msgType,
+			MessageHandler<? super T> handler);
 	
 	/**
 	 * Returns a collection of connected modules.
