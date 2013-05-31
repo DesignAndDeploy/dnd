@@ -27,24 +27,19 @@
             genModel="model/graphiti.genmodel"/>
    </extension>
    <extension point="org.eclipse.ui.views">
-        <view id="edu.teco.dnd.eclipse.ModuleView"
-             name="Modules"
-          class="edu.teco.dnd.eclipse.ModuleView"
-          />
-	</extension>
-	<extension point="org.eclipse.ui.views">
-        <view id="edu.teco.dnd.eclipse.AppView"
-             name="Applications"
-          class="edu.teco.dnd.eclipse.AppView"
-          />
-</extension>
- <extension
-       point="org.eclipse.ui.preferencePages">
-    <page
-          class="edu.teco.dnd.eclipse.Preferences"
-          id="DND preferences"
-          name="DND">
-    </page>
- </extension>
-
+      <view id="edu.teco.dnd.eclipse.ModuleView"
+            name="Modules"
+            class="edu.teco.dnd.eclipse.ModuleView"/>
+   </extension>
+   <extension point="org.eclipse.ui.views">
+      <view id="edu.teco.dnd.eclipse.AppView"
+            name="Applications"
+            class="edu.teco.dnd.eclipse.AppView"/>
+   </extension>
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="edu.teco.dnd.eclipse.Preferences"
+            id="DND preferences"
+            name="DND"/>
+   </extension>
 </plugin>
