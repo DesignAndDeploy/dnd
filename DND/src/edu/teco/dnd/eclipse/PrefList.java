@@ -1,6 +1,9 @@
 package edu.teco.dnd.eclipse;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -12,12 +15,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class PrefList extends ListEditor {
-
-	public PrefList(String name, String labelText, Composite parent){
+	private List<Text> textList;	
+	private List<String> preferences = new ArrayList<String>();
+	
+	public PrefList(String name, String labelText, Composite parent, List<Text> textList){
 		super(name, labelText, parent);
+		this.textList = textList;
+		
 	}
 	
-	@Override
 	protected String createList(String[] items) {
 		String str = "";
 		for (int i = 0; i < items.length; i++){
@@ -30,20 +36,14 @@ public class PrefList extends ListEditor {
 
 	@Override
 	protected String getNewInputObject() {
-		final String text = "";
-		Display display = new Display();
-		Shell shell = new Shell(display);
-		final Text addr = new Text(shell, SWT.NONE);
-		addr.setText("<Address>");
-		addr.setToolTipText("IPv4 or IPv6 Address");
-		final Text port = new Text(shell, SWT.NONE);
-		port.setText("<Port>");
-		port.setToolTipText("Number between 0 and some 65k");
-		port.setLocation(0,20);
-		addr.pack();
-		port.pack();
-			
-		return "text";
+		StringBuilder builder = new StringBuilder();
+		
+		for (Text text : textList){
+			builder.append(":");
+			builder.append(text.getText());
+		}
+		preferences.add(builder.toString().substring(1));
+		return builder.toString().substring(1);
 	}
 
 	@Override
@@ -54,13 +54,24 @@ public class PrefList extends ListEditor {
 		return stringList.split(" ");
 	}
 	
-	private String getUserInput(final Text addr, final Text port){
-		String text = addr.getText();
-		text.concat(":");
-		text.concat(port.getText());
+	/**
+	 * Adds list of Texts for this PrefList
+	 * @param textList List of Text fields to be added. ArrayList would be good.
+	 */
+	public void addList(List<Text> textList){
+		this.textList = textList;
+	}
+	
+	protected String[] listToArray(){
+		String[] text = new String[preferences.size()];
+		for (int i = 0; i < text.length; i++){
+			text[i] = preferences.get(i);
+		}
 		return text;
 	}
-
-
 	
+	@Override
+	protected org.eclipse.swt.widgets.List getList(){
+		return (org.eclipse.swt.widgets.List) preferences;
+	}
 }

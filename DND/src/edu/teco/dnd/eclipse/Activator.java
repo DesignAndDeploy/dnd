@@ -16,6 +16,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -109,5 +110,12 @@ public class Activator extends AbstractUIPlugin {
 	
 	public UDPMulticastBeacon getMulticastBeacon() {
 		return beacon;
+	}
+	
+	@Override
+	protected void initializeDefaultPreferences(IPreferenceStore store){
+		store.setDefault("AddrAndPorts", "bli");
+		store.setDefault("Multicast", "bla");
+		store.setDefault("MulticastContent", "blubb");
 	}
 }
