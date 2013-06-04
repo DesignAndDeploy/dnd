@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.preference.ListEditor;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -18,20 +19,20 @@ public class PrefList extends ListEditor {
 	private List<Text> textList;	
 	private List<String> preferences = new ArrayList<String>();
 	
-	public PrefList(String name, String labelText, Composite parent, List<Text> textList){
+	public PrefList(String name, String labelText, Composite parent, List<Text> textList) {
 		super(name, labelText, parent);
 		this.textList = textList;
-		
 	}
 	
 	protected String createList(String[] items) {
-		String str = "";
-		for (int i = 0; i < items.length; i++){
-			items[i].replaceAll(" ", "");
-			str.concat(items[i]);
-			str.concat(" ");
+		final StringBuilder builder = new StringBuilder();
+		for (final String item : items) {
+			if (builder.length() > 0) {
+				builder.append(" ");
+			}
+			builder.append(item.replaceAll(" ", ""));
 		}
-		return str.trim();
+		return builder.toString();
 	}
 
 	@Override
@@ -68,10 +69,5 @@ public class PrefList extends ListEditor {
 			text[i] = preferences.get(i);
 		}
 		return text;
-	}
-	
-	@Override
-	protected org.eclipse.swt.widgets.List getList(){
-		return (org.eclipse.swt.widgets.List) preferences;
 	}
 }

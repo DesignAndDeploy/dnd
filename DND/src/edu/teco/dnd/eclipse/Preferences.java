@@ -55,23 +55,7 @@ public class Preferences extends FieldEditorPreferencePage implements
   	protected IPreferenceStore doGetPreferenceStore(){
   		return Activator.getDefault().getPreferenceStore();
   	}
-  	
-  	//tut noch nicht
-  	public boolean performOK(){
-  		storeValues();
-  		System.out.println("OK gedrückt");
-  		return true;
-  	}
-  	
-  	//tut noch nicht
-  	private void storeValues() {
-  		IPreferenceStore store = getPreferenceStore();
-  		System.out.println("Saving in progress...");
-  		store.setValue("AddrAndPorts", "blu");
-  	}  	
-  	
-  	
-  	
+
   	private PrefList initAddrAndPorts(Composite parent){
   		Label lAddr = new Label(parent, NONE);
   		lAddr.setText("Address for Eclipse:");
@@ -88,7 +72,11 @@ public class Preferences extends FieldEditorPreferencePage implements
  		addrAndPorts.add(addr);
  		addrAndPorts.add(port);
  		
- 		return new PrefList("AddrAndPorts", "", parent, addrAndPorts);
+ 		PrefList prefList = new PrefList("AddrAndPorts", "", parent, addrAndPorts);
+ 		prefList.setPreferenceName("listen");
+ 		prefList.setPreferenceStore(getPreferenceStore());
+ 		
+ 		return prefList;
   	}
   	
   	private PrefList initMulticast(Composite parent){
@@ -112,7 +100,11 @@ public class Preferences extends FieldEditorPreferencePage implements
  		multi.add(port);
  		multi.add(network);
  		
-  		return new PrefList("Multicast", "", parent, multi);
+  		PrefList prefList = new PrefList("Multicast", "", parent, multi);
+  		prefList.setPreferenceName("multicast");
+  		prefList.setPreferenceStore(getPreferenceStore());
+  		
+  		return prefList;
   	}
   	
   	private PrefList initMultiContent(Composite parent){
@@ -131,7 +123,11 @@ public class Preferences extends FieldEditorPreferencePage implements
   		content.add(addr);
   		content.add(port);
   		
-  		return new PrefList("MulticastContent", "", parent, content);
+  		PrefList prefList = new PrefList("MulticastContent", "", parent, content);
+  		prefList.setPreferenceName("announce");
+  		prefList.setPreferenceStore(getPreferenceStore());
+  		
+  		return prefList;
   	}
 
 } 
