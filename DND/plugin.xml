@@ -41,5 +41,10 @@
             class="edu.teco.dnd.eclipse.Preferences"
             id="DND preferences"
             name="DND"/>
+      <page
+            class="edu.teco.dnd.eclipse.PreferencesNetwork"
+            id="DND network preferences"
+            name="Network"
+            category="DND preferences"/>
    </extension>
 </plugin>

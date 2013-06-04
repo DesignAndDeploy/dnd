@@ -8,6 +8,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -26,7 +30,12 @@ import edu.teco.dnd.network.TCPConnectionManager;
  */
 public class ModuleView extends ViewPart implements ConnectionListener {
 	private Label label;
-    ConnectionManager manager;
+    private ConnectionManager manager;
+    
+    private Button button;
+    private boolean serverIsRunning;
+    private Label serverAnnounce;
+    
     private Table moduleTable;
     private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
                 
@@ -45,10 +54,49 @@ public class ModuleView extends ViewPart implements ConnectionListener {
      }     
      
      public void createPartControl(Composite parent) {
+    	 GridLayout layout = new GridLayout(5, false);
+    	 parent.setLayout(layout);    	 
+    	 
           label = new Label(parent, 0);
           label.setText("Modules");
           label.setToolTipText("Shows available modules");
+          
+          serverAnnounce = new Label(parent, 0);
+          serverAnnounce.setText("");
+          
+          serverIsRunning = false;
+          createStartButton(parent);
           createModuleTable(parent);
+     }
+     
+     /**
+      * Creates a Button that starts the Server when pressed
+      * @param parent Composite containing the button
+      */
+     private void createStartButton(Composite parent){
+    	     	 
+    	 button = new Button(parent, SWT.NONE);
+    	 button.setText("Start Server");
+    	 button.setToolTipText("Start the server. duh.");
+    	 GridData gridData = new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1);
+    	 button.setLayoutData(gridData); 
+    	 button.addSelectionListener(new SelectionAdapter() {
+ 			@Override
+ 			public void widgetSelected(SelectionEvent e) {
+ 				if(serverIsRunning){
+ 					ModuleView.this.serverAnnounce.setText("Server should already be running by now");
+ 					//TODO: Philipp, willst du auch eine Stop-Server - Funktion?
+ 				}
+ 				else{
+ 					ModuleView.this.serverAnnounce.setText("Started server");
+ 					//TODO: Server starten. Wie auch immer.
+ 					serverIsRunning = true; //kann man das auch abfragen?
+ 				}
+ 	        
+ 			}
+ 		});
+    	 
+    	 
      }
      
      /**

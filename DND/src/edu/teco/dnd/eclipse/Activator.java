@@ -114,8 +114,8 @@ public class Activator extends AbstractUIPlugin {
 	
 	@Override
 	protected void initializeDefaultPreferences(IPreferenceStore store){
-		store.setDefault("AddrAndPorts", "bli");
-		store.setDefault("Multicast", "bla");
-		store.setDefault("MulticastContent", "blubb");
+		store.setDefault("listen", "bli");
+		store.setDefault("multicast", "bla");
+		store.setDefault("announce", "blubb");
 	}
 }
