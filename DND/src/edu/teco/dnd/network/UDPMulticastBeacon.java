@@ -89,7 +89,12 @@ public class UDPMulticastBeacon {
 			new HashMap<Map.Entry<NetworkInterface,InetSocketAddress>, DatagramChannel>();
 	
 	/**
-	 * Lock used for synchronizing access to {@link #channels}.
+	 * Is set to true if the beacon should shut down.
+	 */
+	private boolean shutdown = false;
+	
+	/**
+	 * Lock used for synchronizing access to {@link #channels} and {@link #shutdown}.
 	 */
 	private final ReadWriteLock channelLock = new ReentrantReadWriteLock();
 	
@@ -183,18 +188,50 @@ public class UDPMulticastBeacon {
 	 *		multicast address.
 	 */
 	public void addAddress(final NetworkInterface inf, final InetSocketAddress address) {
+		final Entry<NetworkInterface, InetSocketAddress> key =
+				new AbstractMap.SimpleEntry<NetworkInterface, InetSocketAddress>(inf, address);
+		channelLock.readLock().lock();
+		try {
+			if (shutdown || channels.containsKey(key)) {
+				return;
+			}
+		} finally {
+			channelLock.readLock().unlock();
+		}
+		
 		final Map<AttributeKey<?>, Object> attrs = new HashMap<AttributeKey<?>, Object>();
 		attrs.put(DatagramPacketWrapper.TARGET_ADDRESS, address);
-		channelFactory.bind(inf, address, attrs).addListener(new ChannelFutureListener() {
+		ChannelFuture future = null;
+		channelLock.writeLock().lock();
+		try {
+			if (shutdown || channels.containsKey(key)) {
+				return;
+			}
+			future = channelFactory.bind(inf, address, attrs);
+			channels.put(key, (DatagramChannel) future.channel());
+		} finally {
+			channelLock.writeLock().unlock();
+		}
+		
+		future.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(final ChannelFuture future) throws Exception {
-				if (future.isSuccess()) {
-					channelLock.writeLock().lock();
-					channels.put(new AbstractMap.SimpleEntry<NetworkInterface, InetSocketAddress>(inf, address),
-							(DatagramChannel) future.channel());
-					channelLock.writeLock().unlock();
-				} else {
+				if (!future.isSuccess()) {
 					LOGGER.debug("bind {} failed");
+					future.channel().close();
+				}
+			}
+		});
+		future.channel().closeFuture().addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(final ChannelFuture future) throws Exception {
+				channelLock.writeLock().lock();
+				try {
+					if (future.channel().equals(channels.get(key))) {
+						channels.remove(key);
+					}
+				} finally {
+					channelLock.writeLock().unlock();
 				}
 			}
 		});
@@ -236,11 +273,11 @@ public class UDPMulticastBeacon {
 		final Entry<NetworkInterface, InetSocketAddress> key =
 				new SimpleEntry<NetworkInterface, InetSocketAddress>(inf, address);
 		Channel channel = null;
-		channelLock.writeLock().lock();
+		channelLock.readLock().lock();
 		try {
-			channel = channels.remove(key);
+			channel = channels.get(key);
 		} finally {
-			channelLock.writeLock().unlock();
+			channelLock.readLock().unlock();
 		}
 		if (channel != null) {
 			channel.close();
@@ -318,11 +355,84 @@ public class UDPMulticastBeacon {
 		channelLock.readLock().lock();
 		try {
 			for (final DatagramChannel channel : channels.values()) {
-				channel.write(msg);
+				LOGGER.trace("trying to send on {}", channel);
+				if (channel.isActive()) {
+					channel.write(msg);
+				}
 			}
 		} finally {
 			channelLock.readLock().unlock();
 		}
+	}
+	
+	/**
+	 * Closes all channels and stops this UDPMulticastBeacon from creating new ones.
+	 */
+	public void shutdown() {
+		LOGGER.entry();
+		channelLock.readLock().lock();
+		try {
+			if (shutdown) {
+				LOGGER.exit();
+				return;
+			}
+		} finally {
+			channelLock.readLock().unlock();
+		}
+		
+		channelLock.writeLock().lock();
+		try {
+			shutdown = true;
+			for (final Channel channel : channels.values()) {
+				channel.close();
+			}
+		} finally {
+			channelLock.writeLock().unlock();
+		}
+		LOGGER.exit();
+	}
+	
+	/**
+	 * Returns true if this UDPMulticastBeacon is shutting down or has finished shutting down. This is basically
+	 * whether or not {@link #shutdown()} has been called.
+	 * 
+	 * @return true if this UDPMulticastBeacon is shutting down or has finished shutting down
+	 */
+	public boolean isShuttingDown() {
+		LOGGER.entry();
+		channelLock.readLock().lock();
+		try {
+			LOGGER.exit(shutdown);
+			return shutdown;
+		} finally {
+			channelLock.readLock().unlock();
+		}
+	}
+	
+	/**
+	 * Returns true if this UDPMulticastBeacon has finished shutting down.
+	 * 
+	 * @return true if this UDPMulticastBeacon has finished shutting down
+	 */
+	public boolean isShutDown() {
+		LOGGER.entry();
+		channelLock.readLock().lock();
+		try {
+			if (!shutdown) {
+				LOGGER.exit(false);
+				return false;
+			}
+			for (final Channel channel : channels.values()) {
+				if (!channel.closeFuture().isDone()) {
+					LOGGER.exit(false);
+					return false;
+				}
+			}
+		} finally {
+			channelLock.readLock().unlock();
+		}
+		LOGGER.exit(true);
+		return true;
 	}
 	
 	/**
