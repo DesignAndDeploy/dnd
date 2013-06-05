@@ -19,10 +19,7 @@ public class Preferences extends FieldEditorPreferencePage implements IWorkbench
 
 	@Override
 	protected void createFieldEditors() {
-		BooleanFieldEditor startServer = new BooleanFieldEditor("startServer", "Start server when plugin is loaded",
-				NONE, getFieldEditorParent());
-		startServer.setPreferenceStore(getPreferenceStore());
-		addField(startServer);
+		
 	}
 
 }

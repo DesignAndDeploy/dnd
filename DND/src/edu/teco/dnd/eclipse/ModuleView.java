@@ -145,8 +145,6 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 		serverStatus.setLayoutData(gridData);
 	}
 	
-	
-	
 	/**
 	 * Creates a Table containing currently available modules.
 	 * 

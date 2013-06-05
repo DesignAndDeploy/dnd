@@ -8,6 +8,7 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -42,6 +43,7 @@ public class PrefList extends ListEditor {
 			builder.append(":");
 			builder.append(text.getText());
 		}
+		//TODO: Überprüfen, ob eingegebene Daten sinnvoll sind
 		preferences.add(builder.toString().substring(1));
 		return builder.toString().substring(1);
 	}
