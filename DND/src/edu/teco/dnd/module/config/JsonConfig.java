@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import edu.teco.dnd.util.InetSocketAddressAdapter;
+import edu.teco.dnd.util.NetConnection;
+import edu.teco.dnd.util.NetConnectionAdapter;
 
 public class JsonConfig extends ConfigReader {
 	private String name;

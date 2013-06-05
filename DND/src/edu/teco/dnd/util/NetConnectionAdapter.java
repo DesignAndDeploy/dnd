@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.config;
+package edu.teco.dnd.util;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
@@ -17,7 +17,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import edu.teco.dnd.module.config.ConfigReader.NetConnection;
+
 
 /**
  * A Gson adapter for {@link NetConnection}.
