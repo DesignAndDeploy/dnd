@@ -3,6 +3,7 @@ package edu.teco.dnd.network;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 import edu.teco.dnd.network.messages.Message;
 
@@ -109,14 +110,11 @@ public interface ConnectionManager {
 	 * @return true if this TCPConnectionManager is shutting down or has finished shutting down
 	 */
 	public boolean isShuttingDown();
-	
+		
 	/**
-	 * Checks if the all connections have been closed. Will always return false if {@link #shutdown()} has not been
-	 * called.
+	 * Returns a Future that is done when the ConnectionManager has shut down.
 	 * 
-	 * @return true if shutdown has been called and all connections are closed
+	 * @return a Future that is done when the ConnectionManager has shut down
 	 */
-	public boolean isShutDown();
-	
-	// TODO: add await for shutdown
+	public Future<Void> getShutdownFuture();
 }

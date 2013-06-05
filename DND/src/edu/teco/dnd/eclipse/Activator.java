@@ -84,7 +84,7 @@ public class Activator extends AbstractUIPlugin {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
 		try {
-			if (connectionManager != null && !connectionManager.isShutDown()) {
+			if (connectionManager != null && !connectionManager.getShutdownFuture().isDone()) {
 				LOGGER.exit();
 				return;
 			}
@@ -100,7 +100,7 @@ public class Activator extends AbstractUIPlugin {
 			
 		serverStateLock.writeLock().lock();
 		try {
-			if (this.connectionManager != null && !this.connectionManager.isShutDown()) {
+			if (this.connectionManager != null) {
 				LOGGER.exit();
 				return;
 			}
@@ -153,7 +153,7 @@ public class Activator extends AbstractUIPlugin {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
 		try {
-			if (connectionManager == null || connectionManager.isShuttingDown()) {
+			if (connectionManager == null) {
 				LOGGER.exit();
 				return;
 			}
@@ -163,7 +163,7 @@ public class Activator extends AbstractUIPlugin {
 		
 		serverStateLock.writeLock().lock();
 		try {
-			if (connectionManager == null || connectionManager.isShuttingDown()) {
+			if (connectionManager == null) {
 				return;
 			}
 			connectionManager.shutdown();
@@ -172,20 +172,26 @@ public class Activator extends AbstractUIPlugin {
 			serverStateLock.writeLock().unlock();
 		}
 		new Thread() {
-			@Override
-			public void run() {
-				Future<Void> shutdownFuture = beacon.getShutdownFuture();
-				while (!shutdownFuture.isDone()) {
+			private void await(final Future<?> future) {
+				while (!future.isDone()) {
 					try {
-						beacon.getShutdownFuture().get();
+						future.get();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
 					} catch (ExecutionException e) {
-						e.printStackTrace();
+						break;
 					}
 				}
+			}
+			
+			@Override
+			public void run() {
+				await(connectionManager.getShutdownFuture());
+				await(beacon.getShutdownFuture());
+				
 				serverStateLock.writeLock().lock();
 				try {
+					connectionManager = null;
+					beacon = null;
 					for (final DNDServerStateListener listener : serverStateListener) {
 						listener.serverStopped();
 					}

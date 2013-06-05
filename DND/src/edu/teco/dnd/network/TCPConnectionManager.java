@@ -33,7 +33,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -112,6 +115,16 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * {@link #unconnectedChannels} and {@link #shutdown}.
 	 */
 	private final ReadWriteLock channelsLock = new ReentrantReadWriteLock();
+	
+	/**
+	 * Used to signal that a channel has been closed.
+	 */
+	private final Condition shutdownCondition = channelsLock.writeLock().newCondition();
+	
+	/**
+	 * Future that is done when this TCPConnectionManager has been shut down.
+	 */
+	private final Future<Void> shutdownFuture = new ShutdownFuture();
 
 	/**
 	 * Handlers for given application IDs and Message classes.
@@ -322,6 +335,15 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 						channelsLock.writeLock().unlock();
 					}
 				}
+			}
+		});
+		future.channel().closeFuture().addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(final ChannelFuture future) {
+				channelsLock.writeLock().lock();
+				serverChannels.remove(future.channel());
+				shutdownCondition.signalAll();
+				channelsLock.writeLock().unlock();
 			}
 		});
 		LOGGER.exit();
@@ -617,6 +639,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 					notifyListener = true;
 					clientChannels.remove(remoteUUID);
 				}
+				shutdownCondition.signalAll();
 			} finally {
 				channelsLock.writeLock().unlock();
 			}
@@ -834,31 +857,61 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		}
 	}
 	
-	@Override
-	public boolean isShutDown() {
-		LOGGER.entry();
-		channelsLock.readLock().lock();
-		try {
-			if (!shutdown) {
-				LOGGER.exit(false);
-				return false;
-			}
-			for (final Channel channel : serverChannels) {
-				if (!channel.closeFuture().isDone()) {
-					LOGGER.exit(false);
-					return false;
-				}
-			}
-			for (final Channel channel : clientChannels.values()) {
-				if (!channel.closeFuture().isDone()) {
-					LOGGER.exit(false);
-					return false;
-				}
-			}
-		} finally {
-			channelsLock.readLock().unlock();
+	public Future<Void> getShutdownFuture() {
+		return shutdownFuture;
+	}
+	
+	private class ShutdownFuture implements Future<Void> {
+		@Override
+		public boolean cancel(boolean mayInterruptIfRunning) {
+			return false;
 		}
-		LOGGER.exit(true);
-		return true;
+
+		@Override
+		public Void get() throws InterruptedException {
+			channelsLock.writeLock().lock();
+			try {
+				while (!isDone()) {
+					shutdownCondition.await();
+				}
+			} finally {
+				channelsLock.writeLock().unlock();
+			}
+			return null;
+		}
+
+		@Override
+		public Void get(final long timeout, final TimeUnit unit) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isCancelled() {
+			return false;
+		}
+
+		@Override
+		public boolean isDone() {
+			channelsLock.readLock().lock();
+			try {
+				if (!shutdown) {
+					return false;
+				}
+				for (final Channel channel : serverChannels) {
+					if (!channel.closeFuture().isDone()) {
+						return false;
+					}
+				}
+				for (final Channel channel : clientChannels.values()) {
+					if (!channel.closeFuture().isDone()) {
+						return false;
+					}
+				}
+			} finally {
+				channelsLock.readLock().unlock();
+			}
+			return true;
+		}
+		
 	}
 }
