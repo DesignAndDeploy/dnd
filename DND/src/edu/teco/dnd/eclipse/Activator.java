@@ -7,6 +7,7 @@ import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.net.InetSocketAddress;
@@ -34,7 +35,6 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.util.NetConnection;
 
-// TODO: EventLoopGroups are not stopped. Probably need a way to listen for ConnectionManager/UDPMulticastBeacon
 public class Activator extends AbstractUIPlugin {
 	private static final Logger LOGGER = LogManager.getLogger(Activator.class);
 	
@@ -45,6 +45,8 @@ public class Activator extends AbstractUIPlugin {
 	private ConnectionManager connectionManager;
 
 	private UDPMulticastBeacon beacon;
+	
+	private final List<EventExecutorGroup> eventExecutorGroups = new ArrayList<EventExecutorGroup>();
 	
 	private final Set<DNDServerStateListener> serverStateListener = new HashSet<DNDServerStateListener>();
 	
@@ -106,6 +108,9 @@ public class Activator extends AbstractUIPlugin {
 			}
 
 			networkEventLoopGroup = new NioEventLoopGroup();
+			OioEventLoopGroup oioEventLoopGroup = new OioEventLoopGroup();
+			eventExecutorGroups.add(networkEventLoopGroup);
+			eventExecutorGroups.add(oioEventLoopGroup);
 		
 			connectionManager = new TCPConnectionManager(networkEventLoopGroup,
 					networkEventLoopGroup, new ChannelFactory<NioServerSocketChannel>() {
@@ -126,7 +131,7 @@ public class Activator extends AbstractUIPlugin {
 				public OioDatagramChannel newChannel() {
 					return new OioDatagramChannel();
 				}
-			}, new OioEventLoopGroup(), networkEventLoopGroup, uuid);
+			}, oioEventLoopGroup, networkEventLoopGroup, uuid);
 			
 			for (final DNDServerStateListener listener : serverStateListener) {
 				listener.serverStarted(connectionManager, beacon);
@@ -196,6 +201,10 @@ public class Activator extends AbstractUIPlugin {
 				try {
 					connectionManager = null;
 					beacon = null;
+					for (final EventExecutorGroup group : eventExecutorGroups) {
+						group.shutdownGracefully();
+					}
+					eventExecutorGroups.clear();
 					for (final DNDServerStateListener listener : serverStateListener) {
 						listener.serverStopped();
 					}
