@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -125,10 +127,6 @@ public class Activator extends AbstractUIPlugin {
 					return new OioDatagramChannel();
 				}
 			}, new OioEventLoopGroup(), networkEventLoopGroup, uuid);
-			
-			for (final DNDServerStateListener listener : serverStateListener) {
-				listener.serverStarted(connectionManager, beacon);
-			}
 		} finally {
 			serverStateLock.writeLock().unlock();
 		}
@@ -170,12 +168,32 @@ public class Activator extends AbstractUIPlugin {
 			}
 			connectionManager.shutdown();
 			beacon.shutdown();
-			for (final DNDServerStateListener listener : serverStateListener) {
-				listener.serverStopped();
-			}
 		} finally {
 			serverStateLock.writeLock().unlock();
 		}
+		new Thread() {
+			@Override
+			public void run() {
+				Future<Void> shutdownFuture = beacon.getShutdownFuture();
+				while (!shutdownFuture.isDone()) {
+					try {
+						beacon.getShutdownFuture().get();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+					}
+				}
+				serverStateLock.writeLock().lock();
+				try {
+					for (final DNDServerStateListener listener : serverStateListener) {
+						listener.serverStopped();
+					}
+				} finally {
+					serverStateLock.writeLock().unlock();
+				}
+			}
+		}.run();
 		LOGGER.exit();
 	}
 

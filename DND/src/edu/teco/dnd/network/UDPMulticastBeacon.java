@@ -31,8 +31,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -97,6 +101,10 @@ public class UDPMulticastBeacon {
 	 * Lock used for synchronizing access to {@link #channels} and {@link #shutdown}.
 	 */
 	private final ReadWriteLock channelLock = new ReentrantReadWriteLock();
+	
+	private final Condition shutdownCondition = channelLock.writeLock().newCondition();
+	
+	private final Future<Void> shutdownFuture = new ShutdownFuture();
 	
 	/**
 	 * The listeners that will be informed when a beacon is received.
@@ -230,6 +238,12 @@ public class UDPMulticastBeacon {
 					if (future.channel().equals(channels.get(key))) {
 						channels.remove(key);
 					}
+				} finally {
+					channelLock.writeLock().unlock();
+				}
+				channelLock.writeLock().lock();
+				try {
+					shutdownCondition.signalAll();
 				} finally {
 					channelLock.writeLock().unlock();
 				}
@@ -435,6 +449,10 @@ public class UDPMulticastBeacon {
 		return true;
 	}
 	
+	public Future<Void> getShutdownFuture() {
+		return shutdownFuture;
+	}
+	
 	/**
 	 * Handles incoming beacons.
 	 * 
@@ -466,4 +484,53 @@ public class UDPMulticastBeacon {
 			handleBeacon(msg);
 		}
 	};
+	
+	private class ShutdownFuture implements Future<Void> {
+		@Override
+		public boolean cancel(boolean mayInterruptIfRunning) {
+			return false;
+		}
+
+		@Override
+		public Void get() throws InterruptedException {
+			while (!isDone()) {
+				channelLock.writeLock().lock();
+				try {
+					shutdownCondition.await();
+				} finally {
+					channelLock.writeLock().unlock();
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public Void get(final long timeout, final TimeUnit unit) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isCancelled() {
+			return false;
+		}
+
+		@Override
+		public boolean isDone() {
+			channelLock.readLock().lock();
+			try {
+				if (!shutdown) {
+					return false;
+				}
+				for (final Channel channel : channels.values()) {
+					if (!channel.closeFuture().isDone()) {
+						return false;
+					}
+				}
+			} finally {
+				channelLock.readLock().unlock();
+			}
+			return true;
+		}
+		
+	}
 }
