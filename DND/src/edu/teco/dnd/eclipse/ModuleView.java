@@ -71,6 +71,13 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 		}
 		LOGGER.exit();
 	}
+	
+	@Override
+	public void dispose() {
+		LOGGER.entry();
+		manager.removeConnectionListener(this);
+		LOGGER.exit();
+	}
 
 	public void createPartControl(Composite parent) {
 		GridLayout layout = new GridLayout(5, false);
