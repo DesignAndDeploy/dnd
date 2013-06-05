@@ -39,9 +39,7 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
 	
-	private Label label;
 	private ConnectionManager manager;
-
 	private Button button;
 	private boolean serverIsRunning;
 	private Label serverAnnounce;
@@ -58,7 +56,7 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 
 	@Override
 	public void setFocus() {
-		label.setFocus();
+		button.setFocus();
 	}
 
 	@Override
@@ -83,19 +81,25 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		GridLayout layout = new GridLayout(5, false);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
 		parent.setLayout(layout);
-
-		label = new Label(parent, 0);
-		label.setText("Modules");
-		label.setToolTipText("Shows available modules");
-
-		serverAnnounce = new Label(parent, 0);
-		serverAnnounce.setText("");
-
+		
 		serverIsRunning = false;
 		createStartButton(parent);
 		createModuleTable(parent);
+		
+		
+		GridData gridData = new GridData();
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.horizontalAlignment = GridData.FILL;
+		
+		serverAnnounce = new Label(parent, 0);
+		serverAnnounce.setText("Server not running");
+
+		
+		
+		
 	}
 
 	/**
@@ -108,13 +112,13 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 		button = new Button(parent, SWT.NONE);
 		button.setText("Start Server");
 		button.setToolTipText("Start the server. duh.");
-		GridData gridData = new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1);
-		button.setLayoutData(gridData);
+	//	GridData gridData = new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1);
+	//	button.setLayoutData(gridData);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (serverIsRunning) {
-					ModuleView.this.serverAnnounce.setText("Server should already be running by now");
+					ModuleView.this.serverAnnounce.setText("Started server");
 					// TODO: Philipp, willst du auch eine Stop-Server -
 					// Funktion?
 				} else {
@@ -135,10 +139,16 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	 *            Composite containing the table
 	 */
 	private void createModuleTable(Composite parent) {
+		GridData grid = new GridData();
+		grid.verticalSpan = 2;	
+		grid.verticalAlignment = GridData.FILL;
+		grid.horizontalAlignment = GridData.FILL;
+		
 		moduleTable = new Table(parent, 0);
 		moduleTable.setLinesVisible(true);
 		moduleTable.setHeaderVisible(true);
-
+		moduleTable.setLayoutData(grid);
+		
 		TableColumn column = new TableColumn(moduleTable, SWT.None);
 		column.setText("Available Modules");
 		moduleTable.setToolTipText("Currently available modules");
