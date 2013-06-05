@@ -23,6 +23,7 @@ import org.osgi.framework.BundleContext;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.util.NetConnection;
 
 public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
@@ -36,14 +37,12 @@ public class Activator extends AbstractUIPlugin {
 	public static Activator getDefault() {
 		return plugin;
 	}
-
-	@Override
-	public void start(final BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-
-		uuid = UUID.randomUUID();
-
+	
+	public void startServer() {
+		final List<InetSocketAddress> listen = getListen();
+		final List<InetSocketAddress> announce = getAnnounce();
+		final List<NetConnection> multicast = getMulticast();
+		
 		final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
 
 		final TCPConnectionManager connectionManager = new TCPConnectionManager(networkEventLoopGroup,
@@ -67,30 +66,81 @@ public class Activator extends AbstractUIPlugin {
 			}
 		}, new OioEventLoopGroup(), networkEventLoopGroup, uuid);
 		beacon.addListener(connectionManager);
-		final List<InetSocketAddress> announce = new ArrayList<InetSocketAddress>();
-		for (final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces(); interfaces
-				.hasMoreElements();) {
-			final NetworkInterface interf = interfaces.nextElement();
-			for (final Enumeration<InetAddress> addresses = interf.getInetAddresses(); addresses.hasMoreElements();) {
-				final InetAddress address = addresses.nextElement();
-				announce.add(new InetSocketAddress(address, 5000));
-			}
-		}
 		beacon.setAnnounceAddresses(announce);
 
 		networkEventLoopGroup.execute(new Runnable() {
 			@Override
 			public void run() {
-				connectionManager.startListening(new InetSocketAddress(5000));
-				try {
-					beacon.addAddress(new InetSocketAddress("225.0.0.1", 5000));
-				} catch (final SocketException e) {
-					e.printStackTrace();
+				for (final InetSocketAddress address : listen) {
+					connectionManager.startListening(address);
+				}
+				for (final NetConnection netConnection : multicast) {
+					beacon.addAddress(netConnection.getInterface(), netConnection.getAddress());
 				}
 			}
 		});
 	}
 
+	private List<InetSocketAddress> getListen() {
+		final String[] items = getPreferenceStore().getString("listen").split(" ");
+		final List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>(items.length);
+		for (final String item : items) {
+			final String[] parts = item.split(":", 2);
+			if (parts.length != 2) {
+				continue;
+			}
+			try {
+				addresses.add(new InetSocketAddress(parts[0], Integer.valueOf(parts[1])));
+			} catch (final NumberFormatException e) {
+			}
+		}
+		return addresses;
+	}
+
+	private List<InetSocketAddress> getAnnounce() {
+		final String[] items = getPreferenceStore().getString("announce").split(" ");
+		final List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>(items.length);
+		for (final String item : items) {
+			final String[] parts = item.split(":", 2);
+			if (parts.length != 2) {
+				continue;
+			}
+			try {
+				addresses.add(new InetSocketAddress(parts[0], Integer.valueOf(parts[1])));
+			} catch (final NumberFormatException e) {
+			}
+		}
+		return addresses;
+	}
+
+	private List<NetConnection> getMulticast() {
+		final String[] items = getPreferenceStore().getString("multicast").split(" ");
+		final List<NetConnection> addresses = new ArrayList<NetConnection>(items.length);
+		for (final String item : items) {
+			final String[] parts = item.split(":", 3);
+			if (parts.length != 3) {
+				continue;
+			}
+			try {
+				addresses.add(new NetConnection(new InetSocketAddress(parts[0], Integer.valueOf(parts[1])),
+						NetworkInterface.getByName(parts[2])));
+			} catch (final NumberFormatException e) {
+			} catch (final SocketException e) {
+			}
+		}
+		return addresses;
+	}
+	
+	@Override
+	public void start(final BundleContext context) throws Exception {
+		super.start(context);
+		plugin = this;
+		
+		uuid = UUID.randomUUID();
+		
+		startServer();
+	}
+	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		super.stop(context);
