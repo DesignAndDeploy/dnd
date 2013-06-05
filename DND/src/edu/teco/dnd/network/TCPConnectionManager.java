@@ -747,22 +747,26 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 
 	@Override
 	public void addConnectionListener(final ConnectionListener listener) {
+		LOGGER.entry(listener);
 		listenersLock.writeLock().lock();
 		try {
 			listeners.add(listener);
 		} finally {
 			listenersLock.writeLock().unlock();
 		}
+		LOGGER.exit();
 	}
 
 	@Override
-	public void removeConnectionListener(ConnectionListener listener) {
+	public void removeConnectionListener(final ConnectionListener listener) {
+		LOGGER.entry(listener);
 		listenersLock.writeLock().lock();
 		try {
 			listeners.remove(listener);
 		} finally {
 			listenersLock.writeLock().unlock();
 		}
+		LOGGER.exit();
 	}
 
 	private void notifyEstablished(final UUID uuid) {

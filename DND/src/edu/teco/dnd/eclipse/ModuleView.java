@@ -56,10 +56,12 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 		manager = Activator.getDefault().getConnectionManager();
 	}
 
+	@Override
 	public void setFocus() {
 		label.setFocus();
 	}
 
+	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		LOGGER.entry(site, memento);
 		super.init(site, memento);
@@ -79,6 +81,7 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 		LOGGER.exit();
 	}
 
+	@Override
 	public void createPartControl(Composite parent) {
 		GridLayout layout = new GridLayout(5, false);
 		parent.setLayout(layout);
