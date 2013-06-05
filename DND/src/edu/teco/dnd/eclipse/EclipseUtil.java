@@ -79,7 +79,8 @@ public final class EclipseUtil {
 	}
 
 	/**
-	 * Gets the absolute paths of all output folders for binary objects of a Java Project.
+	 * Gets the absolute paths of all output folders for binary objects of a
+	 * Java Project.
 	 * 
 	 * @param project
 	 *            the project to inspect

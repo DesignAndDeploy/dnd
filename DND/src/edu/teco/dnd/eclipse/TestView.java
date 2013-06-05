@@ -12,28 +12,28 @@ import org.eclipse.swt.widgets.Text;
 public class TestView {
 	private Display display;
 	private Shell shell;
-	
-	public TestView(){
+
+	public TestView() {
 		init();
 	}
-	
-	public void buttonTest(){
-		Button button =  new Button(shell, SWT.PUSH);
+
+	public void buttonTest() {
+		Button button = new Button(shell, SWT.PUSH);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
-	    public void widgetSelected(SelectionEvent e) {
-	        // Handle the selection event
+			public void widgetSelected(SelectionEvent e) {
+				// Handle the selection event
 				textTest();
-	        System.out.println("Called!");
-	    }
+				System.out.println("Called!");
+			}
 		});
 		button.setLocation(20, 50);
 		button.setText("Das ist ein Knopf");
 		button.pack();
 		startShell();
-		}
-	
-	public void textTest(){
+	}
+
+	public void textTest() {
 		Label label = new Label(shell, SWT.BORDER);
 		label.setText("Hallo");
 		label.setToolTipText("blubb");
@@ -47,22 +47,21 @@ public class TestView {
 		text.pack();
 		label.pack();
 	}
-	
-	private void init(){
+
+	private void init() {
 		display = new Display();
 		shell = new Shell(display);
 	}
 
-	private void startShell(){
+	private void startShell() {
 		shell.open();
 		// Create and check the event loop
 		while (!shell.isDisposed()) {
-		  if (!display.readAndDispatch())
-		    display.sleep();
+			if (!display.readAndDispatch())
+				display.sleep();
 		}
-		display.dispose(); 
+		display.dispose();
 		System.out.println("fertig");
 		init();
 	}
 }
-

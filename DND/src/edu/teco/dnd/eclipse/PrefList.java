@@ -1,6 +1,5 @@
 package edu.teco.dnd.eclipse;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +15,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class PrefList extends ListEditor {
-	private List<Text> textList;	
+	private List<Text> textList;
 	private List<String> preferences = new ArrayList<String>();
-	
+
 	public PrefList(String name, String labelText, Composite parent, List<Text> textList) {
 		super(name, labelText, parent);
 		this.textList = textList;
 	}
-	
+
 	protected String createList(String[] items) {
 		final StringBuilder builder = new StringBuilder();
 		for (final String item : items) {
@@ -38,8 +37,8 @@ public class PrefList extends ListEditor {
 	@Override
 	protected String getNewInputObject() {
 		StringBuilder builder = new StringBuilder();
-		
-		for (Text text : textList){
+
+		for (Text text : textList) {
 			builder.append(":");
 			builder.append(text.getText());
 		}
@@ -49,23 +48,25 @@ public class PrefList extends ListEditor {
 
 	@Override
 	protected String[] parseString(String stringList) {
-		if (stringList.isEmpty()){
+		if (stringList.isEmpty()) {
 			return new String[0];
 		}
 		return stringList.split(" ");
 	}
-	
+
 	/**
 	 * Adds list of Texts for this PrefList
-	 * @param textList List of Text fields to be added. ArrayList would be good.
+	 * 
+	 * @param textList
+	 *            List of Text fields to be added. ArrayList would be good.
 	 */
-	public void addList(List<Text> textList){
+	public void addList(List<Text> textList) {
 		this.textList = textList;
 	}
-	
-	protected String[] listToArray(){
+
+	protected String[] listToArray() {
 		String[] text = new String[preferences.size()];
-		for (int i = 0; i < text.length; i++){
+		for (int i = 0; i < text.length; i++) {
 			text[i] = preferences.get(i);
 		}
 		return text;

@@ -26,44 +26,40 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
 
 public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
-	
+
 	private UUID uuid;
-	
+
 	private ConnectionManager connectionManager;
-	
+
 	private UDPMulticastBeacon beacon;
-	
+
 	public static Activator getDefault() {
 		return plugin;
 	}
-	
+
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		
+
 		uuid = UUID.randomUUID();
-		
+
 		final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
-		
+
 		final TCPConnectionManager connectionManager = new TCPConnectionManager(networkEventLoopGroup,
-				networkEventLoopGroup,
-				new ChannelFactory<NioServerSocketChannel>() {
+				networkEventLoopGroup, new ChannelFactory<NioServerSocketChannel>() {
 					@Override
 					public NioServerSocketChannel newChannel() {
 						return new NioServerSocketChannel();
 					}
-				},
-				new ChannelFactory<NioSocketChannel>() {
+				}, new ChannelFactory<NioSocketChannel>() {
 					@Override
 					public NioSocketChannel newChannel() {
 						return new NioSocketChannel();
 					}
-				},
-				uuid
-			);
+				}, uuid);
 		this.connectionManager = connectionManager;
-		
+
 		beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
 			@Override
 			public OioDatagramChannel newChannel() {
@@ -72,17 +68,16 @@ public class Activator extends AbstractUIPlugin {
 		}, new OioEventLoopGroup(), networkEventLoopGroup, uuid);
 		beacon.addListener(connectionManager);
 		final List<InetSocketAddress> announce = new ArrayList<InetSocketAddress>();
-		for (final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-				interfaces.hasMoreElements(); ) {
+		for (final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces(); interfaces
+				.hasMoreElements();) {
 			final NetworkInterface interf = interfaces.nextElement();
-			for (final Enumeration<InetAddress> addresses = interf.getInetAddresses(); addresses.hasMoreElements(); ) {
+			for (final Enumeration<InetAddress> addresses = interf.getInetAddresses(); addresses.hasMoreElements();) {
 				final InetAddress address = addresses.nextElement();
 				announce.add(new InetSocketAddress(address, 5000));
 			}
 		}
 		beacon.setAnnounceAddresses(announce);
-		
-		
+
 		networkEventLoopGroup.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -91,29 +86,29 @@ public class Activator extends AbstractUIPlugin {
 					beacon.addAddress(new InetSocketAddress("225.0.0.1", 5000));
 				} catch (final SocketException e) {
 					e.printStackTrace();
-				}				
+				}
 			}
 		});
 	}
-	
+
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		super.stop(context);
 		plugin = null;
-		
+
 		// TODO: shutdown
 	}
-	
+
 	public ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
-	
+
 	public UDPMulticastBeacon getMulticastBeacon() {
 		return beacon;
 	}
-	
+
 	@Override
-	protected void initializeDefaultPreferences(IPreferenceStore store){
+	protected void initializeDefaultPreferences(IPreferenceStore store) {
 		store.setDefault("listen", "bli");
 		store.setDefault("multicast", "bla");
 		store.setDefault("announce", "blubb");

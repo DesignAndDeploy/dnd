@@ -1,6 +1,5 @@
 package edu.teco.dnd.eclipse;
 
-
 public class TestMain {
 
 	/**
@@ -8,8 +7,8 @@ public class TestMain {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//TestView test = new TestView();
-		//test.buttonTest();
+		// TestView test = new TestView();
+		// test.buttonTest();
 	}
-	
+
 }

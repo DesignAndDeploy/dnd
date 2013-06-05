@@ -9,8 +9,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  * This class manages the additional Preferences for this eclipse plugin.
  */
 
-public class Preferences extends FieldEditorPreferencePage implements
-		IWorkbenchPreferencePage {
+public class Preferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	@Override
 	public void init(IWorkbench workbench) {
@@ -20,9 +19,8 @@ public class Preferences extends FieldEditorPreferencePage implements
 
 	@Override
 	protected void createFieldEditors() {
-		BooleanFieldEditor startServer = new BooleanFieldEditor("startServer",
-				"Start server when plugin is loaded", NONE,
-				getFieldEditorParent());
+		BooleanFieldEditor startServer = new BooleanFieldEditor("startServer", "Start server when plugin is loaded",
+				NONE, getFieldEditorParent());
 		startServer.setPreferenceStore(getPreferenceStore());
 		addField(startServer);
 	}

@@ -16,37 +16,38 @@ import org.eclipse.ui.part.ViewPart;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
 
-public class AppView extends ViewPart{
-	 private Label label;
-     ConnectionManager manager;
-     private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();//Used to map FunctionBlocks on table items
-     
-     public AppView() {
-             super();
-             manager = Activator.getDefault().getConnectionManager();
-     }
-     public void setFocus() {
-             label.setFocus();
-     }
-  
-     public void createPartControl(Composite parent) {
-             label = new Label(parent, 0);
-             label.setText("Applications");
-             label.setToolTipText("Shows running function blocks");
-     
-            createFunctionBlockTable(parent);
-     }
-	
-  
-     private void createFunctionBlockTable(Composite parent){
-    	 Table functTable = new Table(parent, 0);
-    	 functTable.setLinesVisible(true);	
-    	 functTable.setHeaderVisible(true);
- 	 
-    	 TableColumn column = new TableColumn(functTable, SWT.NONE);
-    	 column.setText("Running Function Blocks");
-    	 functTable.setToolTipText("Currently running function blocks");
-    	 functTable.getColumn(0).pack();
-     }
-   
+public class AppView extends ViewPart {
+	private Label label;
+	ConnectionManager manager;
+	// Used to map FunctionBlocks on table items
+	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
+
+	public AppView() {
+		super();
+		manager = Activator.getDefault().getConnectionManager();
+	}
+
+	public void setFocus() {
+		label.setFocus();
+	}
+
+	public void createPartControl(Composite parent) {
+		label = new Label(parent, 0);
+		label.setText("Applications");
+		label.setToolTipText("Shows running function blocks");
+
+		createFunctionBlockTable(parent);
+	}
+
+	private void createFunctionBlockTable(Composite parent) {
+		Table functTable = new Table(parent, 0);
+		functTable.setLinesVisible(true);
+		functTable.setHeaderVisible(true);
+
+		TableColumn column = new TableColumn(functTable, SWT.NONE);
+		column.setText("Running Function Blocks");
+		functTable.setToolTipText("Currently running function blocks");
+		functTable.getColumn(0).pack();
+	}
+
 }
