@@ -10,6 +10,21 @@
   	<logger name="edu.teco.dnd" level="ALL" additivity="false">
       <appender-ref ref="Console"/>
     </logger>
+  	<logger name="edu.teco.dnd.network.codecs" level="INFO" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
+  	<logger name="edu.teco.dnd.network.UDPMulticastBeacon" level="INFO" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
+  	<logger name="edu.teco.dnd.network.UDPMulticastChannelFactory" level="INFO" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
+  	<logger name="edu.teco.dnd.util.InetSocketAddressAdapter" level="INFO" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
+  	<logger name="edu.teco.dnd.util.NetConnectionAdapter" level="INFO" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
     <root level="INFO">
       <appender-ref ref="Console"/>
     </root>
