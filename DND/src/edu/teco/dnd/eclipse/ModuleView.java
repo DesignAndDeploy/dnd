@@ -113,14 +113,18 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (ModuleView.this.activator.isRunning()) {
-					ModuleView.this.serverStatus.setText("Stop server...");
-					ModuleView.this.activator.shutdownServer();
-				} else {
-					ModuleView.this.serverStatus.setText("Start server...");
-					ModuleView.this.activator.startServer();
-				}
-
+				new Thread() {
+					@Override
+					public void run() {
+						if (ModuleView.this.activator.isRunning()) {
+							ModuleView.this.serverStatus.setText("Stopping server…");
+							ModuleView.this.activator.shutdownServer();
+						} else {
+							ModuleView.this.serverStatus.setText("Starting server…");
+							ModuleView.this.activator.startServer();
+						}
+					}
+				}.run();
 			}
 		});
 
