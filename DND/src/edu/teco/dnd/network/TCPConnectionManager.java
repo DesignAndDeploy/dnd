@@ -96,15 +96,20 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * Holds all channels that are created but did not complete the handshake.
 	 */
 	private final Collection<Channel> unconnectedChannels = new ArrayList<Channel>();
-
+	
 	/**
 	 * Contains all client channels with an established connection.
 	 */
 	private final Map<UUID, Channel> clientChannels = new HashMap<UUID, Channel>();
 
 	/**
-	 * Lock used for synchronizing access to {@link #serverChannels}, {@link #clientChannels} and
-	 * {@link #unconnectedChannels}.
+	 * Set to true if the TCPConnectionManager is shutting down.
+	 */
+	private boolean shutdown = false;
+
+	/**
+	 * Lock used for synchronizing access to {@link #serverChannels}, {@link #clientChannels},
+	 * {@link #unconnectedChannels} and {@link #shutdown}.
 	 */
 	private final ReadWriteLock channelsLock = new ReentrantReadWriteLock();
 
@@ -259,12 +264,22 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	public void startListening(final InetSocketAddress address) {
-		// FIXME: if the channel future has not yet finished there is no way to
-		// cancel the bind
 		LOGGER.entry(address);
-		final ChannelFuture future = serverFactory.bind(address);
+		channelsLock.readLock().lock();
+		try {
+			if (shutdown) {
+				return;
+			}
+		} finally {
+			channelsLock.readLock().unlock();
+		}
+		ChannelFuture future = null;
 		channelsLock.writeLock().lock();
 		try {
+			if (shutdown) {
+				return;
+			}
+			future = serverFactory.bind(address);
 			unconnectedChannels.add(future.channel());
 		} finally {
 			channelsLock.writeLock().unlock();
@@ -276,8 +291,20 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 					LOGGER.debug("bind {} successful, registering server channel", future);
 					// TODO: this is blocking code, so maybe it should not be
 					// run in the IO event loop
+					channelsLock.readLock().lock();
+					try {
+						if (shutdown) {
+							return;
+						}
+					} finally {
+						channelsLock.readLock().unlock();
+					}
 					channelsLock.writeLock().lock();
 					try {
+						if (shutdown) {
+							LOGGER.debug("shutting down, doing nothing for {}", future);
+							return;
+						}
 						unconnectedChannels.remove(future);
 						serverChannels.add((ServerSocketChannel) future.channel());
 					} finally {
@@ -307,9 +334,20 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 *            the address to connect to
 	 */
 	public void connectTo(final InetSocketAddress address) {
-		final ChannelFuture future = clientFactory.connect(address);
+		channelsLock.readLock().lock();
+		try {
+			if (shutdown) {
+				return;
+			}
+		} finally {
+			channelsLock.readLock().unlock();
+		}
 		channelsLock.writeLock().lock();
 		try {
+			if (shutdown) {
+				return;
+			}
+			final ChannelFuture future = clientFactory.connect(address);
 			unconnectedChannels.add(future.channel());
 		} finally {
 			channelsLock.writeLock().unlock();
@@ -322,7 +360,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		// package loss
 		channelsLock.readLock().lock();
 		try {
-			if (clientChannels.containsKey(beacon.getUUID())) {
+			if (shutdown || clientChannels.containsKey(beacon.getUUID())) {
 				return;
 			}
 		} finally {
@@ -342,7 +380,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		} finally {
 			channelsLock.readLock().unlock();
 		}
-		if (channel != null) {
+		if (channel != null && channel.isActive()) {
 			channel.write(message);
 		}
 	}
@@ -545,11 +583,43 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		}
 
 		@Override
-		public void channelActive(ChannelHandlerContext ctx) {
+		public void channelActive(final ChannelHandlerContext ctx) {
 			ThreadContext.put("remoteAddress", ctx.channel().remoteAddress().toString());
 			LOGGER.entry(ctx);
+			channelsLock.readLock().lock();
+			try {
+				if (shutdown) {
+					LOGGER.exit();
+					ThreadContext.clear();
+					return;
+				}
+			} finally {
+				channelsLock.readLock().unlock();
+			}
 			ctx.write(firstMessage);
 			LOGGER.exit();
+			ThreadContext.clear();
+		}
+		
+		@Override
+		public void channelInactive(final ChannelHandlerContext ctx) {
+			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
+			if (remoteUUID != null) {
+				ThreadContext.put("remoteUUID", remoteUUID.toString());
+			}
+			ThreadContext.put("remoteAddress", ctx.channel().remoteAddress().toString());
+			LOGGER.entry();
+			channelsLock.writeLock().lock();
+			try {
+				unconnectedChannels.remove(ctx.channel());
+				if (ctx.channel().equals(clientChannels.get(remoteUUID))) {
+					clientChannels.remove(remoteUUID);
+				}
+			} finally {
+				channelsLock.writeLock().unlock();
+			}
+			LOGGER.exit();
+			ThreadContext.clear();
 		}
 	}
 
@@ -710,5 +780,77 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		} finally {
 			listenersLock.readLock().unlock();
 		}
+	}
+	
+	@Override
+	public void shutdown() {
+		LOGGER.entry();
+		channelsLock.readLock().lock();
+		try {
+			if (shutdown) {
+				LOGGER.exit();
+				return;
+			}
+		} finally {
+			channelsLock.readLock().unlock();
+		}
+		channelsLock.writeLock().lock();
+		try {
+			shutdown = true;
+			for (final Channel channel : serverChannels) {
+				channel.close();
+			}
+			for (final Channel channel : clientChannels.values()) {
+				if (channel.isActive()) {
+					channel.write(new ConnectionClosedMessage());
+				}
+				channel.close();
+			}
+		} finally {
+			channelsLock.writeLock().unlock();
+		}
+		LOGGER.exit();
+	}
+	
+	@Override
+	public boolean isShuttingDown() {
+		LOGGER.entry();
+		boolean result = false;
+		channelsLock.readLock().lock();
+		try {
+			result = shutdown;
+		} finally {
+			channelsLock.readLock().unlock();
+		}
+		LOGGER.exit(result);
+		return result;
+	}
+	
+	@Override
+	public boolean isShutDown() {
+		LOGGER.entry();
+		channelsLock.readLock().lock();
+		try {
+			if (!shutdown) {
+				LOGGER.exit(false);
+				return false;
+			}
+			for (final Channel channel : serverChannels) {
+				if (!channel.closeFuture().isDone()) {
+					LOGGER.exit(false);
+					return false;
+				}
+			}
+			for (final Channel channel : clientChannels.values()) {
+				if (!channel.closeFuture().isDone()) {
+					LOGGER.exit(false);
+					return false;
+				}
+			}
+		} finally {
+			channelsLock.readLock().unlock();
+		}
+		LOGGER.exit(true);
+		return true;
 	}
 }

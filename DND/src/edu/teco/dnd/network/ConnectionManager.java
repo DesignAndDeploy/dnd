@@ -92,4 +92,31 @@ public interface ConnectionManager {
 	 * @param listener the listener to remove
 	 */
 	public void removeConnectionListener(ConnectionListener listener);
+	
+	/**
+	 * Tells this TCPConnectionManager to shut down. This will close all listening sockets and all connections to other
+	 * TCPConnectionManagers.
+	 * 
+	 * @see #isShuttingDown()
+	 * @see #isShutDown()
+	 */
+	public void shutdown();
+	
+	/**
+	 * Returns true if this TCPConnectionManager is shutting down or has finished shutting down. This basically returns
+	 * whether or not {@link #shutdown()} has been called.
+	 * 
+	 * @return true if this TCPConnectionManager is shutting down or has finished shutting down
+	 */
+	public boolean isShuttingDown();
+	
+	/**
+	 * Checks if the all connections have been closed. Will always return false if {@link #shutdown()} has not been
+	 * called.
+	 * 
+	 * @return true if shutdown has been called and all connections are closed
+	 */
+	public boolean isShutDown();
+	
+	// TODO: add await for shutdown
 }

@@ -163,6 +163,10 @@ public class Activator extends AbstractUIPlugin {
 		plugin = null;
 
 		// TODO: shutdown
+		connectionManager.shutdown();
+		while (!connectionManager.isShutDown()) {
+			Thread.sleep(100);
+		}
 		LOGGER.exit();
 	}
 
