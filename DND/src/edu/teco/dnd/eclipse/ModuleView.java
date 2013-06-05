@@ -1,5 +1,6 @@
 package edu.teco.dnd.eclipse;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import com.sun.swing.internal.plaf.synth.resources.synth;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 
 /**
  * ModuleView: Shows available modules.
@@ -33,25 +35,24 @@ import edu.teco.dnd.network.TCPConnectionManager;
  * @author jung
  * 
  */
-public class ModuleView extends ViewPart implements ConnectionListener {
+public class ModuleView extends ViewPart implements ConnectionListener, DNDServerStateListener {
 	/**
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
 	
-	private ConnectionManager manager;
 	private Button button;
-	private boolean serverIsRunning;
-	private Label serverAnnounce;
-
+	private Label serverStatus;
 	private Table moduleTable;
+
+	private Activator activator;
+	private ConnectionManager manager;
 	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
 	
 	private Display display;
 
 	public ModuleView() {
 		super();
-		manager = Activator.getDefault().getConnectionManager();
 	}
 
 	@Override
@@ -63,19 +64,23 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		LOGGER.entry(site, memento);
 		super.init(site, memento);
-		manager = Activator.getDefault().getConnectionManager();
+		activator = Activator.getDefault();
 		display = Display.getCurrent();
 		if (display == null) {
 			display = Display.getDefault();
 			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
 		}
+		activator.addServerStateListener(this);
 		LOGGER.exit();
 	}
 	
 	@Override
 	public void dispose() {
 		LOGGER.entry();
-		manager.removeConnectionListener(this);
+		if (manager != null){
+			manager.removeConnectionListener(this);
+		}
+		activator.removeServerStateListener(this);
 		LOGGER.exit();
 	}
 
@@ -85,21 +90,9 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 		layout.numColumns = 2;
 		parent.setLayout(layout);
 		
-		serverIsRunning = false;
 		createStartButton(parent);
+		createServerInfo(parent);
 		createModuleTable(parent);
-		
-		
-		GridData gridData = new GridData();
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.horizontalAlignment = GridData.FILL;
-		
-		serverAnnounce = new Label(parent, 0);
-		serverAnnounce.setText("Server not running");
-
-		
-		
-		
 	}
 
 	/**
@@ -110,21 +103,22 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	 */
 	private void createStartButton(Composite parent) {
 		button = new Button(parent, SWT.NONE);
-		button.setText("Start Server");
-		button.setToolTipText("Start the server. duh.");
-	//	GridData gridData = new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1);
-	//	button.setLayoutData(gridData);
+		if(activator.isRunning()){
+			button.setText("Stop Server");
+		}
+		else{
+			button.setText("Start Server");
+		}
+		button.setToolTipText("Start / Stop the server. duh.");
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (serverIsRunning) {
-					ModuleView.this.serverAnnounce.setText("Started server");
-					// TODO: Philipp, willst du auch eine Stop-Server -
-					// Funktion?
+				if (ModuleView.this.activator.isRunning()) {
+					ModuleView.this.serverStatus.setText("Stop server...");
+					ModuleView.this.activator.shutdownServer();
 				} else {
-					ModuleView.this.serverAnnounce.setText("Started server");
-					// TODO: Server starten. Wie auch immer.
-					serverIsRunning = true; // kann man das auch abfragen?
+					ModuleView.this.serverStatus.setText("Start server...");
+					ModuleView.this.activator.startServer();
 				}
 
 			}
@@ -132,6 +126,23 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 
 	}
 
+	private void createServerInfo(Composite parent){
+		GridData gridData = new GridData();
+		gridData.verticalAlignment = GridData.BEGINNING;
+		gridData.horizontalAlignment = GridData.FILL;
+		
+		serverStatus = new Label(parent, 0);
+		if (activator.isRunning()){
+			serverStatus.setText("Server running");
+		}
+		else{
+			serverStatus.setText("Server down");
+		}
+		serverStatus.setLayoutData(gridData);
+	}
+	
+	
+	
 	/**
 	 * Creates a Table containing currently available modules.
 	 * 
@@ -140,9 +151,11 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	 */
 	private void createModuleTable(Composite parent) {
 		GridData grid = new GridData();
-		grid.verticalSpan = 2;	
+		grid.horizontalSpan = 2;	
 		grid.verticalAlignment = GridData.FILL;
 		grid.horizontalAlignment = GridData.FILL;
+		grid.grabExcessHorizontalSpace = true;
+		grid.grabExcessVerticalSpace = true;
 		
 		moduleTable = new Table(parent, 0);
 		moduleTable.setLinesVisible(true);
@@ -152,17 +165,13 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 		TableColumn column = new TableColumn(moduleTable, SWT.None);
 		column.setText("Available Modules");
 		moduleTable.setToolTipText("Currently available modules");
+		/**
+		Collection<UUID> modules = getModules();
+
+		for (UUID moduleID : modules) {
+			addID(moduleID);
+		}**/
 		moduleTable.getColumn(0).pack();
-
-		synchronized (this) {
-			manager.addConnectionListener(this);
-			// Set<UUID> modules = getModules();
-			Collection<UUID> modules = manager.getConnectedModules();
-
-			for (UUID moduleID : modules) {
-				addID(moduleID);
-			}
-		}
 	}
 	
 	/**
@@ -230,12 +239,62 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	 * 
 	 * @return currently running modules
 	 */
-	private Set<UUID> getModules() {
+	private Collection<UUID> getModules() {
 		// später: return manager.getConnectedModules(); bis dahin:
-		Set<UUID> modules = new HashSet<UUID>();
+		Collection<UUID> modules = new HashSet<UUID>();
 		for (int i = 0; i < 6; i++) {
 			modules.add(UUID.randomUUID());
 		}
 		return modules;
+	}
+
+	@Override
+	public void serverStarted(ConnectionManager connectionManager,
+			UDPMulticastBeacon beacon) {
+		System.out.println("server läuft");
+		
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				serverStatus.setText("Server running");
+				button.setText("Stop Server");
+				manager = activator.getConnectionManager();
+				
+				synchronized (ModuleView.this) {
+					for (UUID id : new ArrayList<UUID>(map.keySet())){
+						removeID(id);
+					}
+					manager.addConnectionListener(ModuleView.this);
+					Collection<UUID> modules = manager.getConnectedModules();
+
+					for (UUID moduleID : modules) {
+						addID(moduleID);
+					}
+				}
+			}
+		});
+	}
+
+	@Override
+	public void serverStopped() {
+		System.out.println("Server läuft nicht mehr");
+		
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				synchronized (ModuleView.this){
+					for (UUID id : new ArrayList<UUID>(map.keySet())){
+						removeID(id);
+					}
+				}
+				if(serverStatus != null && button != null){
+					serverStatus.setText("Server down");
+					button.setText("Start Server");	
+				}
+			}
+		});
+		if (manager != null){
+			manager.removeConnectionListener(this);
+		}
 	}
 }
