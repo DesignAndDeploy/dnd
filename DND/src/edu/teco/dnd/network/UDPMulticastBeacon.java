@@ -305,8 +305,9 @@ public class UDPMulticastBeacon {
 	 * @param addresses the addresses to send with the beacon
 	 */
 	public void setAnnounceAddresses(final List<InetSocketAddress> addresses) {
-		final BeaconMessage oldBeacon = beacon.get();
-		beacon.lazySet(new BeaconMessage(oldBeacon.getUUID(), addresses));
+		final BeaconMessage newBeacon = new BeaconMessage(beacon.get().getUUID(), addresses);
+		LOGGER.debug("doing lazy set on beacon to {}", newBeacon);
+		beacon.lazySet(newBeacon);
 	}
 	
 	/**
