@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,6 +21,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.internal.dnd.SwtUtil;
 import org.eclipse.ui.part.ViewPart;
 
+import com.sun.swing.internal.plaf.synth.resources.synth;
+
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
@@ -30,6 +34,11 @@ import edu.teco.dnd.network.TCPConnectionManager;
  * 
  */
 public class ModuleView extends ViewPart implements ConnectionListener {
+	/**
+	 * The logger for this class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
+	
 	private Label label;
 	private ConnectionManager manager;
 
@@ -39,6 +48,8 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 
 	private Table moduleTable;
 	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
+	
+	private Display display;
 
 	public ModuleView() {
 		super();
@@ -50,8 +61,15 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	}
 
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		LOGGER.entry(site, memento);
 		super.init(site, memento);
 		manager = Activator.getDefault().getConnectionManager();
+		display = Display.getCurrent();
+		if (display == null) {
+			display = Display.getDefault();
+			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
+		}
+		LOGGER.exit();
 	}
 
 	public void createPartControl(Composite parent) {
@@ -77,7 +95,6 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 	 *            Composite containing the button
 	 */
 	private void createStartButton(Composite parent) {
-
 		button = new Button(parent, SWT.NONE);
 		button.setText("Start Server");
 		button.setToolTipText("Start the server. duh.");
@@ -123,25 +140,67 @@ public class ModuleView extends ViewPart implements ConnectionListener {
 			Collection<UUID> modules = manager.getConnectedModules();
 
 			for (UUID moduleID : modules) {
-				connectionEstablished(moduleID);
+				addID(moduleID);
 			}
 		}
 	}
-
-	public synchronized void connectionEstablished(UUID id) {
+	
+	/**
+	 * Adds a Module ID to the table.
+	 * 
+	 * @param id the ID to add
+	 */
+	private synchronized void addID(final UUID id) {
+		LOGGER.entry(id);
 		if (!map.containsKey(id)) {
+			LOGGER.trace("id {} is new, adding", id);
 			TableItem item = new TableItem(moduleTable, SWT.NONE);
 			item.setText(0, id.toString());
 			map.put(id, item);
+		} else {
+			LOGGER.debug("trying to add existing id {}", id);
 		}
+		LOGGER.exit();
 	}
-
-	public synchronized void connectionClosed(UUID id) {
+	
+	/**
+	 * Removes a Module ID from the table.
+	 * 
+	 * @param id the ID to remove
+	 */
+	private synchronized void removeID(final UUID id) {
+		LOGGER.entry(id);
 		TableItem item = map.get(id);
 		if (item != null) {
+			LOGGER.trace("found item {} for id {}", item, id);
 			moduleTable.remove(moduleTable.indexOf(item));
 			map.remove(id);
+		} else {
+			LOGGER.debug("trying to remove nonexistant id {}", id);
 		}
+		LOGGER.exit();
+	}
+
+	public void connectionEstablished(final UUID id) {
+		LOGGER.entry(id);
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				addID(id);
+			}
+		});
+		LOGGER.exit();
+	}
+
+	public void connectionClosed(final UUID id) {
+		LOGGER.entry(id);
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				removeID(id);
+			}
+		});
+		LOGGER.exit();
 	}
 
 	/**
