@@ -6,6 +6,7 @@ import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -23,6 +24,7 @@ import org.osgi.framework.BundleContext;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.util.NetConnection;
 
 public class Activator extends AbstractUIPlugin {
@@ -33,7 +35,13 @@ public class Activator extends AbstractUIPlugin {
 	private ConnectionManager connectionManager;
 
 	private UDPMulticastBeacon beacon;
+	
+	
+	static {
+		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
+	}
 
+	
 	public static Activator getDefault() {
 		return plugin;
 	}

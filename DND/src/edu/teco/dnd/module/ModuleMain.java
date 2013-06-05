@@ -6,6 +6,7 @@ import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,6 +18,7 @@ import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.util.NetConnection;
 
 /**
@@ -54,6 +56,8 @@ public class ModuleMain {
 			LOGGER.fatal("could not load config", e);
 			System.exit(1);
 		}
+		
+		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
 		// TODO: add config options to allow selection of netty engine and
 		// number of application threads
