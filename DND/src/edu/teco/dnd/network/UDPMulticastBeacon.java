@@ -493,13 +493,13 @@ public class UDPMulticastBeacon {
 
 		@Override
 		public Void get() throws InterruptedException {
-			while (!isDone()) {
-				channelLock.writeLock().lock();
-				try {
+			channelLock.writeLock().lock();
+			try {
+				while (!isDone()) {
 					shutdownCondition.await();
-				} finally {
-					channelLock.writeLock().unlock();
 				}
+			} finally {
+				channelLock.writeLock().unlock();
 			}
 			return null;
 		}
@@ -531,6 +531,5 @@ public class UDPMulticastBeacon {
 			}
 			return true;
 		}
-		
 	}
 }
