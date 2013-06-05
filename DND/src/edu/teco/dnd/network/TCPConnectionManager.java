@@ -609,14 +609,19 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			}
 			ThreadContext.put("remoteAddress", ctx.channel().remoteAddress().toString());
 			LOGGER.entry();
+			boolean notifyListener = false;
 			channelsLock.writeLock().lock();
 			try {
 				unconnectedChannels.remove(ctx.channel());
 				if (ctx.channel().equals(clientChannels.get(remoteUUID))) {
+					notifyListener = true;
 					clientChannels.remove(remoteUUID);
 				}
 			} finally {
 				channelsLock.writeLock().unlock();
+			}
+			if (notifyListener) {
+				notifyClosed(remoteUUID);
 			}
 			LOGGER.exit();
 			ThreadContext.clear();
