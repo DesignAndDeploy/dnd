@@ -10,7 +10,7 @@
   	<logger name="edu.teco.dnd" level="ALL" additivity="false">
       <appender-ref ref="Console"/>
     </logger>
-    <root level="WARN">
+    <root level="INFO">
       <appender-ref ref="Console"/>
     </root>
   </loggers>

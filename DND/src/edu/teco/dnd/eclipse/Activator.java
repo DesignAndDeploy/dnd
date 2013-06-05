@@ -17,6 +17,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -28,6 +30,8 @@ import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.util.NetConnection;
 
 public class Activator extends AbstractUIPlugin {
+	private static final Logger LOGGER = LogManager.getLogger(Activator.class);
+	
 	private static Activator plugin;
 
 	private UUID uuid;
@@ -47,6 +51,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public void startServer() {
+		LOGGER.entry();
 		final List<InetSocketAddress> listen = getListen();
 		final List<InetSocketAddress> announce = getAnnounce();
 		final List<NetConnection> multicast = getMulticast();
@@ -87,6 +92,8 @@ public class Activator extends AbstractUIPlugin {
 				}
 			}
 		});
+		
+		LOGGER.exit();
 	}
 
 	private List<InetSocketAddress> getListen() {
@@ -141,20 +148,24 @@ public class Activator extends AbstractUIPlugin {
 	
 	@Override
 	public void start(final BundleContext context) throws Exception {
+		LOGGER.entry(context);
 		super.start(context);
 		plugin = this;
 		
 		uuid = UUID.randomUUID();
 		
 		startServer();
+		LOGGER.exit();
 	}
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
+		LOGGER.entry();
 		super.stop(context);
 		plugin = null;
 
 		// TODO: shutdown
+		LOGGER.exit();
 	}
 
 	public ConnectionManager getConnectionManager() {
