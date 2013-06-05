@@ -723,6 +723,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				LOGGER.exit();
 				return;
 			}
+			// TODO: as channelInactive already does this, this can probably be removed
 			channelsLock.readLock().lock();
 			if (ctx.channel().equals(clientChannels.get(remoteUUID))) {
 				channelsLock.readLock().unlock();
