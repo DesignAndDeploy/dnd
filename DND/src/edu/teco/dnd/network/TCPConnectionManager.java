@@ -825,15 +825,13 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	@Override
 	public boolean isShuttingDown() {
 		LOGGER.entry();
-		boolean result = false;
 		channelsLock.readLock().lock();
 		try {
-			result = shutdown;
+			LOGGER.exit(shutdown);
+			return shutdown;
 		} finally {
 			channelsLock.readLock().unlock();
 		}
-		LOGGER.exit(result);
-		return result;
 	}
 	
 	@Override
