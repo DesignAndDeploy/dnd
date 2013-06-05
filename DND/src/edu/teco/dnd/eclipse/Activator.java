@@ -127,6 +127,10 @@ public class Activator extends AbstractUIPlugin {
 					return new OioDatagramChannel();
 				}
 			}, new OioEventLoopGroup(), networkEventLoopGroup, uuid);
+			
+			for (final DNDServerStateListener listener : serverStateListener) {
+				listener.serverStarted(connectionManager, beacon);
+			}
 		} finally {
 			serverStateLock.writeLock().unlock();
 		}
