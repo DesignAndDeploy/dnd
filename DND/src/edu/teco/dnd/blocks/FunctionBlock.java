@@ -26,6 +26,7 @@ public abstract class FunctionBlock implements Serializable {
 	/**
 	 * The ID of this FunctionBlock.
 	 */
+	// TODO: change to UUID
 	private final String id;
 
 	/**
