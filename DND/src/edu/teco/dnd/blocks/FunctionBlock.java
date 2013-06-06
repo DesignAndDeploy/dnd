@@ -45,11 +45,6 @@ public abstract class FunctionBlock implements Serializable {
 	private final Set<String> options = new HashSet<String>();
 
 	/**
-	 * The timer used by this function block.
-	 */
-	private final Timer timer;
-
-	/**
 	 * The position this block wants to be at.
 	 */
 	private String position = null;
@@ -159,13 +154,6 @@ public abstract class FunctionBlock implements Serializable {
 		for (Field option : getOptions(getClass())) {
 			options.add(option.getName());
 		}
-
-		Timed timed = getClass().getAnnotation(Timed.class);
-		if (timed != null && timed.value() > 0) {
-			timer = new SystemTimer(timed.value());
-		} else {
-			timer = NullTimer.getInstance();
-		}
 	}
 
 	/**
@@ -174,7 +162,6 @@ public abstract class FunctionBlock implements Serializable {
 	 * @return the timeinterval this block wishes to be scheduled at, a value less than 0 if no timer is desired.
 	 */
 	public long getTimebetweenSchedules() {
-		// TODO remove unnecessary timer elements.
 		Timed timed = getClass().getAnnotation(Timed.class);
 		if (timed != null && timed.value() > 0) {
 			return timed.value();
@@ -364,34 +351,13 @@ public abstract class FunctionBlock implements Serializable {
 	 */
 	public final synchronized boolean isDirty() {
 		boolean dirty = false;
-		if (timer.check()) {
-			dirty = true;
-		} else {
-			for (ConnectionTarget connectionTarget : connectionTargets.values()) {
-				if (connectionTarget.isDirty()) {
-					dirty = true;
-					break;
-				}
+		for (ConnectionTarget connectionTarget : connectionTargets.values()) {
+			if (connectionTarget.isDirty()) {
+				dirty = true;
+				break;
 			}
 		}
 		return dirty;
-	}
-
-	/**
-	 * Resets the timer of this FunctionBlock.
-	 */
-	public void resetTimer() {
-		timer.reset();
-	}
-
-	/**
-	 * Returns the time in milliseconds until the next tick is scheduled. Returns a negative number if the time is
-	 * unknown or no tick is scheduled.
-	 * 
-	 * @return the time in milliseconds until the next tick is scheduled. Negative if unknown.
-	 */
-	public long getTimeToNextTick() {
-		return timer.getTimeToNextTick();
 	}
 
 	/**
@@ -445,7 +411,6 @@ public abstract class FunctionBlock implements Serializable {
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
 		result = prime * result + ((position == null) ? 0 : position.hashCode());
-		result = prime * result + ((timer == null) ? 0 : timer.hashCode());
 		return result;
 	}
 
@@ -483,11 +448,6 @@ public abstract class FunctionBlock implements Serializable {
 			if (other.position != null)
 				return false;
 		} else if (!position.equals(other.position))
-			return false;
-		if (timer == null) {
-			if (other.timer != null)
-				return false;
-		} else if (!timer.equals(other.timer))
 			return false;
 		return true;
 	}
