@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+// FIXME: is this still needed?
 public class TestView {
 	private Display display;
 	private Shell shell;
