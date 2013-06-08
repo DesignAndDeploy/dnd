@@ -43,6 +43,14 @@ framework.
 		* http://netty.io/
 		* https://github.com/netty/netty
 
+This product contains The Byte Code Engineering Library (Apache Commons BCEL),
+a library for analyzing, creating and manipulating binary Java class files.
+
+	* LICENSE:
+		* license/license.bcel.txt (Apache License 2.0)
+	* HOMEPAGE:
+		* http://commons.apache.org/proper/commons-bcel/
+
 This product uses Eclipse, an open source, robust, full-featured,
 commercial-quality, industry platform for the development of highly integrated
 tools and rich client applications.
