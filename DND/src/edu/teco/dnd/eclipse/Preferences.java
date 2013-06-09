@@ -6,7 +6,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 /**
- * This class manages the additional Preferences for this eclipse plugin.
+ * This class manages the general Preferences for the DND eclipse plugin.
  */
 
 public class Preferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
