@@ -36,6 +36,11 @@
             name="Applications"
             class="edu.teco.dnd.eclipse.AppView"/>
    </extension>
+      <extension point="org.eclipse.ui.views">
+      <view id="edu.teco.dnd.eclipse.DeployView"
+            name="Deploy"
+            class="edu.teco.dnd.eclipse.DeployView"/>
+   </extension>
    <extension point="org.eclipse.ui.preferencePages">
       <page
             class="edu.teco.dnd.eclipse.Preferences"

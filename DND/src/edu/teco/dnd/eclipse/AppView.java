@@ -14,12 +14,21 @@ import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.network.ConnectionManager;
 
+/**
+ * View for the applications / running function blocks.
+ * 
+ * @author jung
+ * 
+ */
 public class AppView extends ViewPart {
 	private Label label;
 	ConnectionManager manager;
 	// Used to map FunctionBlocks on table items
 	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
 
+	/**
+	 * Creates a new Appview.
+	 */
 	public AppView() {
 		super();
 		manager = Activator.getDefault().getConnectionManager();
