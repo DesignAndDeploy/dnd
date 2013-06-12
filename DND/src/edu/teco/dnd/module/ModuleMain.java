@@ -96,7 +96,7 @@ public class ModuleMain {
 
 		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreads(),
 				moduleConfig.getMinAppThreads(), moduleConfig.getUuid(), moduleConfig, connectionManager);
-		
+
 		connectionManager.addHandler(StartAppMessage.class, new StartAppMessageHandler(appMan));
 
 	}

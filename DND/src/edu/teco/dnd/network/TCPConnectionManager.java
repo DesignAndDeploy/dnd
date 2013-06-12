@@ -639,7 +639,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			if (messageHandler instanceof TCPMessageHandler<?>) {
 				((TCPMessageHandler<Message>) messageHandler).handleMessage(ctx, msg);
 			} else {
-				((MessageHandler<Message>) messageHandler).handleMessage(remoteUUID, msg);
+				((MessageHandler<Message>) messageHandler).handleMessage(TCPConnectionManager.this, remoteUUID, msg);
 			}
 		}
 
@@ -695,14 +695,15 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	private static abstract class AbstractTCPMessageHandler<T extends Message> implements TCPMessageHandler<T> {
-		public void handleMessage(final UUID remoteUUID, final T msg) {
+		public void handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID, final T msg) {
 			throw new IllegalAccessError("tried to call handleMessage(UUID, Message) on AbstractTCPMessageHandler");
 		}
 	}
 
 	private class HelloMessageHandler extends AbstractTCPMessageHandler<HelloMessage> {
 		@Override
-		public void handleMessage(ChannelHandlerContext ctx, HelloMessage msg) {
+		public void handleMessage(ChannelHandlerContext ctx,
+				HelloMessage msg) {
 			LOGGER.entry(ctx, msg);
 			if (ctx.attr(REMOTE_UUID_KEY).get() != null) {
 				if (LOGGER.isWarnEnabled()) {

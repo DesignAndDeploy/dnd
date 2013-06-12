@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
@@ -48,14 +50,13 @@ public class Application {
 	 * 
 	 * @param classnames
 	 *            name of the class to load
-	 * @param mainclassname
-	 *            mainclass (the reason we are loading this
-	 * @return true on success.s
+	 * @param classData
+	 * 		bytecode of the class to be loaded
 	 */
-	public boolean loadClass(Set<String> classnames, String mainclassname) {
-		// TODO request class from networkpart of app.
-		// TODO is this needed?
-		return false;
+	public void loadClass(String classnames, byte[] classData) {
+		
+		// TODO implement class loading
+		throw new NotImplementedException();
 	}
 
 	/**

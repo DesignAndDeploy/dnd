@@ -14,6 +14,10 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.messages.AppLoadClassMessage;
+import edu.teco.dnd.module.messages.AppLoadClassMessageHandler;
+import edu.teco.dnd.module.messages.AppStartClassMessage;
+import edu.teco.dnd.module.messages.AppStartClassMessageHandler;
 import edu.teco.dnd.module.messages.StartAppAck;
 import edu.teco.dnd.network.ConnectionManager;
 
@@ -71,35 +75,13 @@ public class ModuleApplicationManager {
 			scheduledAppPools.put(appId, pool);
 		}
 
-		runningApps.put(appId, new Application(appId, deployingAgentId, name, pool));
-		
-		//TODO register listener for msgs for the app.
-		
-		connMan.sendMessage(deployingAgentId, new StartAppAck(name,appId));
+		Application newApp = new Application(appId, deployingAgentId, name, pool);
+
+		runningApps.put(appId, newApp);
+		connMan.addHandler(appId, AppLoadClassMessage.class, new AppLoadClassMessageHandler(this, newApp), pool);
+		connMan.addHandler(appId, AppStartClassMessage.class, new AppStartClassMessageHandler(this, newApp), pool);
 		
 
-		
-	}
-
-	/**
-	 * called to signal necessity to load a class.
-	 * 
-	 * @param appId
-	 *            the Id of the app to which this message is directed.
-	 * @param classnames
-	 *            names of the classes to be loaded
-	 * @param mainclassname
-	 *            name of the main class, which triggered the loading.
-	 * @return true iff successful.
-	 */
-	public boolean loadClass(UUID appId, Set<String> classnames, String mainclassname) {
-		// TODO is this actually needed?
-		if (!runningApps.get(appId).loadClass(classnames, mainclassname)) {
-			LOGGER.warn("Can not loadClass {} - ({}) in App {} ({})", classnames, mainclassname,
-					runningApps.get(appId), appId);
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -149,7 +131,7 @@ public class ModuleApplicationManager {
 			LOGGER.catching(e);
 			LOGGER.info("Can not receive value {} @ input {}.{} in App {}({})", value, funcBlockId, input,
 					runningApps.get(appId), appId);
-			
+
 		}
 	}
 

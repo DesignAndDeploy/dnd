@@ -7,17 +7,15 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 /**
  * contains the bytecode of a class to be loaded.
  */
-public class AppLoadClassMessage implements ApplicationSpecificMessage {
+public class AppStartClassMessage implements ApplicationSpecificMessage {
 
-	public static final String MESSAGE_TYPE = "appLoadClass";
+	public static final String MESSAGE_TYPE = "appStartClass";
 
 	public String className;
-	public byte[] classByteCode;
 	public UUID appId;
 
-	public AppLoadClassMessage(String className, byte[] classByteCode, UUID appId) {
+	public AppStartClassMessage(String className, UUID appId) {
 		this.className = className;
-		this.classByteCode = classByteCode;
 		this.appId = appId;
 	}
 
