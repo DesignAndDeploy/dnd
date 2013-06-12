@@ -146,15 +146,14 @@ public class UDPMulticastBeacon {
 		final GsonBuilder gsonBuilder = new GsonBuilder();
 		final MessageAdapter messageAdapter = new MessageAdapter();
 		messageAdapter.addMessageType(BeaconMessage.class);
-		gsonBuilder.registerTypeAdapter(Message.class, messageAdapter);
-		gsonBuilder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
-		final Gson gson = gsonBuilder.create();
+		final GsonCodec gsonCodec = new GsonCodec(Message.class);
+		gsonCodec.registerTypeAdapter(Message.class, messageAdapter);
+		gsonCodec.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		
 		this.channelFactory = new UDPMulticastChannelFactory(factory, group, new ChannelInitializer<DatagramChannel>() {
 			private final DatagramPacketWrapper datagramPacketWrapper = new DatagramPacketWrapper();
 			private final StringEncoder stringEncoder = new StringEncoder();
 			private final StringDecoder stringDecoder = new StringDecoder();
-			private final GsonCodec gsonCodec = new GsonCodec(gson, Message.class);
 			private final ChannelHandler beaconHandler = new BeaconHandler();
 			
 			@Override

@@ -19,6 +19,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.EventExecutorGroup;
 
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.AbstractMap;
@@ -147,6 +148,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * Used to synchronize {@link #listeners}.
 	 */
 	private final ReadWriteLock listenersLock = new ReentrantReadWriteLock();
+	
+	/**
+	 * The GsonCodec that is used.
+	 */
+	private final GsonCodec gsonCodec;
 
 	/**
 	 * Factory used to connect to other TCPConnectionManagers.
@@ -184,8 +190,6 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * @param prettyPrint
 	 *            enables pretty printing for JSON if set to <code>true</code>
 	 */
-	// TODO: a way to add more Gson type adapters may be needed later on (maybe
-	// like addHandler)
 	public TCPConnectionManager(final EventLoopGroup networkEventLoopGroup,
 			final EventExecutorGroup applicationExecutor,
 			final ChannelFactory<? extends ServerSocketChannel> serverChannelFactory,
@@ -199,13 +203,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		this.messageAdapter.addMessageType(ConnectionEstablishedMessage.class);
 		this.messageAdapter.addMessageType(ConnectionClosedMessage.class);
 
-		final GsonBuilder gsonBuilder = new GsonBuilder();
-		if (prettyPrint) {
-			gsonBuilder.setPrettyPrinting();
-		}
-		gsonBuilder.registerTypeAdapter(Message.class, messageAdapter);
-		final ChannelHandler channelInitializer = new TCPConnectionChannelInitializer(gsonBuilder.create(),
-				applicationExecutor, new TCPClientConnectionHandler(new HelloMessage(uuid, DEFAULT_MAX_FRAME_LENGTH)));
+		final TCPConnectionChannelInitializer channelInitializer = new TCPConnectionChannelInitializer(Message.class,
+				prettyPrint, applicationExecutor,
+				new TCPClientConnectionHandler(new HelloMessage(uuid, DEFAULT_MAX_FRAME_LENGTH)));
+		gsonCodec = channelInitializer.getGsonCodec();
+		gsonCodec.registerTypeAdapter(Message.class, messageAdapter);
 
 		this.serverFactory = new TCPServerChannelFactory(serverChannelFactory, networkEventLoopGroup,
 				channelInitializer);
@@ -442,6 +444,16 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	public <T extends Message> void addHandler(final Class<? extends T> msgType, final MessageHandler<? super T> handler) {
 		addHandler(APPID_DEFAULT, msgType, handler, null);
 	}
+	
+	/**
+	 * Registers a type adapter for use in the communication.
+	 * 
+	 * @param type the type to register an adapter for
+	 * @param adapter the adapter to register
+	 */
+	public void registerTypeAdapter(final Type type, final Object adapter) {
+		gsonCodec.registerTypeAdapter(type, adapter);
+	}
 
 	@Override
 	public Set<UUID> getConnectedModules() {
@@ -454,12 +466,27 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	@Sharable
-	private class TCPConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
+	private static class TCPConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
 		/**
-		 * The Gson object that will be used by the channels.
+		 * Added to channel pipeline.
 		 */
-		private final Gson gson;
-
+		private final ChannelHandler lengthFieldPrepender = new LengthFieldPrepender(2);
+		
+		/**
+		 * Added to channel pipeline.
+		 */
+		private final ChannelHandler stringEncoder = new StringEncoder(CHARSET);
+		
+		/**
+		 * Added to channel pipeline.
+		 */
+		private final ChannelHandler stringDecoder = new StringDecoder(CHARSET);
+		
+		/**
+		 * Added to channel pipeline.
+		 */
+		private final GsonCodec gsonCodec;
+		
 		/**
 		 * The maximum frame length for the channels.
 		 */
@@ -478,8 +505,6 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		/**
 		 * Initializes a new TCPConnectionChannelInitializer.
 		 * 
-		 * @param gson
-		 *            the Gson object to use for new channels
 		 * @param executorGroup
 		 *            the EventExecutorGroup that should be used for application
 		 *            code
@@ -488,22 +513,29 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		 * @param maxFrameLength
 		 *            the maximum length of a frame that can be received
 		 */
-		public TCPConnectionChannelInitializer(final Gson gson, final EventExecutorGroup executorGroup,
-				final ChannelHandler handler, final int maxFrameLength) {
-			LOGGER.entry(gson, executorGroup, handler, maxFrameLength);
-			this.gson = gson;
+		public TCPConnectionChannelInitializer(final Type type, final boolean prettyPrinting,
+				final EventExecutorGroup executorGroup, final ChannelHandler handler, final int maxFrameLength) {
+			LOGGER.entry(type, prettyPrinting, executorGroup, handler, maxFrameLength);
 			this.executor = executorGroup;
 			this.maxFrameLength = maxFrameLength;
 			this.handler = handler;
+			this.gsonCodec = new GsonCodec(type, prettyPrinting);
 			LOGGER.exit();
+		}
+		
+		/**
+		 * Returns the GsonCodec that is used.
+		 * 
+		 * @return the GsonCodec
+		 */
+		public GsonCodec getGsonCodec() {
+			return gsonCodec;
 		}
 
 		/**
 		 * Initializes a new TCPConnectionChannelInitializer. Will use
 		 * {@value #DEFAULT_MAX_FRAME_LENGTH} as maximum frame length.
 		 * 
-		 * @param gson
-		 *            the Gson object to use for new channels
 		 * @param executor
 		 *            the EventExecutorGroup that should be used for application
 		 *            code
@@ -512,8 +544,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		 * @param handler
 		 *            the application level handler for new channels
 		 */
-		TCPConnectionChannelInitializer(final Gson gson, final EventExecutorGroup executor, final ChannelHandler handler) {
-			this(gson, executor, handler, DEFAULT_MAX_FRAME_LENGTH);
+		TCPConnectionChannelInitializer(final Type type, final boolean prettyPrinting, final EventExecutorGroup executor, final ChannelHandler handler) {
+			this(type, prettyPrinting, executor, handler, DEFAULT_MAX_FRAME_LENGTH);
 		}
 
 		@Override
@@ -523,14 +555,21 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				LOGGER.debug("initializing channel {} connecting {} to {}", channel, channel.localAddress(),
 						channel.remoteAddress());
 			}
-			channel.pipeline().addLast(new LengthFieldPrepender(2))
+			channel.pipeline().addLast(lengthFieldPrepender)
 					.addLast(new LengthFieldBasedFrameDecoder(maxFrameLength, 0, 2, 0, 2))
-					.addLast(new StringEncoder(CHARSET)).addLast(new StringDecoder(CHARSET))
-					.addLast(new GsonCodec(gson, Message.class)).addLast(executor, handler);
+					.addLast(stringEncoder)
+					.addLast(stringDecoder)
+					.addLast(gsonCodec)
+					.addLast(executor, handler);
 			LOGGER.exit();
 		}
 	}
 
+	/**
+	 * Dispatches messages to the handlers.
+	 *
+	 * @author Philipp Adolf
+	 */
 	@Sharable
 	private class TCPClientConnectionHandler extends ChannelInboundMessageHandlerAdapter<Message> {
 		/**
