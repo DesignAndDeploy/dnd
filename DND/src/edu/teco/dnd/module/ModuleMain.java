@@ -16,6 +16,8 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
+import edu.teco.dnd.module.messages.StartAppMessage;
+import edu.teco.dnd.module.messages.StartAppMessageHandler;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
@@ -56,7 +58,7 @@ public class ModuleMain {
 			LOGGER.fatal("could not load config", e);
 			System.exit(1);
 		}
-		
+
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
 		// TODO: add config options to allow selection of netty engine and
@@ -92,9 +94,10 @@ public class ModuleMain {
 			beacon.addAddress(address.getInterface(), address.getAddress());
 		}
 
-		ModuleApplicationManager appMan = new ModuleApplicationManager(5, 1, moduleConfig.getUuid(), moduleConfig,
-				connectionManager);
-		// TODO proper config option for maxThreads, minThreadPerApp.
+		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreads(),
+				moduleConfig.getMinAppThreads(), moduleConfig.getUuid(), moduleConfig, connectionManager);
+		
+		connectionManager.addHandler(StartAppMessage.class, new StartAppMessageHandler(appMan));
 
 	}
 

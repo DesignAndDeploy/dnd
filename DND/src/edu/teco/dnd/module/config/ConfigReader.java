@@ -33,6 +33,10 @@ public abstract class ConfigReader {
 	public abstract String getName();
 
 	public abstract UUID getUuid();
+	
+	public abstract int getMaxThreads();
+	
+	public abstract int getMinAppThreads();
 
 	public abstract InetSocketAddress[] getListen();
 
@@ -45,4 +49,6 @@ public abstract class ConfigReader {
 	 *         BlockType). Key is the <i>name</i> of the block.
 	 */
 	public abstract Map<String, BlockTypeHolder> getAllowedBlocks();
+
+	
 }

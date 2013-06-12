@@ -23,6 +23,8 @@ import edu.teco.dnd.util.NetConnectionAdapter;
 public class JsonConfig extends ConfigReader {
 	private String name;
 	private UUID uuid = UUID.randomUUID();
+	private int maxThreads = 0;
+	private int minAppthreads = 1;
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
@@ -54,6 +56,8 @@ public class JsonConfig extends ConfigReader {
 		}
 
 		this.name = oldConf.name;
+		this.maxThreads = oldConf.maxThreads;
+		this.minAppthreads = oldConf.minAppthreads;
 		if (oldConf.uuid != null) {
 			this.uuid = oldConf.uuid;
 		}
@@ -132,6 +136,16 @@ public class JsonConfig extends ConfigReader {
 	@Override
 	public UUID getUuid() {
 		return uuid;
+	}
+	
+	@Override
+	public int getMaxThreads() {
+		return maxThreads;
+	}
+	
+	@Override
+	public int getMinAppThreads() {
+		return minAppthreads;
 	}
 
 	@Override

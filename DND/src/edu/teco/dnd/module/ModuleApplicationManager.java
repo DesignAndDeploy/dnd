@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.messages.StartAppAck;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class ModuleApplicationManager {
@@ -60,12 +61,9 @@ public class ModuleApplicationManager {
 	 * @param name
 	 *            (human readable) name of the application
 	 * 
-	 * @return true iff successful.
 	 */
-	public boolean startApplication(UUID appId, UUID deployingAgentId, String name) {
+	public void startApplication(UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("starting app {} ({}), as requested by {}", name, appId, deployingAgentId);
-		// TODO scheduling/thread/forking
-		// TODO tell network part that we have a new app?
 		// TODO calculate proper size.
 		ScheduledThreadPoolExecutor pool = scheduledAppPools.get(appId);
 		if (pool == null) {
@@ -74,8 +72,13 @@ public class ModuleApplicationManager {
 		}
 
 		runningApps.put(appId, new Application(appId, deployingAgentId, name, pool));
+		
+		//TODO register listener for msgs for the app.
+		
+		connMan.sendMessage(deployingAgentId, new StartAppAck(name,appId));
+		
 
-		return true;
+		
 	}
 
 	/**

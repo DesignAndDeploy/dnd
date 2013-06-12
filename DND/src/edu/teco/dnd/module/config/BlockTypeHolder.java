@@ -70,14 +70,10 @@ public class BlockTypeHolder {
 	}
 
 	/**
-	 * @return childblocks, null if none.
+	 * @return childblocks, an return null if leave node.
 	 */
 	public Set<BlockTypeHolder> getChildren() {
-		if (children != null && children.isEmpty()) {
-			return null;
-		} else {
-			return children;
-		}
+		return children;
 	}
 
 	public BlockTypeHolder getParent() {

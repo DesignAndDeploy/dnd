@@ -72,7 +72,6 @@ public class Application {
 			@Override
 			public void run() {
 				block.init();
-				block.resetTimer();
 
 			}
 		});
