@@ -73,9 +73,9 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		port.setToolTipText("Port for Eclipse");
 		port.setLayoutData(data2);
 		
-		List<Text> addrAndPorts = new ArrayList<Text>();
-		addrAndPorts.add(addr);
-		addrAndPorts.add(port);
+		List<TextCheck> addrAndPorts = new ArrayList<TextCheck>();
+		addrAndPorts.add(new TextAddress(addr));
+		addrAndPorts.add(new TextPort(port));
 
 		PrefList prefList = new PrefList("listen", "", parent, addrAndPorts);
 		prefList.setPreferenceStore(getPreferenceStore());
@@ -112,10 +112,10 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		network.setToolTipText("Network interface");
 		network.setLayoutData(data3);
 		
-		List<Text> multi = new ArrayList<Text>();
-		multi.add(addr);
-		multi.add(port);
-		multi.add(network);
+		List<TextCheck> multi = new ArrayList<TextCheck>();
+		multi.add(new TextAddress(addr));
+		multi.add(new TextPort(port));
+		multi.add(new TextNetwork(network));
 
 		PrefList prefList = new PrefList("multicast", "", parent, multi);
 		prefList.setPreferenceStore(getPreferenceStore());
@@ -143,9 +143,9 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		port.setToolTipText("Port for Eclipse");
 		port.setLayoutData(data2);
 		
-		List<Text> content = new ArrayList<Text>();
-		content.add(addr);
-		content.add(port);
+		List<TextCheck> content = new ArrayList<TextCheck>();
+		content.add(new TextAddress(addr));
+		content.add(new TextPort(port));
 
 		PrefList prefList = new PrefList("announce", "", parent, content);
 		prefList.setPreferenceStore(getPreferenceStore());

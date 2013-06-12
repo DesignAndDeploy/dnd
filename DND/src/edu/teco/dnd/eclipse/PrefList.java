@@ -3,26 +3,21 @@ package edu.teco.dnd.eclipse;
 import java.util.List;
 
 import org.eclipse.jface.preference.ListEditor;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * List for Preferences, later used for several network preferences. The List of
  * preferences to be administrated by this class is given to the constructor as
- * a List of Text fields. The user can enter values in these text fields and
- * submit them via the interface provided by this class. Plus, PrefList checks
- * if the values entered by the user are valid. Therefore it is important that
- * the first Text field given to the PrefList is meant to hold IP Addresses.
+ * a CheckText list containing Text fields. The user can enter values in these
+ * Text fields and submit them via the interface provided by this class. Plus,
+ * PrefList checks if the values entered by the user are valid and match their
+ * assigned formats.
  * 
  * @author jung
  * 
  */
 public class PrefList extends ListEditor {
-	private List<Text> textList;
+	private List<TextCheck> textList;
 	private Composite parent;
 
 	/**
@@ -35,13 +30,11 @@ public class PrefList extends ListEditor {
 	 * @param parent
 	 *            Composite this PrefList is positioned in
 	 * @param textList
-	 *            List of Text fields containing values for the PrefList. Note:
-	 *            It is important that the first Text field in this List should
-	 *            be used for IP Addresses. Else PrefList won't approved the
-	 *            values entered by user.
+	 *            CheckText List containing Text fields containing values for
+	 *            the PrefList
 	 */
 	public PrefList(String name, String labelText, Composite parent,
-			List<Text> textList) {
+			List<TextCheck> textList) {
 		super(name, labelText, parent);
 		this.parent = parent;
 		this.textList = textList;
@@ -62,18 +55,13 @@ public class PrefList extends ListEditor {
 	@Override
 	protected String getNewInputObject() {
 		StringBuilder builder = new StringBuilder();
-		// TODO: Überprüfen, ob eingegebene Daten sinnvoll sind. Update: IP wird
-		// auf allgemeines Format geprüft.
-		// Hier wird schon davon ausgegangen, dass bei allen PrefLists das erste
-		// Textfeld eine IP Addresse erhält! doof? zu speziell?
-		if (!isIP(textList.get(0).getText())) {
-			warnWrongIP();
-			return null;
-		}
-		for (Text text : textList) {
+		for (TextCheck text : textList) {
+			if (!text.check()) {
+				text.warn();
+				return null;
+			}
 			builder.append(":");
 			builder.append(text.getText());
-			isIP(text.getText());
 		}
 		return builder.toString().substring(1);
 	}
@@ -88,8 +76,10 @@ public class PrefList extends ListEditor {
 
 	/**
 	 * Standard functionality: Enable / Disable Up and Down depending on
-	 * selectionIndex Added functionality: show selected row in text fields
-	 * above. Allows to edit preferences that have been set before.
+	 * selectionIndex
+	 * 
+	 * Added functionality: show selected row in text fields above. Allows user
+	 * to edit preferences that have been set before.
 	 */
 	@Override
 	protected void selectionChanged() {
@@ -126,43 +116,5 @@ public class PrefList extends ListEditor {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Checks if given String has valid IP format *
-	 * 
-	 * @param string
-	 *            String to check
-	 * @return
-	 */
-	private boolean isIP(String string) {
-		String[] numbers = string.split("\\.");
-		if (numbers.length != 4) {
-			return false;
-		}
-		for (int i = 0; i < 4; i++) {
-			int number = -1;
-			try {
-				number = Integer.parseInt(numbers[i]);
-			} catch (NumberFormatException e) {
-			}
-
-			if (number < 0 || number > 255) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Open Window to warn user about invalid IP format
-	 */
-	private void warnWrongIP() {
-		Display display = Display.getCurrent();
-		Shell shell = new Shell(display);
-		MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
-		dialog.setText("Warning");
-		dialog.setMessage("Invalid IP Address");
-		dialog.open();
 	}
 }

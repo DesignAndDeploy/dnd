@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,14 +18,10 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.internal.dnd.SwtUtil;
 import org.eclipse.ui.part.ViewPart;
-
-import com.sun.swing.internal.plaf.synth.resources.synth;
 
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 
 /**
@@ -35,12 +30,13 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
  * @author jung
  * 
  */
-public class ModuleView extends ViewPart implements ConnectionListener, DNDServerStateListener {
+public class ModuleView extends ViewPart implements ConnectionListener,
+		DNDServerStateListener {
 	/**
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
-	
+
 	private Button button;
 	private Label serverStatus;
 	private Table moduleTable;
@@ -48,7 +44,7 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 	private Activator activator;
 	private ConnectionManager manager;
 	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
-	
+
 	private Display display;
 
 	public ModuleView() {
@@ -68,16 +64,18 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 		display = Display.getCurrent();
 		if (display == null) {
 			display = Display.getDefault();
-			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
+			LOGGER.trace(
+					"Display.getCurrent() returned null, using Display.getDefault(): {}",
+					display);
 		}
 		activator.addServerStateListener(this);
 		LOGGER.exit();
 	}
-	
+
 	@Override
 	public void dispose() {
 		LOGGER.entry();
-		if (manager != null){
+		if (manager != null) {
 			manager.removeConnectionListener(this);
 		}
 		activator.removeServerStateListener(this);
@@ -89,7 +87,7 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		parent.setLayout(layout);
-		
+
 		createStartButton(parent);
 		createServerInfo(parent);
 		createModuleTable(parent);
@@ -103,10 +101,9 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 	 */
 	private void createStartButton(Composite parent) {
 		button = new Button(parent, SWT.NONE);
-		if(activator.isRunning()){
+		if (activator.isRunning()) {
 			button.setText("Stop Server");
-		}
-		else{
+		} else {
 			button.setText("Start Server");
 		}
 		button.setToolTipText("Start / Stop the server. duh.");
@@ -117,10 +114,12 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 					@Override
 					public void run() {
 						if (ModuleView.this.activator.isRunning()) {
-							ModuleView.this.serverStatus.setText("Stopping server…");
+							ModuleView.this.serverStatus
+									.setText("Stopping server…");
 							ModuleView.this.activator.shutdownServer();
 						} else {
-							ModuleView.this.serverStatus.setText("Starting server…");
+							ModuleView.this.serverStatus
+									.setText("Starting server…");
 							ModuleView.this.activator.startServer();
 						}
 					}
@@ -130,21 +129,20 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 
 	}
 
-	private void createServerInfo(Composite parent){
+	private void createServerInfo(Composite parent) {
 		GridData gridData = new GridData();
 		gridData.verticalAlignment = GridData.BEGINNING;
 		gridData.horizontalAlignment = GridData.FILL;
-		
+
 		serverStatus = new Label(parent, 0);
-		if (activator.isRunning()){
+		if (activator.isRunning()) {
 			serverStatus.setText("Server running");
-		}
-		else{
+		} else {
 			serverStatus.setText("Server down");
 		}
 		serverStatus.setLayoutData(gridData);
 	}
-	
+
 	/**
 	 * Creates a Table containing currently available modules.
 	 * 
@@ -153,33 +151,33 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 	 */
 	private void createModuleTable(Composite parent) {
 		GridData grid = new GridData();
-		grid.horizontalSpan = 2;	
+		grid.horizontalSpan = 2;
 		grid.verticalAlignment = GridData.FILL;
 		grid.horizontalAlignment = GridData.FILL;
 		grid.grabExcessHorizontalSpace = true;
 		grid.grabExcessVerticalSpace = true;
-		
+
 		moduleTable = new Table(parent, 0);
 		moduleTable.setLinesVisible(true);
 		moduleTable.setHeaderVisible(true);
 		moduleTable.setLayoutData(grid);
-		
+
 		TableColumn column = new TableColumn(moduleTable, SWT.None);
 		column.setText("Available Modules");
 		moduleTable.setToolTipText("Currently available modules");
 		/**
-		Collection<UUID> modules = getModules();
-
-		for (UUID moduleID : modules) {
-			addID(moduleID);
-		}**/
+		 * Collection<UUID> modules = getModules();
+		 * 
+		 * for (UUID moduleID : modules) { addID(moduleID); }
+		 **/
 		moduleTable.getColumn(0).pack();
 	}
-	
+
 	/**
 	 * Adds a Module ID to the table.
 	 * 
-	 * @param id the ID to add
+	 * @param id
+	 *            the ID to add
 	 */
 	private synchronized void addID(final UUID id) {
 		LOGGER.entry(id);
@@ -193,11 +191,12 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 		}
 		LOGGER.exit();
 	}
-	
+
 	/**
 	 * Removes a Module ID from the table.
 	 * 
-	 * @param id the ID to remove
+	 * @param id
+	 *            the ID to remove
 	 */
 	private synchronized void removeID(final UUID id) {
 		LOGGER.entry(id);
@@ -235,12 +234,12 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 	}
 
 	/**
-	 * Used to get the Set of currently running modules. Now random, to be
-	 * replaced by TCPConnectionManager later on. Can even be destroyed as soon
-	 * as TCPConnectionManager available and replaced by one line.
+	 * Convenience method to return a few random numbers representing imaginary
+	 * modules, used for testing
 	 * 
-	 * @return currently running modules
+	 * @return some random module IDs
 	 */
+	@SuppressWarnings("unused")
 	private Collection<UUID> getModules() {
 		// später: return manager.getConnectedModules(); bis dahin:
 		Collection<UUID> modules = new HashSet<UUID>();
@@ -254,16 +253,16 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 	public void serverStarted(ConnectionManager connectionManager,
 			UDPMulticastBeacon beacon) {
 		System.out.println("server läuft");
-		
+
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				serverStatus.setText("Server running");
 				button.setText("Stop Server");
 				manager = activator.getConnectionManager();
-				
+
 				synchronized (ModuleView.this) {
-					for (UUID id : new ArrayList<UUID>(map.keySet())){
+					for (UUID id : new ArrayList<UUID>(map.keySet())) {
 						removeID(id);
 					}
 					manager.addConnectionListener(ModuleView.this);
@@ -280,22 +279,22 @@ public class ModuleView extends ViewPart implements ConnectionListener, DNDServe
 	@Override
 	public void serverStopped() {
 		System.out.println("Server läuft nicht mehr");
-		
+
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (ModuleView.this){
-					for (UUID id : new ArrayList<UUID>(map.keySet())){
+				synchronized (ModuleView.this) {
+					for (UUID id : new ArrayList<UUID>(map.keySet())) {
 						removeID(id);
 					}
 				}
-				if(serverStatus != null && button != null){
+				if (serverStatus != null && button != null) {
 					serverStatus.setText("Server down");
-					button.setText("Start Server");	
+					button.setText("Start Server");
 				}
 			}
 		});
-		if (manager != null){
+		if (manager != null) {
 			manager.removeConnectionListener(this);
 		}
 	}
