@@ -25,6 +25,10 @@
   	<logger name="edu.teco.dnd.util.NetConnectionAdapter" level="INFO" additivity="false">
       <appender-ref ref="Console"/>
     </logger>
+    <logger name="edu.teco.dnd.util.Dependencies" level="INFO" additivity="false">
+      <MarkerFilter marker="FLOW" onMatch="DENY" onMismatch="NEUTRAL"/>
+      <appender-ref ref="Console"/>
+  	</logger>
     <root level="INFO">
       <appender-ref ref="Console"/>
     </root>
