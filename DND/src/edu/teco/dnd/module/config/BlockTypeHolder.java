@@ -2,6 +2,7 @@ package edu.teco.dnd.module.config;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +18,8 @@ import com.google.gson.annotations.SerializedName;
  */
 public class BlockTypeHolder {
 
-	private static final Logger LOGGER = LogManager.getLogger(BlockTypeHolder.class);
+	private static final Logger LOGGER = LogManager
+			.getLogger(BlockTypeHolder.class);
 
 	public final String type;
 	/** allowed blocks of this type, <0 means infinity. */
@@ -44,7 +46,8 @@ public class BlockTypeHolder {
 	public BlockTypeHolder(Set<BlockTypeHolder> childblocks, int amount) {
 		// non leave node
 		this.type = null;
-		this.children = (childblocks == null) ? new HashSet<BlockTypeHolder>() : childblocks;
+		this.children = (childblocks == null) ? new HashSet<BlockTypeHolder>()
+				: childblocks;
 		this.amountAllowed = amount;
 		this.amountLeft = amount;
 	}
@@ -63,7 +66,8 @@ public class BlockTypeHolder {
 
 	public void addChild(Collection<BlockTypeHolder> children) {
 		if (type != null)
-			throw new IllegalStateException("Node has type and is not a leave node.");
+			throw new IllegalStateException(
+					"Node has type and is not a leave node.");
 		if (children == null)
 			children = new HashSet<BlockTypeHolder>();
 		this.children.addAll(children);
@@ -129,6 +133,40 @@ public class BlockTypeHolder {
 				LOGGER.warn("more block=>{} freed than marked as in use.", type);
 			}
 		}
+	}
+
+	/**
+	 * Returns a Map that tells which types of function blocks can run on this
+	 * module and how many. Works if this BlockTypeHolder is the parent of all
+	 * BlockTypeHolders for this module. If not: incomplete.
+	 * 
+	 * @return Map from Types to amount of available slots for function blocks
+	 *         of this type
+	 */
+	public HashMap<String, Integer> getTypes() {
+		HashMap<String, Integer> types = new HashMap<String, Integer>();
+		mapType(types);
+		return types;
+	}
+	
+	private HashMap<String, Integer> mapType(HashMap<String, Integer> map){
+		if (type != null && amountLeft > 0){
+			if (map.containsKey(type) && amountLeft > 0){
+				int sum = map.get(type);
+				sum += amountLeft;
+				map.remove(type);
+				map.put(type, sum);
+			}
+			else{
+				map.put(type, amountLeft);
+			}
+		}
+		else if (children != null){
+			for (BlockTypeHolder child : children){
+				map = child.mapType(map);
+			}
+		}
+		return map;
 	}
 
 }
