@@ -7,7 +7,7 @@
     </Console>
   </appenders>
   <loggers>
-    <logger name="edu.teco.dnd" level="ALL" additivity="false">
+    <logger name="edu.teco.dnd" level="INFO" additivity="false">
       <appender-ref ref="Console"/>
     </logger>
     <logger name="edu.teco.dnd.network.codecs" level="INFO" additivity="false">
@@ -23,6 +23,9 @@
       <appender-ref ref="Console"/>
     </logger>
     <logger name="edu.teco.dnd.util.NetConnectionAdapter" level="INFO" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
+    <logger name="edu.teco.dnd.network.PeerExchanger" level="ALL" additivity="false">
       <appender-ref ref="Console"/>
     </logger>
     <logger name="edu.teco.dnd.util.Dependencies" level="INFO" additivity="false">

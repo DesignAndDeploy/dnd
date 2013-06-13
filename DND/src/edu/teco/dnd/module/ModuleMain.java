@@ -11,6 +11,12 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,9 +24,12 @@ import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.messages.StartAppMessage;
 import edu.teco.dnd.module.messages.StartAppMessageHandler;
+import edu.teco.dnd.network.PeerExchanger;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
+import edu.teco.dnd.network.messages.PeerMessage;
+import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
 
 /**
@@ -89,16 +98,21 @@ public class ModuleMain {
 			}
 		}, new OioEventLoopGroup(), networkEventLoopGroup, moduleConfig.getUuid());
 		beacon.addListener(connectionManager);
-		beacon.setAnnounceAddresses(Arrays.asList(moduleConfig.getAnnounce()));
+		final List<InetSocketAddress> announce = Arrays.asList(moduleConfig.getAnnounce());
+		beacon.setAnnounceAddresses(announce);
 		for (final NetConnection address : moduleConfig.getMulticast()) {
 			beacon.addAddress(address.getInterface(), address.getAddress());
 		}
+		
+		connectionManager.addMessageType(PeerMessage.class);
+		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+		final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
+		peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
 		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreads(),
 				moduleConfig.getMinAppThreads(), moduleConfig.getUuid(), moduleConfig, connectionManager);
-
+		
 		connectionManager.addHandler(StartAppMessage.class, new StartAppMessageHandler(appMan));
-
 	}
 
 	// TODO: add method for shutdown
