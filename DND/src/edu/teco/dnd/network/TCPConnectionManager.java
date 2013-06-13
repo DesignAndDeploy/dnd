@@ -41,6 +41,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.xml.crypto.dsig.spec.HMACParameterSpec;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
@@ -105,6 +107,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * Contains all client channels with an established connection.
 	 */
 	private final Map<UUID, Channel> clientChannels = new HashMap<UUID, Channel>();
+	
+	/**
+	 * Clients we sent a ConnectionEstablishedMessage to and waiting for their reply.
+	 */
+	private final Map<UUID, Channel> waitingChannels = new HashMap<UUID, Channel>();
 
 	/**
 	 * Set to true if the TCPConnectionManager is shutting down.
@@ -112,7 +119,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	private boolean shutdown = false;
 
 	/**
-	 * Lock used for synchronizing access to {@link #serverChannels}, {@link #clientChannels},
+	 * Lock used for synchronizing access to {@link #serverChannels}, {@link #clientChannels}, {@link #waitingChannels},
 	 * {@link #unconnectedChannels} and {@link #shutdown}.
 	 */
 	private final ReadWriteLock channelsLock = new ReentrantReadWriteLock();
@@ -724,11 +731,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			if (localUUID.compareTo(remoteUUID) < 0) {
 				boolean establish = false;
 				channelsLock.readLock().lock();
-				if (!clientChannels.containsKey(remoteUUID)) {
+				if (!clientChannels.containsKey(remoteUUID) && !waitingChannels.containsKey(remoteUUID)) {
 					channelsLock.readLock().unlock();
 					channelsLock.writeLock().lock();
-					if (!clientChannels.containsKey(remoteUUID)) {
-						clientChannels.put(remoteUUID, ctx.channel());
+					if (!clientChannels.containsKey(remoteUUID) && !waitingChannels.containsKey(remoteUUID)) {
+						waitingChannels.put(remoteUUID, ctx.channel());
 						establish = true;
 					}
 					channelsLock.readLock().lock();
@@ -737,7 +744,6 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				channelsLock.readLock().unlock();
 				if (establish) {
 					ctx.write(new ConnectionEstablishedMessage());
-					notifyEstablished(remoteUUID);
 				} else {
 					LOGGER.debug("we already have a connection, closing");
 					ctx.write(new ConnectionClosedMessage());
@@ -759,20 +765,39 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				return;
 			}
 			if (localUUID.compareTo(remoteUUID) < 0) {
-				LOGGER.warn("got {} but the other module has a higher UUID", msg);
-				LOGGER.exit();
-				return;
+				boolean establish = false;
+				channelsLock.readLock().lock();
+				if (ctx.channel().equals(waitingChannels.get(remoteUUID))) {
+					channelsLock.readLock().unlock();
+					channelsLock.writeLock().lock();
+					if (ctx.channel().equals(waitingChannels.get(remoteUUID))) {
+						waitingChannels.remove(remoteUUID);
+						clientChannels.put(remoteUUID, ctx.channel());
+						establish = true;
+					}
+					channelsLock.readLock().lock();
+					channelsLock.writeLock().unlock();
+				}
+				channelsLock.readLock().unlock();
+				if (establish) {
+					notifyEstablished(remoteUUID);
+				} else {
+					LOGGER.warn("got {}, my UUID ({}) is lower than remote UUID, but channel is not waiting",
+							msg, localUUID, remoteUUID);
+				}
+			} else {
+				channelsLock.writeLock().lock();
+				final Channel channel = clientChannels.get(remoteUUID);
+				if (channel != null && !channel.equals(ctx.channel())) {
+					LOGGER.info("got {} but there is already another connection ({}), closing that");
+					unconnectedChannels.remove(channel);
+					channel.close();
+				}
+				clientChannels.put(remoteUUID, ctx.channel());
+				channelsLock.writeLock().unlock();
+				ctx.write(msg);
+				notifyEstablished(remoteUUID);
 			}
-			channelsLock.writeLock().lock();
-			final Channel channel = clientChannels.get(remoteUUID);
-			if (channel != null && !channel.equals(ctx.channel())) {
-				LOGGER.info("got {} but there is already another connection ({}), closing that");
-				unconnectedChannels.remove(channel);
-				channel.close();
-			}
-			clientChannels.put(remoteUUID, ctx.channel());
-			channelsLock.writeLock().unlock();
-			notifyEstablished(remoteUUID);
 			LOGGER.exit();
 		}
 	}
