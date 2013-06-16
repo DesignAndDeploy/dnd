@@ -100,6 +100,10 @@ public class BlockTypeHolder {
 		this.amountLeft = amountLeft;
 	}
 
+	public String getType(){
+		return this.type;
+	}
+	
 	/**
 	 * Recursively tries to decrease the values of amountLeft up to the
 	 * parent-node. Returns true if every node had at least one allowed left (or
@@ -151,7 +155,7 @@ public class BlockTypeHolder {
 	
 	private HashMap<String, Integer> mapType(HashMap<String, Integer> map){
 		if (type != null && amountLeft > 0){
-			if (map.containsKey(type) && amountLeft > 0){
+			if (map.containsKey(type)){
 				int sum = map.get(type);
 				sum += amountLeft;
 				map.remove(type);
