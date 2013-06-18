@@ -101,16 +101,16 @@ public class ModuleMain {
 		for (final NetConnection address : moduleConfig.getMulticast()) {
 			beacon.addAddress(address.getInterface(), address.getAddress());
 		}
-		
+
 		connectionManager.addMessageType(PeerMessage.class);
 		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
 		peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
-		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreads(),
-				moduleConfig.getMinAppThreads(), moduleConfig.getUuid(), moduleConfig, connectionManager);
-		
-		///// register msg handlers ///
+		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreadsPerApp(),
+				moduleConfig.getUuid(), moduleConfig, connectionManager);
+
+		// /// register msg handlers ///
 		connectionManager.addHandler(StartAppMessage.class, new StartAppMessageHandler(appMan));
 		connectionManager.addHandler(ModInfoRequestMessage.class, new ModInfoReqMsgHandler(moduleConfig, appMan));
 	}

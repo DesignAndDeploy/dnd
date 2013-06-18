@@ -23,8 +23,7 @@ import edu.teco.dnd.util.NetConnectionAdapter;
 public class JsonConfig extends ConfigReader {
 	private String name;
 	private UUID uuid = UUID.randomUUID();
-	private int maxThreads = 0;
-	private int minAppthreads = 1;
+	private int maxAppthreads = 0;
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
@@ -39,7 +38,7 @@ public class JsonConfig extends ConfigReader {
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		gson = builder.create();
 	}
-	
+
 	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
 
 	public JsonConfig() {
@@ -56,8 +55,7 @@ public class JsonConfig extends ConfigReader {
 		}
 
 		this.name = oldConf.name;
-		this.maxThreads = oldConf.maxThreads;
-		this.minAppthreads = oldConf.minAppthreads;
+		this.maxAppthreads = oldConf.maxAppthreads;
 		if (oldConf.uuid != null) {
 			this.uuid = oldConf.uuid;
 		}
@@ -83,22 +81,21 @@ public class JsonConfig extends ConfigReader {
 			}
 		}
 
-		
-		  //TODO set up base config for testing
-//		  allowedBlocks = new BlockType(0); 
-//		  BlockType b = new BlockType(1); 
-//		  b.addChild(new BlockType("child1Type", 2));
-//		  b.addChild(new BlockType("child2Type", 2));
-//		  allowedBlocks.addChild(b); 
-//		  allowedBlocks.addChild(new BlockType("child2TYPE", 1));
-		 
+		// TODO set up base config for testing
+		// allowedBlocks = new BlockType(0);
+		// BlockType b = new BlockType(1);
+		// b.addChild(new BlockType("child1Type", 2));
+		// b.addChild(new BlockType("child2Type", 2));
+		// allowedBlocks.addChild(b);
+		// allowedBlocks.addChild(new BlockType("child2TYPE", 1));
 
 		if (allowedBlocks != null) {
 			fillTransientVariables(blockQuickaccess, allowedBlocks);
 		}
 	}
 
-	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess, final BlockTypeHolder currentBlock) {
+	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess,
+			final BlockTypeHolder currentBlock) {
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children == null) {
 			blockQuickaccess.put(currentBlock.type, currentBlock);
@@ -137,15 +134,10 @@ public class JsonConfig extends ConfigReader {
 	public UUID getUuid() {
 		return uuid;
 	}
-	
+
 	@Override
-	public int getMaxThreads() {
-		return maxThreads;
-	}
-	
-	@Override
-	public int getMinAppThreads() {
-		return minAppthreads;
+	public int getMaxThreadsPerApp() {
+		return maxAppthreads;
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
+import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
 
@@ -27,6 +28,7 @@ public class Application {
 	public final UUID ownAppId;
 	public final String name;
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
+	private final ConnectionManager connMan;
 
 	/**
 	 * mapping of active blocks to their ID, used e.g. to pass values to inputs.
@@ -40,10 +42,12 @@ public class Application {
 		return funcBlockById.values();
 	}
 
-	public Application(UUID appId, UUID deployingAgentId, String name, ScheduledThreadPoolExecutor scheduledThreadPool) {
+	public Application(UUID appId, UUID deployingAgentId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
+			ConnectionManager connMan) {
 		this.ownAppId = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
+		this.connMan = connMan;
 	}
 
 	/**
@@ -58,6 +62,7 @@ public class Application {
 	 * @return true iff setting was successful.
 	 */
 	public boolean sendValue(String funcBlock, String input, Serializable val) {
+
 		// TODO tell networking, that we want to send this value :)
 		return false;
 	}

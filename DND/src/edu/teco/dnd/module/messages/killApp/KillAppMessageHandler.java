@@ -14,7 +14,6 @@ public class KillAppMessageHandler implements MessageHandler<KillAppMessage> {
 
 	}
 
-	//TODO register
 	@Override
 	public void handleMessage(ConnectionManager connMan, UUID remoteUUID, KillAppMessage message) {
 		try {

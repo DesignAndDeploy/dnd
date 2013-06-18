@@ -33,9 +33,7 @@ public abstract class ConfigReader {
 
 	public abstract UUID getUuid();
 
-	public abstract int getMaxThreads();
-
-	public abstract int getMinAppThreads();
+	public abstract int getMaxThreadsPerApp();
 
 	public abstract InetSocketAddress[] getListen();
 

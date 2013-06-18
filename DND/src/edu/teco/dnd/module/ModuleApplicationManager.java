@@ -29,19 +29,17 @@ public class ModuleApplicationManager {
 	public UUID localeModuleId;
 	public ConfigReader moduleConfig;
 	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
-	public int maxAllowedThreads;
+	public final int maxAllowedThreadsPerApp;
 	private final Map<UUID, ScheduledThreadPoolExecutor> scheduledAppPools = new HashMap<UUID, ScheduledThreadPoolExecutor>();
 	private final ConnectionManager connMan;
 
-	public ModuleApplicationManager(int maxAllowedThreads, int minThreadsPerApp, UUID localeModuleId,
-			ConfigReader moduleConfig, ConnectionManager connMan) {
+	public ModuleApplicationManager(int maxAllowedThreadsPerApp, UUID localeModuleId, ConfigReader moduleConfig,
+			ConnectionManager connMan) {
 		this.localeModuleId = localeModuleId;
-		this.maxAllowedThreads = maxAllowedThreads;
+		this.maxAllowedThreadsPerApp = maxAllowedThreadsPerApp;
 		this.moduleConfig = moduleConfig;
 		this.connMan = connMan;
 	}
-
-
 
 	/**
 	 * called when a new application is supposed to be started.
@@ -56,20 +54,19 @@ public class ModuleApplicationManager {
 	 */
 	public void startApplication(UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("starting app {} ({}), as requested by {}", name, appId, deployingAgentId);
-		// TODO calculate proper size.
 		ScheduledThreadPoolExecutor pool = scheduledAppPools.get(appId);
 		if (pool == null) {
-			pool = new ScheduledThreadPoolExecutor(maxAllowedThreads);
+			pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp);
 			scheduledAppPools.put(appId, pool);
 		}
 
-		Application newApp = new Application(appId, deployingAgentId, name, pool);
+		Application newApp = new Application(appId, deployingAgentId, name, pool, connMan);
 
 		runningApps.put(appId, newApp);
 		connMan.addHandler(appId, AppLoadClassMessage.class, new AppLoadClassMessageHandler(this, newApp), pool);
 		connMan.addHandler(appId, AppStartClassMessage.class, new AppStartClassMessageHandler(this, newApp), pool);
 		connMan.addHandler(appId, AppInfoRequestMessage.class, new AppInfoReqMsgHandler(newApp), pool);
-		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this),pool);
+		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
 
 	}
 
