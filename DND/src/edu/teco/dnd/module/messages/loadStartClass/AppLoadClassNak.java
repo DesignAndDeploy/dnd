@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.loadStartClass;
 
 import java.util.UUID;
 

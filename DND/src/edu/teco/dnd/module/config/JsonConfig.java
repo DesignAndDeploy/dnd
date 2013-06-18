@@ -163,6 +163,7 @@ public class JsonConfig extends ConfigReader {
 		return multicast;
 	}
 
+	@Override
 	public BlockTypeHolder getBlockRoot() {
 		return allowedBlocks;
 	}

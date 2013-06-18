@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -14,11 +13,14 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
-import edu.teco.dnd.module.messages.AppLoadClassMessage;
-import edu.teco.dnd.module.messages.AppLoadClassMessageHandler;
-import edu.teco.dnd.module.messages.AppStartClassMessage;
-import edu.teco.dnd.module.messages.AppStartClassMessageHandler;
-import edu.teco.dnd.module.messages.StartAppAck;
+import edu.teco.dnd.module.messages.infoReq.AppInfoReqMsgHandler;
+import edu.teco.dnd.module.messages.infoReq.AppInfoRequestMessage;
+import edu.teco.dnd.module.messages.killApp.KillAppMessage;
+import edu.teco.dnd.module.messages.killApp.KillAppMessageHandler;
+import edu.teco.dnd.module.messages.loadStartClass.AppLoadClassMessage;
+import edu.teco.dnd.module.messages.loadStartClass.AppLoadClassMessageHandler;
+import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessage;
+import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessageHandler;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class ModuleApplicationManager {
@@ -39,21 +41,7 @@ public class ModuleApplicationManager {
 		this.connMan = connMan;
 	}
 
-	/**
-	 * called from this module, when a value is supposed to be send to another block (potentially on another Module).
-	 * 
-	 * @param funcBlock
-	 *            the receiving functionBlock.
-	 * @param input
-	 *            the input on the given block to receive the message.
-	 * @param val
-	 *            the value to be send.
-	 * @return true iff setting was successful.
-	 */
-	public boolean sendValue(String funcBlock, String input, Serializable val) {
-		// TODO tell networking, that we want to send this value :)
-		return false;
-	}
+
 
 	/**
 	 * called when a new application is supposed to be started.
@@ -80,7 +68,8 @@ public class ModuleApplicationManager {
 		runningApps.put(appId, newApp);
 		connMan.addHandler(appId, AppLoadClassMessage.class, new AppLoadClassMessageHandler(this, newApp), pool);
 		connMan.addHandler(appId, AppStartClassMessage.class, new AppStartClassMessageHandler(this, newApp), pool);
-		
+		connMan.addHandler(appId, AppInfoRequestMessage.class, new AppInfoReqMsgHandler(newApp), pool);
+		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this),pool);
 
 	}
 
@@ -156,8 +145,13 @@ public class ModuleApplicationManager {
 		for (FunctionBlock block : blocksKilled) {
 			moduleConfig.getAllowedBlocks().get(block.getType()).increase();
 		}
+	}
 
-		// TODO tell internet, that the app is stopped?
+	/**
+	 * @return the runningApps
+	 */
+	public Map<UUID, Application> getRunningApps() {
+		return runningApps;
 	}
 
 }

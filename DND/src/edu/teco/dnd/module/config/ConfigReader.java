@@ -18,8 +18,7 @@ public abstract class ConfigReader {
 	 * restores the config from a savefile
 	 * 
 	 * @param path
-	 *            path the savefile is stored in (can be e.g. a url if concrete childclass is
-	 *            prepared to handle this.)
+	 *            path the savefile is stored in (can be e.g. a url if concrete childclass is prepared to handle this.)
 	 * @return false only if action failed. True if unsure/successfull
 	 */
 	public abstract void load(String path) throws IOException;
@@ -33,9 +32,9 @@ public abstract class ConfigReader {
 	public abstract String getName();
 
 	public abstract UUID getUuid();
-	
+
 	public abstract int getMaxThreads();
-	
+
 	public abstract int getMinAppThreads();
 
 	public abstract InetSocketAddress[] getListen();
@@ -45,10 +44,15 @@ public abstract class ConfigReader {
 	public abstract NetConnection[] getMulticast();
 
 	/**
-	 * @return a set of blocks allowed to run and their amounts (encoded in
-	 *         BlockType). Key is the <i>name</i> of the block.
+	 * @return a set of blocks allowed to run and their amounts (encoded in BlockType). Key is the <i>name</i> of the
+	 *         block.
 	 */
 	public abstract Map<String, BlockTypeHolder> getAllowedBlocks();
 
-	
+	/**
+	 * @return a tree structure of blocks and their allowed amount (encoded in blocktype). This returns the root of the
+	 *         tree. See getAllowedBlocks() for a Map version.
+	 */
+	public abstract BlockTypeHolder getBlockRoot();
+
 }

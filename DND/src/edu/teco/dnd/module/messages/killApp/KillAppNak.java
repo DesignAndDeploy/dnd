@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.killApp;
 
 import java.util.UUID;
 
@@ -9,22 +9,23 @@ import edu.teco.dnd.network.messages.Message;
  * @author cryptkiddy
  *
  */
-public class StartAppMessage implements Message {
+public class KillAppNak implements Message {
 	
 	
-	public static final String MESSAGE_TYPE = "startApp";
+	public static final String MESSAGE_TYPE = "startAppNak";
 	
-	public String name;
 	public UUID appId;
 	
-	public StartAppMessage(String name, UUID appId) {
-		this.name = name;
+	public KillAppNak(UUID appId) {
 		this.appId = appId;
 	}
 	
+	public KillAppNak(KillAppMessage msg) {
+		this.appId = msg.appId;
+	}
+	
 	@SuppressWarnings("unused")/*for gson*/
-	private StartAppMessage() {
-		name = null;
+	private KillAppNak() {
 		appId = null;
 	}
 }

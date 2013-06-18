@@ -2,16 +2,30 @@ package edu.teco.dnd.module;
 
 import java.io.Serializable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.ConnectionTarget;
 
-// TODO: implement class
 public class RemoteConnectionTarget extends ConnectionTarget {
 	private static final long serialVersionUID = -4588323454242345616L;
+	private static final Logger LOGGER = LogManager.getLogger(RemoteConnectionTarget.class);
+	
+	private Application app;
+	private final String targetFunctionBlock;
+	private final String targetInput;
 
-	public RemoteConnectionTarget(String name, String id, String name2,
-			Class<? extends Serializable> loadClass) {
+	public RemoteConnectionTarget(String name, final String targetFunctionBlock, final String targetInput) {
 		super(name);
+		if (targetFunctionBlock == null) {
+			throw new IllegalArgumentException("targetFunctionBlock must not be null");
+		}
+		if (targetInput == null) {
+			throw new IllegalArgumentException("targetInput must not be null");
+		}
+		this.targetFunctionBlock = targetFunctionBlock;
+		this.targetInput = targetInput;
 	}
 
 	@Override
@@ -21,6 +35,15 @@ public class RemoteConnectionTarget extends ConnectionTarget {
 
 	@Override
 	public void setValue(Serializable value) {
+		if (app != null) {
+			app.sendValue(targetFunctionBlock, targetInput, value);
+		} else {
+			throw LOGGER.throwing(new IllegalStateException("appMan not set before trying to send a value."));
+		}
+	}
+	
+	public void setApplication(Application app) {
+		this.app = app;
 	}
 
 	@Override

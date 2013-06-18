@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.startApp;
 
 import java.util.UUID;
 
@@ -9,26 +9,21 @@ import edu.teco.dnd.network.messages.Message;
  * @author cryptkiddy
  *
  */
-public class StartAppAck implements Message {
+public class StartAppMessage implements Message {
 	
 	
-	public static final String MESSAGE_TYPE = "startAppAck";
+	public static final String MESSAGE_TYPE = "startApp";
 	
 	public String name;
 	public UUID appId;
 	
-	public StartAppAck(String name, UUID appId) {
+	public StartAppMessage(String name, UUID appId) {
 		this.name = name;
 		this.appId = appId;
 	}
 	
-	public StartAppAck(StartAppMessage msg) {
-		this.name = msg.name;
-		this.appId = msg.appId;
-	}
-	
 	@SuppressWarnings("unused")/*for gson*/
-	private StartAppAck() {
+	private StartAppMessage() {
 		name = null;
 		appId = null;
 	}

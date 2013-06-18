@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -18,12 +17,14 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.InvalidFunctionBlockException;
+import edu.teco.dnd.blocks.Output;
 
 public class Application {
 
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
-	private UUID ownAppId;
+	public final UUID ownAppId;
 	public final String name;
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 
@@ -46,15 +47,31 @@ public class Application {
 	}
 
 	/**
+	 * called from this app, when a value is supposed to be send to another block (potentially on another Module).
+	 * 
+	 * @param funcBlock
+	 *            the receiving functionBlock.
+	 * @param input
+	 *            the input on the given block to receive the message.
+	 * @param val
+	 *            the value to be send.
+	 * @return true iff setting was successful.
+	 */
+	public boolean sendValue(String funcBlock, String input, Serializable val) {
+		// TODO tell networking, that we want to send this value :)
+		return false;
+	}
+
+	/**
 	 * loads a class into this app
 	 * 
 	 * @param classnames
 	 *            name of the class to load
 	 * @param classData
-	 * 		bytecode of the class to be loaded
+	 *            bytecode of the class to be loaded
 	 */
 	public void loadClass(String classnames, byte[] classData) {
-		
+
 		// TODO implement class loading
 		throw new NotImplementedException();
 	}
@@ -72,8 +89,22 @@ public class Application {
 
 			@Override
 			public void run() {
-				block.init();
+				try {
+					block.init();
 
+					for (Output<?> output : block.getOutputs().values()) {
+						for (ConnectionTarget ct : output.getConnectedTargets()) {
+							if (ct instanceof RemoteConnectionTarget) {
+								RemoteConnectionTarget rct = (RemoteConnectionTarget) ct;
+								rct.setApplication(Application.this);
+							}
+						}
+					}
+				} catch (InvalidFunctionBlockException e) {
+					LOGGER.warn("User supplied block {} initialization failed.", block.getID());
+					LOGGER.catching(e);
+
+				}
 			}
 		});
 		Runnable updater = new Runnable() {
@@ -112,7 +143,7 @@ public class Application {
 	 * @param value
 	 *            the value to give to the input.
 	 * @return true iff value was successfully passed on.
-	 * @throws IllegalAccessException 
+	 * @throws IllegalAccessException
 	 */
 	public void receiveValue(final String funcBlockId, String input, Serializable value) throws IllegalAccessException {
 		if (funcBlockById.get(funcBlockId) == null) {
@@ -152,8 +183,12 @@ public class Application {
 	public void shutdown() {
 		scheduledThreadPool.shutdown();
 	}
-	
+
 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 		return scheduledThreadPool.awaitTermination(timeout, unit);
+	}
+
+	public UUID getOwnAppId() {
+		return ownAppId;
 	}
 }

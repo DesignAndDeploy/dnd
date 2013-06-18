@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.loadStartClass;
 
 import java.util.UUID;
 
@@ -18,7 +18,7 @@ public class AppStartClassMessageHandler implements MessageHandler<AppStartClass
 
 	@Override
 	public void handleMessage(ConnectionManager connectionManager, UUID remoteUUID, AppStartClassMessage message) {
-		// TODO actually start block
+		associatedApp.startBlock(message.getFunctionBlock());
 		
 	}
 
