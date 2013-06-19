@@ -3,6 +3,7 @@ package edu.teco.dnd.meeting;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
@@ -45,7 +46,7 @@ public class DisplayActorBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of new DisplayActorBlock
 	 */
-	public DisplayActorBlock(final String blockID) {
+	public DisplayActorBlock(final UUID blockID) {
 		super(blockID);
 	}
 

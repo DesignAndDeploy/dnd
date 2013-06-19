@@ -1,6 +1,7 @@
 package edu.teco.dnd.temperature;
 
 import java.net.MalformedURLException;
+import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Option;
@@ -55,7 +56,7 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of new TemperatureSensorBlock
 	 */
-	public TemperatureSensorBlock(final String blockID) {
+	public TemperatureSensorBlock(final UUID blockID) {
 		super(blockID);
 	}
 

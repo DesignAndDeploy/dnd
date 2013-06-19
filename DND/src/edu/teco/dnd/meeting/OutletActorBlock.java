@@ -1,5 +1,7 @@
 package edu.teco.dnd.meeting;
 
+import java.util.UUID;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Option;
@@ -46,7 +48,7 @@ public class OutletActorBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of new BeamerActorBlock
 	 */
-	public OutletActorBlock(final String blockID) {
+	public OutletActorBlock(final UUID blockID) {
 		super(blockID);
 	}
 

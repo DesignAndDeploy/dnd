@@ -3,7 +3,9 @@ package edu.teco.dnd.module;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -30,11 +32,13 @@ public class Application {
 	public final String name;
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
+	private final Map<UUID/* funcBlockId */, UUID/* ModuleId */> moduleForFuncBlock = new HashMap<UUID, UUID>();
+	private final Set<UUID /* funcBlockId */> ownBlocks = new HashSet<UUID>();
 
 	/**
 	 * mapping of active blocks to their ID, used e.g. to pass values to inputs.
 	 */
-	private final Map<String, FunctionBlock> funcBlockById = new HashMap<String, FunctionBlock>();
+	private final Map<UUID, FunctionBlock> funcBlockById = new HashMap<UUID, FunctionBlock>();
 
 	/**
 	 * @return all blocks, this app is currently executing.
@@ -62,13 +66,36 @@ public class Application {
 	 *            the value to be send.
 	 * @return true iff setting was successful.
 	 */
-	public void sendValue(String funcBlock, String input, Serializable value) {
-		UUID modUid = null; // FIXME the uuid of the mod this funBlock is on. HOW to find out? (see X1)
-		assert false; //Not implemented
-		
+	public void sendValue(UUID funcBlock, String input, Serializable value) {
+		UUID modUid = moduleForFuncBlock.get(funcBlock);
+		if (modUid == null) { // location of funcBlock unknown.
+			// connMan.send(new whoHasMsg(funcBlock));
+			// TODO find the uuid of the mod this funBlock is on. HOW to find out? (see X1)
+			throw new NotImplementedException();
+		}
+
 		AppValueMessage message = new AppValueMessage(ownAppId, funcBlock, input, value);
 		connMan.sendMessage(modUid, message);
 		return;
+	}
+
+	/**
+	 * Called when an error message has been received indicating, that the given FuncBlock ModId mapping is not valid
+	 * anymore
+	 * 
+	 * @param funcBlock
+	 *            the functionBlock
+	 * @param moduleId
+	 *            the module ID
+	 */
+	public void invalidateBlockModulePair(UUID funcBlock, UUID moduleId) {
+		LOGGER.entry(funcBlock, moduleId);
+		synchronized (moduleForFuncBlock) {
+			UUID oldModuleMapping = moduleForFuncBlock.get(funcBlock);
+			if (oldModuleMapping == moduleId) {
+				moduleForFuncBlock.remove(funcBlock);
+			}
+		}
 	}
 
 	/**
@@ -139,6 +166,7 @@ public class Application {
 			LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
 		}
 
+		ownBlocks.add(block.getID());
 		return true;
 	}
 
@@ -156,10 +184,10 @@ public class Application {
 	 * @throws NonExistentFunctionblockException
 	 * @throws NonExistentInputException
 	 */
-	public void receiveValue(final String funcBlockId, String input, Serializable value)
+	public void receiveValue(final UUID funcBlockId, String input, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
 
-	 	if (funcBlockById.get(funcBlockId) == null) {
+		if (funcBlockById.get(funcBlockId) == null) {
 			LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
 			throw LOGGER.throwing(new NonExistentFunctionblockException());
 		}
@@ -203,5 +231,14 @@ public class Application {
 
 	public UUID getOwnAppId() {
 		return ownAppId;
+	}
+
+	/**
+	 * @param blockId
+	 *            the blockId to check for.
+	 * @return true iff the the given block is executing on this Module.
+	 */
+	public boolean isExecuting(UUID blockId) {
+		return ownBlocks.contains(blockId);
 	}
 }

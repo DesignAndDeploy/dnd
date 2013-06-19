@@ -1,5 +1,7 @@
 package edu.teco.dnd.meeting;
 
+import java.util.UUID;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.graphiti.BlockType;
@@ -33,7 +35,7 @@ public class BeamerActorBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of new BeamerActorBlock
 	 */
-	public BeamerActorBlock(final String blockID) {
+	public BeamerActorBlock(final UUID blockID) {
 		super(blockID);
 	}
 

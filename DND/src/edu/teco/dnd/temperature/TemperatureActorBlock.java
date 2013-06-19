@@ -1,6 +1,7 @@
 package edu.teco.dnd.temperature;
 
 import java.net.MalformedURLException;
+import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
@@ -50,7 +51,7 @@ public class TemperatureActorBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of newTemperatureActorBlock
 	 */
-	public TemperatureActorBlock(final String blockID) {
+	public TemperatureActorBlock(final UUID blockID) {
 		super(blockID);
 	}
 

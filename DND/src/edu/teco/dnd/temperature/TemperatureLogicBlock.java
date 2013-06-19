@@ -1,5 +1,7 @@
 package edu.teco.dnd.temperature;
 
+import java.util.UUID;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Option;
@@ -48,7 +50,7 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of new TemperatureLogicBlock
 	 */
-	public TemperatureLogicBlock(final String blockID) {
+	public TemperatureLogicBlock(final UUID blockID) {
 		super(blockID);
 	}
 

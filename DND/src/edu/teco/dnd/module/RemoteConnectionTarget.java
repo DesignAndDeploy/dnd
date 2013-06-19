@@ -1,6 +1,7 @@
 package edu.teco.dnd.module;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,10 +14,10 @@ public class RemoteConnectionTarget extends ConnectionTarget {
 	private static final Logger LOGGER = LogManager.getLogger(RemoteConnectionTarget.class);
 	
 	private Application app;
-	private final String targetFunctionBlock;
+	private final UUID targetFunctionBlock;
 	private final String targetInput;
 
-	public RemoteConnectionTarget(String name, final String targetFunctionBlock, final String targetInput) {
+	public RemoteConnectionTarget(String name, final UUID targetFunctionBlock, final String targetInput) {
 		super(name);
 		if (targetFunctionBlock == null) {
 			throw new IllegalArgumentException("targetFunctionBlock must not be null");

@@ -8,11 +8,11 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class AppValueMessage implements ApplicationSpecificMessage {
 	public final UUID appId;
-	public final String functionBlock;
+	public final UUID functionBlock;
 	public final String input;
 	public final Serializable value;
 	
-	public AppValueMessage(UUID appId,String functionBlock,  String input, Serializable value) {
+	public AppValueMessage(UUID appId,UUID functionBlock,  String input, Serializable value) {
 		this.appId = appId;
 		this.functionBlock = functionBlock;
 		this.input = input;

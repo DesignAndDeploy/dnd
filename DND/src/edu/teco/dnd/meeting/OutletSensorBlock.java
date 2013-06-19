@@ -1,6 +1,7 @@
 package edu.teco.dnd.meeting;
 
 import java.net.MalformedURLException;
+import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Option;
@@ -55,7 +56,7 @@ public class OutletSensorBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of new OutletSensorBlock
 	 */
-	public OutletSensorBlock(final String blockID) {
+	public OutletSensorBlock(final UUID blockID) {
 		super(blockID);
 	}
 

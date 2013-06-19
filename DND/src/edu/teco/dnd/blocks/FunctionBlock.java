@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Base class function blocks. Subclasses have to implement {@link #init()} and {@link #update()}.
@@ -26,8 +27,7 @@ public abstract class FunctionBlock implements Serializable {
 	/**
 	 * The ID of this FunctionBlock.
 	 */
-	// TODO: change to UUID
-	private final String id;
+	private final UUID id;
 
 	/**
 	 * Stores all {@link ConnectionTarget}s used by this function block. Mapped from their name.
@@ -134,7 +134,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @param id
 	 *            the ID of this FunctionBlock
 	 */
-	public FunctionBlock(final String id) {
+	public FunctionBlock(final UUID id) {
 		this.id = id;
 
 		for (Field input : getInputs(getClass())) {
@@ -339,7 +339,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * 
 	 * @return the ID of this FunctionBlock
 	 */
-	public final String getID() {
+	public final UUID getID() {
 		return id;
 	}
 

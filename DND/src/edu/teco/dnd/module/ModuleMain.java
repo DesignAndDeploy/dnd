@@ -68,8 +68,7 @@ public class ModuleMain {
 
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
-		// TODO: add config options to allow selection of netty engine and
-		// number of application threads
+		// TODO: add config options to allow selection of netty engine and number of application threads
 		// TODO: name threads
 		final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
 

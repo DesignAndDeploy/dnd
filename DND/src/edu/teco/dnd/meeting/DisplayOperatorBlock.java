@@ -1,5 +1,7 @@
 package edu.teco.dnd.meeting;
 
+import java.util.UUID;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
@@ -34,7 +36,7 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	 * @param blockID
 	 *            ID of new DisplayOperatorBlock
 	 */
-	public DisplayOperatorBlock(final String blockID) {
+	public DisplayOperatorBlock(final UUID blockID) {
 		super(blockID);
 	}
 
