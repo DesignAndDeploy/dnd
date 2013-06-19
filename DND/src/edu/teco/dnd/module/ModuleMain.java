@@ -62,8 +62,12 @@ public class ModuleMain {
 		try {
 			moduleConfig = new JsonConfig(configPath);
 		} catch (IOException e) {
-			LOGGER.fatal("could not load config", e);
+			LOGGER.fatal("could not open file: \"{}\"", configPath);
 			System.exit(1);
+		} catch (Exception e) {
+			LOGGER.catching(e);
+			LOGGER.fatal("could not load config: \"{}\"", configPath);
+			System.exit(2);
 		}
 
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());

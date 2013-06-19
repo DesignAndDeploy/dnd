@@ -88,6 +88,9 @@ public class JsonConfig extends ConfigReader {
 		// b.addChild(new BlockType("child2Type", 2));
 		// allowedBlocks.addChild(b);
 		// allowedBlocks.addChild(new BlockType("child2TYPE", 1));
+		// multicast = new NetConnection[1];
+		// multicast[0] = new NetConnection(new InetSocketAddress(4242),NetworkInterface.getByIndex(0));
+		// store(path);
 
 		if (allowedBlocks != null) {
 			fillTransientVariables(blockQuickaccess, allowedBlocks);
