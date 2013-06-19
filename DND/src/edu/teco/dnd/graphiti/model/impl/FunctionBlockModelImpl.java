@@ -502,7 +502,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		}
 		Constructor<? extends FunctionBlock> constructor = null;
 		try {
-			constructor = cls.getConstructor(String.class);
+			constructor = cls.getConstructor(UUID.class);
 		} catch (NoSuchMethodException e) {
 			throw new InvalidFunctionBlockException("Could not find constructor", e);
 		} catch (SecurityException e) {
