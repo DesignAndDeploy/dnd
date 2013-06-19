@@ -10,7 +10,7 @@ import java.util.Queue;
  *
  * @author Philipp Adolf
  */
-class BlockTypeHolderIterator implements Iterator<BlockTypeHolder>, Iterable<BlockTypeHolder> {
+public class BlockTypeHolderIterator implements Iterator<BlockTypeHolder>, Iterable<BlockTypeHolder> {
 	/**
 	 * Queue for BlockTypeHolders that have not yet been visited.
 	 */
