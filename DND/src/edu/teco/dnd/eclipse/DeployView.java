@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -36,12 +36,9 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
@@ -400,8 +397,7 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		Collection<FunctionBlock> blockList = new ArrayList<FunctionBlock>();
 		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
 
-		Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(input.getFile()
-				.getProject());
+		Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(input.getFile().getProject());
 		LOGGER.debug("using paths {}", paths);
 		URL[] urls = new URL[paths.size()];
 		String[] classpath = new String[paths.size()];
@@ -411,17 +407,16 @@ public class DeployView extends EditorPart implements ConnectionListener,
 			classpath[i] = path.toFile().getPath();
 			i++;
 		}
-		URLClassLoader classLoader = new URLClassLoader(urls, getClass()
-				.getClassLoader());
+		URLClassLoader classLoader = new URLClassLoader(urls, getClass().getClassLoader());
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		Resource resource = new XMIResourceImpl(uri);
 		resource.load(null);
-		// for (EObject object : resource.getContents()) {
-		// if (object instanceof FunctionBlockModel) {
-		// blockList.add(((FunctionBlockModel) object)
-		// .createBlock(classLoader));
-		// }
-		// }
+		for (EObject object : resource.getContents()) {
+			if (object instanceof FunctionBlockModel) {
+				LOGGER.trace("found FunctionBlock {}", object);
+				blockList.add(((FunctionBlockModel) object).createBlock(classLoader));
+			}
+		}
 		return blockList;
 	}
 
