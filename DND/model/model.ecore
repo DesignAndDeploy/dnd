@@ -11,7 +11,7 @@
         eType="#//OutputModel" containment="true" resolveProxies="false" eOpposite="#//OutputModel/functionBlock"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
         eType="#//OptionModel" containment="true" resolveProxies="false" eOpposite="#//OptionModel/functionBlock"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="iD" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="iD" eType="#//UUID"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="position" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="InputModel">
@@ -40,4 +40,5 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="Serializable" instanceClassName="java.io.Serializable"/>
   <eClassifiers xsi:type="ecore:EDataType" name="FunctionBlock" instanceClassName="edu.teco.dnd.blocks.FunctionBlock"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="UUID" instanceClassName="java.util.UUID"/>
 </ecore:EPackage>

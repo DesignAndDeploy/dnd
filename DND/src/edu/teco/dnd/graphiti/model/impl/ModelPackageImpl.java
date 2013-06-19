@@ -75,6 +75,13 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 	private EDataType functionBlockEDataType = null;
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EDataType uuidEDataType = null;
+
+	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
 	 * {@link org.eclipse.emf.ecore.EPackage.Registry EPackage.Registry} by the package
 	 * package URI value.
@@ -365,6 +372,15 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EDataType getUUID() {
+		return uuidEDataType;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public ModelFactory getModelFactory() {
 		return (ModelFactory)getEFactoryInstance();
 	}
@@ -418,6 +434,7 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		// Create data types
 		serializableEDataType = createEDataType(SERIALIZABLE);
 		functionBlockEDataType = createEDataType(FUNCTION_BLOCK);
+		uuidEDataType = createEDataType(UUID);
 	}
 
 	/**
@@ -451,7 +468,7 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		initEReference(getFunctionBlockModel_Inputs(), this.getInputModel(), this.getInputModel_FunctionBlock(), "inputs", null, 0, -1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getFunctionBlockModel_Outputs(), this.getOutputModel(), this.getOutputModel_FunctionBlock(), "outputs", null, 0, -1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getFunctionBlockModel_Options(), this.getOptionModel(), this.getOptionModel_FunctionBlock(), "options", null, 0, -1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getFunctionBlockModel_ID(), ecorePackage.getEString(), "iD", null, 0, 1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFunctionBlockModel_ID(), this.getUUID(), "iD", null, 0, 1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFunctionBlockModel_Position(), ecorePackage.getEString(), "position", null, 0, 1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(inputModelEClass, InputModel.class, "InputModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -476,6 +493,7 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		// Initialize data types
 		initEDataType(serializableEDataType, Serializable.class, "Serializable", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 		initEDataType(functionBlockEDataType, FunctionBlock.class, "FunctionBlock", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
+		initEDataType(uuidEDataType, java.util.UUID.class, "UUID", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 
 		// Create resource
 		createResource(eNS_URI);

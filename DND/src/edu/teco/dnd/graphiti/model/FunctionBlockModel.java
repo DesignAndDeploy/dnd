@@ -1,10 +1,13 @@
 package edu.teco.dnd.graphiti.model;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
+import java.util.UUID;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.InvalidFunctionBlockException;
+import edu.teco.dnd.module.RemoteConnectionTarget;
 
 /**
  * @model
@@ -27,31 +30,32 @@ public interface FunctionBlockModel extends EObject {
 	/**
 	 * @model containment="true" opposite="functionBlock"
 	 */
-	EList<InputModel> getInputs();
+	EList getInputs();
 
 	/**
 	 * @model containment="true" opposite="functionBlock"
 	 */
-	EList<OutputModel> getOutputs();
+	EList getOutputs();
 
 	/**
 	 * @model containment="true" opposite="functionBlock"
 	 */
-	EList<OptionModel> getOptions();
+	EList getOptions();
 
 	/**
 	 * @model
 	 */
-	String getID();
+	UUID getID();
 
 	/**
 	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel#getID <em>ID</em>}' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>ID</em>' attribute.
 	 * @see #getID()
 	 * @generated
 	 */
-	void setID(String value);
+	void setID(UUID value);
 
 	/**
 	 * @model

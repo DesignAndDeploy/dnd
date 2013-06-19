@@ -10,8 +10,14 @@ import edu.teco.dnd.blocks.FunctionBlock;
 
 import edu.teco.dnd.graphiti.model.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import java.util.UUID;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
@@ -84,6 +90,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 				return createSerializableFromString(eDataType, initialValue);
 			case ModelPackage.FUNCTION_BLOCK:
 				return createFunctionBlockFromString(eDataType, initialValue);
+			case ModelPackage.UUID:
+				return createUUIDFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -100,6 +108,8 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 				return convertSerializableToString(eDataType, instanceValue);
 			case ModelPackage.FUNCTION_BLOCK:
 				return convertFunctionBlockToString(eDataType, instanceValue);
+			case ModelPackage.UUID:
+				return convertUUIDToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -168,6 +178,38 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 		return super.convertToString(eDataType, instanceValue);
 	}
 
+	private static String byteToHex(byte[] bs) {
+		if (bs == null) {
+			return "";
+		}
+		StringBuffer sb = new StringBuffer(bs.length * 2);
+		for (byte b : bs) {
+			if (b >= 0 && b < 16) {
+				sb.append('0');
+			}
+			sb.append(Integer.toHexString(((int) b) & 0xFF));
+		}
+		return sb.toString();
+	}
+
+	private static byte[] hexToByte(String hex) {
+		if (hex == null) {
+			return new byte[0];
+		}
+		if (hex.length() % 2 != 0) {
+			throw new IllegalArgumentException("hex string must be an even number of characters");
+		}
+		byte[] bs = new byte[hex.length() / 2];
+		for (int i = 0; i < bs.length; i++) {
+			try {
+				bs[i] = (byte) (int) Integer.valueOf(hex.substring(2 * i, 2 * i + 2), 16);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("String is not hex", e);
+			}
+		}
+		return bs;
+	}
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -183,6 +225,23 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 	 * @generated
 	 */
 	public String convertFunctionBlockToString(EDataType eDataType, Object instanceValue) {
+		return super.convertToString(eDataType, instanceValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 */
+	public UUID createUUIDFromString(EDataType eDataType, String initialValue) {
+		return UUID.fromString(initialValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String convertUUIDToString(EDataType eDataType, Object instanceValue) {
 		return super.convertToString(eDataType, instanceValue);
 	}
 

@@ -73,7 +73,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<InputModel> inputs;
+	protected EList inputs;
 
 	/**
 	 * The default value of the '{@link #getType() <em>Type</em>}' attribute.
@@ -180,9 +180,9 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList<InputModel> getInputs() {
+	public EList getInputs() {
 		if (inputs == null) {
-			inputs = new EObjectWithInverseResolvingEList<InputModel>(InputModel.class, this, ModelPackage.OUTPUT_MODEL__INPUTS, ModelPackage.INPUT_MODEL__OUTPUT);
+			inputs = new EObjectWithInverseResolvingEList(InputModel.class, this, ModelPackage.OUTPUT_MODEL__INPUTS, ModelPackage.INPUT_MODEL__OUTPUT);
 		}
 		return inputs;
 	}
@@ -220,7 +220,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 					msgs = eBasicRemoveFromContainer(msgs);
 				return basicSetFunctionBlock((FunctionBlockModel)otherEnd, msgs);
 			case ModelPackage.OUTPUT_MODEL__INPUTS:
-				return ((InternalEList<InputModel>)getInputs()).basicAdd((InputModel) otherEnd, msgs);
+				return ((InternalEList)getInputs()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
@@ -235,7 +235,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 			case ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK:
 				return basicSetFunctionBlock(null, msgs);
 			case ModelPackage.OUTPUT_MODEL__INPUTS:
-				return ((InternalEList<InputModel>)getInputs()).basicRemove(otherEnd, msgs);
+				return ((InternalEList)getInputs()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -288,7 +288,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 				return;
 			case ModelPackage.OUTPUT_MODEL__INPUTS:
 				getInputs().clear();
-				getInputs().addAll((Collection<InputModel>)newValue);
+				getInputs().addAll((Collection)newValue);
 				return;
 			case ModelPackage.OUTPUT_MODEL__TYPE:
 				setType((String)newValue);

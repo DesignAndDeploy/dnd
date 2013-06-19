@@ -278,7 +278,8 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		{
 			LOGGER.debug("adding inputs");
 			int pos = CONNECTION_OFFSET;
-			for (InputModel input : addedBlock.getInputs()) {
+			for (Object inputObject : addedBlock.getInputs()) {
+				final InputModel input = (InputModel) inputObject;
 				LOGGER.trace("adding {} at {}", input, pos);
 				FixPointAnchor anchor = peCreateService.createFixPointAnchor(containerShape);
 				anchor.setLocation(gaService.createPoint(CONNECTION_SIZE / 2 + CONNECTION_EXTRA, pos
@@ -307,7 +308,8 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		{
 			LOGGER.debug("adding outputs");
 			int pos = CONNECTION_OFFSET;
-			for (OutputModel output : addedBlock.getOutputs()) {
+			for (Object outputObject : addedBlock.getOutputs()) {
+				final OutputModel output = (OutputModel) outputObject;
 				LOGGER.trace("adding {} at {}", output, pos);
 				FixPointAnchor anchor = peCreateService.createFixPointAnchor(containerShape);
 				anchor.setLocation(gaService.createPoint(DEFAULT_WIDTH - CONNECTION_SIZE / 2
@@ -339,7 +341,8 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			int pos = DNDAddBlockFeature.CONNECTION_OFFSET
 					+ Math.max(addedBlock.getInputs().size(), addedBlock.getOutputs().size())
 					* (DNDAddBlockFeature.CONNECTION_SIZE + DNDAddBlockFeature.CONNECTION_SPACE);
-			for (OptionModel option : addedBlock.getOptions()) {
+			for (Object optionObject : addedBlock.getOptions()) {
+				final OptionModel option = (OptionModel) optionObject;
 				LOGGER.trace("adding {} at {}", option, pos);
 				Shape nameShape = peCreateService.createShape(containerShape, false);
 				Text nameText = gaService.createText(nameShape, option.getName() + ":");

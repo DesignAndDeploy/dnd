@@ -14,6 +14,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
@@ -23,7 +24,6 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import edu.teco.dnd.blocks.AssignmentException;
@@ -45,15 +45,15 @@ import edu.teco.dnd.module.RemoteConnectionTarget;
  * <p>
  * The following features are implemented:
  * <ul>
- * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getType <em>Type</em>}</li>
- * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getInputs <em>Inputs</em>}</li>
- * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getOutputs <em>Outputs</em>}</li>
- * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getOptions <em>Options</em>}</li>
- * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getID <em>ID</em>}</li>
- * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getPosition <em>Position</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getType <em>Type</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getInputs <em>Inputs</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getOutputs <em>Outputs</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getOptions <em>Options</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getID <em>ID</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getPosition <em>Position</em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @generated
  */
 public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlockModel {
@@ -78,57 +78,57 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	protected String type = TYPE_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getInputs() <em>Inputs</em>}' containment reference list. <!-- begin-user-doc
+	 * The cached value of the '{@link #getInputs() <em>Inputs</em>}' containment reference list.
+	 * <!-- begin-user-doc
 	 * --> <!-- end-user-doc -->
-	 * 
 	 * @see #getInputs()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<InputModel> inputs;
+	protected EList inputs;
 
 	/**
-	 * The cached value of the '{@link #getOutputs() <em>Outputs</em>}' containment reference list. <!-- begin-user-doc
+	 * The cached value of the '{@link #getOutputs() <em>Outputs</em>}' containment reference list.
+	 * <!-- begin-user-doc
 	 * --> <!-- end-user-doc -->
-	 * 
 	 * @see #getOutputs()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<OutputModel> outputs;
+	protected EList outputs;
 
 	/**
-	 * The cached value of the '{@link #getOptions() <em>Options</em>}' containment reference list. <!-- begin-user-doc
+	 * The cached value of the '{@link #getOptions() <em>Options</em>}' containment reference list.
+	 * <!-- begin-user-doc
 	 * --> <!-- end-user-doc -->
-	 * 
 	 * @see #getOptions()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<OptionModel> options;
+	protected EList options;
 
 	/**
-	 * The default value of the '{@link #getID() <em>ID</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The default value of the '{@link #getID() <em>ID</em>}' attribute.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getID()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String ID_EDEFAULT = null;
+	protected static final UUID ID_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getID() <em>ID</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #getID() <em>ID</em>}' attribute.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getID()
 	 * @generated
 	 * @ordered
 	 */
-	protected String iD = ID_EDEFAULT;
+	protected UUID iD = ID_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getPosition() <em>Position</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * The default value of the '{@link #getPosition() <em>Position</em>}' attribute.
+	 * <!-- begin-user-doc --> <!--
 	 * end-user-doc -->
-	 * 
 	 * @see #getPosition()
 	 * @generated
 	 * @ordered
@@ -136,9 +136,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	protected static final String POSITION_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getPosition() <em>Position</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * The cached value of the '{@link #getPosition() <em>Position</em>}' attribute.
+	 * <!-- begin-user-doc --> <!--
 	 * end-user-doc -->
-	 * 
 	 * @see #getPosition()
 	 * @generated
 	 * @ordered
@@ -147,7 +147,6 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected FunctionBlockModelImpl() {
@@ -156,7 +155,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 
 	protected FunctionBlockModelImpl(Class<? extends FunctionBlock> cls) {
 		super();
-		setID(EcoreUtil.generateUUID());
+		setID(UUID.randomUUID());
 		if (cls != null) {
 			setType(cls.getName());
 			for (Field field : FunctionBlock.getInputs(cls)) {
@@ -197,7 +196,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			} catch (SecurityException e) {
 			}
 			if (block != null) {
-				for (OptionModel option : getOptions()) {
+				for (Object optionObject : getOptions()) {
+					OptionModel option = (OptionModel) optionObject;
 					Serializable value = null;
 					try {
 						value = block.getOption(option.getName());
@@ -212,7 +212,6 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected EClass eStaticClass() {
@@ -221,7 +220,6 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public String getType() {
@@ -230,72 +228,63 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setType(String newType) {
 		String oldType = type;
 		type = newType;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__TYPE, oldType,
-					type));
+			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__TYPE, oldType, type));
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
-	public EList<InputModel> getInputs() {
+	public EList getInputs() {
 		if (inputs == null) {
-			inputs = new EObjectContainmentWithInverseEList<InputModel>(InputModel.class, this,
-					ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS, ModelPackage.INPUT_MODEL__FUNCTION_BLOCK);
+			inputs = new EObjectContainmentWithInverseEList(InputModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS, ModelPackage.INPUT_MODEL__FUNCTION_BLOCK);
 		}
 		return inputs;
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
-	public EList<OutputModel> getOutputs() {
+	public EList getOutputs() {
 		if (outputs == null) {
-			outputs = new EObjectContainmentWithInverseEList<OutputModel>(OutputModel.class, this,
-					ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS, ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK);
+			outputs = new EObjectContainmentWithInverseEList(OutputModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS, ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK);
 		}
 		return outputs;
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
-	public EList<OptionModel> getOptions() {
+	public EList getOptions() {
 		if (options == null) {
-			options = new EObjectContainmentWithInverseEList<OptionModel>(OptionModel.class, this,
-					ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS, ModelPackage.OPTION_MODEL__FUNCTION_BLOCK);
+			options = new EObjectContainmentWithInverseEList(OptionModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS, ModelPackage.OPTION_MODEL__FUNCTION_BLOCK);
 		}
 		return options;
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
-	public String getID() {
+	public UUID getID() {
 		return iD;
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setID(String newID) {
-		String oldID = iD;
+	public void setID(UUID newID) {
+		UUID oldID = iD;
 		iD = newID;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__ID, oldID, iD));
@@ -303,7 +292,6 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public String getPosition() {
@@ -312,167 +300,157 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void setPosition(String newPosition) {
 		String oldPosition = position;
 		position = newPosition;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__POSITION,
-					oldPosition, position));
+			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__POSITION, oldPosition, position));
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-			return ((InternalEList<InputModel>) getInputs()).basicAdd((InputModel) otherEnd, msgs);
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-			return ((InternalEList<OutputModel>) getOutputs()).basicAdd((OutputModel) otherEnd, msgs);
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-			return ((InternalEList<OptionModel>) getOptions()).basicAdd((OptionModel) otherEnd, msgs);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
+				return ((InternalEList)getInputs()).basicAdd(otherEnd, msgs);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
+				return ((InternalEList)getOutputs()).basicAdd(otherEnd, msgs);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
+				return ((InternalEList)getOptions()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-			return ((InternalEList<InputModel>) getInputs()).basicRemove(otherEnd, msgs);
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-			return ((InternalEList<OutputModel>) getOutputs()).basicRemove(otherEnd, msgs);
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-			return ((InternalEList<OptionModel>) getOptions()).basicRemove(otherEnd, msgs);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
+				return ((InternalEList)getInputs()).basicRemove(otherEnd, msgs);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
+				return ((InternalEList)getOutputs()).basicRemove(otherEnd, msgs);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
+				return ((InternalEList)getOptions()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
-			return getType();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-			return getInputs();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-			return getOutputs();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-			return getOptions();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
-			return getID();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
-			return getPosition();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
+				return getType();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
+				return getInputs();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
+				return getOutputs();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
+				return getOptions();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
+				return getID();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
+				return getPosition();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
-			setType((String) newValue);
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-			getInputs().clear();
-			getInputs().addAll((Collection<InputModel>) newValue);
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-			getOutputs().clear();
-			getOutputs().addAll((Collection<OutputModel>) newValue);
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-			getOptions().clear();
-			getOptions().addAll((Collection<OptionModel>) newValue);
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
-			setID((String) newValue);
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
-			setPosition((String) newValue);
-			return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
+				setType((String)newValue);
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
+				getInputs().clear();
+				getInputs().addAll((Collection)newValue);
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
+				getOutputs().clear();
+				getOutputs().addAll((Collection)newValue);
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
+				getOptions().clear();
+				getOptions().addAll((Collection)newValue);
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
+				setID((UUID)newValue);
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
+				setPosition((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
-			setType(TYPE_EDEFAULT);
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-			getInputs().clear();
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-			getOutputs().clear();
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-			getOptions().clear();
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
-			setID(ID_EDEFAULT);
-			return;
-		case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
-			setPosition(POSITION_EDEFAULT);
-			return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
+				setType(TYPE_EDEFAULT);
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
+				getInputs().clear();
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
+				getOutputs().clear();
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
+				getOptions().clear();
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
+				setID(ID_EDEFAULT);
+				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
+				setPosition(POSITION_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
-			return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
-		case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-			return inputs != null && !inputs.isEmpty();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-			return outputs != null && !outputs.isEmpty();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-			return options != null && !options.isEmpty();
-		case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
-			return ID_EDEFAULT == null ? iD != null : !ID_EDEFAULT.equals(iD);
-		case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
-			return POSITION_EDEFAULT == null ? position != null : !POSITION_EDEFAULT.equals(position);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
+				return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
+				return inputs != null && !inputs.isEmpty();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
+				return outputs != null && !outputs.isEmpty();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
+				return options != null && !options.isEmpty();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
+				return ID_EDEFAULT == null ? iD != null : !ID_EDEFAULT.equals(iD);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
+				return POSITION_EDEFAULT == null ? position != null : !POSITION_EDEFAULT.equals(position);
 		}
 		return super.eIsSet(featureID);
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (type: ");
@@ -542,7 +520,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		} catch (InvocationTargetException e) {
 			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
 		}
-		for (OptionModel option : getOptions()) {
+		for (Object optionObject : getOptions()) {
+			final OptionModel option = (OptionModel) optionObject;
 			try {
 				block.setOption(option.getName(), option.getValue());
 			} catch (AssignmentException e) {
@@ -550,11 +529,14 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			}
 		}
 		Map<String, Output<?>> outputs = block.getOutputs();
-		for (OutputModel outputModel : getOutputs()) {
+		for (Object outputModelObject : getOutputs()) {
+			final OutputModel outputModel = (OutputModel) outputModelObject;
 			Output<?> output = outputs.get(outputModel.getName());
-			for (InputModel input : outputModel.getInputs()) {
+			for (Object inputObject : outputModel.getInputs()) {
+				final InputModel input = (InputModel) inputObject;
+				UUID uuid = input.getFunctionBlock().getID();
 				output.addConnection(new RemoteConnectionTarget(outputModel.getName(),
-						input.getFunctionBlock().getID(), input.getName()));
+						uuid, input.getName()));
 			}
 		}
 		block.setPosition(getPosition());

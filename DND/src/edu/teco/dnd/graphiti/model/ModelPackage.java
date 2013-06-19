@@ -326,6 +326,17 @@ public interface ModelPackage extends EPackage {
 
 
 	/**
+	 * The meta object id for the '<em>UUID</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.util.UUID
+	 * @see edu.teco.dnd.graphiti.model.impl.ModelPackageImpl#getUUID()
+	 * @generated
+	 */
+	int UUID = 6;
+
+
+	/**
 	 * Returns the meta object for class '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel <em>Function Block Model</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -597,6 +608,17 @@ public interface ModelPackage extends EPackage {
 	EDataType getFunctionBlock();
 
 	/**
+	 * Returns the meta object for data type '{@link java.util.UUID <em>UUID</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>UUID</em>'.
+	 * @see java.util.UUID
+	 * @model instanceClass="java.util.UUID"
+	 * @generated
+	 */
+	EDataType getUUID();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -829,6 +851,16 @@ public interface ModelPackage extends EPackage {
 		 * @generated
 		 */
 		EDataType FUNCTION_BLOCK = eINSTANCE.getFunctionBlock();
+
+		/**
+		 * The meta object literal for the '<em>UUID</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.util.UUID
+		 * @see edu.teco.dnd.graphiti.model.impl.ModelPackageImpl#getUUID()
+		 * @generated
+		 */
+		EDataType UUID = eINSTANCE.getUUID();
 
 	}
 
