@@ -68,7 +68,7 @@ public class DeployView extends EditorPart implements ConnectionListener,
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
+	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
 	private Display display;
 	private Activator activator;
 	private ConnectionManager manager;
@@ -78,9 +78,10 @@ public class DeployView extends EditorPart implements ConnectionListener,
 
 	private Map<FunctionBlock, BlockTarget> map;
 
+	private Button serverButton;
+	private Button updateButton; // Button to update moduleCombo
 	private Button createButton; // Button to create deployment
 	private Button deployButton; // Button to deploy deployment
-	private Button updateButton; // Button to update moduleCombo
 	private Label appName;
 	private Label blockSpecifications;
 	private Label block; // Block to edit specifications
@@ -101,28 +102,20 @@ public class DeployView extends EditorPart implements ConnectionListener,
 
 		appName = new Label(parent, SWT.NONE);
 		appName.pack();
-		
-		loadBlocks(getEditorInput());
-		
-		createUpdateButton(parent);
+
+		createServerButton(parent);
 		createBlockSpecsLabel(parent);
 		createDeploymentTable(parent);
-		createCreateButton(parent);
+		createUpdateButton(parent);
 		createBlockLabel(parent);
-		createDeployButton(parent);
+		createCreateButton(parent);
 		createModuleLabel(parent);
 		createmoduleComboCombo(parent);
+		createDeployButton(parent);
 		createPlaceLabel(parent);
 		createPlacesCombo(parent);
-
-		TableItem item2 = new TableItem(deployment, SWT.NONE);
-		item2.setText(0, "FunctionBlocks");
-		item2.setText(1, "moduleCombo");
-
-		TableItem item3 = new TableItem(deployment, SWT.NONE);
-		item3.setText(0, "another Block");
-		item3.setText(1, "");
-		item3.setText(2, "heater");
+		
+		loadBlocks(getEditorInput());
 	}
 
 	@Override
@@ -147,6 +140,34 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		activator.addServerStateListener(this);
 		LOGGER.exit();
 		map = new HashMap<FunctionBlock, BlockTarget>();
+	}
+
+	private void createServerButton(Composite parent) {
+		GridData data = new GridData();
+		data.horizontalAlignment = SWT.FILL;
+		serverButton = new Button(parent, SWT.NONE);
+		serverButton.setLayoutData(data);
+		if (Activator.getDefault().isRunning()) {
+			serverButton.setText("Stop server");
+		} else {
+			serverButton.setText("Start server");
+		}
+		serverButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread() {
+					@Override
+					public void run() {
+						if (DeployView.this.activator.isRunning()) {
+							DeployView.this.activator.shutdownServer();
+						} else {
+							DeployView.this.activator.startServer();
+						}
+					}
+				}.run();
+			}
+		});
+
 	}
 
 	private void createDeploymentTable(Composite parent) {
@@ -352,6 +373,13 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		} else {
 			LOGGER.error("Input is not a FileEditorInput {}", input);
 		}
+		for (FunctionBlock block : functionBlocks){
+			TableItem item = new TableItem(deployment, SWT.NONE);
+			item.setText(0, block.getType());
+			item.setText(1, "(no module assigned yet");
+		}
+		TableItem item = new TableItem(deployment, SWT.NONE);
+		item.setText(0, "Loaded Function Block");
 	}
 
 	/**
@@ -388,12 +416,12 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		Resource resource = new XMIResourceImpl(uri);
 		resource.load(null);
-//		for (EObject object : resource.getContents()) {
-//			if (object instanceof FunctionBlockModel) {
-//				blockList.add(((FunctionBlockModel) object)
-//						.createBlock(classLoader));
-//			}
-//		}
+		// for (EObject object : resource.getContents()) {
+		// if (object instanceof FunctionBlockModel) {
+		// blockList.add(((FunctionBlockModel) object)
+		// .createBlock(classLoader));
+		// }
+		// }
 		return blockList;
 	}
 
@@ -407,6 +435,8 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		/**
 		 * TODO: - Modul zur moduleCombo hinzufügen - Modul zur ModuleCollection
 		 * hinzufügen - ggf Ort des Moduls zur placesCombo hinzufügen
+		 * 
+		 * geht alles nur, falls man von der UUID zum modul kommt.
 		 */
 		// TODO Auto-generated method stub
 
@@ -427,14 +457,34 @@ public class DeployView extends EditorPart implements ConnectionListener,
 	@Override
 	public void serverStarted(ConnectionManager connectionManager,
 			UDPMulticastBeacon beacon) {
-		// TODO Auto-generated method stub
-
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				serverButton.setText("Stop Server");
+				updateButton.setEnabled(true);
+				createButton.setEnabled(true);
+				deployButton.setEnabled(true);
+				manager = activator.getConnectionManager();
+			}
+		});
 	}
 
 	@Override
 	public void serverStopped() {
-		// TODO Auto-generated method stub
-
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (serverButton != null) {
+					serverButton.setText("Start Server");
+				}
+				updateButton.setEnabled(false);
+				createButton.setEnabled(false);
+				deployButton.setEnabled(false);
+			}
+		});
+		if (manager != null) {
+			manager.removeConnectionListener(this);
+		}
 	}
 
 	/**
