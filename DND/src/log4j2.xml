@@ -3,6 +3,7 @@
 <configuration status="OFF">
   <appenders>
     <Console name="Console" target="SYSTEM_OUT">
+      <MarkerFilter marker="FLOW" onMatch="DENY" onMismatch="NEUTRAL"/>
       <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %M:%L - %ex - %X - %msg%n"/>
     </Console>
   </appenders>
@@ -13,6 +14,14 @@
     <logger name="edu.teco.dnd.network.codecs" level="INFO" additivity="false">
       <appender-ref ref="Console"/>
     </logger>
+    <logger name="edu.teco.dnd.deploy.DistributionGenerator" level="TRACE" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
+    <!--
+    <logger name="edu.teco.dnd.deploy" level="TRACE" additivity="false">
+      <appender-ref ref="Console"/>
+    </logger>
+    -->
     <logger name="edu.teco.dnd.network.UDPMulticastBeacon" level="INFO" additivity="false">
       <appender-ref ref="Console"/>
     </logger>

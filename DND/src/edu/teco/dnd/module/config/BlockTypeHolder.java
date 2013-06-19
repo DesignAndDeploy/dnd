@@ -172,5 +172,8 @@ public class BlockTypeHolder {
 		}
 		return map;
 	}
-
+	
+	public boolean isLeave() {
+		return type != null;
+	}
 }

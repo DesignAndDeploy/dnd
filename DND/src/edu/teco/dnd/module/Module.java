@@ -12,9 +12,9 @@ import edu.teco.dnd.module.config.BlockTypeHolder;
  * 
  */
 public class Module {
-	public final UUID id;
-	public final String name;
-	public final BlockTypeHolder holder;
+	private UUID uuid;
+	private String name;
+	private BlockTypeHolder holder;
 
 	/**
 	 * Creates a new representation of a module.
@@ -27,7 +27,7 @@ public class Module {
 	 *            BlockTypeHolder of the module.
 	 */
 	public Module(UUID id, String name, BlockTypeHolder holder) {
-		this.id = id;
+		this.uuid = id;
 		this.name = name;
 		this.holder = holder;
 	}
@@ -39,6 +39,10 @@ public class Module {
 	 */
 	public BlockTypeHolder getHolder() {
 		return this.holder;
+	}
+	
+	public UUID getUUID() {
+		return uuid;
 	}
 	
 	/**
@@ -54,5 +58,9 @@ public class Module {
 			
 		}
 		return false;
+	}
+	
+	public String getName() {
+		return name;
 	}
 }

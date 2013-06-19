@@ -97,5 +97,9 @@ public class TemperatureSensorBlock extends FunctionBlock {
 		} catch (SensorException e) {
 		}
 	}
-
+	
+	@Override
+	public String toString() {
+		return "TemperatureSensorBlock[id='" + getID() + "']";
+	}
 }
