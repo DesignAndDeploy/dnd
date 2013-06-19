@@ -5,7 +5,7 @@ package edu.teco.dnd.network.messages;
  *
  * @author Philipp Adolf
  */
-public class ConnectionClosedMessage implements Message {
+public class ConnectionClosedMessage extends Message {
 	/**
 	 * The type for this message.
 	 */

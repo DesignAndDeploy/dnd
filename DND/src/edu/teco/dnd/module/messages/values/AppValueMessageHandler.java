@@ -24,15 +24,15 @@ public class AppValueMessageHandler implements MessageHandler<AppValueMessage> {
 		try {
 			associatedApp.receiveValue(message.functionBlock, message.input, message.value);
 		} catch (NonExistentFunctionblockException e) {
-			returnMsg = new AppValueNak(message.appId, AppValueNak.ErrorType.WRONG_MODULE, message.functionBlock, message.input);
+			returnMsg = new AppValueNak(message.getApplicationID(), AppValueNak.ErrorType.WRONG_MODULE, message.functionBlock, message.input);
 		} catch (NonExistentInputException e) {
-			returnMsg =  new AppValueNak(message.appId, AppValueNak.ErrorType.INVALID_INPUT, message.functionBlock, message.input);
+			returnMsg =  new AppValueNak(message.getApplicationID(), AppValueNak.ErrorType.INVALID_INPUT, message.functionBlock, message.input);
 		} catch (Exception e) {
-			returnMsg = new AppValueNak(message.appId, AppValueNak.ErrorType.OTHER, message.functionBlock, message.input);
+			returnMsg = new AppValueNak(message.getApplicationID(), AppValueNak.ErrorType.OTHER, message.functionBlock, message.input);
 		}
 		
 		if (returnMsg == null) {
-			returnMsg = new AppValueAck(message.appId);
+			returnMsg = new AppValueAck(message.getApplicationID());
 		}
 		connMan.sendMessage(remoteUUID, returnMsg);
 	}

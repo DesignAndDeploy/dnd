@@ -9,7 +9,7 @@ import edu.teco.dnd.network.messages.Message;
  * @author cryptkiddy
  *
  */
-public class KillAppMessage implements Message {
+public class KillAppMessage extends Message {
 	
 	
 	public static final String MESSAGE_TYPE = "killApp";

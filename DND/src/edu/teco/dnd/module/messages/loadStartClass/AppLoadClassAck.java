@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Message;
 
-public class AppLoadClassAck implements Message {
+public class AppLoadClassAck extends Message {
 
 	public static final String MESSAGE_TYPE = "AppLoadClassAck";
 

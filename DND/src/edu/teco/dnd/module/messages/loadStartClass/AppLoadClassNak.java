@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Message;
 
-public class AppLoadClassNak implements Message {
+public class AppLoadClassNak extends Message {
 	public static final String MESSAGE_TYPE = "appLoadClassNak";
 
 	public String name;

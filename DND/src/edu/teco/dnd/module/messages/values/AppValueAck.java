@@ -4,19 +4,11 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
-public class AppValueAck implements ApplicationSpecificMessage {
+public class AppValueAck extends ApplicationSpecificMessage {
 
 	public static final String MESSAGE_TYPE = "appValueAck";
 
-	public final UUID appId;
-
 	public AppValueAck(UUID appId) {
-		this.appId = appId;
+		super(appId);
 	}
-
-	@Override
-	public UUID getApplicationID() {
-		return appId;
-	}
-
 }

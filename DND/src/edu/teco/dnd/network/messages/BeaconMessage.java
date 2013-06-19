@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public class BeaconMessage implements Message {
+public class BeaconMessage extends Message {
 	/**
 	 * The type of this message.
 	 */

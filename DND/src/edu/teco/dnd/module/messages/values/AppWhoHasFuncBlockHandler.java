@@ -22,7 +22,7 @@ public class AppWhoHasFuncBlockHandler implements MessageHandler<AppWhoHasFuncBl
 	@Override
 	public void handleMessage(ConnectionManager connMan, UUID remoteUUID, AppWhoHasFuncBlockMessage message) {
 		if (app.isExecuting(message.funcBlock)) {
-			connMan.sendMessage(remoteUUID, new AppBlockIdFoundMessage(message.appId, ownModUuid, message.funcBlock));
+			connMan.sendMessage(remoteUUID, new AppBlockIdFoundMessage(message.getApplicationID(), ownModUuid, message.funcBlock));
 			// TODO register
 		} else {
 			LOGGER.trace("received who has msg for {}", message.funcBlock);

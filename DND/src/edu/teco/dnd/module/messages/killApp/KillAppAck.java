@@ -8,7 +8,7 @@ import edu.teco.dnd.network.messages.Message;
  * send when a new Application is supposed to be started.
  *
  */
-public class KillAppAck implements Message {
+public class KillAppAck extends Message {
 	
 	
 	public static final String MESSAGE_TYPE = "killAppAck";

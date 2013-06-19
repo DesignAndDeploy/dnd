@@ -22,10 +22,10 @@ public class AppLoadClassMessageHandler implements MessageHandler<AppLoadClassMe
 		try {
 			associatedApp.loadClass(message.className, message.classByteCode);
 		} catch (Exception e) {
-			connMan.sendMessage(remoteUUID, new AppLoadClassNak(message.className, message.appId));
+			connMan.sendMessage(remoteUUID, new AppLoadClassNak(message.className, message.getApplicationID()));
 			return;
 		}
-		connMan.sendMessage(remoteUUID, new AppLoadClassAck(message.className, message.appId));
+		connMan.sendMessage(remoteUUID, new AppLoadClassAck(message.className, message.getApplicationID()));
 	}
 
 }

@@ -9,7 +9,7 @@ import edu.teco.dnd.network.messages.Message;
  * @author cryptkiddy
  *
  */
-public class StartAppNak implements Message {
+public class StartAppNak extends Message {
 	
 	
 	public static final String MESSAGE_TYPE = "startAppNak";

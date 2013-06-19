@@ -5,7 +5,7 @@ import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.network.messages.Message;
 
-public class ModuleInfoMessage implements Message {
+public class ModuleInfoMessage extends Message {
 	public static final String MESSAGE_TYPE = "ModuleInformation";
 	public final Module mod;
 	

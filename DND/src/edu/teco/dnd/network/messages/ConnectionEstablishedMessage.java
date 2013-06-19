@@ -6,7 +6,7 @@ package edu.teco.dnd.network.messages;
  *
  * @author Philipp Adolf
  */
-public class ConnectionEstablishedMessage implements Message {
+public class ConnectionEstablishedMessage extends Message {
 	/**
 	 * The type of this message.
 	 */

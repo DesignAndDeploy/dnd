@@ -7,7 +7,7 @@ import java.util.UUID;
  *
  * @author Philipp Adolf
  */
-public class HelloMessage implements Message {
+public class HelloMessage extends Message {
 	/**
 	 * The type of this message.
 	 */

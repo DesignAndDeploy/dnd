@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Philipp Adolf
  */
-public class PeerMessage implements Message {
+public class PeerMessage extends Message {
 	/**
 	 * The logger for this class.
 	 */
