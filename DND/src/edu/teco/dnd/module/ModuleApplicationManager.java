@@ -1,6 +1,5 @@
 package edu.teco.dnd.module;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +20,8 @@ import edu.teco.dnd.module.messages.loadStartClass.AppLoadClassMessage;
 import edu.teco.dnd.module.messages.loadStartClass.AppLoadClassMessageHandler;
 import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessage;
 import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessageHandler;
+import edu.teco.dnd.module.messages.values.AppValueMessage;
+import edu.teco.dnd.module.messages.values.AppValueMessageHandler;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class ModuleApplicationManager {
@@ -67,6 +68,7 @@ public class ModuleApplicationManager {
 		connMan.addHandler(appId, AppStartClassMessage.class, new AppStartClassMessageHandler(this, newApp), pool);
 		connMan.addHandler(appId, AppInfoRequestMessage.class, new AppInfoReqMsgHandler(newApp), pool);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
+		connMan.addHandler(appId, AppValueMessage.class, new AppValueMessageHandler(newApp), pool);
 
 	}
 
@@ -97,29 +99,6 @@ public class ModuleApplicationManager {
 		return true;
 	}
 
-	/**
-	 * called, when a value for a given local functionblock.input was received. Passes the value on to the input.
-	 * 
-	 * @param appId
-	 *            the id of the app the block belongs to.
-	 * @param funcBlockId
-	 *            the id of the functionBlock receiving the value.
-	 * @param input
-	 *            the input of the function block to receive the value.
-	 * @param value
-	 *            the value to be handed to the functionBlock
-	 * @return true iff the action succeeded.
-	 */
-	public void receiveValue(UUID appId, String funcBlockId, String input, Serializable value) {
-		try {
-			runningApps.get(appId).receiveValue(funcBlockId, input, value);
-		} catch (IllegalAccessException e) {
-			LOGGER.catching(e);
-			LOGGER.info("Can not receive value {} @ input {}.{} in App {}({})", value, funcBlockId, input,
-					runningApps.get(appId), appId);
-
-		}
-	}
 
 	/**
 	 * called to request stopping of a given application

@@ -19,6 +19,7 @@ import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
+import edu.teco.dnd.module.messages.values.AppValueMessage;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -61,10 +62,13 @@ public class Application {
 	 *            the value to be send.
 	 * @return true iff setting was successful.
 	 */
-	public boolean sendValue(String funcBlock, String input, Serializable val) {
-
-		// TODO tell networking, that we want to send this value :)
-		return false;
+	public void sendValue(String funcBlock, String input, Serializable value) {
+		UUID modUid = null; // FIXME the uuid of the mod this funBlock is on. HOW to find out? (see X1)
+		assert false; //Not implemented
+		
+		AppValueMessage message = new AppValueMessage(ownAppId, funcBlock, input, value);
+		connMan.sendMessage(modUid, message);
+		return;
 	}
 
 	/**
@@ -149,16 +153,20 @@ public class Application {
 	 *            the value to give to the input.
 	 * @return true iff value was successfully passed on.
 	 * @throws IllegalAccessException
+	 * @throws NonExistentFunctionblockException
+	 * @throws NonExistentInputException
 	 */
-	public void receiveValue(final String funcBlockId, String input, Serializable value) throws IllegalAccessException {
-		if (funcBlockById.get(funcBlockId) == null) {
+	public void receiveValue(final String funcBlockId, String input, Serializable value)
+			throws NonExistentFunctionblockException, NonExistentInputException {
+
+	 	if (funcBlockById.get(funcBlockId) == null) {
 			LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
-			throw new IllegalAccessException("FunctionBlockID not existent.");
+			throw LOGGER.throwing(new NonExistentFunctionblockException());
 		}
 		ConnectionTarget ct = funcBlockById.get(funcBlockId).getConnectionTargets().get(input);
 		if (ct == null) {
 			LOGGER.warn("specified input does not exist: {} on {}", input, funcBlockId);
-			throw new IllegalAccessException("specified input does not exist");
+			throw LOGGER.throwing(new NonExistentInputException());
 		}
 		ct.setValue(value);
 		Runnable updater = new Runnable() {
