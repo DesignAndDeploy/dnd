@@ -3,13 +3,13 @@ package edu.teco.dnd.deploy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Queue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.deploy.Distribution.ResourceConstraint;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.BlockTypeHolderIterator;
@@ -47,7 +47,7 @@ public class DistributionGenerator {
 	
 	/**
 	 * Initializes a new generator with the given strategy and the given constraints. A {@link ResourceConstraint}
-	 * will always be added.
+	 * and a {@link TypeConstraint} will always be added.
 	 * 
 	 * @param strategy the strategy to use
 	 * @param constraints constraints that will be used. {@link ResourceConstraint} will always be added.
@@ -55,8 +55,18 @@ public class DistributionGenerator {
 	public DistributionGenerator(final EvaluationStrategy strategy, final Collection<Constraint> constraints) {
 		this.strategy = strategy;
 		this.constraints = new ArrayList<Constraint>();
-		this.constraints.add(new Distribution.ResourceConstraint());
+		this.constraints.add(new ResourceConstraint());
 		this.constraints.addAll(constraints);
+	}
+	
+	/**
+	 * Initializes a new generator with the given strategy. A {@link ResourceConstraint} and a {@link TypeConstraint}
+	 * will be used.
+	 * 
+	 * @param strategy the strategy to use
+	 */
+	public DistributionGenerator(final EvaluationStrategy strategy) {
+		this(strategy, Collections.<Constraint>emptyList());
 	}
 	
 	/**
@@ -80,7 +90,7 @@ public class DistributionGenerator {
 	 * @param modules the modules that are available
 	 * @param start the Distribution that has been built so far
 	 */
-	public void getDistribution(final Collection<FunctionBlock> blocks, final Collection<Module> modules,
+	private void getDistribution(final Collection<FunctionBlock> blocks, final Collection<Module> modules,
 			final Distribution start) {
 		LOGGER.entry(blocks, modules, start);
 		if (blocks.isEmpty()) {

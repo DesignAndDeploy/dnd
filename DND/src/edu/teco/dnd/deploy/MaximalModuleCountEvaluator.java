@@ -8,6 +8,11 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.module.Module;
 
+/**
+ * An EvaluationStrategy that rates higher the higher the number of used modules is.
+ *
+ * @author Philipp Adolf
+ */
 public class MaximalModuleCountEvaluator implements EvaluationStrategy {
 	@Override
 	public int evaluate(final Distribution distribution) {

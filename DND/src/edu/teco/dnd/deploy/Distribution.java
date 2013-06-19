@@ -14,25 +14,55 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
+/**
+ * A Distribution of {@link FunctionBlock} to {@link BlockTypeHolder}s.
+ *
+ * @author Philipp Adolf
+ */
 public class Distribution {
+	/**
+	 * The logger for this class.
+	 */
 	private static final Logger LOGGER = LogManager.getLogger(Distribution.class);
 	
-	private final HashMap<FunctionBlock, BlockTarget> blocks;
+	/**
+	 * Mapping from FunctionBlock to assigned BlockTarget.
+	 */
+	private final Map<FunctionBlock, BlockTarget> blocks;
 	
-	private final HashMap<BlockTarget, Collection<FunctionBlock>> targets;
+	/**
+	 * Mapping from BlockTarget to all assigned FunctionBlocks.
+	 */
+	private final Map<BlockTarget, Collection<FunctionBlock>> targets;
 	
-	private final HashMap<BlockTypeHolder, BlockTarget> blockTargets;
+	/**
+	 * Mapping from BlockTypeHolder to matching BlockTarget.
+	 */
+	private final Map<BlockTypeHolder, BlockTarget> blockTargets;
 	
+	/**
+	 * Returns the mapping for this distribution.
+	 * 
+	 * @return the mapping for the distribution
+	 */
 	public Map<FunctionBlock, BlockTarget> getMapping() {
 		return Collections.unmodifiableMap(blocks);
 	}
 	
+	/**
+	 * Initializes a new, empty distribution.
+	 */
 	public Distribution() {
 		blocks = new HashMap<FunctionBlock, Distribution.BlockTarget>();
 		targets = new HashMap<Distribution.BlockTarget, Collection<FunctionBlock>>();
 		blockTargets = new HashMap<BlockTypeHolder, Distribution.BlockTarget>();
 	}
 	
+	/**
+	 * Clones a distribution. This distribution can be changed without affecting <code>old</code>.
+	 * 
+	 * @param old the Distribution to clone
+	 */
 	public Distribution(final Distribution old) {
 		this(
 			new HashMap<FunctionBlock, BlockTarget>(old.blocks),
@@ -41,12 +71,30 @@ public class Distribution {
 		);
 	}
 	
-	private Distribution(final HashMap<FunctionBlock, BlockTarget> blocks, final HashMap<BlockTarget, Collection<FunctionBlock>> targets, final HashMap<BlockTypeHolder, BlockTarget> blockTargets) {
+	/**
+	 * Used to clone a distribution.
+	 * 
+	 * @param blocks the mapping of FunctionBlocks to assigned BlockTargets
+	 * @param targets the mapping of BlockTarget to assigned FunctionBlocks
+	 * @param blockTargets the mapping of BlockTypeHolder to BlockTarget
+	 */
+	private Distribution(final Map<FunctionBlock, BlockTarget> blocks,
+			final Map<BlockTarget, Collection<FunctionBlock>> targets,
+			final Map<BlockTypeHolder, BlockTarget> blockTargets) {
 		this.blocks = blocks;
 		this.targets = targets;
 		this.blockTargets = blockTargets;
 	}
 	
+	/**
+	 * Adds a mapping if there are free slots and the typeHolder has the right type.
+	 * 
+	 * @param block the block to add
+	 * @param module the module to add the block to
+	 * @param typeHolder the typeHolder to add the block to
+	 * @return true if the block was added
+	 * @see #canAdd(FunctionBlock, Module, BlockTypeHolder)
+	 */
 	public boolean add(final FunctionBlock block, final Module module, final BlockTypeHolder typeHolder) {
 		LOGGER.entry(block, module, typeHolder);
 		final BlockTarget blockTarget = getBlockTarget(module, typeHolder);
@@ -56,10 +104,23 @@ public class Distribution {
 		return result;
 	}
 	
+	/**
+	 * Checks if a FunctionBlock can be added to a typeHolder of the given module.
+	 * 
+	 * @param block the block to check
+	 * @param module the module to check
+	 * @param typeHolder the typeHolder to check
+	 * @return true if the block can be added
+	 */
 	public boolean canAdd(final FunctionBlock block, final Module module, final BlockTypeHolder typeHolder) {
 		return getBlockTarget(module, typeHolder).canAdd(this, block);
 	}
 	
+	/**
+	 * Removes a mapping if it exists.
+	 * 
+	 * @param block the block the mapping should be removed for
+	 */
 	public void remove(final FunctionBlock block) {
 		LOGGER.entry(block);
 		final BlockTarget blockTarget = this.blocks.remove(block);
@@ -74,6 +135,13 @@ public class Distribution {
 		LOGGER.exit();
 	}
 	
+	/**
+	 * Returns the block target for a given module and typeHolder. The BlockTarget is created if it doesn't exist yet.
+	 * 
+	 * @param module the module the typeHolder belongs to
+	 * @param typeHolder the typeHolder for which to return the BlockTarget
+	 * @return the BlockTarget for <code>typeHolder</code>
+	 */
 	private BlockTarget getBlockTarget(final Module module, final BlockTypeHolder typeHolder) {
 		BlockTarget target = blockTargets.get(typeHolder);
 		if (target == null) {
@@ -103,24 +171,59 @@ public class Distribution {
 		return sb.toString();
 	}
 	
+	/**
+	 * Represents a target for a FunctionBlock mapping. It consists of a BlockTypeHolder and the Module the
+	 * BlockTypeHolder belongs to.
+	 *
+	 * @author Philipp Adolf
+	 */
 	public static class BlockTarget {
+		/**
+		 * The module {@link #holder} belongs to.
+		 */
 		private final Module module;
 		
+		/**
+		 * The BlockTypeHolder this BlockTarget represents.
+		 */
 		private final BlockTypeHolder holder;
 		
+		/**
+		 * Initializes a new BlockTarget.
+		 * 
+		 * @param module the module <code>holder</code> belongs to
+		 * @param holder the BlockTypeHolder this object represents
+		 */
 		public BlockTarget(final Module module, final BlockTypeHolder holder) {
 			this.module = module;
 			this.holder = holder;
 		}
 		
+		/**
+		 * Returns the module the BlockTypeHolder represented by this object belongs to.
+		 * 
+		 * @return the module the BlockTypeHolder represented by this object belongs to
+		 */
 		public Module getModule() {
 			return module;
 		}
 		
+		/**
+		 * Returns the BlockTypeHolder represented by this object.
+		 * 
+		 * @return the BlockTypeHolder represented by this object
+		 */
 		public BlockTypeHolder getBlockTypeHolder() {
 			return holder;
 		}
 		
+		/**
+		 * Returns the number of slots of the BlockTypeHolder the given Distribution uses. Does not include slots that
+		 * are used outside of the Distribution.
+		 * 
+		 * @param distribution the distribution to check
+		 * @return the number of slots in used by the Distribution
+		 */
 		public int getDistributionUsage(final Distribution distribution) {
 			if (holder.isLeave()) {
 				Collection<FunctionBlock> targetCollection = distribution.targets.get(this);
@@ -138,14 +241,38 @@ public class Distribution {
 			}
 		}
 		
+		/**
+		 * Returns the number of free slots in the BlockTypeHolder taking into account the number of slots used by the
+		 * given Distribution.
+		 * 
+		 * @param distribution the Distribution to check
+		 * @return the number of free slots
+		 */
 		public int getFree(final Distribution distribution) {
 			return holder.getAmountLeft() - getDistributionUsage(distribution);
 		}
 		
+		/**
+		 * Checks if a mapping for a given block is valid. A mapping is valid if the BlockTypeHolder is a
+		 * leave, the type of block matches the type of the BlockTypeHolder and there are free slots.
+		 * 
+		 * @param distribution the Distribution to check
+		 * @param block the {@link FunctionBlock} to check
+		 * @return true if the mapping is valid
+		 */
 		public boolean canAdd(final Distribution distribution, final FunctionBlock block) {
 			return holder.isLeave() && holder.getType().equals(block.getType()) && getFree(distribution) > 0;
 		}
 		
+		/**
+		 * Adds a mapping for the given FunctionBlock to the BlockTypeHolder represented by this object to the given
+		 * Distribution if the mapping is valid.
+		 * 
+		 * @param distribution the Distribution the mapping should be added to
+		 * @param block the block the mapping should be added for
+		 * @return true if the mapping was added
+		 * @see #canAdd(Distribution, FunctionBlock)
+		 */
 		public boolean add(final Distribution distribution, final FunctionBlock block) {
 			LOGGER.entry(block);
 			if (!canAdd(distribution, block)) {
@@ -238,13 +365,5 @@ public class Distribution {
 		} else if (!blockTargets.equals(other.blockTargets))
 			return false;
 		return true;
-	}
-	
-	public static class ResourceConstraint implements Constraint {
-		@Override
-		public boolean isAllowed(final Distribution distribution,
-				final FunctionBlock block, final Module module, final BlockTypeHolder holder) {
-			return distribution.canAdd(block, module, holder);
-		}
 	}
 }
