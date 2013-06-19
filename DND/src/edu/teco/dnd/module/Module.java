@@ -14,6 +14,7 @@ import edu.teco.dnd.module.config.BlockTypeHolder;
 public class Module {
 	private UUID uuid;
 	private String name;
+	private String location;
 	private BlockTypeHolder holder;
 
 	/**
@@ -62,5 +63,9 @@ public class Module {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getLocation(){
+		return location;
 	}
 }

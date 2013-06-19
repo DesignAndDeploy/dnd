@@ -2,6 +2,9 @@ package edu.teco.dnd.eclipse;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +30,11 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.deploy.Constraint;
+import edu.teco.dnd.deploy.Distribution;
+import edu.teco.dnd.deploy.Distribution.BlockTarget;
+import edu.teco.dnd.deploy.DistributionGenerator;
+import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
@@ -47,10 +55,13 @@ public class DeployView extends ViewPart implements ConnectionListener,
 	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
 	private Display display;
 	private Activator activator;
-	
+	private ConnectionManager manager;
+
 	private Collection<Module> modules;
 	private Collection<FunctionBlock> functionBlocks;
-	
+
+	private Map<FunctionBlock, BlockTarget> map;
+
 	private Button createButton; // Button to create deployment
 	private Button deployButton; // Button to deploy deployment
 	private Button updateButton; // Button to update moduleCombo
@@ -60,8 +71,6 @@ public class DeployView extends ViewPart implements ConnectionListener,
 	private Label place;
 	private Combo moduleCombo;
 	private Combo places;
-	private Table blockSpecs; // Table to specify deployment information (module
-								// and place) for block
 	private Table deployment; // Table to show blocks and current deployment
 
 	@Override
@@ -69,7 +78,7 @@ public class DeployView extends ViewPart implements ConnectionListener,
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 4;
 		parent.setLayout(layout);
-		
+
 		modules = new ArrayList<Module>();
 		functionBlocks = new ArrayList<FunctionBlock>();
 
@@ -113,6 +122,7 @@ public class DeployView extends ViewPart implements ConnectionListener,
 		}
 		activator.addServerStateListener(this);
 		LOGGER.exit();
+		map = new HashMap<FunctionBlock, BlockTarget>();
 	}
 
 	private void createDeploymentTable(Composite parent) {
@@ -158,13 +168,7 @@ public class DeployView extends ViewPart implements ConnectionListener,
 		updateButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Display display = Display.getCurrent();
-				Shell shell = new Shell(display);
-				MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING
-						| SWT.OK);
-				dialog.setText("Warning");
-				dialog.setMessage("Not implemented yet. Later: Will update information on moduleCombo");
-				dialog.open();
+				DeployView.this.update();
 			}
 		});
 		updateButton.pack();
@@ -188,13 +192,7 @@ public class DeployView extends ViewPart implements ConnectionListener,
 		createButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Display display = Display.getCurrent();
-				Shell shell = new Shell(display);
-				MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING
-						| SWT.OK);
-				dialog.setText("Warning");
-				dialog.setMessage("No Deployment Algorithm available yet, still to be implemented");
-				dialog.open();
+				DeployView.this.create();
 			}
 		});
 	}
@@ -221,13 +219,7 @@ public class DeployView extends ViewPart implements ConnectionListener,
 		deployButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Display display = Display.getCurrent();
-				Shell shell = new Shell(display);
-				MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING
-						| SWT.OK);
-				dialog.setText("Warning");
-				dialog.setMessage("You have to create a possible deployment before deploying");
-				dialog.open();
+				DeployView.this.deploy();
 			}
 		});
 		deployButton.setLayoutData(data);
@@ -243,7 +235,7 @@ public class DeployView extends ViewPart implements ConnectionListener,
 	private void createmoduleComboCombo(Composite parent) {
 		moduleCombo = new Combo(parent, SWT.NONE);
 		moduleCombo.add("Modul 1");
-
+		moduleCombo.add("Modul 3");
 	}
 
 	private void createPlaceLabel(Composite parent) {
@@ -262,11 +254,87 @@ public class DeployView extends ViewPart implements ConnectionListener,
 		places = new Combo(parent, SWT.NONE);
 		places.setLayoutData(data);
 	}
-	
-	private void updateModules(){
-		moduleCombo.removeAll();
-		for(Module m : modules){
+
+	/**
+	 * Invoked whenever the Update Button is pressed.
+	 */
+	private void update() {
+		if (Activator.getDefault().isRunning()) {
+			warn("Not implemented yet. \n Later: Will update information on moduleCombo");
+		} else {
+			warn("Server not running");
 		}
+
+		moduleCombo.removeAll();
+		places.removeAll();
+		for (Module m : modules) {
+			moduleCombo.add(m.getName());
+			places.add(m.getLocation());
+		}
+	}
+
+	/**
+	 * Invoked whenever the Create Button is pressed.
+	 */
+	private void create() {
+		if (functionBlocks.isEmpty() || modules.isEmpty()) {
+			warn("No blocks / modules to distribute");
+			return;
+		}
+		DistributionGenerator generator = new DistributionGenerator(
+				new MinimalModuleCountEvaluator(),
+				Collections.<Constraint> emptyList());
+		Distribution dist = generator.getDistribution(functionBlocks, modules);
+		if (dist.getMapping() == null) {
+			warn("No valid deployment exists");
+		} else {
+			map = dist.getMapping();
+			deployment.clearAll();
+			for (FunctionBlock block : map.keySet()) {
+				TableItem item = new TableItem(deployment, SWT.NONE);
+				item.setText(0, block.getID());
+				item.setText(1, map.get(block).getModule().getName());
+				item.setText(2, map.get(block).getModule().getLocation());
+			}
+		}
+	}
+
+	/**
+	 * Invoked whenever the Deploy Button is pressed.
+	 */
+	private void deploy() {
+		if (map.isEmpty()) {
+			warn("No deployment created yet");
+			return;
+		}
+		// TODO: deploy map.
+	}
+
+	@Override
+	public void connectionEstablished(UUID uuid) {
+
+		manager = activator.getConnectionManager();
+		if (manager == null) {
+			return;
+		}
+		/**
+		 * TODO: - Modul zur moduleCombo hinzufügen - Modul zur ModuleCollection
+		 * hinzufügen - ggf Ort des Moduls zur placesCombo hinzufügen
+		 */
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void connectionClosed(UUID uuid) {
+		/**
+		 * TODO: - Prüfen, ob Modul in moduleCombo - Falls ja: löschen - Prüfen
+		 * ob Modul in ModulCollection: - falls ja: löschen - ggf Ort löschen,
+		 * falls kein anderes Modul den Ort hat.
+		 */
+
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
@@ -282,16 +350,19 @@ public class DeployView extends ViewPart implements ConnectionListener,
 
 	}
 
-	@Override
-	public void connectionEstablished(UUID uuid) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void connectionClosed(UUID uuid) {
-		// TODO Auto-generated method stub
-
+	/**
+	 * Opens a warning window with the given message.
+	 * 
+	 * @param message
+	 *            Warning message
+	 */
+	private void warn(String message) {
+		Display display = Display.getCurrent();
+		Shell shell = new Shell(display);
+		MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
+		dialog.setText("Warning");
+		dialog.setMessage(message);
+		dialog.open();
 	}
 
 }
