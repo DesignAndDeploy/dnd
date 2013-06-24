@@ -17,6 +17,7 @@ public class AppValueMessageHandler implements MessageHandler<AppValueMessage> {
 
 	}
 
+	//TODO register handlers for replies.
 	@Override
 	public void handleMessage(ConnectionManager connMan, UUID remoteUUID, AppValueMessage message) {
 		Message returnMsg = null;

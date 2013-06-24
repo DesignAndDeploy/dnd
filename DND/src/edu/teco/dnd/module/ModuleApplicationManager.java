@@ -22,6 +22,8 @@ import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessage;
 import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessageHandler;
 import edu.teco.dnd.module.messages.values.AppValueMessage;
 import edu.teco.dnd.module.messages.values.AppValueMessageHandler;
+import edu.teco.dnd.module.messages.values.AppWhoHasFuncBlockHandler;
+import edu.teco.dnd.module.messages.values.AppWhoHasFuncBlockMessage;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class ModuleApplicationManager {
@@ -61,7 +63,7 @@ public class ModuleApplicationManager {
 			scheduledAppPools.put(appId, pool);
 		}
 
-		Application newApp = new Application(appId, deployingAgentId, name, pool, connMan);
+		Application newApp = new Application(appId, localeModuleId, deployingAgentId, name, pool, connMan);
 
 		runningApps.put(appId, newApp);
 		connMan.addHandler(appId, AppLoadClassMessage.class, new AppLoadClassMessageHandler(this, newApp), pool);
@@ -69,6 +71,8 @@ public class ModuleApplicationManager {
 		connMan.addHandler(appId, AppInfoRequestMessage.class, new AppInfoReqMsgHandler(newApp), pool);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
 		connMan.addHandler(appId, AppValueMessage.class, new AppValueMessageHandler(newApp), pool);
+		connMan.addHandler(appId, AppWhoHasFuncBlockMessage.class,
+				new AppWhoHasFuncBlockHandler(newApp, localeModuleId));
 
 	}
 
@@ -98,7 +102,6 @@ public class ModuleApplicationManager {
 		}
 		return true;
 	}
-
 
 	/**
 	 * called to request stopping of a given application

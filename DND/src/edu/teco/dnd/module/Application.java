@@ -22,12 +22,15 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.module.messages.values.AppValueMessage;
+import edu.teco.dnd.module.messages.values.AppWhoHasFuncBlockMessage;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
 
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
+	public final static long MODULE_LOCATION_REQUEST_DELAY = 500;
+	public final static int SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION = 2;
 	public final UUID ownAppId;
 	public final String name;
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
@@ -47,8 +50,8 @@ public class Application {
 		return funcBlockById.values();
 	}
 
-	public Application(UUID appId, UUID deployingAgentId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
-			ConnectionManager connMan) {
+	public Application(UUID appId, UUID modId, UUID deployingAgentId, String name,
+			ScheduledThreadPoolExecutor scheduledThreadPool, ConnectionManager connMan) {
 		this.ownAppId = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
@@ -66,17 +69,71 @@ public class Application {
 	 *            the value to be send.
 	 * @return true iff setting was successful.
 	 */
-	public void sendValue(UUID funcBlock, String input, Serializable value) {
-		UUID modUid = moduleForFuncBlock.get(funcBlock);
-		if (modUid == null) { // location of funcBlock unknown.
-			// connMan.send(new whoHasMsg(funcBlock));
-			// TODO find the uuid of the mod this funBlock is on. HOW to find out? (see X1)
-			throw new NotImplementedException();
-		}
+	public void sendValue(final UUID funcBlock, final String input, final Serializable value) {
+		if (isExecuting(funcBlock)) { // block is local
+			try {
+				receiveValue(funcBlock, input, value);
+			} catch (NonExistentFunctionblockException e) {
+				// probably racecondition with app killing. Ignore.
+				LOGGER.trace(e);
+			} catch (NonExistentInputException e) {
+				LOGGER.trace("the given input {} does not exist on the local functionBlock {}", input, funcBlock);
+			}
+		} else {
+			Runnable resender = new Runnable() {
+				@Override
+				public void run() {
+					resendValue(funcBlock, input, value, SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION);
+				}
+			};
 
-		AppValueMessage message = new AppValueMessage(ownAppId, funcBlock, input, value);
-		connMan.sendMessage(modUid, message);
-		return;
+			UUID modUid = moduleForFuncBlock.get(funcBlock);
+			if (modUid == null) { // location of funcBlock unknown.
+				assert false : "This is not fully implemented yet. (multicast msging does not work)";
+				// TODO multicast messaging. then remove assertion.
+				connMan.sendMessage(null, new AppWhoHasFuncBlockMessage(ownAppId, funcBlock));
+				scheduledThreadPool.schedule(resender, MODULE_LOCATION_REQUEST_DELAY, TimeUnit.SECONDS);
+			} else {
+				AppValueMessage message = new AppValueMessage(ownAppId, funcBlock, input, value);
+				connMan.sendMessage(modUid, message);
+			}
+		}
+	}
+
+	/**
+	 * We did not find the address in the list. So we send out a request for the location and schedule the next try in
+	 * MODULE_LOCATION_REQUEST_DELAY milliseconds. If necessary we repeat this procedure repetitions times.
+	 * 
+	 * @param funcBlock
+	 *            see sendValue
+	 * @param input
+	 *            see sendValue
+	 * @param value
+	 *            see sendValue
+	 * @param repetitions
+	 *            how often to repeat sending upon failure.
+	 */
+	private void resendValue(final UUID funcBlock, final String input, final Serializable value, final int repetitions) {
+		Runnable resender = new Runnable() {
+			@Override
+			public void run() {
+				resendValue(funcBlock, input, value, repetitions - 1);
+			}
+		};
+
+		UUID modUid = moduleForFuncBlock.get(funcBlock);
+		if (modUid == null) {
+			if (repetitions > 0) {
+				scheduledThreadPool.schedule(resender, MODULE_LOCATION_REQUEST_DELAY, TimeUnit.SECONDS);
+				LOGGER.info("funcblock {} not found, remaining sendtries: {}", funcBlock, repetitions);
+			} else {
+				LOGGER.info("funcblock {} not found, disregarding message {} , to input {}", funcBlock, value, input);
+				// TODO special treatment of queued messaged -> parameter/differing method for such.
+			}
+		} else {
+			AppValueMessage message = new AppValueMessage(ownAppId, funcBlock, input, value);
+			connMan.sendMessage(modUid, message);
+		}
 	}
 
 	/**
@@ -165,8 +222,6 @@ public class Application {
 		} catch (RejectedExecutionException e) {
 			LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
 		}
-
-		ownBlocks.add(block.getID());
 		return true;
 	}
 
