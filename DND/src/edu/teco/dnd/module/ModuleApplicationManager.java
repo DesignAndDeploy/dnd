@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +34,6 @@ public class ModuleApplicationManager {
 	public ConfigReader moduleConfig;
 	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
 	public final int maxAllowedThreadsPerApp;
-	private final Map<UUID, ScheduledThreadPoolExecutor> scheduledAppPools = new HashMap<UUID, ScheduledThreadPoolExecutor>();
 	private final ConnectionManager connMan;
 
 	public ModuleApplicationManager(int maxAllowedThreadsPerApp, UUID localeModuleId, ConfigReader moduleConfig,
@@ -55,19 +55,33 @@ public class ModuleApplicationManager {
 	 *            (human readable) name of the application
 	 * 
 	 */
-	public void startApplication(UUID appId, UUID deployingAgentId, String name) {
+	public void startApplication(final UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("starting app {} ({}), as requested by {}", name, appId, deployingAgentId);
-		ScheduledThreadPoolExecutor pool = scheduledAppPools.get(appId);
-		if (pool == null) {
-			pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp);
-			scheduledAppPools.put(appId, pool);
+		if (runningApps.containsKey(appId)) {
+			LOGGER.info("trying to restart app that is already running.");
+			return;
 		}
 
-		Application newApp = new Application(appId, localeModuleId, deployingAgentId, name, pool, connMan);
+		final ApplicationClassLoader classLoader = new ApplicationClassLoader();
 
+		ThreadFactory fact = new ThreadFactory() {
+			private int counter = 0;
+			private UUID threadAppId = appId;
+
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread appThread = new Thread(r, "thread: app - " + threadAppId + " - " + counter);
+				appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
+				return appThread;
+			}
+		};
+
+		ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, fact);
+		Application newApp = new Application(appId, name, pool, connMan, classLoader);
 		runningApps.put(appId, newApp);
+
 		connMan.addHandler(appId, AppLoadClassMessage.class, new AppLoadClassMessageHandler(this, newApp), pool);
-		connMan.addHandler(appId, AppStartClassMessage.class, new AppStartClassMessageHandler(this, newApp), pool);
+		connMan.addHandler(appId, AppStartClassMessage.class, new AppStartClassMessageHandler(this), pool);
 		connMan.addHandler(appId, AppInfoRequestMessage.class, new AppInfoReqMsgHandler(newApp), pool);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
 		connMan.addHandler(appId, AppValueMessage.class, new AppValueMessageHandler(newApp), pool);

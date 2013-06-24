@@ -14,8 +14,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
@@ -28,20 +26,19 @@ import edu.teco.dnd.network.ConnectionManager;
 public class Application {
 
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
+	public static final long MODULE_LOCATION_REQUEST_DELAY = 500;
+	public static final int SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION = 2;
 
-	public final static long MODULE_LOCATION_REQUEST_DELAY = 500;
-	public final static int SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION = 2;
-	public final UUID ownAppId;
-	public final String name;
+	private final UUID ownAppId;
+	private final String name;
+
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
-	private final Map<UUID/* funcBlockId */, UUID/* ModuleId */> moduleForFuncBlock = new HashMap<UUID, UUID>();
-	private final Set<UUID /* funcBlockId */> ownBlocks = new HashSet<UUID>();
-
-	/**
-	 * mapping of active blocks to their ID, used e.g. to pass values to inputs.
-	 */
-	private final Map<UUID, FunctionBlock> funcBlockById = new HashMap<UUID, FunctionBlock>();
+	private final Map<UUID/* funcBlockId */, UUID/* ModuleId */> moduleForFuncBlock;
+	private final Set<UUID /* funcBlockId */> ownBlocks;
+	private final ApplicationClassLoader classLoader;
+	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
+	private final Map<UUID, FunctionBlock> funcBlockById;
 
 	/**
 	 * @return all blocks, this app is currently executing.
@@ -50,12 +47,17 @@ public class Application {
 		return funcBlockById.values();
 	}
 
-	public Application(UUID appId, UUID modId, UUID deployingAgentId, String name,
-			ScheduledThreadPoolExecutor scheduledThreadPool, ConnectionManager connMan) {
+	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
+			ConnectionManager connMan, ApplicationClassLoader classloader) {
 		this.ownAppId = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
+		this.classLoader = classloader;
+
+		this.moduleForFuncBlock = new HashMap<UUID, UUID>();
+		this.ownBlocks = new HashSet<UUID>();
+		this.funcBlockById = new HashMap<UUID, FunctionBlock>();
 	}
 
 	/**
@@ -158,15 +160,13 @@ public class Application {
 	/**
 	 * loads a class into this app
 	 * 
-	 * @param classnames
+	 * @param classname
 	 *            name of the class to load
 	 * @param classData
 	 *            bytecode of the class to be loaded
 	 */
-	public void loadClass(String classnames, byte[] classData) {
-
-		// TODO implement class loading
-		throw new NotImplementedException();
+	public void loadClass(String classname, byte[] classData) {
+		classLoader.appLoadClass(classname, classData);
 	}
 
 	/**
@@ -286,6 +286,18 @@ public class Application {
 
 	public UUID getOwnAppId() {
 		return ownAppId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public ApplicationClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public ScheduledThreadPoolExecutor getThreadPool() {
+		return scheduledThreadPool;
 	}
 
 	/**

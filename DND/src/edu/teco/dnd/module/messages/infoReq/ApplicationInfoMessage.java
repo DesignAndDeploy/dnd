@@ -13,8 +13,8 @@ public class ApplicationInfoMessage implements Message {
 	public final UUID appId;
 	
 	public ApplicationInfoMessage(Application app){
-		appName = app.name;
-		appId = app.ownAppId;
+		appName = app.getName();
+		appId = app.getOwnAppId();
 	}
 
 }

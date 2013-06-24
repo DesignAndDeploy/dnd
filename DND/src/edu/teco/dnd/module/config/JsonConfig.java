@@ -140,7 +140,7 @@ public class JsonConfig extends ConfigReader {
 
 	@Override
 	public int getMaxThreadsPerApp() {
-		return maxAppthreads;
+		return (maxAppthreads>0)?maxAppthreads:ConfigReader.DEFAULT_THREADS_PER_APP;
 	}
 
 	@Override

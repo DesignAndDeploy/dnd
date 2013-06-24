@@ -13,6 +13,7 @@ import edu.teco.dnd.util.NetConnection;
 public abstract class ConfigReader {
 
 	private static final Logger LOGGER = LogManager.getLogger(ConfigReader.class);
+	public static final int DEFAULT_THREADS_PER_APP = 3;
 
 	/**
 	 * restores the config from a savefile
