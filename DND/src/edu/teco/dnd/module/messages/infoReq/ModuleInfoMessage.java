@@ -7,10 +7,13 @@ import edu.teco.dnd.network.messages.Response;
 
 public class ModuleInfoMessage extends Response {
 	public static final String MESSAGE_TYPE = "module info";
-	public final Module moduleInformation;
+	public final Module module;
 
 	public ModuleInfoMessage(ConfigReader conf, ModuleApplicationManager appManager) {
-		moduleInformation = new Module(conf.getUuid(), conf.getName(), conf.getBlockRoot());
+		module = new Module(conf.getUuid(), conf.getName(), conf.getBlockRoot());
 	}
 
+	public Module getModule() {
+		return this.module;
+	}
 }
