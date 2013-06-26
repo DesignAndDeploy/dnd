@@ -18,6 +18,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
@@ -180,6 +181,9 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 */
 	private final UUID localUUID;
 	
+	/**
+	 * Used to manage pending Responses.
+	 */
 	private final ResponseHandler responseHandler = new ResponseHandler();
 
 	/**
@@ -416,7 +420,14 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		if (channel != null && channel.isActive()) {
 			final FutureNotifier<Response> responseNotifier =
 					responseHandler.getResponseFutureNotifier(message.getUUID());
-			channel.write(message);
+			channel.write(message).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
+				@Override
+				public void operationComplete(io.netty.util.concurrent.Future<Void> future) throws Exception {
+					if (!future.isSuccess()) {
+						responseHandler.setFailed(message.getUUID(), future.cause());
+					}
+				}
+			});
 			return responseNotifier;
 		} else {
 			return new FinishedFutureNotifier<Response>(new IllegalArgumentException());
