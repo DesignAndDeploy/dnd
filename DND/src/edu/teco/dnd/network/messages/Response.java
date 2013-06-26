@@ -2,6 +2,8 @@ package edu.teco.dnd.network.messages;
 
 import java.util.UUID;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * A Message that is sent as a Response for another Message.
  *
@@ -11,6 +13,7 @@ public abstract class Response extends Message {
 	/**
 	 * The UUID of the Message this is a response to.
 	 */
+	@SerializedName("sourceuuid")
 	private final UUID sourceUUID;
 	
 	/**
