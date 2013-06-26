@@ -1,8 +1,11 @@
 package edu.teco.dnd.module;
 
+
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -13,18 +16,20 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
-import edu.teco.dnd.module.messages.infoReq.AppInfoReqMsgHandler;
-import edu.teco.dnd.module.messages.infoReq.AppInfoRequestMessage;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationInfoMsgHandler;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationInfoMessage;
+import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
+import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessageHandler;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppMessageHandler;
-import edu.teco.dnd.module.messages.loadStartClass.AppLoadClassMessage;
-import edu.teco.dnd.module.messages.loadStartClass.AppLoadClassMessageHandler;
-import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessage;
-import edu.teco.dnd.module.messages.loadStartClass.AppStartClassMessageHandler;
-import edu.teco.dnd.module.messages.values.AppValueMessage;
-import edu.teco.dnd.module.messages.values.AppValueMessageHandler;
-import edu.teco.dnd.module.messages.values.AppWhoHasFuncBlockHandler;
-import edu.teco.dnd.module.messages.values.AppWhoHasFuncBlockMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockMessageHandler;
+import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessageHandler;
+import edu.teco.dnd.module.messages.values.ValueMessage;
+import edu.teco.dnd.module.messages.values.ValueMessageHandler;
+import edu.teco.dnd.module.messages.values.WhoHasFuncBlockHandler;
+import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class ModuleApplicationManager {
@@ -35,6 +40,7 @@ public class ModuleApplicationManager {
 	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
 	public final int maxAllowedThreadsPerApp;
 	private final ConnectionManager connMan;
+	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
 
 	public ModuleApplicationManager(int maxAllowedThreadsPerApp, UUID localeModuleId, ConfigReader moduleConfig,
 			ConnectionManager connMan) {
@@ -80,14 +86,44 @@ public class ModuleApplicationManager {
 		Application newApp = new Application(appId, name, pool, connMan, classLoader);
 		runningApps.put(appId, newApp);
 
-		connMan.addHandler(appId, AppLoadClassMessage.class, new AppLoadClassMessageHandler(this, newApp), pool);
-		connMan.addHandler(appId, AppStartClassMessage.class, new AppStartClassMessageHandler(this), pool);
-		connMan.addHandler(appId, AppInfoRequestMessage.class, new AppInfoReqMsgHandler(newApp), pool);
+		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, newApp), pool);
+		connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), pool);
+		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
+		connMan.addHandler(appId, RequestApplicationInfoMessage.class, new RequestApplicationInfoMsgHandler(newApp), pool);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
-		connMan.addHandler(appId, AppValueMessage.class, new AppValueMessageHandler(newApp), pool);
-		connMan.addHandler(appId, AppWhoHasFuncBlockMessage.class,
-				new AppWhoHasFuncBlockHandler(newApp, localeModuleId));
+		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
+		connMan.addHandler(appId, WhoHasBlockMessage.class,
+				new WhoHasFuncBlockHandler(newApp, localeModuleId));
 
+	}
+
+	/**
+	 * schedueles a FunctionBlock to be started, when StartApp() is called.
+	 * 
+	 * @param block
+	 *            the FunctionBlock
+	 */
+	public boolean scheduleBlock(UUID appId, FunctionBlock block) {
+		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(block.getType());
+		if (blockAllowed == null) {
+			LOGGER.info("Block {} not allowed in App {}({})", block, runningApps.get(appId), appId);
+			return false;
+		}
+
+		if (blockAllowed.tryDecrease()) {
+			LOGGER.info("Blockamount of {} exceeded. Not scheduling!", block.getType());
+			return false;
+		}
+		scheduledToStart.add(block);
+		return true;
+	}
+
+	public void startApp(UUID appId) {
+		for (FunctionBlock func : scheduledToStart) {
+			if (!runningApps.get(appId).startBlock(func)) {
+				LOGGER.warn("Can not start block {} in App {}({})", func, runningApps.get(appId), appId);
+			}
+		}
 	}
 
 	/**
@@ -110,10 +146,7 @@ public class ModuleApplicationManager {
 			LOGGER.info("Blockamount of {} exceeded. Not starting!", func.getType());
 			return false;
 		}
-		if (!runningApps.get(appId).startBlock(func)) {
-			LOGGER.warn("Can not start block {} in App {}({})", func, runningApps.get(appId), appId);
-			return false;
-		}
+
 		return true;
 	}
 

@@ -6,15 +6,15 @@ import edu.teco.dnd.module.Application;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 
-public class AppInfoReqMsgHandler implements MessageHandler<AppInfoRequestMessage> {
+public class RequestApplicationInfoMsgHandler implements MessageHandler<RequestApplicationInfoMessage> {
 	private final Application app;
 
-	public AppInfoReqMsgHandler(Application app) {
+	public RequestApplicationInfoMsgHandler(Application app) {
 		this.app  = app;
 	}
 
 	@Override
-	public void handleMessage(ConnectionManager connectionManager, UUID remoteUUID, AppInfoRequestMessage message) {
+	public void handleMessage(ConnectionManager connectionManager, UUID remoteUUID, RequestApplicationInfoMessage message) {
 		connectionManager.sendMessage(remoteUUID, new ApplicationInfoMessage(app));
 	}
 

@@ -18,10 +18,10 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
-import edu.teco.dnd.module.messages.infoReq.ModInfoReqMsgHandler;
-import edu.teco.dnd.module.messages.infoReq.ModInfoRequestMessage;
-import edu.teco.dnd.module.messages.startApp.StartAppMessage;
-import edu.teco.dnd.module.messages.startApp.StartAppMessageHandler;
+import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMsgHandler;
+import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
+import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
+import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessageHandler;
 import edu.teco.dnd.network.PeerExchanger;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
@@ -114,8 +114,8 @@ public class ModuleMain {
 				moduleConfig.getUuid(), moduleConfig, connectionManager);
 
 		// /// register msg handlers ///
-		connectionManager.addHandler(StartAppMessage.class, new StartAppMessageHandler(appMan));
-		connectionManager.addHandler(ModInfoRequestMessage.class, new ModInfoReqMsgHandler(moduleConfig, appMan));
+		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
+		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig, appMan));
 	}
 
 	// TODO: add method for shutdown

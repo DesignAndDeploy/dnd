@@ -13,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * 
- * @author cryptkiddy
+ * @author Marvin Marx
  * 
  */
 public class BlockTypeHolder {

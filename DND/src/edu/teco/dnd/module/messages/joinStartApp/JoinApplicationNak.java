@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages.startApp;
+package edu.teco.dnd.module.messages.joinStartApp;
 
 import java.util.UUID;
 
@@ -6,10 +6,11 @@ import edu.teco.dnd.network.messages.Message;
 
 /**
  * send when a new Application is supposed to be started.
- * @author cryptkiddy
+ * @author Marvin Marx
  *
  */
-public class StartAppNak extends Message {
+
+public class JoinApplicationNak extends Message {
 	
 	
 	public static final String MESSAGE_TYPE = "startAppNak";
@@ -17,18 +18,18 @@ public class StartAppNak extends Message {
 	public String name;
 	public UUID appId;
 	
-	public StartAppNak(String name, UUID appId) {
+	public JoinApplicationNak(String name, UUID appId) {
 		this.name = name;
 		this.appId = appId;
 	}
 	
-	public StartAppNak(StartAppMessage msg) {
+	public JoinApplicationNak(JoinApplicationMessage msg) {
 		this.name = msg.name;
 		this.appId = msg.appId;
 	}
 	
 	@SuppressWarnings("unused")/*for gson*/
-	private StartAppNak() {
+	private JoinApplicationNak() {
 		name = null;
 		appId = null;
 	}

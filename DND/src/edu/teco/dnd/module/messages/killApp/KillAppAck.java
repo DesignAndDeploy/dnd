@@ -11,7 +11,7 @@ import edu.teco.dnd.network.messages.Message;
 public class KillAppAck extends Message {
 	
 	
-	public static final String MESSAGE_TYPE = "killAppAck";
+	public static final String MESSAGE_TYPE = "kill ack";
 	
 	public UUID appId;
 	

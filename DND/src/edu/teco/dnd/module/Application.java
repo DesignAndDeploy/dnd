@@ -19,8 +19,8 @@ import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.module.messages.values.AppValueMessage;
-import edu.teco.dnd.module.messages.values.AppWhoHasFuncBlockMessage;
+import edu.teco.dnd.module.messages.values.ValueMessage;
+import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -93,10 +93,10 @@ public class Application {
 			if (modUid == null) { // location of funcBlock unknown.
 				assert false : "This is not fully implemented yet. (multicast msging does not work)";
 				// TODO multicast messaging. then remove assertion.
-				connMan.sendMessage(null, new AppWhoHasFuncBlockMessage(ownAppId, funcBlock));
+				connMan.sendMessage(null, new WhoHasBlockMessage(ownAppId, funcBlock));
 				scheduledThreadPool.schedule(resender, MODULE_LOCATION_REQUEST_DELAY, TimeUnit.SECONDS);
 			} else {
-				AppValueMessage message = new AppValueMessage(ownAppId, funcBlock, input, value);
+				ValueMessage message = new ValueMessage(ownAppId, funcBlock, input, value);
 				connMan.sendMessage(modUid, message);
 			}
 		}
@@ -133,7 +133,7 @@ public class Application {
 				// TODO special treatment of queued messaged -> parameter/differing method for such.
 			}
 		} else {
-			AppValueMessage message = new AppValueMessage(ownAppId, funcBlock, input, value);
+			ValueMessage message = new ValueMessage(ownAppId, funcBlock, input, value);
 			connMan.sendMessage(modUid, message);
 		}
 	}

@@ -6,11 +6,11 @@ import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.network.messages.Message;
 
 public class ModuleInfoMessage extends Message {
-	public static final String MESSAGE_TYPE = "ModuleInformation";
-	public final Module mod;
-	
-	public ModuleInfoMessage(ConfigReader conf, ModuleApplicationManager appManager){
-		mod = new Module(conf.getUuid(), conf.getName(), conf.getBlockRoot());
+	public static final String MESSAGE_TYPE = "module info";
+	public final Module moduleInformation;
+
+	public ModuleInfoMessage(ConfigReader conf, ModuleApplicationManager appManager) {
+		moduleInformation = new Module(conf.getUuid(), conf.getName(), conf.getBlockRoot());
 	}
 
 }

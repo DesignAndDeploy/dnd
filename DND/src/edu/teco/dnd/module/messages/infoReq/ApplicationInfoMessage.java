@@ -6,8 +6,9 @@ import java.util.UUID;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.network.messages.Message;
 
+
 public class ApplicationInfoMessage extends Message {
-	public static final String MESSAGE_TYPE = "ApplicationInformation";
+	public static final String MESSAGE_TYPE = "application info";
 	
 	public final String appName;
 	public final UUID appId;

@@ -6,7 +6,7 @@ import edu.teco.dnd.network.messages.Message;
 
 /**
  * send when a new Application is supposed to be started.
- * @author cryptkiddy
+ * @author Marvin Marx
  *
  */
 public class KillAppNak extends Message {

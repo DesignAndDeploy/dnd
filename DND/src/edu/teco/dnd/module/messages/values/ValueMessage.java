@@ -5,15 +5,16 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
+public class ValueMessage extends ApplicationSpecificMessage {
 
-public class AppValueMessage extends ApplicationSpecificMessage {
-	public final UUID functionBlock;
+	public static final String MESSAGE_TYPE = "value";
+	public final UUID blockId;
 	public final String input;
 	public final Serializable value;
-	
-	public AppValueMessage(UUID appId, UUID functionBlock,  String input, Serializable value) {
+
+	public ValueMessage(UUID appId, UUID functionBlock, String input, Serializable value) {
 		super(appId);
-		this.functionBlock = functionBlock;
+		this.blockId = functionBlock;
 		this.input = input;
 		this.value = value;
 	}

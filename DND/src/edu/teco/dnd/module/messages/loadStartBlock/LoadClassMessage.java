@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages.loadStartClass;
+package edu.teco.dnd.module.messages.loadStartBlock;
 
 import java.util.UUID;
 
@@ -7,14 +7,16 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 /**
  * contains the bytecode of a class to be loaded.
  */
-public class AppLoadClassMessage extends ApplicationSpecificMessage {
 
-	public static final String MESSAGE_TYPE = "appLoadClass";
+public class LoadClassMessage extends ApplicationSpecificMessage {
 
+	public static final String MESSAGE_TYPE = "load class";
+	
 	public String className;
 	public byte[] classByteCode;
+	
 
-	public AppLoadClassMessage(String className, byte[] classByteCode, UUID appId) {
+	public LoadClassMessage(String className, byte[] classByteCode, UUID appId) {
 		super(appId);
 		this.className = className;
 		this.classByteCode = classByteCode;
