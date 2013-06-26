@@ -16,7 +16,7 @@ public class BeaconMessage extends Message {
 	/**
 	 * The UUID of the module that send this message.
 	 */
-	private final UUID uuid;
+	private final UUID moduleUUID;
 	
 	/**
 	 * The addresses of the module that send this message.
@@ -32,7 +32,7 @@ public class BeaconMessage extends Message {
 	 * 		it unmodifiable. Can be null to use an empty list.
 	 */
 	public BeaconMessage(final UUID uuid, final List<InetSocketAddress> addresses) {
-		this.uuid = uuid;
+		this.moduleUUID = uuid;
 		if (addresses == null) {
 			this.addresses = Collections.unmodifiableList(Collections.<InetSocketAddress>emptyList());
 		} else {
@@ -54,7 +54,7 @@ public class BeaconMessage extends Message {
 	 * @return the UUID of the module
 	 */
 	public UUID getUUID() {
-		return uuid;
+		return moduleUUID;
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class BeaconMessage extends Message {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("BeaconMessage[uuid=")
-			.append(uuid)
+			.append(moduleUUID)
 			.append(",addresses=")
 			.append(addresses)
 			.append("]");
