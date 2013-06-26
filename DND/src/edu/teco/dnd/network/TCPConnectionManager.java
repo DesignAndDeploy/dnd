@@ -639,6 +639,10 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				}
 				Entry<MessageHandler<? extends Message>, Executor> handler = handlers
 						.get(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appID, msg.getClass()));
+				if (handler == null) {
+					handler = handlers.get(
+							new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(APPID_DEFAULT, msg.getClass()));
+				}
 				if (handler != null) {
 					final MessageHandler<? extends Message> messageHandler = handler.getKey();
 					final Executor executor = handler.getValue() == null ? ctx.executor() : handler.getValue();
