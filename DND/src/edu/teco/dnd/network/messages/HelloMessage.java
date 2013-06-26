@@ -16,7 +16,7 @@ public class HelloMessage extends Message {
 	/**
 	 * The UUID of the module sending the message.
 	 */
-	private final UUID uuid;
+	private final UUID moduleUUID;
 	
 	/**
 	 * The maximum frame size the sending module can receive.
@@ -30,7 +30,7 @@ public class HelloMessage extends Message {
 	 * @param framesize the maximum frame size the Module can receive
 	 */
 	public HelloMessage(final UUID uuid, final int framesize) {
-		this.uuid = uuid;
+		this.moduleUUID = uuid;
 		this.framesize = framesize;
 	}
 	
@@ -40,7 +40,7 @@ public class HelloMessage extends Message {
 	 * @return the UUID of the sending module
 	 */
 	public UUID getUUID() {
-		return this.uuid;
+		return this.moduleUUID;
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public class HelloMessage extends Message {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("HelloMessage[uuid=")
-			.append(uuid)
+			.append(moduleUUID)
 			.append(",framesize=")
 			.append(framesize)
 			.append("]");

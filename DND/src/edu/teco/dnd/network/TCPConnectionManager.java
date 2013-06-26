@@ -51,8 +51,12 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.BeaconMessage;
 import edu.teco.dnd.network.messages.ConnectionClosedMessage;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
+import edu.teco.dnd.network.messages.DefaultResponse;
 import edu.teco.dnd.network.messages.HelloMessage;
 import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
+import edu.teco.dnd.util.FinishedFutureNotifier;
+import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * An implementation of ConnectionManager that uses TCP connections and JSON for communication.
@@ -175,6 +179,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * The UUID of the module this TCPConnectionManager is running on.
 	 */
 	private final UUID localUUID;
+	
+	private final ResponseHandler responseHandler = new ResponseHandler();
 
 	/**
 	 * Creates a new TCPConnectionManager.
@@ -204,6 +210,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		this.messageAdapter.addMessageType(HelloMessage.class);
 		this.messageAdapter.addMessageType(ConnectionEstablishedMessage.class);
 		this.messageAdapter.addMessageType(ConnectionClosedMessage.class);
+		this.messageAdapter.addMessageType(DefaultResponse.class);
 
 		final TCPConnectionChannelInitializer channelInitializer = new TCPConnectionChannelInitializer(Message.class,
 				prettyPrint, applicationExecutor,
@@ -398,7 +405,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	@Override
-	public void sendMessage(final UUID uuid, final Message message) {
+	public FutureNotifier<Response> sendMessage(final UUID uuid, final Message message) {
 		Channel channel = null;
 		channelsLock.readLock().lock();
 		try {
@@ -407,7 +414,12 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			channelsLock.readLock().unlock();
 		}
 		if (channel != null && channel.isActive()) {
+			final FutureNotifier<Response> responseNotifier =
+					responseHandler.getResponseFutureNotifier(message.getUUID());
 			channel.write(message);
+			return responseNotifier;
+		} else {
+			return new FinishedFutureNotifier<Response>(new IllegalArgumentException());
 		}
 	}
 
@@ -600,34 +612,40 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				ThreadContext.put("remoteUUID", remoteUUID.toString());
 			}
 			LOGGER.entry(ctx, msg);
-			UUID appID = APPID_DEFAULT;
-			if (msg instanceof ApplicationSpecificMessage) {
-				final ApplicationSpecificMessage appMsg = (ApplicationSpecificMessage) msg;
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("got application specific message for {}", appMsg.getApplicationID());
-				}
-				appID = appMsg.getApplicationID();
-				if (appID == null) {
-					appID = APPID_DEFAULT;
-				}
-			}
-			Entry<MessageHandler<? extends Message>, Executor> handler = handlers
-					.get(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appID, msg.getClass()));
-			if (handler != null) {
-				final MessageHandler<? extends Message> messageHandler = handler.getKey();
-				final Executor executor = handler.getValue() == null ? ctx.executor() : handler.getValue();
-				try {
-					executor.execute(new Runnable() {
-						@Override
-						public void run() {
-							callHandleMessage(messageHandler, ctx, remoteUUID, msg);
-						}
-					});
-				} catch (final RejectedExecutionException e) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("could not call handler {} for message {} using {}, got {}", messageHandler, msg,
-								executor, e);
+			if (msg instanceof Response) {
+				responseHandler.handleResponse((Response) msg);
+			} else {
+				UUID appID = APPID_DEFAULT;
+				if (msg instanceof ApplicationSpecificMessage) {
+					final ApplicationSpecificMessage appMsg = (ApplicationSpecificMessage) msg;
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("got application specific message for {}", appMsg.getApplicationID());
 					}
+					appID = appMsg.getApplicationID();
+					if (appID == null) {
+						appID = APPID_DEFAULT;
+					}
+				}
+				Entry<MessageHandler<? extends Message>, Executor> handler = handlers
+						.get(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appID, msg.getClass()));
+				if (handler != null) {
+					final MessageHandler<? extends Message> messageHandler = handler.getKey();
+					final Executor executor = handler.getValue() == null ? ctx.executor() : handler.getValue();
+					try {
+						executor.execute(new Runnable() {
+							@Override
+							public void run() {
+								callHandleMessage(messageHandler, ctx, remoteUUID, msg);
+							}
+						});
+					} catch (final RejectedExecutionException e) {
+						if (LOGGER.isWarnEnabled()) {
+							LOGGER.warn("could not call handler {} for message {} using {}, got {}", messageHandler,
+									msg, executor, e);
+						}
+					}
+				} else {
+					sendMessage(remoteUUID, new DefaultResponse(msg.getUUID()));
 				}
 			}
 			LOGGER.exit();
@@ -638,11 +656,17 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		@SuppressWarnings("unchecked")
 		private void callHandleMessage(final MessageHandler<? extends Message> messageHandler,
 				final ChannelHandlerContext ctx, final UUID remoteUUID, final Message msg) {
+			Response response = null;
 			if (messageHandler instanceof TCPMessageHandler<?>) {
-				((TCPMessageHandler<Message>) messageHandler).handleMessage(ctx, msg);
+				response = ((TCPMessageHandler<Message>) messageHandler).handleMessage(ctx, msg);
 			} else {
-				((MessageHandler<Message>) messageHandler).handleMessage(TCPConnectionManager.this, remoteUUID, msg);
+				response = ((MessageHandler<Message>) messageHandler).handleMessage(TCPConnectionManager.this,
+						remoteUUID, msg);
 			}
+			if (response == null) {
+				response = new DefaultResponse(msg.getUUID());
+			}
+			sendMessage(remoteUUID, response);
 		}
 
 		@Override
@@ -693,26 +717,26 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	private static interface TCPMessageHandler<T extends Message> extends MessageHandler<T> {
-		public void handleMessage(ChannelHandlerContext ctx, T msg);
+		public Response handleMessage(ChannelHandlerContext ctx, T msg);
 	}
 
 	private static abstract class AbstractTCPMessageHandler<T extends Message> implements TCPMessageHandler<T> {
-		public void handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID, final T msg) {
+		public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID, final T msg) {
 			throw new IllegalAccessError("tried to call handleMessage(UUID, Message) on AbstractTCPMessageHandler");
 		}
 	}
 
 	private class HelloMessageHandler extends AbstractTCPMessageHandler<HelloMessage> {
 		@Override
-		public void handleMessage(ChannelHandlerContext ctx,
+		public Response handleMessage(ChannelHandlerContext ctx,
 				HelloMessage msg) {
 			LOGGER.entry(ctx, msg);
 			if (ctx.attr(REMOTE_UUID_KEY).get() != null) {
 				if (LOGGER.isWarnEnabled()) {
 					LOGGER.warn("got {} but {} is already set as remote UUID", msg, ctx.attr(REMOTE_UUID_KEY).get());
 				}
-				LOGGER.exit();
-				return;
+				LOGGER.exit(null);
+				return null;
 			}
 			final UUID remoteUUID = msg.getUUID();
 			ctx.attr(REMOTE_UUID_KEY).set(remoteUUID);
@@ -721,9 +745,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				LOGGER.warn("remote UUID is my own, closing connection");
 				ctx.write(new ConnectionClosedMessage());
 				ctx.close();
-				LOGGER.exit();
-			}
-			if (localUUID.compareTo(remoteUUID) < 0) {
+			} else if (localUUID.compareTo(remoteUUID) < 0) {
 				boolean establish = false;
 				channelsLock.readLock().lock();
 				if (!clientChannels.containsKey(remoteUUID) && !waitingChannels.containsKey(remoteUUID)) {
@@ -745,19 +767,20 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 					ctx.close();
 				}
 			}
-			LOGGER.exit();
+			LOGGER.exit(null);
+			return null;
 		}
 	}
 
 	private class ConnectionEstablishedMessageHandler extends AbstractTCPMessageHandler<ConnectionEstablishedMessage> {
 		@Override
-		public void handleMessage(ChannelHandlerContext ctx, ConnectionEstablishedMessage msg) {
+		public Response handleMessage(ChannelHandlerContext ctx, ConnectionEstablishedMessage msg) {
 			LOGGER.entry(ctx, msg);
 			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
 			if (remoteUUID == null) {
 				LOGGER.warn("got {} before a HelloMessage was received", msg);
-				LOGGER.exit();
-				return;
+				LOGGER.exit(null);
+				return null;
 			}
 			if (localUUID.compareTo(remoteUUID) < 0) {
 				boolean establish = false;
@@ -793,18 +816,19 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				ctx.write(msg);
 				notifyEstablished(remoteUUID);
 			}
-			LOGGER.exit();
+			LOGGER.exit(null);
+			return null;
 		}
 	}
 
 	private class ConnectionClosedMessageHandler extends AbstractTCPMessageHandler<ConnectionClosedMessage> {
 		@Override
-		public void handleMessage(ChannelHandlerContext ctx, ConnectionClosedMessage msg) {
+		public Response handleMessage(ChannelHandlerContext ctx, ConnectionClosedMessage msg) {
 			LOGGER.entry(ctx, msg);
 			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
 			if (remoteUUID == null) {
-				LOGGER.exit();
-				return;
+				LOGGER.exit(null);
+				return null;
 			}
 			// TODO: as channelInactive already does this, this can probably be removed
 			channelsLock.readLock().lock();
@@ -825,7 +849,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			channelsLock.readLock().unlock();
 			ctx.close();
 			notifyClosed(remoteUUID);
-			LOGGER.exit();
+			LOGGER.exit(null);
+			return null;
 		}
 	}
 

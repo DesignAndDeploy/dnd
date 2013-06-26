@@ -15,6 +15,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -368,9 +369,14 @@ public class UDPMulticastBeacon {
 		channelLock.readLock().lock();
 		try {
 			for (final DatagramChannel channel : channels.values()) {
-				LOGGER.trace("trying to send on {}", channel);
 				if (channel.isActive()) {
-					channel.write(msg);
+					LOGGER.trace("trying to send on {}", channel);
+					channel.write(msg).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
+						@Override
+						public void operationComplete(io.netty.util.concurrent.Future<Void> future) throws Exception {
+							LOGGER.trace(future);
+						}
+					});
 				}
 			}
 		} finally {

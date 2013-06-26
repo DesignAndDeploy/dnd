@@ -6,6 +6,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
+import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * A ConnectionManager is used to create and use connections between modules. It is responsible for initiating
@@ -26,7 +28,7 @@ public interface ConnectionManager {
 	 * @param uuid the UUID of the module the message should be sent to
 	 * @param message the message that should be sent
 	 */
-	public void sendMessage(UUID uuid, Message message);
+	public FutureNotifier<Response> sendMessage(UUID uuid, Message message);
 	
 	/**
 	 * Adds an handler for a given application ID. If another handler was registered for the ID it is replaced.

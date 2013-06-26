@@ -3,6 +3,7 @@ package edu.teco.dnd.network;
 import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
 
 /**
  * A listener that will be informed about new messages.
@@ -21,5 +22,5 @@ public interface MessageHandler<T extends Message> {
 	 * @param message
 	 *            the message that was received
 	 */
-	void handleMessage(ConnectionManager connectionManager, UUID remoteUUID, T message);
+	Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, T message);
 }

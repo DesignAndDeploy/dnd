@@ -16,6 +16,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.network.messages.PeerMessage;
+import edu.teco.dnd.network.messages.Response;
+import edu.teco.dnd.util.FutureListener;
+import edu.teco.dnd.util.FutureNotifier;
 
 public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMessage> {
 	/**
@@ -82,7 +85,14 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 
 	@Override
 	public void connectionEstablished(final UUID uuid) {
-		connectionManager.sendMessage(uuid, peerMessage.get());
+		connectionManager.sendMessage(uuid, peerMessage.get()).addListener(new FutureListener<FutureNotifier<? super Response>>() {
+			@Override
+			public void operationComplete(final FutureNotifier<? super Response> future) throws Exception {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("{}: {} {}", future, future.getNow(), future.cause());
+				}
+			}
+		});
 	}
 
 	@Override
@@ -90,7 +100,7 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 	}
 
 	@Override
-	public void handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
+	public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
 			final PeerMessage message) {
 		LOGGER.entry(connectionManager, remoteUUID, message);
 		if (addModules(message.getModules())) {
@@ -102,6 +112,7 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 				connectionManager.sendMessage(uuid, newMessage);
 			}
 		}
-		LOGGER.exit();
+		LOGGER.exit(null);
+		return null;
 	}
 }
