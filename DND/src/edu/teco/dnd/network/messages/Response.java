@@ -14,7 +14,7 @@ public abstract class Response extends Message {
 	 * The UUID of the Message this is a response to.
 	 */
 	@SerializedName("sourceuuid")
-	private final UUID sourceUUID;
+	private UUID sourceUUID = null;
 	
 	/**
 	 * Initializes a new Response.
@@ -38,11 +38,27 @@ public abstract class Response extends Message {
 	}
 	
 	/**
+	 * Initializes a new Response without a UUID.
+	 */
+	public Response() {
+		super();
+	}
+	
+	/**
 	 * Returns the UUID of the Message this is a response to.
 	 * 
 	 * @return the UUID of the Message this is a response to
 	 */
 	public UUID getSourceUUID() {
 		return this.sourceUUID;
+	}
+	
+	/**
+	 * Sets the UUID of the Message this is a response to.
+	 * 
+	 * @param sourceUUID the UUID of the Message this is a response to
+	 */
+	public void setSourceUUID(final UUID sourceUUID) {
+		this.sourceUUID = sourceUUID;
 	}
 }

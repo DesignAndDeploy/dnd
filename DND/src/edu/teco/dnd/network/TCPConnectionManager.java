@@ -679,8 +679,9 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 						remoteUUID, msg);
 			}
 			if (response == null) {
-				response = new DefaultResponse(msg.getUUID());
+				response = new DefaultResponse();
 			}
+			response.setSourceUUID(msg.getUUID());
 			sendMessage(remoteUUID, response);
 		}
 

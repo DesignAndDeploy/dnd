@@ -21,4 +21,11 @@ public class DefaultResponse extends Response {
 	public DefaultResponse(final UUID sourceUUID) {
 		super(sourceUUID);
 	}
+	
+	/**
+	 * Initializes a new DefaultResponse.
+	 */
+	public DefaultResponse() {
+		super();
+	}
 }
