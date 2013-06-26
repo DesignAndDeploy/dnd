@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
-import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.util.FutureNotifier;

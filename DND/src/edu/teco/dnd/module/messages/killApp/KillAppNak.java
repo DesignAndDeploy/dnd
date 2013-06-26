@@ -2,14 +2,14 @@ package edu.teco.dnd.module.messages.killApp;
 
 import java.util.UUID;
 
-import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
 
 /**
  * send when a new Application is supposed to be started.
  * @author Marvin Marx
  *
  */
-public class KillAppNak extends Message {
+public class KillAppNak extends Response {
 	
 	
 	public static final String MESSAGE_TYPE = "startAppNak";
@@ -21,7 +21,7 @@ public class KillAppNak extends Message {
 	}
 	
 	public KillAppNak(KillAppMessage msg) {
-		this.appId = msg.appId;
+		this.appId = msg.getApplicationID();
 	}
 	
 	@SuppressWarnings("unused")/*for gson*/

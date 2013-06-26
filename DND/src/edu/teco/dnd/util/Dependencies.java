@@ -3,7 +3,6 @@ package edu.teco.dnd.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import sun.security.jca.JCAUtil;
 
 /**
  * Provides methods that can be used to get the dependencies for a given class.

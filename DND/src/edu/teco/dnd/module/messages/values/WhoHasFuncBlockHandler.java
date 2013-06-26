@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
+import edu.teco.dnd.network.messages.Response;
 
 public class WhoHasFuncBlockHandler implements MessageHandler<WhoHasBlockMessage> {
 	private transient static final Logger LOGGER = LogManager.getLogger(WhoHasFuncBlockHandler.class);
@@ -20,9 +21,10 @@ public class WhoHasFuncBlockHandler implements MessageHandler<WhoHasBlockMessage
 	}
 
 	@Override
-	public void handleMessage(ConnectionManager connMan, UUID remoteUUID, WhoHasBlockMessage message) {
+	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, WhoHasBlockMessage message) {
 		if (app.isExecuting(message.blockId)) {
 			connMan.sendMessage(remoteUUID, new BlockFoundMessage(message.getApplicationID(), ownModUuid, message.blockId));
+			return; //TODO implement as Response.
 			// TODO register
 		} else {
 			LOGGER.trace("received who has msg for {}", message.blockId);

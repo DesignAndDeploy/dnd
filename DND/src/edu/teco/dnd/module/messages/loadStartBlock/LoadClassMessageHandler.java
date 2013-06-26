@@ -6,6 +6,7 @@ import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
+import edu.teco.dnd.network.messages.Response;
 
 public class LoadClassMessageHandler implements MessageHandler<LoadClassMessage> {
 	final ModuleApplicationManager appManager;
@@ -18,14 +19,13 @@ public class LoadClassMessageHandler implements MessageHandler<LoadClassMessage>
 	}
 
 	@Override
-	public void handleMessage(ConnectionManager connMan, UUID remoteUUID, LoadClassMessage message) {
+	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, LoadClassMessage message) {
 		try {
 			associatedApp.loadClass(message.className, message.classByteCode);
 		} catch (Exception e) {
-			connMan.sendMessage(remoteUUID, new LoadClassNak(message.className, message.getApplicationID()));
-			return;
+			return new LoadClassNak(message.className, message.getApplicationID());
 		}
-		connMan.sendMessage(remoteUUID, new LoadClassAck(message.className, message.getApplicationID()));
+		return new LoadClassAck(message.className, message.getApplicationID());
 	}
 
 }

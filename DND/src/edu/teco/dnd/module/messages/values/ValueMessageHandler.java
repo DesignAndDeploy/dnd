@@ -8,6 +8,7 @@ import edu.teco.dnd.module.NonExistentInputException;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
 
 public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 	final Application associatedApp;
@@ -19,7 +20,7 @@ public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 
 	//TODO register handlers for replies.
 	@Override
-	public void handleMessage(ConnectionManager connMan, UUID remoteUUID, ValueMessage message) {
+	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, ValueMessage message) {
 		Message returnMsg = null;
 		try {
 			associatedApp.receiveValue(message.blockId, message.input, message.value);
@@ -35,5 +36,6 @@ public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 			returnMsg = new ValueAck(message.getApplicationID());
 		}
 		connMan.sendMessage(remoteUUID, returnMsg);
+		return; //TODO make proper responses.
 	}
 }

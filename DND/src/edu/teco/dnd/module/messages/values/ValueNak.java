@@ -11,7 +11,7 @@ public class ValueNak extends ApplicationSpecificMessage {
 		INVALID_INPUT, OTHER;
 	}
 
-
+	//TODO when sending appValueMsg listen for this and similar response (check [...].value for similar things
 	public static final String MESSAGE_TYPE = "value nak";
 	public final UUID blockId;
 	public final String input;

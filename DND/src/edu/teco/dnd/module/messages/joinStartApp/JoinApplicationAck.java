@@ -2,15 +2,14 @@ package edu.teco.dnd.module.messages.joinStartApp;
 
 import java.util.UUID;
 
-import edu.teco.dnd.module.messages.joinStartApp.StartAppMessage.JoinApplicationMessage;
-import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
 
 /**
  * send when a new Application is supposed to be started.
  * @author Marvin Marx
  *
  */
-public class JoinApplicationAck extends Message {
+public class JoinApplicationAck extends Response {
 	
 	
 	public static final String MESSAGE_TYPE = "join application ack";

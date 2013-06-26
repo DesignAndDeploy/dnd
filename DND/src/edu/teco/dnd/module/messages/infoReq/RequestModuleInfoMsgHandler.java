@@ -6,6 +6,7 @@ import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
+import edu.teco.dnd.network.messages.Response;
 
 public class RequestModuleInfoMsgHandler implements MessageHandler<RequestModuleInfoMessage> {
 	private final ConfigReader conf;
@@ -17,8 +18,8 @@ public class RequestModuleInfoMsgHandler implements MessageHandler<RequestModule
 	}
 
 	@Override
-	public void handleMessage(ConnectionManager connectionManager, UUID remoteUUID, RequestModuleInfoMessage message) {
-		connectionManager.sendMessage(remoteUUID, new ModuleInfoMessage(conf, appManager));
+	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, RequestModuleInfoMessage message) {
+		return new ModuleInfoMessage(conf, appManager);
 	}
 
 }

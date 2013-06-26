@@ -5,6 +5,7 @@ import java.util.UUID;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
+import edu.teco.dnd.network.messages.Response;
 
 public class StartApplicationMessageHandler implements MessageHandler<StartApplicationMessage> {
 	final ModuleApplicationManager appManager;
@@ -14,8 +15,9 @@ public class StartApplicationMessageHandler implements MessageHandler<StartAppli
 	}
 
 	@Override
-	public void handleMessage(ConnectionManager connectionManager, UUID remoteUUID, StartApplicationMessage message) {
-		appManager.startApp(message.appId);
+	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, StartApplicationMessage message) {
+		appManager.startApp(message.getApplicationID());
+		return null;
 	}
 
 }

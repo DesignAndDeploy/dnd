@@ -2,9 +2,9 @@ package edu.teco.dnd.module.messages.loadStartBlock;
 
 import java.util.UUID;
 
-import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
 
-public class LoadClassNak extends Message {
+public class LoadClassNak extends Response {
 	public static final String MESSAGE_TYPE = "load class nak";
 
 	public UUID appId;

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
+import edu.teco.dnd.network.messages.Response;
 
 public class ValueNakHandler implements MessageHandler<ValueNak> {
 
@@ -20,7 +21,7 @@ public class ValueNakHandler implements MessageHandler<ValueNak> {
 	}
 
 	@Override
-	public void handleMessage(ConnectionManager connectionManager, UUID remoteUUID, ValueNak message) {
+	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, ValueNak message) {
 		switch (message.errorType) {
 		case WRONG_MODULE:
 			associatedApp.invalidateBlockModulePair(message.blockId, remoteUUID);
@@ -35,6 +36,8 @@ public class ValueNakHandler implements MessageHandler<ValueNak> {
 			assert false : "unhandled error type returned by AppValueNak";
 			break;
 		}
+		
+		return null;
 
 	}
 

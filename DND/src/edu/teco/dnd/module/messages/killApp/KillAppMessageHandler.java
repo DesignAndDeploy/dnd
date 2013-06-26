@@ -5,6 +5,7 @@ import java.util.UUID;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
+import edu.teco.dnd.network.messages.Response;
 
 public class KillAppMessageHandler implements MessageHandler<KillAppMessage> {
 	final ModuleApplicationManager appManager;
@@ -15,14 +16,14 @@ public class KillAppMessageHandler implements MessageHandler<KillAppMessage> {
 	}
 
 	@Override
-	public void handleMessage(ConnectionManager connMan, UUID remoteUUID, KillAppMessage message) {
+	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, KillAppMessage message) {
 		try {
-			appManager.stopApplication(message.appId);
+			appManager.stopApplication(message.getApplicationID());
 		} catch (Exception e) {
-			connMan.sendMessage(remoteUUID, new KillAppNak(message.appId));
-			return;
+			return new KillAppNak(message.getApplicationID());
+			
 		}
-		connMan.sendMessage(remoteUUID, new KillAppAck(message.appId));
+		return new KillAppAck(message.getApplicationID());
 	}
 
 }

@@ -2,7 +2,7 @@ package edu.teco.dnd.module.messages.joinStartApp;
 
 import java.util.UUID;
 
-import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.messages.Response;
 
 /**
  * send when a new Application is supposed to be started.
@@ -10,7 +10,7 @@ import edu.teco.dnd.network.messages.Message;
  *
  */
 
-public class JoinApplicationNak extends Message {
+public class JoinApplicationNak extends Response {
 	
 	
 	public static final String MESSAGE_TYPE = "startAppNak";
