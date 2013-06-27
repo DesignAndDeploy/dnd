@@ -2,10 +2,10 @@ package edu.teco.dnd.module.messages.values;
 
 import java.util.UUID;
 
-import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
+import edu.teco.dnd.network.messages.Response;
 
 
-public class ValueNak extends ApplicationSpecificMessage {
+public class ValueNak extends Response {
 	public enum ErrorType {
 		WRONG_MODULE, // TODO need a way to handle if not even the app is running on the module.
 		INVALID_INPUT, OTHER;
@@ -20,7 +20,6 @@ public class ValueNak extends ApplicationSpecificMessage {
 
 
 	public ValueNak(UUID appId, ErrorType errorType, UUID blockId, String input) {
-		super(appId);
 		if (errorType == null) {
 			errorType = ErrorType.OTHER;
 		}

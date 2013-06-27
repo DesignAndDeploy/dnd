@@ -91,9 +91,9 @@ public class Application {
 
 			UUID modUid = moduleForFuncBlock.get(funcBlock);
 			if (modUid == null) { // location of funcBlock unknown.
-				assert false : "This is not fully implemented yet. (multicast msging does not work)";
-				// TODO multicast messaging. then remove assertion.
-				connMan.sendMessage(null, new WhoHasBlockMessage(ownAppId, funcBlock));
+				for (UUID mod : connMan.getConnectedModules()) {
+					connMan.sendMessage(mod, new WhoHasBlockMessage(ownAppId, funcBlock));
+				}
 				scheduledThreadPool.schedule(resender, MODULE_LOCATION_REQUEST_DELAY, TimeUnit.SECONDS);
 			} else {
 				ValueMessage message = new ValueMessage(ownAppId, funcBlock, input, value);

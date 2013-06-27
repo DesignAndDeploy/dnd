@@ -76,3 +76,10 @@ rapid development of state-of-the-art diagram editors for domain models.
 		* license/license.graphiti.html (Eclipse Public License 1.0)
 	* HOMEPAGE:
 		* http://www.eclipse.org/graphiti/
+
+This product uses iharders Base64 ecoder/decoder
+
+	* LICENSE:
+		* public domain
+	* HOMEPAGE:
+		* http://iharder.sourceforge.net/current/java/base64/
