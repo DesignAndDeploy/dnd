@@ -1,7 +1,13 @@
 package edu.teco.dnd.module.messages.infoReq;
 
-import edu.teco.dnd.network.messages.Message;
+import java.util.UUID;
 
-public class AppInfoRequestMessage extends Message {
+import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
+
+public class AppInfoRequestMessage extends ApplicationSpecificMessage {
 	public static final String MESSAGE_TYPE = "request application info";
+
+	public AppInfoRequestMessage(final UUID applicationUUID) {
+		super(applicationUUID);
+	}
 }
