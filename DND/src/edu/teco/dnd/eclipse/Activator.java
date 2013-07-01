@@ -29,10 +29,17 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import edu.teco.dnd.module.messages.infoReq.AppListRequestMessage;
+import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
+import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMsgHandler;
+import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.network.PeerExchanger;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
+import edu.teco.dnd.network.messages.PeerMessage;
 import edu.teco.dnd.util.NetConnection;
 
 public class Activator extends AbstractUIPlugin {
@@ -124,6 +131,12 @@ public class Activator extends AbstractUIPlugin {
 							return new NioSocketChannel();
 						}
 					}, uuid);
+			// TODO: make prettier
+			connectionManager.addMessageType(PeerMessage.class);
+			connectionManager.addMessageType(RequestModuleInfoMessage.class);
+			connectionManager.addMessageType(ModuleInfoMessage.class);
+			connectionManager.addMessageType(AppListRequestMessage.class);
+			connectionManager.addMessageType(ApplicationListResponse.class);
 			this.connectionManager = connectionManager;
 		
 			beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
