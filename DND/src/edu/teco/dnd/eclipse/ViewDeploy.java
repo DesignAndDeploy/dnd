@@ -275,7 +275,11 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 	}
 
 	private void createmoduleComboCombo(Composite parent) {
+		GridData data = new GridData();
+		data.verticalAlignment = SWT.BEGINNING;
+		data.horizontalAlignment = SWT.FILL;
 		moduleCombo = new Combo(parent, SWT.NONE);
+		moduleCombo.setLayoutData(data);
 		moduleCombo.add("Modul 1");
 		moduleCombo.add("Modul 3");
 	}
@@ -293,6 +297,7 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 	private void createPlacesCombo(Composite parent) {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
+		data.horizontalAlignment = SWT.FILL;
 		places = new Combo(parent, SWT.NONE);
 		places.setLayoutData(data);
 	}

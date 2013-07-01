@@ -53,7 +53,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 
 	@Override
 	public void setFocus() {
-		button.setFocus();
+
 	}
 
 	@Override

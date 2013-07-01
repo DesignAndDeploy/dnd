@@ -39,7 +39,6 @@
       <extension point="org.eclipse.ui.editors">
       <editor class="edu.teco.dnd.eclipse.ViewDeploy"
       		extensions="diagram"
-      		icon="icons/deploy.png"
       		id="edu.teco.dnd.eclipse.ViewDeploy"
       		name="Deploy"/>
    </extension>
