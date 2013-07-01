@@ -55,7 +55,8 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 	public void setFocus() {
 
 	}
-
+	
+	
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		LOGGER.entry(site, memento);

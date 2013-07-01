@@ -27,12 +27,16 @@
             genModel="model/graphiti.genmodel"/>
    </extension>
    <extension point="org.eclipse.ui.views">
+   	     <category
+            id="edu.teco.dnd.viewCategory"
+            name="DND">
+      </category>
       <view id="edu.teco.dnd.eclipse.ViewModule"
+    		category="edu.teco.dnd.viewCategory"
             name="Modules"
             class="edu.teco.dnd.eclipse.ViewModule"/>
-   </extension>
-   <extension point="org.eclipse.ui.views">
       <view id="edu.teco.dnd.eclipse.ViewApp"
+      		category="edu.teco.dnd.viewCategory"
             name="Applications"
             class="edu.teco.dnd.eclipse.ViewApp"/>
    </extension>
