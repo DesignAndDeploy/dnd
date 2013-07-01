@@ -7,9 +7,9 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -596,7 +596,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * @author Philipp Adolf
 	 */
 	@Sharable
-	private class TCPClientConnectionHandler extends ChannelInboundMessageHandlerAdapter<Message> {
+	private class TCPClientConnectionHandler extends SimpleChannelInboundHandler<Message> {
 		/**
 		 * The message to send after the connection has been established. Use
 		 * null to disable.

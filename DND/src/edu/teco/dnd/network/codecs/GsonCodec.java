@@ -1,8 +1,8 @@
 package edu.teco.dnd.network.codecs;
 
-import io.netty.buffer.MessageBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.MessageList;
 import io.netty.handler.codec.MessageToMessageCodec;
 
 import java.lang.reflect.Type;
@@ -83,7 +83,7 @@ public class GsonCodec extends MessageToMessageCodec<String, Object> {
 	}
 
 	@Override
-	protected void encode(final ChannelHandlerContext ctx, final Object msg, final MessageBuf<Object> out) {
+	protected void encode(ChannelHandlerContext ctx, Object msg, MessageList<Object> out) throws Exception {
 		LOGGER.entry(ctx, msg, out);
 		String json = null;
 		json = gson.get().toJson(msg, type);
@@ -93,7 +93,7 @@ public class GsonCodec extends MessageToMessageCodec<String, Object> {
 	}
 
 	@Override
-	protected void decode(final ChannelHandlerContext ctx, final String msg, final MessageBuf<Object> out) {
+	protected void decode(ChannelHandlerContext ctx, String msg, MessageList<Object> out) throws Exception {
 		LOGGER.entry(ctx, msg, out);
 		final Object obj = gson.get().fromJson(msg, type);
 		LOGGER.debug("adding {} to inbound queue", obj);

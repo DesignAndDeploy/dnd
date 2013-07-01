@@ -1,9 +1,9 @@
 package edu.teco.dnd.network.codecs;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.MessageBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.MessageList;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.AttributeKey;
@@ -32,15 +32,14 @@ public class DatagramPacketWrapper extends MessageToMessageCodec<DatagramPacket,
 			new AttributeKey<InetSocketAddress>("targetAddress");
 
 	@Override
-	protected void encode(final ChannelHandlerContext ctx, final ByteBuf msg, final MessageBuf<Object> out) {
+	protected void encode(ChannelHandlerContext ctx, ByteBuf msg, MessageList<Object> out) throws Exception {
 		LOGGER.entry(ctx, msg, out);
 		out.add(new DatagramPacket(msg.retain(), ctx.attr(TARGET_ADDRESS).get()));
 		LOGGER.exit();
 	}
 
 	@Override
-	protected void decode(final ChannelHandlerContext ctx, final DatagramPacket msg,
-			final MessageBuf<Object> out) {
+	protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, MessageList<Object> out) throws Exception {
 		LOGGER.entry(ctx, msg, out);
 		out.add(msg.content().retain());
 		LOGGER.exit();

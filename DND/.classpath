@@ -18,14 +18,14 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/log4j-api-2.0-beta6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/netty-all-4.0.0.CR3.jar" sourcepath="lib/netty-all-4.0.0.CR3-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.0.CR3-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/bcel-5.2.jar" sourcepath="lib/bcel-5.2-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/bcel-5.2-javadoc.zip!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/netty-all-4.0.0.CR7.jar" sourcepath="lib/netty-all-4.0.0.CR7-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.0.CR7-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

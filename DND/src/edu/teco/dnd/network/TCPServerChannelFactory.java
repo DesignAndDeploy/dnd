@@ -1,18 +1,15 @@
 package edu.teco.dnd.network;
 
 import io.netty.bootstrap.ChannelFactory;
-import io.netty.buffer.MessageBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandler;
 import io.netty.channel.ChannelPromise;
-import io.netty.channel.ChannelStateHandlerAdapter;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.ServerSocketChannel;
 
 import java.net.InetSocketAddress;
@@ -96,32 +93,7 @@ class TCPServerChannelFactory {
 		});
 	}
 	
-	private class TCPServerAcceptor extends ChannelStateHandlerAdapter
-		implements ChannelInboundMessageHandler<Channel> {
-		@Override
-		public void inboundBufferUpdated(final ChannelHandlerContext ctx) {
-			ThreadContext.put("serverAddress", ctx.channel().localAddress().toString());
-			LOGGER.entry(ctx);
-			final MessageBuf<Channel> in = ctx.inboundMessageBuffer();
-			for (;;) {
-				final Channel child = in.poll();
-				if (child == null) {
-					break;
-				}
-				
-				child.pipeline().addLast(childHandler);
-				
-				try {
-					eventLoopGroup.register(child);
-				} catch (final Throwable t) {
-					child.unsafe().closeForcibly();
-					LOGGER.catching(Level.WARN, t);
-				}
-			}
-			LOGGER.exit();
-			ThreadContext.remove("serverAddress");
-		}
-		
+	private class TCPServerAcceptor extends SimpleChannelInboundHandler<Channel> {
 		@Override
 		public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
 			LOGGER.entry(ctx, cause);
@@ -141,8 +113,20 @@ class TCPServerChannelFactory {
 		}
 
 		@Override
-		public MessageBuf<Channel> newInboundBuffer(final ChannelHandlerContext ctx) {
-			return Unpooled.messageBuffer();
+		protected void messageReceived(ChannelHandlerContext ctx, Channel msg) throws Exception {
+			ThreadContext.put("serverAddress", ctx.channel().localAddress().toString());
+			LOGGER.entry(ctx);
+			
+			msg.pipeline().addLast(childHandler);
+			
+			try {
+				eventLoopGroup.register(msg);
+			} catch (final Throwable t) {
+				msg.unsafe().closeForcibly();
+				LOGGER.catching(Level.WARN, t);
+			}
+			LOGGER.exit();
+			ThreadContext.remove("serverAddress");
 		}
 	}
 }
