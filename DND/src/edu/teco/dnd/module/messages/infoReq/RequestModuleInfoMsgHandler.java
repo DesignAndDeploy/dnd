@@ -10,16 +10,14 @@ import edu.teco.dnd.network.messages.Response;
 
 public class RequestModuleInfoMsgHandler implements MessageHandler<RequestModuleInfoMessage> {
 	private final ConfigReader conf;
-	private final ModuleApplicationManager appManager;
 
-	public RequestModuleInfoMsgHandler(ConfigReader conf, ModuleApplicationManager appManager) {
+	public RequestModuleInfoMsgHandler(ConfigReader conf) {
 		this.conf = conf;
-		this.appManager = appManager;
 	}
 
 	@Override
 	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, RequestModuleInfoMessage message) {
-		return new ModuleInfoMessage(conf, appManager);
+		return new ModuleInfoMessage(conf);
 	}
 
 }

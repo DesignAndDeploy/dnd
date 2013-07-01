@@ -115,7 +115,7 @@ public class ModuleMain {
 
 		// /// register msg handlers ///
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
-		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig, appMan));
+		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 	}
 
 	// TODO: add method for shutdown
