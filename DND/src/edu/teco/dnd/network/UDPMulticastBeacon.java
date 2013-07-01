@@ -42,8 +42,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.gson.GsonBuilder;
-
 import edu.teco.dnd.network.codecs.DatagramPacketWrapper;
 import edu.teco.dnd.network.codecs.GsonCodec;
 import edu.teco.dnd.network.codecs.MessageAdapter;
@@ -141,7 +139,6 @@ public class UDPMulticastBeacon {
 			}
 		}, 0, interval, unit);
 		
-		final GsonBuilder gsonBuilder = new GsonBuilder();
 		final MessageAdapter messageAdapter = new MessageAdapter();
 		messageAdapter.addMessageType(BeaconMessage.class);
 		final GsonCodec gsonCodec = new GsonCodec(Message.class);
