@@ -27,20 +27,20 @@
             genModel="model/graphiti.genmodel"/>
    </extension>
    <extension point="org.eclipse.ui.views">
-      <view id="edu.teco.dnd.eclipse.ModuleView"
+      <view id="edu.teco.dnd.eclipse.ViewModule"
             name="Modules"
-            class="edu.teco.dnd.eclipse.ModuleView"/>
+            class="edu.teco.dnd.eclipse.ViewModule"/>
    </extension>
    <extension point="org.eclipse.ui.views">
-      <view id="edu.teco.dnd.eclipse.AppView"
+      <view id="edu.teco.dnd.eclipse.ViewApp"
             name="Applications"
-            class="edu.teco.dnd.eclipse.AppView"/>
+            class="edu.teco.dnd.eclipse.ViewApp"/>
    </extension>
       <extension point="org.eclipse.ui.editors">
-      <editor class="edu.teco.dnd.eclipse.DeployView"
+      <editor class="edu.teco.dnd.eclipse.ViewDeploy"
       		extensions="diagram"
       		icon="icons/deploy.png"
-      		id="edu.teco.dnd.eclipse.DeployView"
+      		id="edu.teco.dnd.eclipse.ViewDeploy"
       		name="Deploy"/>
    </extension>
    <extension point="org.eclipse.ui.preferencePages">

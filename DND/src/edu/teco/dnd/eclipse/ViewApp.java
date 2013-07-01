@@ -20,7 +20,7 @@ import edu.teco.dnd.network.ConnectionManager;
  * @author jung
  * 
  */
-public class AppView extends ViewPart {
+public class ViewApp extends ViewPart {
 	private Label label;
 	ConnectionManager manager;
 	// Used to map FunctionBlocks on table items
@@ -29,7 +29,7 @@ public class AppView extends ViewPart {
 	/**
 	 * Creates a new Appview.
 	 */
-	public AppView() {
+	public ViewApp() {
 		super();
 		manager = Activator.getDefault().getConnectionManager();
 	}

@@ -30,12 +30,12 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
  * @author jung
  * 
  */
-public class ModuleView extends ViewPart implements ConnectionListener,
+public class ViewModule extends ViewPart implements ConnectionListener,
 		DNDServerStateListener {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
+	private static final Logger LOGGER = LogManager.getLogger(ViewModule.class);
 
 	private Button button;
 	private Label serverStatus;
@@ -47,7 +47,7 @@ public class ModuleView extends ViewPart implements ConnectionListener,
 
 	private Display display;
 
-	public ModuleView() {
+	public ViewModule() {
 		super();
 	}
 
@@ -113,14 +113,14 @@ public class ModuleView extends ViewPart implements ConnectionListener,
 				new Thread() {
 					@Override
 					public void run() {
-						if (ModuleView.this.activator.isRunning()) {
-							ModuleView.this.serverStatus
+						if (ViewModule.this.activator.isRunning()) {
+							ViewModule.this.serverStatus
 									.setText("Stopping server…");
-							ModuleView.this.activator.shutdownServer();
+							ViewModule.this.activator.shutdownServer();
 						} else {
-							ModuleView.this.serverStatus
+							ViewModule.this.serverStatus
 									.setText("Starting server…");
-							ModuleView.this.activator.startServer();
+							ViewModule.this.activator.startServer();
 						}
 					}
 				}.run();
@@ -261,11 +261,11 @@ public class ModuleView extends ViewPart implements ConnectionListener,
 				button.setText("Stop Server");
 				manager = activator.getConnectionManager();
 
-				synchronized (ModuleView.this) {
+				synchronized (ViewModule.this) {
 					for (UUID id : new ArrayList<UUID>(map.keySet())) {
 						removeID(id);
 					}
-					manager.addConnectionListener(ModuleView.this);
+					manager.addConnectionListener(ViewModule.this);
 					Collection<UUID> modules = manager.getConnectedModules();
 
 					for (UUID moduleID : modules) {
@@ -283,7 +283,7 @@ public class ModuleView extends ViewPart implements ConnectionListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (ModuleView.this) {
+				synchronized (ViewModule.this) {
 					for (UUID id : new ArrayList<UUID>(map.keySet())) {
 						removeID(id);
 					}

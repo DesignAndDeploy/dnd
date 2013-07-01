@@ -59,13 +59,13 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
  * erstellen lassen und anzeigen - Verteilung bestätigen
  * 
  */
-public class DeployView extends EditorPart implements ConnectionListener,
+public class ViewDeploy extends EditorPart implements ConnectionListener,
 		DNDServerStateListener {
 
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
+	private static final Logger LOGGER = LogManager.getLogger(ViewDeploy.class);
 	private Display display;
 	private Activator activator;
 	private ConnectionManager manager;
@@ -155,10 +155,10 @@ public class DeployView extends EditorPart implements ConnectionListener,
 				new Thread() {
 					@Override
 					public void run() {
-						if (DeployView.this.activator.isRunning()) {
-							DeployView.this.activator.shutdownServer();
+						if (ViewDeploy.this.activator.isRunning()) {
+							ViewDeploy.this.activator.shutdownServer();
 						} else {
-							DeployView.this.activator.startServer();
+							ViewDeploy.this.activator.startServer();
 						}
 					}
 				}.run();
@@ -192,9 +192,9 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		deployment.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				TableItem[] items = DeployView.this.deployment.getSelection();
+				TableItem[] items = ViewDeploy.this.deployment.getSelection();
 				if (items.length == 1) {
-					DeployView.this.block.setText(items[0].getText());
+					ViewDeploy.this.block.setText(items[0].getText());
 				}
 			}
 		});
@@ -210,7 +210,7 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		updateButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				DeployView.this.update();
+				ViewDeploy.this.update();
 			}
 		});
 		updateButton.pack();
@@ -234,7 +234,7 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		createButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				DeployView.this.create();
+				ViewDeploy.this.create();
 			}
 		});
 	}
@@ -261,7 +261,7 @@ public class DeployView extends EditorPart implements ConnectionListener,
 		deployButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				DeployView.this.deploy();
+				ViewDeploy.this.deploy();
 			}
 		});
 		deployButton.setLayoutData(data);
