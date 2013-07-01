@@ -2,7 +2,6 @@ package edu.teco.dnd.module.messages.infoReq;
 
 import java.util.UUID;
 
-import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
