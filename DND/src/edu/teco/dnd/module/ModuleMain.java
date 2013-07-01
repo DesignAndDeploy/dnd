@@ -18,15 +18,13 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
-import edu.teco.dnd.module.messages.infoReq.AppInfoRequestMessage;
 import edu.teco.dnd.module.messages.infoReq.AppListRequestMessage;
-import edu.teco.dnd.module.messages.infoReq.ApplicationInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModInfoRequestMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMsgHandler;
-import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMsgHandler;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
+import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMsgHandler;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessageHandler;
 import edu.teco.dnd.network.PeerExchanger;
@@ -126,8 +124,6 @@ public class ModuleMain {
 		connectionManager.addMessageType(ModuleInfoMessage.class);
 		connectionManager.addMessageType(AppListRequestMessage.class);
 		connectionManager.addMessageType(ApplicationListResponse.class);
-		connectionManager.addMessageType(AppInfoRequestMessage.class);
-		connectionManager.addMessageType(ApplicationInfoMessage.class);
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
 		connectionManager.addHandler(AppListRequestMessage.class,
 				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), appMan));

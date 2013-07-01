@@ -16,8 +16,6 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
-import edu.teco.dnd.module.messages.infoReq.RequestApplicationInfoMsgHandler;
-import edu.teco.dnd.module.messages.infoReq.RequestApplicationInfoMessage;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessageHandler;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
@@ -28,8 +26,8 @@ import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessageHandler;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueMessageHandler;
-import edu.teco.dnd.module.messages.values.WhoHasFuncBlockHandler;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
+import edu.teco.dnd.module.messages.values.WhoHasFuncBlockHandler;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class ModuleApplicationManager {
@@ -89,7 +87,6 @@ public class ModuleApplicationManager {
 		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, newApp), pool);
 		connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), pool);
 		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
-		connMan.addHandler(appId, RequestApplicationInfoMessage.class, new RequestApplicationInfoMsgHandler(newApp), pool);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
 		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
 		connMan.addHandler(appId, WhoHasBlockMessage.class,
