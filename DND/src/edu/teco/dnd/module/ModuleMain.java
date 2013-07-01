@@ -20,14 +20,12 @@ import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.messages.infoReq.AppListRequestMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
-import edu.teco.dnd.module.messages.infoReq.ModInfoRequestMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMsgHandler;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMsgHandler;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessageHandler;
-import edu.teco.dnd.network.PeerExchanger;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
@@ -112,15 +110,15 @@ public class ModuleMain {
 
 		connectionManager.addMessageType(PeerMessage.class);
 		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
-		final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
-		peerExchanger.addModule(moduleConfig.getUuid(), announce);
+//		final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
+//		peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
 		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreadsPerApp(),
 				moduleConfig.getUuid(), moduleConfig, connectionManager);
 
 		// /// register msg handlers ///
 		// TODO: make prettier
-		connectionManager.addMessageType(ModInfoRequestMessage.class);
+		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);
 		connectionManager.addMessageType(AppListRequestMessage.class);
 		connectionManager.addMessageType(ApplicationListResponse.class);

@@ -163,6 +163,11 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 		typeLock.readLock().lock();
 		final Class<? extends Message> cls = types.get(type);
 		typeLock.readLock().unlock();
+		if (cls == null) {
+			LOGGER.warn("received message of type '{}', but the type is not registered", type);
+			LOGGER.exit(null);
+			return null;
+		}
 		final Message message = context.deserialize(json, cls);
 		LOGGER.exit(message);
 		return message;

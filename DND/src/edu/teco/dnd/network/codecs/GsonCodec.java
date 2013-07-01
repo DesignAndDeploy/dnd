@@ -96,8 +96,10 @@ public class GsonCodec extends MessageToMessageCodec<String, Object> {
 	protected void decode(ChannelHandlerContext ctx, String msg, MessageList<Object> out) throws Exception {
 		LOGGER.entry(ctx, msg, out);
 		final Object obj = gson.get().fromJson(msg, type);
-		LOGGER.debug("adding {} to inbound queue", obj);
-		out.add(obj);
+		if (obj != null) {
+			LOGGER.debug("adding {} to inbound queue", obj);
+			out.add(obj);
+		}
 		LOGGER.exit();
 	}
 }

@@ -20,9 +20,13 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
+import edu.teco.dnd.discover.ModuleQuery;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.util.FutureListener;
+import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * ModuleView: Shows available modules, Start / Stop Server.
@@ -36,6 +40,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ViewModule.class);
+	private ModuleQuery query;
 
 	private Button button;
 	private Label serverStatus;
@@ -55,8 +60,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 	public void setFocus() {
 
 	}
-	
-	
+
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		LOGGER.entry(site, memento);
@@ -165,6 +169,8 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 
 		TableColumn column = new TableColumn(moduleTable, SWT.None);
 		column.setText("Available Modules");
+		TableColumn column2 = new TableColumn(moduleTable, SWT.None);
+		column2.setText("ModuleName");
 		moduleTable.setToolTipText("Currently available modules");
 		/**
 		 * Collection<UUID> modules = getModules();
@@ -172,6 +178,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		 * for (UUID moduleID : modules) { addID(moduleID); }
 		 **/
 		moduleTable.getColumn(0).pack();
+		moduleTable.getColumn(1).pack();
 	}
 
 	/**
@@ -187,6 +194,8 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 			TableItem item = new TableItem(moduleTable, SWT.NONE);
 			item.setText(0, id.toString());
 			map.put(id, item);
+			query.getModuleInfo(id).addListener(new ModuleInfoListener(item));
+			
 		} else {
 			LOGGER.debug("trying to add existing id {}", id);
 		}
@@ -254,7 +263,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 	public void serverStarted(ConnectionManager connectionManager,
 			UDPMulticastBeacon beacon) {
 		System.out.println("server läuft");
-
+		query = new ModuleQuery(connectionManager);
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -299,4 +308,29 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 			manager.removeConnectionListener(this);
 		}
 	}
+
+	private class ModuleInfoListener implements
+			FutureListener<FutureNotifier<Module>>, Runnable {
+		private TableItem item;
+		private String moduleName;
+
+		public ModuleInfoListener(TableItem item) {
+			this.item = item;
+		}
+
+		@Override
+		public void operationComplete(FutureNotifier<Module> future) {
+			if (future.isSuccess()) {
+				moduleName = future.getNow().getName();
+				display.asyncExec(this);
+			}
+		}
+
+		@Override
+		public void run() {
+			item.setText(1, moduleName);
+		}
+
+	}
+
 }
