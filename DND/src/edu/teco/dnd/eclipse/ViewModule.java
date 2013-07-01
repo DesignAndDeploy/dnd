@@ -167,10 +167,12 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		moduleTable.setHeaderVisible(true);
 		moduleTable.setLayoutData(grid);
 
-		TableColumn column = new TableColumn(moduleTable, SWT.None);
-		column.setText("Available Modules");
+		TableColumn column1 = new TableColumn(moduleTable, SWT.None);
+		column1.setText("Module ID");
 		TableColumn column2 = new TableColumn(moduleTable, SWT.None);
-		column2.setText("ModuleName");
+		column2.setText("Name");
+		TableColumn column3 = new TableColumn(moduleTable,  SWT.None);
+		column3.setText("Location");
 		moduleTable.setToolTipText("Currently available modules");
 		/**
 		 * Collection<UUID> modules = getModules();
@@ -179,6 +181,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		 **/
 		moduleTable.getColumn(0).pack();
 		moduleTable.getColumn(1).pack();
+		moduleTable.getColumn(2).pack();
 	}
 
 	/**
@@ -313,7 +316,8 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 			FutureListener<FutureNotifier<Module>>, Runnable {
 		private TableItem item;
 		private String moduleName;
-
+		private String moduleLocation;
+		
 		public ModuleInfoListener(TableItem item) {
 			this.item = item;
 		}
@@ -322,15 +326,20 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		public void operationComplete(FutureNotifier<Module> future) {
 			if (future.isSuccess()) {
 				moduleName = future.getNow().getName();
+				moduleLocation = future.getNow().getLocation();
 				display.asyncExec(this);
 			}
 		}
 
 		@Override
 		public void run() {
-			item.setText(1, moduleName);
+			if (moduleName != null){
+				item.setText(1, moduleName);	
+			}
+			if (moduleLocation!= null){
+				item.setText(2, moduleLocation);
+			}
 		}
-
 	}
 
 }
