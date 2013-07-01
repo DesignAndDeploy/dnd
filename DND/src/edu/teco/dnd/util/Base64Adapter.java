@@ -30,8 +30,6 @@ public class Base64Adapter implements JsonSerializer<byte[]>, JsonDeserializer<b
 	@Override
 	public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 			throws JsonParseException {
-		//TODO: does this work or does it mess up every string we send?
-
 		LOGGER.entry(json, typeOfT, context);
 		if (!json.isJsonPrimitive()) {
 			LOGGER.exit();
