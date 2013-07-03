@@ -246,26 +246,10 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		LOGGER.exit();
 	}
 
-	/**
-	 * Convenience method to return a few random numbers representing imaginary
-	 * modules, used for testing
-	 * 
-	 * @return some random module IDs
-	 */
-	@SuppressWarnings("unused")
-	private Collection<UUID> getModules() {
-		// später: return manager.getConnectedModules(); bis dahin:
-		Collection<UUID> modules = new HashSet<UUID>();
-		for (int i = 0; i < 6; i++) {
-			modules.add(UUID.randomUUID());
-		}
-		return modules;
-	}
 
 	@Override
 	public void serverStarted(ConnectionManager connectionManager,
 			UDPMulticastBeacon beacon) {
-		System.out.println("server läuft");
 		query = new ModuleQuery(connectionManager);
 		display.asyncExec(new Runnable() {
 			@Override

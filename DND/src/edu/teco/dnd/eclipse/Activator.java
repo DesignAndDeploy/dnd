@@ -59,6 +59,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
 	
+	private ModuleManager moduleManager;
 	
 	static {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
@@ -76,6 +77,8 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		
 		uuid = UUID.randomUUID();
+		
+		moduleManager = new ModuleManager();
 		
 		LOGGER.exit();
 	}
