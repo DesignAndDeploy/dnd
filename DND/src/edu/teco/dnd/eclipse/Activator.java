@@ -236,6 +236,10 @@ public class Activator extends AbstractUIPlugin {
 		return connectionManager;
 	}
 
+	public ModuleManager getModuleManager() {
+		return moduleManager;
+	}
+	
 	public UDPMulticastBeacon getMulticastBeacon() {
 		return beacon;
 	}

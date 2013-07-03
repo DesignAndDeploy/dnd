@@ -1,9 +1,7 @@
 package edu.teco.dnd.eclipse;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,13 +18,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import edu.teco.dnd.discover.ModuleQuery;
 import edu.teco.dnd.module.Module;
-import edu.teco.dnd.network.ConnectionListener;
-import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.network.UDPMulticastBeacon;
-import edu.teco.dnd.util.FutureListener;
-import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * ModuleView: Shows available modules, Start / Stop Server.
@@ -34,20 +26,18 @@ import edu.teco.dnd.util.FutureNotifier;
  * @author jung
  * 
  */
-public class ViewModule extends ViewPart implements ConnectionListener,
-		DNDServerStateListener {
+public class ViewModule extends ViewPart implements ModuleManagerListener {
 	/**
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ViewModule.class);
-	private ModuleQuery query;
 
 	private Button button;
 	private Label serverStatus;
 	private Table moduleTable;
 
 	private Activator activator;
-	private ConnectionManager manager;
+	private ModuleManager manager;
 	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
 
 	private Display display;
@@ -67,24 +57,21 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		super.init(site, memento);
 		activator = Activator.getDefault();
 		display = Display.getCurrent();
+		manager = activator.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
 			LOGGER.trace(
 					"Display.getCurrent() returned null, using Display.getDefault(): {}",
 					display);
 		}
-		activator.addServerStateListener(this);
+		manager.addModuleManagerListener(this);
 		LOGGER.exit();
 	}
 
 	@Override
 	public void dispose() {
-		LOGGER.entry();
-		if (manager != null) {
-			manager.removeConnectionListener(this);
-		}
-		activator.removeServerStateListener(this);
-		LOGGER.exit();
+		// hier noch ModuleManager Listener löschen, aber noch nicht in
+		// ModuleManager vorhanden.
 	}
 
 	@Override
@@ -171,7 +158,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		column1.setText("Module ID");
 		TableColumn column2 = new TableColumn(moduleTable, SWT.None);
 		column2.setText("Name");
-		TableColumn column3 = new TableColumn(moduleTable,  SWT.None);
+		TableColumn column3 = new TableColumn(moduleTable, SWT.None);
 		column3.setText("Location");
 		moduleTable.setToolTipText("Currently available modules");
 		/**
@@ -197,8 +184,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 			TableItem item = new TableItem(moduleTable, SWT.NONE);
 			item.setText(0, id.toString());
 			map.put(id, item);
-			query.getModuleInfo(id).addListener(new ModuleInfoListener(item));
-			
+
 		} else {
 			LOGGER.debug("trying to add existing id {}", id);
 		}
@@ -224,7 +210,8 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		LOGGER.exit();
 	}
 
-	public void connectionEstablished(final UUID id) {
+	@Override
+	public void moduleOnline(final UUID id) {
 		LOGGER.entry(id);
 		display.asyncExec(new Runnable() {
 			@Override
@@ -235,7 +222,8 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		LOGGER.exit();
 	}
 
-	public void connectionClosed(final UUID id) {
+	@Override
+	public void moduleOffline(final UUID id) {
 		LOGGER.entry(id);
 		display.asyncExec(new Runnable() {
 			@Override
@@ -246,26 +234,35 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 		LOGGER.exit();
 	}
 
+	@Override
+	public void moduleResolved(final UUID id, final Module module) {
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				TableItem item = map.get(id);
+				if (module.getName() != null){
+					item.setText(1, module.getName());
+				}
+				if (module.getLocation() != null){
+					item.setText(2, module.getLocation());
+				}
+			}
+		});
+	}
 
 	@Override
-	public void serverStarted(ConnectionManager connectionManager,
-			UDPMulticastBeacon beacon) {
-		query = new ModuleQuery(connectionManager);
+	public void serverOnline(final Map<UUID, Module> modules) {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				serverStatus.setText("Server running");
 				button.setText("Stop Server");
-				manager = activator.getConnectionManager();
 
 				synchronized (ViewModule.this) {
 					for (UUID id : new ArrayList<UUID>(map.keySet())) {
 						removeID(id);
 					}
-					manager.addConnectionListener(ViewModule.this);
-					Collection<UUID> modules = manager.getConnectedModules();
-
-					for (UUID moduleID : modules) {
+					for (UUID moduleID : modules.keySet()) {
 						addID(moduleID);
 					}
 				}
@@ -274,8 +271,7 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 	}
 
 	@Override
-	public void serverStopped() {
-		System.out.println("Server läuft nicht mehr");
+	public void serverOffline() {
 
 		display.asyncExec(new Runnable() {
 			@Override
@@ -291,39 +287,6 @@ public class ViewModule extends ViewPart implements ConnectionListener,
 				}
 			}
 		});
-		if (manager != null) {
-			manager.removeConnectionListener(this);
-		}
-	}
-
-	private class ModuleInfoListener implements
-			FutureListener<FutureNotifier<Module>>, Runnable {
-		private TableItem item;
-		private String moduleName;
-		private String moduleLocation;
-		
-		public ModuleInfoListener(TableItem item) {
-			this.item = item;
-		}
-
-		@Override
-		public void operationComplete(FutureNotifier<Module> future) {
-			if (future.isSuccess()) {
-				moduleName = future.getNow().getName();
-				moduleLocation = future.getNow().getLocation();
-				display.asyncExec(this);
-			}
-		}
-
-		@Override
-		public void run() {
-			if (moduleName != null){
-				item.setText(1, moduleName);	
-			}
-			if (moduleLocation!= null){
-				item.setText(2, moduleLocation);
-			}
-		}
 	}
 
 }
