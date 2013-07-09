@@ -81,17 +81,6 @@ public class JsonConfig extends ConfigReader {
 			}
 		}
 
-		// TODO set up base config for testing
-		// allowedBlocks = new BlockType(0);
-		// BlockType b = new BlockType(1);
-		// b.addChild(new BlockType("child1Type", 2));
-		// b.addChild(new BlockType("child2Type", 2));
-		// allowedBlocks.addChild(b);
-		// allowedBlocks.addChild(new BlockType("child2TYPE", 1));
-		// multicast = new NetConnection[1];
-		// multicast[0] = new NetConnection(new InetSocketAddress(4242),NetworkInterface.getByIndex(0));
-		// store(path);
-
 		if (allowedBlocks != null) {
 			fillTransientVariables(blockQuickaccess, allowedBlocks);
 		}
@@ -140,7 +129,7 @@ public class JsonConfig extends ConfigReader {
 
 	@Override
 	public int getMaxThreadsPerApp() {
-		return (maxAppthreads>0)?maxAppthreads:ConfigReader.DEFAULT_THREADS_PER_APP;
+		return (maxAppthreads > 0) ? maxAppthreads : ConfigReader.DEFAULT_THREADS_PER_APP;
 	}
 
 	@Override
