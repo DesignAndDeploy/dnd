@@ -28,12 +28,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -49,9 +51,6 @@ import edu.teco.dnd.deploy.DistributionGenerator;
 import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
-import edu.teco.dnd.network.ConnectionListener;
-import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.network.UDPMulticastBeacon;
 
 /**
  * Planung: Gebraucht: - Verfügbare Anwendungen anzeigen - Anwendung anwählen -
@@ -59,8 +58,7 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
  * erstellen lassen und anzeigen - Verteilung bestätigen
  * 
  */
-public class ViewDeploy extends EditorPart implements ConnectionListener,
-		DNDServerStateListener {
+public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 
 	/**
 	 * The logger for this class.
@@ -68,52 +66,43 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 	private static final Logger LOGGER = LogManager.getLogger(ViewDeploy.class);
 	private Display display;
 	private Activator activator;
-	private ConnectionManager manager;
+	private ModuleManager manager;
 
-	private Collection<Module> modules;
+	private ArrayList<UUID> idList = new ArrayList<UUID>();
+
 	private Collection<FunctionBlock> functionBlocks;
+	private Map<TableItem, FunctionBlock> map;
 
-	private Map<FunctionBlock, BlockTarget> map;
+	private Map<FunctionBlock, BlockTarget> blocksOnTargetsMap;
 
 	private Button serverButton;
 	private Button updateButton; // Button to update moduleCombo
 	private Button createButton; // Button to create deployment
 	private Button deployButton; // Button to deploy deployment
+	private Button constraintsButton;
 	private Label appName;
 	private Label blockSpecifications;
-	private Label block; // Block to edit specifications
+	private Label blockLabel; // Block to edit specifications
 	private Label module;
 	private Label place;
 	private Combo moduleCombo;
-	private Combo places;
+	private Text places;
 	private Table deployment; // Table to show blocks and current deployment
 
-	@Override
-	public void createPartControl(Composite parent) {
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 4;
-		parent.setLayout(layout);
-
-		modules = new ArrayList<Module>();
-		functionBlocks = new ArrayList<FunctionBlock>();
-
-		appName = new Label(parent, SWT.NONE);
-		appName.pack();
-
-		createServerButton(parent);
-		createBlockSpecsLabel(parent);
-		createDeploymentTable(parent);
-		createUpdateButton(parent);
-		createBlockLabel(parent);
-		createCreateButton(parent);
-		createModuleLabel(parent);
-		createmoduleComboCombo(parent);
-		createDeployButton(parent);
-		createPlaceLabel(parent);
-		createPlacesCombo(parent);
-		
-		loadBlocks(getEditorInput());
-	}
+	private int selectedIndex; // Index of selected field of moduleCombo
+	private UUID selectedID;
+	private TableItem selectedItem;
+	private FunctionBlock selectedBlock; // Functionblock to edit specs
+	/**
+	 * Enthält für jeden Funktionsblock die UUID des Moduls, auf das er
+	 * gewünscht ist, oder null, falls kein Modul vom User ausgewählt. Achtung:
+	 * Kann UUIDs von Modulen enthalten, die nicht mehr laufen.
+	 * 
+	 * Vielleicht gut: Constraints auch speichern, wenn Anwendung geschlossen
+	 * wird.
+	 */
+	private Map<FunctionBlock, UUID> moduleConstraints = new HashMap<FunctionBlock, UUID>();
+	private Map<FunctionBlock, String> placeConstraints = new HashMap<FunctionBlock, String>();
 
 	@Override
 	public void setFocus() {
@@ -128,15 +117,44 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 		setInput(input);
 		activator = Activator.getDefault();
 		display = Display.getCurrent();
+		manager = activator.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
 			LOGGER.trace(
 					"Display.getCurrent() returned null, using Display.getDefault(): {}",
 					display);
 		}
-		activator.addServerStateListener(this);
+		manager.addModuleManagerListener(this);
 		LOGGER.exit();
-		map = new HashMap<FunctionBlock, BlockTarget>();
+		blocksOnTargetsMap = new HashMap<FunctionBlock, BlockTarget>();
+	}
+
+	@Override
+	public void createPartControl(Composite parent) {
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 4;
+		parent.setLayout(layout);
+
+		functionBlocks = new ArrayList<FunctionBlock>();
+		map = new HashMap<TableItem, FunctionBlock>();
+
+		appName = new Label(parent, SWT.NONE);
+		appName.pack();
+
+		createServerButton(parent);
+		createBlockSpecsLabel(parent);
+		createDeploymentTable(parent);
+		createUpdateButton(parent);
+		createBlockLabel(parent);
+		createCreateButton(parent);
+		createModuleLabel(parent);
+		createmoduleCombo(parent);
+		createDeployButton(parent);
+		createPlaceLabel(parent);
+		createPlacesText(parent);
+		createConstraintsButton(parent);
+
+		loadBlocks(getEditorInput());
 	}
 
 	private void createServerButton(Composite parent) {
@@ -179,23 +197,30 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 		deployment.setHeaderVisible(true);
 		deployment.setLayoutData(data);
 
-		TableColumn column = new TableColumn(deployment, SWT.None);
-		column.setText("Function Block");
+		TableColumn column1 = new TableColumn(deployment, SWT.None);
+		column1.setText("Function Block");
 		TableColumn column2 = new TableColumn(deployment, SWT.NONE);
 		column2.setText("Module");
+		column2.setToolTipText("Deploy Block on this Module, if possible. No module selected means no constraint for deployment");
 		TableColumn column3 = new TableColumn(deployment, SWT.NONE);
 		column3.setText("place");
+		column3.setToolTipText("Deploy Block at this place, if possible. No place selected means no constraint for deployment");
+		TableColumn column4 = new TableColumn(deployment, SWT.NONE);
+		column4.setText("Deployed on:");
+		column4.setToolTipText("Module assigned to the Block by the deployment algorithm");
+		TableColumn column5 = new TableColumn(deployment, SWT.NONE);
+		column5.setText("Deployed at:");
+		column5.setToolTipText("Place the Block will be deployed to");
 		deployment.getColumn(0).pack();
 		deployment.getColumn(1).pack();
 		deployment.getColumn(2).pack();
+		deployment.getColumn(3).pack();
+		deployment.getColumn(4).pack();
 
 		deployment.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				TableItem[] items = ViewDeploy.this.deployment.getSelection();
-				if (items.length == 1) {
-					ViewDeploy.this.block.setText(items[0].getText());
-				}
+				ViewDeploy.this.blockSelected();
 			}
 		});
 	}
@@ -242,10 +267,10 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 	private void createBlockLabel(Composite parent) {
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
-		block = new Label(parent, SWT.NONE);
-		block.setText("(select block on the left)");
-		block.setLayoutData(data);
-		block.pack();
+		blockLabel = new Label(parent, SWT.NONE);
+		blockLabel.setText("(select block on the left)");
+		blockLabel.setLayoutData(data);
+		blockLabel.pack();
 	}
 
 	private void createDeployButton(Composite parent) {
@@ -274,19 +299,26 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 		module.pack();
 	}
 
-	private void createmoduleComboCombo(Composite parent) {
+	private void createmoduleCombo(Composite parent) {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
 		moduleCombo = new Combo(parent, SWT.NONE);
 		moduleCombo.setLayoutData(data);
-		moduleCombo.add("Modul 1");
-		moduleCombo.add("Modul 3");
+
+		moduleCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ViewDeploy.this.moduleSelected();
+			}
+		});
+		moduleCombo.setEnabled(false);
 	}
 
 	private void createPlaceLabel(Composite parent) {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
+		data.verticalSpan = 2;
 		place = new Label(parent, SWT.NONE);
 		place.setLayoutData(data);
 		place.setText("Place:");
@@ -294,12 +326,31 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 		place.pack();
 	}
 
-	private void createPlacesCombo(Composite parent) {
+	private void createPlacesText(Composite parent) {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
-		places = new Combo(parent, SWT.NONE);
+		places = new Text(parent, SWT.NONE);
+		places.setToolTipText("Enter location for selected Function Block");
 		places.setLayoutData(data);
+		places.setEnabled(false);
+	}
+
+	private void createConstraintsButton(Composite parent) {
+		GridData data = new GridData();
+		data.horizontalAlignment = SWT.FILL;
+		data.verticalAlignment = SWT.BEGINNING;
+		constraintsButton = new Button(parent, SWT.NONE);
+		constraintsButton.setLayoutData(data);
+		constraintsButton.setText("Save constraints");
+		constraintsButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ViewDeploy.this.saveConstraints();
+			}
+		});
+		constraintsButton.setEnabled(false);
+		constraintsButton.pack();
 	}
 
 	/**
@@ -312,36 +363,34 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 			warn("Server not running");
 		}
 
-		moduleCombo.removeAll();
-		places.removeAll();
-		for (Module m : modules) {
-			moduleCombo.add(m.getName());
-			places.add(m.getLocation());
-		}
 	}
 
 	/**
 	 * Invoked whenever the Create Button is pressed.
 	 */
 	private void create() {
-		if (functionBlocks.isEmpty() || modules.isEmpty()) {
+		Collection<Module> moduleCollection = getModuleCollection();
+		if (functionBlocks.isEmpty() || moduleCollection.isEmpty()) {
 			warn("No blocks / modules to distribute");
 			return;
 		}
 		DistributionGenerator generator = new DistributionGenerator(
 				new MinimalModuleCountEvaluator(),
 				Collections.<Constraint> emptyList());
-		Distribution dist = generator.getDistribution(functionBlocks, modules);
+		Distribution dist = generator.getDistribution(functionBlocks,
+				moduleCollection);
 		if (dist.getMapping() == null) {
 			warn("No valid deployment exists");
 		} else {
-			map = dist.getMapping();
+			blocksOnTargetsMap = dist.getMapping();
 			deployment.clearAll();
-			for (FunctionBlock block : map.keySet()) {
+			for (FunctionBlock block : blocksOnTargetsMap.keySet()) {
 				TableItem item = new TableItem(deployment, SWT.NONE);
 				item.setText(0, block.getType());
-				item.setText(1, map.get(block).getModule().getName());
-				item.setText(2, map.get(block).getModule().getLocation());
+				item.setText(1, blocksOnTargetsMap.get(block).getModule()
+						.getName());
+				item.setText(2, blocksOnTargetsMap.get(block).getModule()
+						.getLocation());
 			}
 		}
 	}
@@ -350,11 +399,99 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 	 * Invoked whenever the Deploy Button is pressed.
 	 */
 	private void deploy() {
-		if (map.isEmpty()) {
+		if (blocksOnTargetsMap.isEmpty()) {
 			warn("No deployment created yet");
 			return;
 		}
 		// TODO: deploy map.
+	}
+
+	/**
+	 * Invoked whenever a Function Block from the deploymentTable is selected.
+	 */
+	private void blockSelected() {
+		moduleCombo.setEnabled(true);
+		places.setEnabled(true);
+		constraintsButton.setEnabled(true);
+		TableItem[] items = deployment.getSelection();
+		if (items.length == 1) {
+			selectedItem = items[0];
+			selectedBlock = map.get(items[0]);
+			blockLabel.setText(selectedBlock.getType());
+			if (placeConstraints.containsKey(selectedBlock)) {
+				places.setText(placeConstraints.get(selectedBlock));
+			} else {
+				places.setText("");
+			}
+		}
+	}
+
+	/**
+	 * Invoked whenever a Module from moduleCombo is selected. TODO: was jetzt
+	 * damit machen?
+	 */
+	private void moduleSelected() {
+		selectedIndex = moduleCombo.getSelectionIndex();
+		selectedID = idList.get(selectedIndex);
+	}
+
+	private void saveConstraints() {
+		String text = places.getText();
+		if (text.isEmpty()){
+			placeConstraints.remove(selectedBlock);
+		}
+		else{
+			placeConstraints.put(selectedBlock, text);
+		}
+		selectedItem.setText(2, text);
+		
+		if (selectedID != null){
+			moduleConstraints.put(selectedBlock, selectedID);
+			String module = moduleCombo.getItem(selectedIndex);
+			selectedItem.setText(1, module);
+		}
+		else{
+			selectedItem.setText(1, "(no module assigned)");
+			moduleConstraints.remove(selectedBlock);
+		}
+	}
+
+	/**
+	 * Adds a Module ID to the moduleCombo.
+	 * 
+	 * @param id
+	 *            the ID to add
+	 */
+	private synchronized void addID(final UUID id) {
+		LOGGER.entry(id);
+		if (!idList.contains(id)) {
+			LOGGER.trace("id {} is new, adding", id);
+			moduleCombo.add(id.toString());
+			idList.add(id);
+
+		} else {
+			LOGGER.debug("trying to add existing id {}", id);
+		}
+		LOGGER.exit();
+	}
+
+	/**
+	 * Removes a Module ID from the moduleCombo.
+	 * 
+	 * @param id
+	 *            the ID to remove
+	 */
+	private synchronized void removeID(final UUID id) {
+		LOGGER.entry(id);
+		int index = idList.indexOf(id);
+		if (index >= 0) {
+			moduleCombo.remove(index);
+			idList.remove(index);
+			LOGGER.trace("found combo entry for id {}", id);
+		} else {
+			LOGGER.debug("trying to remove nonexistant id {}", id);
+		}
+		LOGGER.exit();
 	}
 
 	/**
@@ -375,13 +512,13 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 		} else {
 			LOGGER.error("Input is not a FileEditorInput {}", input);
 		}
-		for (FunctionBlock block : functionBlocks){
+		for (FunctionBlock block : functionBlocks) {
 			TableItem item = new TableItem(deployment, SWT.NONE);
 			item.setText(0, block.getType());
-			item.setText(1, "(no module assigned yet");
+			item.setText(1, "(no module assigned yet)");
+			item.setText(3, "(not deployed yet)");
+			map.put(item, block);
 		}
-		TableItem item = new TableItem(deployment, SWT.NONE);
-		item.setText(0, "Loaded Function Block");
 	}
 
 	/**
@@ -402,7 +539,8 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 		Collection<FunctionBlock> blockList = new ArrayList<FunctionBlock>();
 		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
 
-		Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(input.getFile().getProject());
+		Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(input.getFile()
+				.getProject());
 		LOGGER.debug("using paths {}", paths);
 		URL[] urls = new URL[paths.size()];
 		String[] classpath = new String[paths.size()];
@@ -412,79 +550,19 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 			classpath[i] = path.toFile().getPath();
 			i++;
 		}
-		URLClassLoader classLoader = new URLClassLoader(urls, getClass().getClassLoader());
+		URLClassLoader classLoader = new URLClassLoader(urls, getClass()
+				.getClassLoader());
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		Resource resource = new XMIResourceImpl(uri);
 		resource.load(null);
 		for (EObject object : resource.getContents()) {
 			if (object instanceof FunctionBlockModel) {
 				LOGGER.trace("found FunctionBlock {}", object);
-				blockList.add(((FunctionBlockModel) object).createBlock(classLoader));
+				blockList.add(((FunctionBlockModel) object)
+						.createBlock(classLoader));
 			}
 		}
 		return blockList;
-	}
-
-	@Override
-	public void connectionEstablished(UUID uuid) {
-
-		manager = activator.getConnectionManager();
-		if (manager == null) {
-			return;
-		}
-		/**
-		 * TODO: - Modul zur moduleCombo hinzufügen - Modul zur ModuleCollection
-		 * hinzufügen - ggf Ort des Moduls zur placesCombo hinzufügen
-		 * 
-		 * geht alles nur, falls man von der UUID zum modul kommt.
-		 */
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void connectionClosed(UUID uuid) {
-		/**
-		 * TODO: - Prüfen, ob Modul in moduleCombo - Falls ja: löschen - Prüfen
-		 * ob Modul in ModulCollection: - falls ja: löschen - ggf Ort löschen,
-		 * falls kein anderes Modul den Ort hat.
-		 */
-
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void serverStarted(ConnectionManager connectionManager,
-			UDPMulticastBeacon beacon) {
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				serverButton.setText("Stop Server");
-				updateButton.setEnabled(true);
-				createButton.setEnabled(true);
-				deployButton.setEnabled(true);
-				manager = activator.getConnectionManager();
-			}
-		});
-	}
-
-	@Override
-	public void serverStopped() {
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (serverButton != null) {
-					serverButton.setText("Start Server");
-				}
-				updateButton.setEnabled(false);
-				createButton.setEnabled(false);
-				deployButton.setEnabled(false);
-			}
-		});
-		if (manager != null) {
-			manager.removeConnectionListener(this);
-		}
 	}
 
 	/**
@@ -500,6 +578,35 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 		dialog.setText("Warning");
 		dialog.setMessage(message);
 		dialog.open();
+	}
+
+	/**
+	 * Returns a Collection of currently running modules that are already
+	 * resolved. Does not contain modules that haven't been resolved from their
+	 * UUID yet.
+	 * 
+	 * @return collection of currently running modules to deploy on.
+	 */
+	private Collection<Module> getModuleCollection() {
+		Collection<Module> collection = new ArrayList<Module>();
+		Map<UUID, Module> map = manager.getMap();
+		for (UUID id : map.keySet()) {
+			Module m = map.get(id);
+			if (m != null) {
+				collection.add(m);
+			}
+		}
+		return collection;
+	}
+
+	private TableItem getItem(FunctionBlock block) {
+		UUID id = block.getID();
+		for (TableItem i : map.keySet()) {
+			if (map.get(i).getID() == id) {
+				return i;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -524,6 +631,107 @@ public class ViewDeploy extends EditorPart implements ConnectionListener,
 	public boolean isSaveAsAllowed() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void moduleOnline(final UUID id) {
+		LOGGER.entry(id);
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				addID(id);
+			}
+		});
+		LOGGER.exit();
+	}
+
+	// TODO: Was tun, wenn auf modul deployt werden soll, das offline ist?
+	@Override
+	public void moduleOffline(final UUID id) {
+		LOGGER.entry(id);
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				removeID(id);
+			}
+		});
+		LOGGER.exit();
+	}
+
+	@Override
+	public void moduleResolved(final UUID id, final Module module) {
+
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				int index = idList.indexOf(id);
+				if (index < 0) {
+					addID(id);
+				} else {
+					String text = id.toString();
+					text.concat(" : ");
+					if (module.getName() != null) {
+						text.concat(module.getName());
+					}
+					moduleCombo.setItem(index, text);
+
+					// Falls das Modul schon einem FB zugeteilt wurde
+					if (moduleConstraints.containsValue(id)) {
+						// Überprüfe alle FB (können auch mehrere sein)
+						for (FunctionBlock block : moduleConstraints.keySet()) {
+							// Setze Text neu.
+							getItem(block).setText(1, text);
+						}
+					}
+				}
+			}
+		});
+	}
+
+	@Override
+	public void serverOnline(final Map<UUID, Module> modules) {
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (serverButton != null) {
+					serverButton.setText("Stop Server");
+				}
+				updateButton.setEnabled(true);
+				createButton.setEnabled(true);
+				deployButton.setEnabled(true);
+
+				synchronized (ViewDeploy.this) {
+					while (!idList.isEmpty()) {
+						removeID(idList.get(0)); // TODO: Unschön, aber geht
+													// hoffentlich?
+					}
+					for (UUID moduleID : modules.keySet()) {
+						addID(moduleID);
+					}
+				}
+			}
+		});
+	}
+
+	@Override
+	public void serverOffline() {
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (serverButton != null) {
+					serverButton.setText("Start Server");
+				}
+				updateButton.setEnabled(false);
+				createButton.setEnabled(false);
+				deployButton.setEnabled(false);
+				synchronized (ViewDeploy.this) {
+					while (!idList.isEmpty()) {
+						removeID(idList.get(0)); // TODO: Unschön, aber geht
+													// hoffentlich?
+					}
+				}
+			}
+		});
 	}
 
 }
