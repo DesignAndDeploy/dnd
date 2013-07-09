@@ -73,6 +73,13 @@ public class ModuleMain {
 			System.exit(2);
 		}
 
+		startExecutingModule(moduleConfig);
+
+	}
+
+	
+
+	public static void startExecutingModule(ConfigReader moduleConfig) {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
 		// TODO: add config options to allow selection of netty engine and number of application threads
@@ -110,8 +117,8 @@ public class ModuleMain {
 
 		connectionManager.addMessageType(PeerMessage.class);
 		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
-//		final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
-//		peerExchanger.addModule(moduleConfig.getUuid(), announce);
+		// final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
+		// peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
 		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreadsPerApp(),
 				moduleConfig.getUuid(), moduleConfig, connectionManager);
@@ -129,4 +136,5 @@ public class ModuleMain {
 	}
 
 	// TODO: add method for shutdown
+	
 }

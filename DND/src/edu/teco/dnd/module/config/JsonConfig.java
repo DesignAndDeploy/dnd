@@ -163,6 +163,7 @@ public class JsonConfig extends ConfigReader {
 		return allowedBlocks;
 	}
 
+	@Override
 	public Map<String, BlockTypeHolder> getAllowedBlocks() {
 		return blockQuickaccess;
 	}
