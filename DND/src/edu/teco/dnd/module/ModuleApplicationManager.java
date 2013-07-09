@@ -1,6 +1,5 @@
 package edu.teco.dnd.module;
 
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,10 +39,9 @@ public class ModuleApplicationManager {
 	private final ConnectionManager connMan;
 	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
 
-	public ModuleApplicationManager(int maxAllowedThreadsPerApp, UUID localeModuleId, ConfigReader moduleConfig,
-			ConnectionManager connMan) {
-		this.localeModuleId = localeModuleId;
-		this.maxAllowedThreadsPerApp = maxAllowedThreadsPerApp;
+	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
+		this.localeModuleId = moduleConfig.getUuid();
+		this.maxAllowedThreadsPerApp = moduleConfig.getMaxThreadsPerApp();
 		this.moduleConfig = moduleConfig;
 		this.connMan = connMan;
 	}
@@ -89,8 +87,7 @@ public class ModuleApplicationManager {
 		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
 		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
-		connMan.addHandler(appId, WhoHasBlockMessage.class,
-				new WhoHasFuncBlockHandler(newApp, localeModuleId));
+		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
 
 	}
 

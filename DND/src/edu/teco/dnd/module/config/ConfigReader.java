@@ -36,6 +36,8 @@ public abstract class ConfigReader {
 
 	public abstract int getMaxThreadsPerApp();
 
+	public abstract boolean getAllowNIO();
+
 	public abstract InetSocketAddress[] getListen();
 
 	public abstract InetSocketAddress[] getAnnounce();

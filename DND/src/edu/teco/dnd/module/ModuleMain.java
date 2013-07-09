@@ -48,42 +48,49 @@ public class ModuleMain {
 	public static final String DEFAULT_CONFIG_PATH = "module.cfg";
 
 	public static void main(final String[] args) {
-		String configPath = DEFAULT_CONFIG_PATH;
+		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
+		String configPath = DEFAULT_CONFIG_PATH;
 		if (args.length > 0) {
 			LOGGER.debug("argument 0 is \"{}\"", args[0]);
 			if (args[0].equals("--help") || args[0].equals("-h")) {
 				System.out.println("Parameters: [--help| $pathToConfig]");
 				System.out.println("\t--help: print this message");
 				System.out.println("\t$pathToConfig the path to the used config file.");
+				System.exit(0);
 			} else {
 				configPath = args[0];
 			}
 		}
 
+		ConfigReader moduleConfig = getModuleConfig(configPath);
+		if (moduleConfig == null) {
+			System.exit(1);
+		}
+		TCPConnectionManager connectionManager = prepareNetwork(moduleConfig);
+		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig, connectionManager);
+		registerHandler(moduleConfig, connectionManager, appMan);
+
+	}
+
+	public static ConfigReader getModuleConfig(final String configPath) {
 		ConfigReader moduleConfig = null;
 		try {
 			moduleConfig = new JsonConfig(configPath);
 		} catch (IOException e) {
 			LOGGER.fatal("could not open file: \"{}\"", configPath);
-			System.exit(1);
+			return null;
 		} catch (Exception e) {
 			LOGGER.catching(e);
 			LOGGER.fatal("could not load config: \"{}\"", configPath);
-			System.exit(2);
+			return null;
 		}
-
-		startExecutingModule(moduleConfig);
-
+		return moduleConfig;
 	}
 
-	
+	public static TCPConnectionManager prepareNetwork(ConfigReader moduleConfig) {
 
-	public static void startExecutingModule(ConfigReader moduleConfig) {
-		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
-
-		// TODO: add config options to allow selection of netty engine and number of application threads
-		// TODO: name threads
+		// TODO: name threads (app threads are already named)
 		final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
 
 		final TCPConnectionManager connectionManager = new TCPConnectionManager(networkEventLoopGroup,
@@ -120,15 +127,16 @@ public class ModuleMain {
 		// final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
 		// peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
-		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig.getMaxThreadsPerApp(),
-				moduleConfig.getUuid(), moduleConfig, connectionManager);
+		return connectionManager;
+	}
 
-		// /// register msg handlers ///
-		// TODO: make prettier
+	public static void registerHandler(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
+			ModuleApplicationManager appMan) {
 		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);
 		connectionManager.addMessageType(AppListRequestMessage.class);
 		connectionManager.addMessageType(ApplicationListResponse.class);
+
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
 		connectionManager.addHandler(AppListRequestMessage.class,
 				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), appMan));
@@ -136,5 +144,7 @@ public class ModuleMain {
 	}
 
 	// TODO: add method for shutdown
-	
+	// Is that really needed? We can just kill it, nothing important lost, and other modules do not make assumptions
+	// about us working anyway? MM.
+
 }

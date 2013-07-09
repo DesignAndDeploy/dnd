@@ -24,6 +24,7 @@ public class JsonConfig extends ConfigReader {
 	private String name;
 	private UUID uuid = UUID.randomUUID();
 	private int maxAppthreads = 0;
+	private boolean allowNIO = true;
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
@@ -56,6 +57,7 @@ public class JsonConfig extends ConfigReader {
 
 		this.name = oldConf.name;
 		this.maxAppthreads = oldConf.maxAppthreads;
+		this.allowNIO = oldConf.allowNIO;
 		if (oldConf.uuid != null) {
 			this.uuid = oldConf.uuid;
 		}
@@ -155,6 +157,11 @@ public class JsonConfig extends ConfigReader {
 	@Override
 	public Map<String, BlockTypeHolder> getAllowedBlocks() {
 		return blockQuickaccess;
+	}
+
+	@Override
+	public boolean getAllowNIO() {
+		return allowNIO;
 	}
 
 }

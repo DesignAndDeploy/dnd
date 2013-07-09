@@ -20,6 +20,7 @@ public class TestConfigReader extends ConfigReader {
 	private String name;
 	private UUID uuid = UUID.randomUUID();
 	private int maxAppthreads = 0;
+	private boolean allowNIO = true;
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
@@ -29,12 +30,13 @@ public class TestConfigReader extends ConfigReader {
 
 	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
 
-	public TestConfigReader(String name, UUID uuid, int maxAppthreads, InetSocketAddress[] listen,
+	public TestConfigReader(String name, UUID uuid, int maxAppthreads,boolean allowNIO, InetSocketAddress[] listen,
 			InetSocketAddress[] announce, NetConnection[] multicast, BlockTypeHolder allowedBlocks) {
 
 		this.name = name;
 		this.uuid = uuid;
 		this.maxAppthreads = maxAppthreads;
+		this.allowNIO = allowNIO;
 		this.listen = listen;
 		this.announce = announce;
 		this.multicast = multicast;
@@ -102,6 +104,11 @@ public class TestConfigReader extends ConfigReader {
 	@Override
 	public Map<String, BlockTypeHolder> getAllowedBlocks() {
 		return blockQuickaccess;
+	}
+
+	@Override
+	public boolean getAllowNIO() {
+		return allowNIO;
 	}
 
 }

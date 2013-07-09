@@ -7,9 +7,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.util.NetConnection;
 
 public class ModuleMainTest {
@@ -23,7 +25,10 @@ public class ModuleMainTest {
 				@Override
 				public void run() {
 					System.out.println("starting modmain");
-					ModuleMain.startExecutingModule(reader);
+
+					TCPConnectionManager connectionManager = ModuleMain.prepareNetwork(reader);
+					ModuleApplicationManager appMan = new ModuleApplicationManager(reader, connectionManager);
+					ModuleMain.registerHandler(reader, connectionManager, appMan);
 				}
 			}).start();
 		}
@@ -57,7 +62,8 @@ public class ModuleMainTest {
 			firstLevelChild.add(new BlockTypeHolder(secondLevelChild, 1));
 			BlockTypeHolder allowedBlocks = new BlockTypeHolder(firstLevelChild, 0);
 
-			configs.add(new TestConfigReader(name, uuid, maxAppthreads, listen, announce, multicast, allowedBlocks));
+			configs.add(new TestConfigReader(name, uuid, maxAppthreads, true, listen, announce, multicast,
+					allowedBlocks));
 		}
 		{
 			String name = "alternateNAME";
@@ -85,7 +91,8 @@ public class ModuleMainTest {
 			firstLevelChild.add(new BlockTypeHolder(secondLevelChild, 1));
 			BlockTypeHolder allowedBlocks = new BlockTypeHolder(firstLevelChild, 0);
 
-			configs.add(new TestConfigReader(name, uuid, maxAppthreads, listen, announce, multicast, allowedBlocks));
+			configs.add(new TestConfigReader(name, uuid, maxAppthreads, true, listen, announce, multicast,
+					allowedBlocks));
 		}
 		return configs;
 	}

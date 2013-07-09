@@ -1,8 +1,8 @@
 package edu.teco.dnd.tests;
 
 import java.net.InetSocketAddress;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +29,8 @@ public class GsonDeEnCodingTest {
 	static {
 		GsonBuilder builder = new GsonBuilder();
 		builder.setPrettyPrinting();
-		builder.registerTypeAdapter(Message.class,msgAdapter);
+		builder.registerTypeAdapter(Message.class, msgAdapter);
+		// builder.registerTypeAdapter(KillAppMessage.class, msgAdapter);
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
@@ -37,10 +38,10 @@ public class GsonDeEnCodingTest {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Set<Message> testMsgs = new HashSet<Message>();
+		Collection<Message> testMsgs = new LinkedList<Message>();
 		testMsgs.add(new KillAppMessage(TEST_UUID));
-		msgAdapter.addMessageType(KillAppMessage.class, "killAppMsg");
-		
+		msgAdapter.addMessageType(KillAppMessage.class);
+
 		testMsgs.add(new KillAppAck(new KillAppMessage(TEST_UUID)));
 
 		for (Message msg : testMsgs) {
@@ -64,8 +65,7 @@ public class GsonDeEnCodingTest {
 		try {
 			decodedMsg = gson.fromJson(gsonHolder, Message.class);
 		} catch (Exception ex) {
-			LOGGER.fatal(msg);
-			LOGGER.fatal("Decoding Error.");
+			LOGGER.fatal(msg + "\nDecoding Error.Encoded Gson: \n\n" + gsonHolder + "\n\n");
 			LOGGER.throwing(ex);
 			throw new Error(ex);
 		}
