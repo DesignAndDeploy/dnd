@@ -27,4 +27,68 @@ public class ValueNak extends Response {
 		this.blockId = blockId;
 		this.input = input;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
+		result = prime * result + ((errorType == null) ? 0 : errorType.hashCode());
+		result = prime * result + ((input == null) ? 0 : input.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ValueNak other = (ValueNak) obj;
+		if (blockId == null) {
+			if (other.blockId != null) {
+				return false;
+			}
+		} else if (!blockId.equals(other.blockId)) {
+			return false;
+		}
+		if (errorType != other.errorType) {
+			return false;
+		}
+		if (input == null) {
+			if (other.input != null) {
+				return false;
+			}
+		} else if (!input.equals(other.input)) {
+			return false;
+		}
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ValueNak [blockId=" + blockId + ", input=" + input + ", errorType=" + errorType + ", getSourceUUID()="
+				+ getSourceUUID() + ", getUUID()=" + getUUID() + "]";
+	}
+
 }

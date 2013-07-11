@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
-import edu.teco.dnd.module.messages.infoReq.AppListRequestMessage;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMsgHandler;
@@ -134,11 +134,11 @@ public class ModuleMain {
 			ModuleApplicationManager appMan) {
 		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);
-		connectionManager.addMessageType(AppListRequestMessage.class);
+		connectionManager.addMessageType(RequestApplicationListMessage.class);
 		connectionManager.addMessageType(ApplicationListResponse.class);
 
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
-		connectionManager.addHandler(AppListRequestMessage.class,
+		connectionManager.addHandler(RequestApplicationListMessage.class,
 				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), appMan));
 		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 	}

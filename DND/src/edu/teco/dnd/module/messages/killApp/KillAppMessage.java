@@ -54,5 +54,6 @@ public class KillAppMessage extends ApplicationSpecificMessage {
 			return true; // KillAppMsg = every other KillAppMsg
 		}
 	}
+	
 
 }

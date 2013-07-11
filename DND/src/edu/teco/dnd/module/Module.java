@@ -17,6 +17,8 @@ public class Module {
 	private String location;
 	private BlockTypeHolder holder;
 
+	// TODO this needs hashcode() equals() toString()
+
 	/**
 	 * Creates a new representation of a module.
 	 * 
@@ -41,31 +43,32 @@ public class Module {
 	public BlockTypeHolder getHolder() {
 		return this.holder;
 	}
-	
+
 	public UUID getUUID() {
 		return uuid;
 	}
-	
+
 	/**
 	 * Returns Map from available Types to amount of available slots.
+	 * 
 	 * @return Map from Types to amount of free slots for this type
 	 */
-	public HashMap<String, Integer> getTypes(){
+	public HashMap<String, Integer> getTypes() {
 		return holder.getTypes();
 	}
-	
-	public boolean tryAddFunctionBlock(String functType){
-		if(holder.getTypes().containsKey(functType)){
-			
+
+	public boolean tryAddFunctionBlock(String functType) {
+		if (holder.getTypes().containsKey(functType)) {
+
 		}
 		return false;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
-	public String getLocation(){
+
+	public String getLocation() {
 		return location;
 	}
 }

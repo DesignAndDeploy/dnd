@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.teco.dnd.module.messages.infoReq.AppListRequestMessage;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.messages.Response;
@@ -19,11 +19,11 @@ import edu.teco.dnd.util.FutureNotifier;
 public class ApplicationQuery {
 	private final ConnectionManager connectionManager;
 	
-	private final AppListRequestMessage request;
+	private final RequestApplicationListMessage request;
 	
 	public ApplicationQuery(final ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
-		this.request = new AppListRequestMessage();
+		this.request = new RequestApplicationListMessage();
 	}
 	
 	public ModuleApplicationListFutureNotifier getApplicationList(final UUID module) {

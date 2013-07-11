@@ -14,4 +14,14 @@ public class ValueAck extends Response {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ValueAck [getSourceUUID()=" + getSourceUUID() + ", getUUID()=" + getUUID() + "]";
+	}
+
 }

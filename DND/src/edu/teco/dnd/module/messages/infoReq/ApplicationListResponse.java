@@ -65,4 +65,59 @@ public class ApplicationListResponse extends Response {
 	public Map<UUID, String> getApplications() {
 		return this.applications;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((applications == null) ? 0 : applications.hashCode());
+		result = prime * result + ((moduleUUID == null) ? 0 : moduleUUID.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ApplicationListResponse other = (ApplicationListResponse) obj;
+		if (applications == null) {
+			if (other.applications != null) {
+				return false;
+			}
+		} else if (!applications.equals(other.applications)) {
+			return false;
+		}
+		if (moduleUUID == null) {
+			if (other.moduleUUID != null) {
+				return false;
+			}
+		} else if (!moduleUUID.equals(other.moduleUUID)) {
+			return false;
+		}
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ApplicationListResponse [applications=" + applications + ", moduleUUID=" + moduleUUID
+				+ ", getSourceUUID()=" + getSourceUUID() + "]";
+	}
+	
+	
 }
