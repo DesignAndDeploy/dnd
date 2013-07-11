@@ -42,4 +42,51 @@ public abstract class ApplicationSpecificMessage extends Message {
 	public UUID getApplicationID() {
 		return applicationUUID;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((applicationUUID == null) ? 0 : applicationUUID.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ApplicationSpecificMessage other = (ApplicationSpecificMessage) obj;
+		if (applicationUUID == null) {
+			if (other.applicationUUID != null) {
+				return false;
+			}
+		} else if (!applicationUUID.equals(other.applicationUUID)) {
+			return false;
+		}
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ApplicationSpecificMessage [applicationUUID=" + applicationUUID + ", getUUID()=" + getUUID() + "]";
+	}
+	
+	
+	
 }

@@ -1,5 +1,6 @@
 package edu.teco.dnd.tests;
 
+import java.lang.reflect.Modifier;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -11,9 +12,9 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import edu.teco.dnd.module.messages.ModuleMessageAdapter;
 import edu.teco.dnd.module.messages.killApp.KillAppAck;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
-import edu.teco.dnd.network.codecs.MessageAdapter;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.util.Base64Adapter;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
@@ -25,12 +26,12 @@ public class GsonDeEnCodingTest {
 	private final static UUID TEST_UUID = UUID.randomUUID();
 	private static final Logger LOGGER = LogManager.getLogger(GsonDeEnCodingTest.class);
 	private static final Gson gson;
-	private static final MessageAdapter msgAdapter = new MessageAdapter();
+	private static final ModuleMessageAdapter msgAdapter = new ModuleMessageAdapter();
 	static {
 		GsonBuilder builder = new GsonBuilder();
+		builder.excludeFieldsWithModifiers(Modifier.TRANSIENT);
 		builder.setPrettyPrinting();
 		builder.registerTypeAdapter(Message.class, msgAdapter);
-		// builder.registerTypeAdapter(KillAppMessage.class, msgAdapter);
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
@@ -43,6 +44,7 @@ public class GsonDeEnCodingTest {
 		msgAdapter.addMessageType(KillAppMessage.class);
 
 		testMsgs.add(new KillAppAck(new KillAppMessage(TEST_UUID)));
+		msgAdapter.addMessageType(KillAppAck.class);
 
 		for (Message msg : testMsgs) {
 			testEnDeCoding(msg);

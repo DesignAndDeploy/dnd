@@ -5,7 +5,10 @@ import java.util.UUID;
 import edu.teco.dnd.network.messages.Response;
 
 public class LoadClassNak extends Response {
-	public static final String MESSAGE_TYPE = "load class nak";
+
+	@SuppressWarnings("unused")
+	// used by Gson
+	private static String MESSAGE_TYPE = "load class nak";
 
 	public UUID appId;
 	public String name;

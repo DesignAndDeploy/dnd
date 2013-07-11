@@ -1,5 +1,6 @@
-package edu.teco.dnd.network.codecs;
+package edu.teco.dnd.module.messages;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,22 +15,28 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 import edu.teco.dnd.network.messages.Message;
 
 /**
- * A Gson adapter that adds a type field to Message objects when serializing and uses the type field to select the right
- * class when deserializing.
+ * A Gson adapter that uses the $TYPE_ATTRIBUTE_NAME field to determine which subclass of Message to deserialize the
+ * given Json object to.
  * 
- * @author Philipp Adolf
+ * 
+ * A Message this adapter is to be used for MUST have a "static String {@value #TYPE_ATTRIBUTE_NAME}
+ * " variable (e.g. 'private static String MESSAGE_TYPE = "kill" ' ) <br>
+ * The used Gson decoder MUST be initialized with "gsonBuilder.excludeFieldsWithModifiers(Modifier.TRANSIENT);" or
+ * similar, as long as "static" is not excludedField <br>
+ * Every message type MUST be registered before decoding it. <br>
+ * The type adapter SHOULD be registered as handling Message.class.
+ * 
+ * @author Marvin Marx, Philipp Adolf
  */
-public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer<Message> {
+public class ModuleMessageAdapter implements JsonDeserializer<Message> {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(MessageAdapter.class);
+	private static final Logger LOGGER = LogManager.getLogger(ModuleMessageAdapter.class);
 
 	/**
 	 * The name of the attribute that will be read if {@link #addMessageType(Class)} is used.
@@ -37,49 +44,20 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 	public static final String TYPE_ATTRIBUTE_NAME = "MESSAGE_TYPE";
 
 	/**
-	 * The default name of the type field.
-	 */
-	public static final String DEFAULT_TYPE_FIELD_NAME = "type";
-
-	/**
-	 * The name of the type field.
-	 */
-	private final String typeFieldName;
-
-	/**
 	 * Maps from type name to actual class.
 	 */
 	private final Map<String, Class<? extends Message>> types = new HashMap<String, Class<? extends Message>>();
 
 	/**
-	 * Maps from class to type name.
-	 */
-	private final Map<Class<? extends Message>, String> clss = new HashMap<Class<? extends Message>, String>();
-
-	/**
-	 * Lock for reading and writing {@link #types} and {@link #clss}.
+	 * Lock for reading and writing {@link #types}.
 	 */
 	private final ReadWriteLock typeLock = new ReentrantReadWriteLock();
 
 	/**
 	 * Creates a new MessageAdapter.
 	 * 
-	 * @param typeFieldName
-	 *            the type name to use
 	 */
-	public MessageAdapter(final String typeFieldName) {
-		LOGGER.entry(typeFieldName);
-		this.typeFieldName = typeFieldName;
-		LOGGER.exit();
-	}
-
-	/**
-	 * Creates a new MessageAdapter using the default type field name.
-	 * 
-	 * @see #DEFAULT_TYPE_FIELD_NAME
-	 */
-	public MessageAdapter() {
-		this(DEFAULT_TYPE_FIELD_NAME);
+	public ModuleMessageAdapter() {
 	}
 
 	/**
@@ -88,21 +66,20 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 	 * @param cls
 	 *            the class to add
 	 * @param type
-	 *            the name to use when (de-)serializing this class
+	 *            the value of {@value #TYPE_ATTRIBUTE_NAME} the class is recognized by during deserializing.
 	 */
 	public void addMessageType(final Class<? extends Message> cls, final String type) {
 		LOGGER.entry(cls, type);
 		typeLock.readLock().lock();
-		if (!clss.containsKey(cls) && !types.containsKey(type)) {
-			LOGGER.debug("{} and {} not found, getting write lock", cls, type);
+		if (!types.containsKey(type)) {
+			LOGGER.debug("{} not found, getting write lock", type);
 			typeLock.readLock().unlock();
 			typeLock.writeLock().lock();
-			if (!clss.containsKey(cls) && !types.containsKey(type)) {
-				LOGGER.debug("got write lock, {}  and {} still missing", cls, type);
-				clss.put(cls, type);
+			if (!types.containsKey(type)) {
+				LOGGER.debug("got write lock, {} still missing", type);
 				types.put(type, cls);
 			} else {
-				LOGGER.debug("got write lock, but {} or {} is already registered", cls, type);
+				LOGGER.debug("got write lock, but {} is already registered", type);
 			}
 			typeLock.readLock().lock();
 			typeLock.writeLock().unlock();
@@ -113,8 +90,8 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 
 	/**
 	 * Adds a type of Message. The attribute named {@value #TYPE_ATTRIBUTE_NAME} is used to determine the type name. If
-	 * either the class or the type name are already in use, nothing is done. Throws {@link IllegalArgumentException} if
-	 * the type field attribute could not be retrieved or is not a String.
+	 * the type name of the class is already in use, nothing is done. Throws {@link IllegalArgumentException} if the
+	 * type field attribute could not be retrieved or is not a String.
 	 * 
 	 * @param cls
 	 *            the class to add
@@ -124,21 +101,25 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 		LOGGER.entry(cls);
 		String type = null;
 		try {
-			final Object obj = cls.getDeclaredField(TYPE_ATTRIBUTE_NAME).get(null);
+			Field f = cls.getDeclaredField(TYPE_ATTRIBUTE_NAME);
+			f.setAccessible(true);
+			final Object obj = f.get(null);
 			if (obj == null || !String.class.isAssignableFrom(obj.getClass())) {
 				throw new IllegalArgumentException("type field is null or not a String");
 			}
 			type = (String) obj;
 		} catch (final SecurityException e) {
-			final IllegalArgumentException iae = new IllegalArgumentException("could not get type", e);
+			final IllegalArgumentException iae = new IllegalArgumentException("could not get " + TYPE_ATTRIBUTE_NAME, e);
 			LOGGER.exit(iae);
 			throw iae;
 		} catch (final IllegalAccessException e) {
-			final IllegalArgumentException iae = new IllegalArgumentException("could not get type", e);
+			final IllegalArgumentException iae = new IllegalArgumentException(
+					"could not access " + TYPE_ATTRIBUTE_NAME, e);
 			LOGGER.exit(iae);
 			throw iae;
 		} catch (final NoSuchFieldException e) {
-			final IllegalArgumentException iae = new IllegalArgumentException("could not get type", e);
+			final IllegalArgumentException iae = new IllegalArgumentException("field " + TYPE_ATTRIBUTE_NAME
+					+ "does not exist.", e);
 			LOGGER.exit(iae);
 			throw iae;
 		}
@@ -154,7 +135,7 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 			LOGGER.exit();
 			throw new JsonParseException("not an object");
 		}
-		final JsonElement typeElement = ((JsonObject) json).get(typeFieldName);
+		final JsonElement typeElement = ((JsonObject) json).get(TYPE_ATTRIBUTE_NAME);
 		if (typeElement == null) {
 			LOGGER.exit();
 			throw new JsonParseException("no type field");
@@ -177,30 +158,4 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 		return message;
 	}
 
-	@Override
-	public JsonElement serialize(final Message src, final Type typeOfSrc, final JsonSerializationContext context) {
-		LOGGER.entry(src, typeOfSrc, context);
-		typeLock.readLock().lock();
-		final String type = clss.get(src.getClass());
-		typeLock.readLock().unlock();
-		if (type == null) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("{} has class {} which was not registered", src, src.getClass());
-			}
-			LOGGER.exit(null);
-			return null;
-		}
-		final JsonElement element = context.serialize(src);
-		// FIXME: Infinite recursion. See edu.teco.dnd.tests.GsonDeEnCodingTest /
-		// edu.teco.dnd.module.messages.ModuleMessageAdapter for a working implementation.
-		if (!(element instanceof JsonObject)) {
-			LOGGER.warn("got {} for {}, which is not a JsonObject", element, src);
-			LOGGER.exit(null);
-			return null;
-		}
-		final JsonObject object = (JsonObject) element;
-		object.addProperty(typeFieldName, type);
-		LOGGER.exit(object);
-		return object;
-	}
 }

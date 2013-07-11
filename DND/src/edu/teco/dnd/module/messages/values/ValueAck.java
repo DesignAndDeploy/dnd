@@ -6,7 +6,9 @@ import edu.teco.dnd.network.messages.Response;
 
 public class ValueAck extends Response {
 
-	public static final String MESSAGE_TYPE = "value ack";
+	@SuppressWarnings("unused")
+	// used by Gson
+	private static String MESSAGE_TYPE = "value ack";
 
 	public ValueAck(UUID appId) {
 

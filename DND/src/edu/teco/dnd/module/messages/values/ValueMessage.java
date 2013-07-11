@@ -7,7 +7,9 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class ValueMessage extends ApplicationSpecificMessage {
 
-	public static final String MESSAGE_TYPE = "value";
+	@SuppressWarnings("unused")
+	// used by Gson
+	private static String MESSAGE_TYPE = "value";
 	public final UUID blockId;
 	public final String input;
 	public final Serializable value;
