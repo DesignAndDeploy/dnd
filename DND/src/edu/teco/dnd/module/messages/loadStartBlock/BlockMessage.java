@@ -7,9 +7,7 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class BlockMessage extends ApplicationSpecificMessage {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "block";
+	public static String MESSAGE_TYPE = "block";
 
 	public String className;
 	public FunctionBlock block;

@@ -8,17 +8,16 @@ import edu.teco.dnd.network.messages.Message;
  * @author Philipp Adolf
  */
 public class RequestApplicationListMessage extends Message {
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "application list request";
+	public static String MESSAGE_TYPE = "application list request";
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "RequestApplicationListMessage [getUUID()=" + getUUID() + "]";
 	}
-	
-	
+
 }

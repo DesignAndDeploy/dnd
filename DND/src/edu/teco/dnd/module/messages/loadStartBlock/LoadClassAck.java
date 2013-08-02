@@ -6,9 +6,7 @@ import edu.teco.dnd.network.messages.Response;
 
 public class LoadClassAck extends Response {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "load class ack";
+	public static String MESSAGE_TYPE = "load class ack";
 
 	public UUID appId;
 	public String className;

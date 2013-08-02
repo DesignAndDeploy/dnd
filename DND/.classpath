@@ -28,5 +28,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.0.CR9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

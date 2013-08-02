@@ -11,8 +11,7 @@ import edu.teco.dnd.network.messages.Response;
 public class KillAppAck extends Response {
 	
 	
-	@SuppressWarnings("unused") //used by Gson
-	private static String MESSAGE_TYPE = "kill ack";
+	public static String MESSAGE_TYPE = "kill ack";
 	
 	public UUID appId;
 	

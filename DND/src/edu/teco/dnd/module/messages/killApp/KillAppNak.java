@@ -12,9 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class KillAppNak extends Response {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "startAppNak";
+	public static String MESSAGE_TYPE = "kill app nak";
 
 	public UUID appId;
 
@@ -32,7 +30,9 @@ public class KillAppNak extends Response {
 		appId = null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -43,7 +43,9 @@ public class KillAppNak extends Response {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -68,13 +70,14 @@ public class KillAppNak extends Response {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "KillAppNak [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()=" + getUUID() + "]";
 	}
-	
-	
+
 }

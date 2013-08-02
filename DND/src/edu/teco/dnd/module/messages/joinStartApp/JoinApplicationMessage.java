@@ -13,9 +13,7 @@ import edu.teco.dnd.network.messages.Message;
 
 public class JoinApplicationMessage extends Message {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "join application";
+	public static String MESSAGE_TYPE = "join application";
 
 	public UUID appId;
 	public String name;

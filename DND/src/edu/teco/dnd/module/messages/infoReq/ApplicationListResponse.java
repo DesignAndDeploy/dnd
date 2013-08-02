@@ -14,9 +14,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class ApplicationListResponse extends Response {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "application list";
+	public static String MESSAGE_TYPE = "application list";
 
 	/**
 	 * The UUIDs of all running applications mapped to their names.
@@ -66,7 +64,9 @@ public class ApplicationListResponse extends Response {
 		return this.applications;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -78,7 +78,9 @@ public class ApplicationListResponse extends Response {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -110,7 +112,9 @@ public class ApplicationListResponse extends Response {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -118,6 +122,5 @@ public class ApplicationListResponse extends Response {
 		return "ApplicationListResponse [applications=" + applications + ", moduleUUID=" + moduleUUID
 				+ ", getSourceUUID()=" + getSourceUUID() + "]";
 	}
-	
-	
+
 }

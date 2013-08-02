@@ -13,8 +13,7 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class KillAppMessage extends ApplicationSpecificMessage {
 
-	@SuppressWarnings("unused") //used by Gson
-	private static String MESSAGE_TYPE = "kill";
+	public static String MESSAGE_TYPE = "kill";
 
 	public KillAppMessage(UUID appId) {
 		super(appId);

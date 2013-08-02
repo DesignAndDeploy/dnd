@@ -11,9 +11,7 @@ public class ValueNak extends Response {
 	}
 
 	// TODO when sending appValueMsg listen for this and similar response (check [...].value for similar things
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "value nak";
+	public static String MESSAGE_TYPE = "value nak";
 	public final UUID blockId;
 	public final String input;
 

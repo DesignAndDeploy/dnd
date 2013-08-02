@@ -11,9 +11,7 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class LoadClassMessage extends ApplicationSpecificMessage {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "load class";
+	public static String MESSAGE_TYPE = "load class";
 
 	public String className;
 	public byte[] classByteCode;

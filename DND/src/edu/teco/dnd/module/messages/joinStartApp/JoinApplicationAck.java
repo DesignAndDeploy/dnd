@@ -12,9 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class JoinApplicationAck extends Response {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "join application ack";
+	public static String MESSAGE_TYPE = "join application ack";
 
 	public UUID appId;
 	public String name;

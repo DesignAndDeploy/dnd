@@ -13,9 +13,7 @@ import edu.teco.dnd.network.messages.Response;
 
 public class JoinApplicationNak extends Response {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "startAppNak";
+	public static String MESSAGE_TYPE = "join application nak";
 
 	public String name;
 	public UUID appId;

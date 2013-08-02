@@ -6,9 +6,7 @@ import edu.teco.dnd.network.messages.Response;
 
 public class BlockAck extends Response {
 
-	@SuppressWarnings("unused")
-	// used by Gson
-	private static String MESSAGE_TYPE = "block ack";
+	public static String MESSAGE_TYPE = "block ack";
 
 	public UUID appId;
 	public String className;
