@@ -1,11 +1,8 @@
 package edu.teco.dnd.tests;
 
 import java.io.Serializable;
-import java.lang.reflect.Modifier;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -52,6 +49,11 @@ import edu.teco.dnd.util.NetConnectionAdapter;
 import edu.teco.dnd.util.SerializableAdapter;
 
 public class GsonDeEnCodingTest implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6437521431147083820L;
+
 	private static final Logger LOGGER = LogManager.getLogger(GsonDeEnCodingTest.class);
 
 	private final static UUID TEST_MODULE_UUID = UUID.fromString("00000000-9abc-def0-1234-56789abcdef0");
@@ -60,7 +62,7 @@ public class GsonDeEnCodingTest implements Serializable {
 
 	private static final Gson gson;
 	private static final MessageAdapter msgAdapter = new MessageAdapter();
-	
+
 	static {
 		GsonBuilder builder = new GsonBuilder();
 		builder.setPrettyPrinting();
@@ -236,10 +238,6 @@ public class GsonDeEnCodingTest implements Serializable {
 			FunctionBlock con = new BeamerOperatorBlock(TEST_FUNBLOCK_UUID);
 		}
 
-		
-		//FIXME: GSON can not handle multiple fields with same name in parent & childclass. Add to that serialVersionUID and we are in trouble!
-		// compare: http://code.google.com/p/google-gson/issues/detail?id=399
-		
 		msgAdapter.addMessageType(ValueMessage.class);
 		testEnDeCoding(new ValueMessage(TEST_APP_UUID, TEST_FUNBLOCK_UUID, "InputName", new Seri()));
 	}
@@ -260,10 +258,7 @@ public class GsonDeEnCodingTest implements Serializable {
 
 	}
 
-	private static void addTestMessages(Collection<Message> testMsgs) throws SecurityException {
-		// TODO overwrite equals/toString of Messages properly.
-
-	}
+	// TODO overwrite equals/toString of Messages properly.
 
 	public static void testEnDeCoding(Message msg) {
 		String gsonHolder;
