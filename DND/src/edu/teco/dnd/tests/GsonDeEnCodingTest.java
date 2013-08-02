@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
-import edu.teco.dnd.module.messages.ModuleMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
@@ -44,6 +43,7 @@ import edu.teco.dnd.module.messages.values.ValueAck;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueNak;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
+import edu.teco.dnd.network.codecs.MessageAdapter;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.util.Base64Adapter;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
@@ -59,10 +59,10 @@ public class GsonDeEnCodingTest implements Serializable {
 	private final static UUID TEST_FUNBLOCK_UUID = UUID.fromString("99999999-9abc-def0-1234-56789abcdef0");
 
 	private static final Gson gson;
-	private static final ModuleMessageAdapter msgAdapter = new ModuleMessageAdapter();
+	private static final MessageAdapter msgAdapter = new MessageAdapter();
+	
 	static {
 		GsonBuilder builder = new GsonBuilder();
-		builder.excludeFieldsWithModifiers(Modifier.TRANSIENT);
 		builder.setPrettyPrinting();
 		builder.registerTypeAdapter(Message.class, msgAdapter);
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
@@ -271,7 +271,7 @@ public class GsonDeEnCodingTest implements Serializable {
 
 		LOGGER.info(msg.getClass().toString());
 		try {
-			gsonHolder = gson.toJson(msg);
+			gsonHolder = gson.toJson(msg, Message.class);
 		} catch (Exception ex) {
 			LOGGER.fatal("Encoding Error in MSG: {} .\n#\n#\n#\n####################FAIL: {}", msg, msg.getClass());
 			throw new Error(ex);
