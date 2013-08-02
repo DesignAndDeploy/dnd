@@ -109,7 +109,8 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		if (name != null && !name.isEmpty()) {
 			return name;
 		}
-		return super.getToolTip(ga);
+		final Object superTip = super.getToolTip(ga);
+		return superTip instanceof String ? (String) superTip : "";
 	}
 
 	/**
