@@ -68,7 +68,7 @@ public class GsonDeEnCodingTest implements Serializable {
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
-		builder.registerTypeAdapter(Serializable.class, new SerializableAdapter(null));
+		builder.registerTypeAdapter(FunctionBlock.class, new SerializableAdapter(null));
 		gson = builder.create();
 	}
 
