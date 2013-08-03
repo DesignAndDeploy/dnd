@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.regex.Pattern;
 
@@ -129,11 +127,11 @@ public class Dependencies {
 	 * given class will always be included if it can be loaded, even if filters would keep it from getting inspected.
 	 * 
 	 * @param className the class to inspect
-	 * @return a Map of all class names and matching Files that are dependencies of the given class
+	 * @return a Collection of all ClassFiles that are dependencies of the given class
 	 */
-	public Map<String, File> getDependencies(final String className) {
+	public Collection<ClassFile> getDependencies(final String className) {
 		LOGGER.entry(className);
-		final Map<String, File> dependencies = new HashMap<String, File>();
+		final Collection<ClassFile> dependencies = new HashSet<ClassFile>();
 		
 		JavaClass cls = null;
 		
@@ -147,7 +145,7 @@ public class Dependencies {
 		
 		for (final JavaClass c : getDependencies(cls)) {
 			try {
-				dependencies.put(c.getClassName(), new File(classPath.getClassFile(c.getClassName()).getPath()));
+				dependencies.add(new ClassFile(new File(classPath.getClassFile(c.getClassName()).getPath()), c.getClassName()));
 			} catch (final IOException e) {
 				LOGGER.catching(Level.DEBUG, e);
 			}
