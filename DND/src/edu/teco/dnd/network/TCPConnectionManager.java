@@ -615,6 +615,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			LOGGER.exit();
 		}
 
+		// TODO: is this synchronized needed?
 		@Override
 		protected synchronized void channelRead0(final ChannelHandlerContext ctx, final Message msg) {
 			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
