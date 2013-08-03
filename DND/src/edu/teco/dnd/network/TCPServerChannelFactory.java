@@ -113,7 +113,7 @@ class TCPServerChannelFactory {
 		}
 
 		@Override
-		protected void messageReceived(ChannelHandlerContext ctx, Channel msg) throws Exception {
+		protected void channelRead0(ChannelHandlerContext ctx, Channel msg) throws Exception {
 			ThreadContext.put("serverAddress", ctx.channel().localAddress().toString());
 			LOGGER.entry(ctx);
 			

@@ -23,11 +23,11 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/bcel-5.2-javadoc.zip!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/netty-all-4.0.0.CR9.jar" sourcepath="lib/netty-all-4.0.0.CR9-sources.jar">
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/netty-all-4.0.4.Final.jar" sourcepath="lib/netty-all-4.0.4.Final-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.0.CR9-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.4.Final-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

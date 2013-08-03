@@ -479,7 +479,7 @@ public class UDPMulticastBeacon {
 	@Sharable
 	private class BeaconHandler extends SimpleChannelInboundHandler<BeaconMessage> {
 		@Override
-		public void messageReceived(final ChannelHandlerContext ctx, final BeaconMessage msg) {
+		public void channelRead0(final ChannelHandlerContext ctx, final BeaconMessage msg) {
 			handleBeacon(msg);
 		}
 	};

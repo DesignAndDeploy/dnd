@@ -2,10 +2,10 @@ package edu.teco.dnd.network.codecs;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.MessageToMessageCodec;
 
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.logging.log4j.LogManager;
@@ -83,7 +83,7 @@ public class GsonCodec extends MessageToMessageCodec<String, Object> {
 	}
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, Object msg, MessageList<Object> out) throws Exception {
+	protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
 		LOGGER.entry(ctx, msg, out);
 		String json = null;
 		json = gson.get().toJson(msg, type);
@@ -93,7 +93,7 @@ public class GsonCodec extends MessageToMessageCodec<String, Object> {
 	}
 
 	@Override
-	protected void decode(ChannelHandlerContext ctx, String msg, MessageList<Object> out) throws Exception {
+	protected void decode(ChannelHandlerContext ctx, String msg, List<Object> out) throws Exception {
 		LOGGER.entry(ctx, msg, out);
 		final Object obj = gson.get().fromJson(msg, type);
 		if (obj != null) {
