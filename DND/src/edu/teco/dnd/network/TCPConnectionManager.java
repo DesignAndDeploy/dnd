@@ -418,17 +418,22 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			channelsLock.readLock().unlock();
 		}
 		if (channel != null && channel.isActive()) {
-			final FutureNotifier<Response> responseNotifier =
-					responseHandler.getResponseFutureNotifier(message.getUUID());
-			channel.write(message).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
-				@Override
-				public void operationComplete(io.netty.util.concurrent.Future<Void> future) throws Exception {
-					if (!future.isSuccess()) {
-						responseHandler.setFailed(message.getUUID(), future.cause());
+			if (message instanceof Response) {
+				channel.write(message);
+				return null;
+			} else {
+				final FutureNotifier<Response> responseNotifier =
+						responseHandler.getResponseFutureNotifier(message.getUUID());
+				channel.write(message).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
+					@Override
+					public void operationComplete(io.netty.util.concurrent.Future<Void> future) throws Exception {
+						if (!future.isSuccess()) {
+							responseHandler.setFailed(message.getUUID(), future.cause());
+						}
 					}
-				}
-			});
-			return responseNotifier;
+				});
+				return responseNotifier;
+			}
 		} else {
 			return new FinishedFutureNotifier<Response>(new IllegalArgumentException());
 		}
