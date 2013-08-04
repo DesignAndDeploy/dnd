@@ -129,4 +129,9 @@ public class Module {
 		}
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		return "Module[uuid=" + uuid + ",name=" + name + ",location=" + location + "]";
+	}
 }
