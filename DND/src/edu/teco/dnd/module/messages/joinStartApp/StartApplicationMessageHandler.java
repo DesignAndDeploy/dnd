@@ -16,8 +16,12 @@ public class StartApplicationMessageHandler implements MessageHandler<StartAppli
 
 	@Override
 	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, StartApplicationMessage message) {
-		appManager.startApp(message.getApplicationID());
-		return null;
+		try{
+			appManager.startApp(message.getApplicationID());
+		} catch (IllegalArgumentException e) {
+			return new StartApplicationNak(message);
+		}
+		return new StartApplicationAck(message);
 	}
 
 }

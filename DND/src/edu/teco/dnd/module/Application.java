@@ -176,7 +176,7 @@ public class Application {
 	 *            the block to be started.
 	 * @return true iff block was successfully started.
 	 */
-	public boolean startBlock(final FunctionBlock block) {
+	public void startBlock(final FunctionBlock block) {
 		funcBlockById.put(block.getID(), block);
 		scheduledThreadPool.execute(new Runnable() {
 
@@ -222,7 +222,6 @@ public class Application {
 		} catch (RejectedExecutionException e) {
 			LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
 		}
-		return true;
 	}
 
 	/**

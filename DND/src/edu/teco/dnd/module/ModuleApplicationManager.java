@@ -114,9 +114,14 @@ public class ModuleApplicationManager {
 
 	public void startApp(UUID appId) {
 		for (FunctionBlock func : scheduledToStart) {
-			if (!runningApps.get(appId).startBlock(func)) {
-				LOGGER.warn("Can not start block {} in App {}({})", func, runningApps.get(appId), appId);
+			Application app = runningApps.get(appId);
+			if (app == null) {
+				LOGGER.warn("Tried to start non existing app: {}", appId);
+				throw new IllegalArgumentException("tried to start app that does not exist.");
+			}else {
+				runningApps.get(appId).startBlock(func);
 			}
+
 		}
 	}
 
