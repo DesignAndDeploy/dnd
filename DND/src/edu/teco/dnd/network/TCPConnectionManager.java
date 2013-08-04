@@ -420,6 +420,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 
 	@Override
 	public FutureNotifier<Response> sendMessage(final UUID uuid, final Message message) {
+		LOGGER.entry(uuid, message);
 		Channel channel = null;
 		channelsLock.readLock().lock();
 		try {
@@ -430,6 +431,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		if (channel != null && channel.isActive()) {
 			if (message instanceof Response) {
 				channel.writeAndFlush(message);
+				// TODO: change to FinishedFutureNotifier
+				LOGGER.exit(null);
 				return null;
 			} else {
 				final FutureNotifier<Response> responseNotifier =
@@ -442,10 +445,13 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 						}
 					}
 				});
+				LOGGER.exit(responseNotifier);
 				return responseNotifier;
 			}
 		} else {
-			return new FinishedFutureNotifier<Response>(new IllegalArgumentException());
+			final FinishedFutureNotifier<Response> futureNotifer = new FinishedFutureNotifier<Response>(new IllegalArgumentException());
+			LOGGER.exit(futureNotifer);
+			return futureNotifer;
 		}
 	}
 
