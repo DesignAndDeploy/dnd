@@ -49,7 +49,7 @@ public class OutletActorBlock extends FunctionBlock {
 	 *            ID of new BeamerActorBlock
 	 */
 	public OutletActorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "OutletActorBlock1");
 	}
 
 	/**

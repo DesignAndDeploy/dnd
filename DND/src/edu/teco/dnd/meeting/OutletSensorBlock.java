@@ -57,7 +57,7 @@ public class OutletSensorBlock extends FunctionBlock {
 	 *            ID of new OutletSensorBlock
 	 */
 	public OutletSensorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "OutletSensorBlock1");
 	}
 
 	/**

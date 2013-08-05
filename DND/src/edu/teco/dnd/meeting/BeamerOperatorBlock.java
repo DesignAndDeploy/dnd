@@ -43,7 +43,7 @@ public class BeamerOperatorBlock extends FunctionBlock {
 	 *            ID of new BeamerOperatorBlock
 	 */
 	public BeamerOperatorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "BeamerOperatorBlock1");
 	}
 
 	/**

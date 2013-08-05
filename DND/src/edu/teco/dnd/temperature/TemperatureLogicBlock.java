@@ -19,7 +19,7 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 * 
 	 */
 	private static final long serialVersionUID = -2352500913660771287L;
-
+	
 	/**
 	 * Temperature sensed by a TemperatureSensor.
 	 */
@@ -51,7 +51,7 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 *            ID of new TemperatureLogicBlock
 	 */
 	public TemperatureLogicBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "TemperatureLogicBlock1");
 	}
 
 	/**

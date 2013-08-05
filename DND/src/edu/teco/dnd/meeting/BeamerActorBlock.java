@@ -36,7 +36,7 @@ public class BeamerActorBlock extends FunctionBlock {
 	 *            ID of new BeamerActorBlock
 	 */
 	public BeamerActorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "BeamerActorBlock1");
 	}
 
 	/**

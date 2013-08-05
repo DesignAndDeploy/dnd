@@ -52,7 +52,7 @@ public class TemperatureActorBlock extends FunctionBlock {
 	 *            ID of newTemperatureActorBlock
 	 */
 	public TemperatureActorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "TemperatureActorBlock1");
 	}
 
 	/**

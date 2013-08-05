@@ -37,7 +37,7 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	 *            ID of new DisplayOperatorBlock
 	 */
 	public DisplayOperatorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "DisplayOperatorBlock1");
 	}
 
 	/**

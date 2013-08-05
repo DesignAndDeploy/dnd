@@ -47,7 +47,7 @@ public class DisplayActorBlock extends FunctionBlock {
 	 *            ID of new DisplayActorBlock
 	 */
 	public DisplayActorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "DisplayActorBlock1");
 	}
 
 	/**

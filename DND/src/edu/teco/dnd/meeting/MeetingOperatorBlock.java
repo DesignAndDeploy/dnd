@@ -44,7 +44,7 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	 *            ID of new MeetingOperatorBlock
 	 */
 	public MeetingOperatorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "MeetingOperatorBlock1");
 	}
 
 	/**

@@ -5,7 +5,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -84,7 +83,8 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	private Label blockSpecifications;
 	private Label blockLabel; // Block to edit specifications
 	private Label module;
-	private Label place;
+	private Label place; // TODO: Problem: In Graphiti kann man auch schon den
+							// Ort festlegen => Redundanz / Inkonsistenz
 	private Combo moduleCombo;
 	private Text places;
 	private Table deployment; // Table to show blocks and current deployment
@@ -520,7 +520,9 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		}
 		for (FunctionBlock block : functionBlocks) {
 			TableItem item = new TableItem(deployment, SWT.NONE);
-			item.setText(0, block.getType());
+			if (block.getBlockName() != null){
+				item.setText(0, block.getBlockName());
+			}
 			item.setText(1, "(no module assigned yet)");
 			item.setText(3, "(not deployed yet)");
 			mapItemToBlock.put(item, block);

@@ -57,7 +57,7 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	 *            ID of new TemperatureSensorBlock
 	 */
 	public TemperatureSensorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "TemperatureSensorBlock1");
 	}
 
 	/**

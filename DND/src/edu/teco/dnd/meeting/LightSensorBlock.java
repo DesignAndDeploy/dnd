@@ -58,7 +58,7 @@ public class LightSensorBlock extends FunctionBlock {
 	 *            ID of new LightSensorBlock
 	 */
 	public LightSensorBlock(final UUID blockID) {
-		super(blockID);
+		super(blockID, "LightSensorBlock1");
 	}
 
 	/**
