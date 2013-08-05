@@ -28,7 +28,7 @@ public class ModuleMainTest {
 
 					TCPConnectionManager connectionManager = ModuleMain.prepareNetwork(reader);
 					ModuleApplicationManager appMan = new ModuleApplicationManager(reader, connectionManager);
-					ModuleMain.registerHandler(reader, connectionManager, appMan);
+					ModuleMain.registerHandlerAdapter(reader, connectionManager, appMan);
 				}
 			}).start();
 		}

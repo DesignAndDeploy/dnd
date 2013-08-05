@@ -16,22 +16,45 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
+import edu.teco.dnd.module.messages.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMsgHandler;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMsgHandler;
+import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessageHandler;
+import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationNak;
+import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
+import edu.teco.dnd.module.messages.killApp.KillAppAck;
+import edu.teco.dnd.module.messages.killApp.KillAppMessage;
+import edu.teco.dnd.module.messages.killApp.KillAppNak;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockAck;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockNak;
+import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
+import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.LoadClassNak;
+import edu.teco.dnd.module.messages.values.AppBlockIdFoundMessage;
+import edu.teco.dnd.module.messages.values.BlockFoundMessage;
+import edu.teco.dnd.module.messages.values.ValueAck;
+import edu.teco.dnd.module.messages.values.ValueMessage;
+import edu.teco.dnd.module.messages.values.ValueNak;
+import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.network.messages.PeerMessage;
+import edu.teco.dnd.util.Base64Adapter;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
+import edu.teco.dnd.util.NetConnectionAdapter;
+import edu.teco.dnd.util.SerializableAdapter;
 
 /**
  * The main class that is started on a Module.
@@ -69,7 +92,7 @@ public class ModuleMain {
 		}
 		TCPConnectionManager connectionManager = prepareNetwork(moduleConfig);
 		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig, connectionManager);
-		registerHandler(moduleConfig, connectionManager, appMan);
+		registerHandlerAdapter(moduleConfig, connectionManager, appMan);
 
 	}
 
@@ -121,25 +144,57 @@ public class ModuleMain {
 		for (final NetConnection address : moduleConfig.getMulticast()) {
 			beacon.addAddress(address.getInterface(), address.getAddress());
 		}
+		
 
 		connectionManager.addMessageType(PeerMessage.class);
-		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+
 		// final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
 		// peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
 		return connectionManager;
 	}
 
-	public static void registerHandler(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
+	public static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
 			ModuleApplicationManager appMan) {
+
+		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+		connectionManager.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
+		connectionManager.registerTypeAdapter(byte[].class, new Base64Adapter());
+		connectionManager.registerTypeAdapter(FunctionBlock.class, new SerializableAdapter(null));
+		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(null));
+
 		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);
 		connectionManager.addMessageType(RequestApplicationListMessage.class);
 		connectionManager.addMessageType(ApplicationListResponse.class);
+		connectionManager.addMessageType(JoinApplicationMessage.class);
+		connectionManager.addMessageType(JoinApplicationAck.class);
+		connectionManager.addMessageType(JoinApplicationNak.class);
+		connectionManager.addMessageType(ValueMessage.class);
+		connectionManager.addMessageType(WhoHasBlockMessage.class);
+		connectionManager.addMessageType(ValueNak.class);
+		connectionManager.addMessageType(ValueAck.class);
+		connectionManager.addMessageType(BlockFoundMessage.class);
+		connectionManager.addMessageType(AppBlockIdFoundMessage.class);
+		connectionManager.addMessageType(LoadClassNak.class);
+		connectionManager.addMessageType(LoadClassMessage.class);
+		connectionManager.addMessageType(LoadClassAck.class);
+		connectionManager.addMessageType(BlockNak.class);
+		connectionManager.addMessageType(BlockMessage.class);
+		connectionManager.addMessageType(BlockAck.class);
+		connectionManager.addMessageType(KillAppNak.class);
+		connectionManager.addMessageType(KillAppAck.class);
+		connectionManager.addMessageType(KillAppMessage.class);
+		connectionManager.addMessageType(StartApplicationMessage.class);
+		connectionManager.addMessageType(RequestModuleInfoMessage.class);
+		connectionManager.addMessageType(RequestApplicationListMessage.class);
+		connectionManager.addMessageType(ApplicationListResponse.class);
+		connectionManager.addMessageType(ModuleInfoMessage.class);
 
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
-		connectionManager.addHandler(RequestApplicationListMessage.class,
-				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), appMan));
+		connectionManager.addHandler(RequestApplicationListMessage.class, new RequestApplicationListMsgHandler(
+				moduleConfig.getUuid(), appMan));
 		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 	}
 

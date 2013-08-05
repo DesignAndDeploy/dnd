@@ -71,4 +71,64 @@ public class Module {
 	public String getLocation() {
 		return location;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((holder == null) ? 0 : holder.hashCode());
+		result = prime * result + ((location == null) ? 0 : location.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Module other = (Module) obj;
+		if (holder == null) {
+			if (other.holder != null) {
+				return false;
+			}
+		} else if (!holder.equals(other.holder)) {
+			return false;
+		}
+		if (location == null) {
+			if (other.location != null) {
+				return false;
+			}
+		} else if (!location.equals(other.location)) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (uuid == null) {
+			if (other.uuid != null) {
+				return false;
+			}
+		} else if (!uuid.equals(other.uuid)) {
+			return false;
+		}
+		return true;
+	}
 }
