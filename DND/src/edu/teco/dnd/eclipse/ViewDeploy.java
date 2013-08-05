@@ -48,6 +48,7 @@ import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.deploy.DistributionGenerator;
 import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
+import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 
@@ -369,23 +370,30 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	 */
 	private void create() {
 		Collection<Module> moduleCollection = getModuleCollection();
-		if (functionBlocks.isEmpty() || moduleCollection.isEmpty()) {
-			warn("No blocks / modules to distribute");
+		if (functionBlocks.isEmpty()) {
+			warn("No blocks to distribute");
 			return;
 		}
+		if (moduleCollection.isEmpty()) {
+			warn("No modules to deploy on");
+			return;
+		}
+
+		Collection<Constraint> constraints = new ArrayList<Constraint>();
+		constraints
+				.add(new UserConstraints(moduleConstraints, placeConstraints));
+
 		DistributionGenerator generator = new DistributionGenerator(
-				new MinimalModuleCountEvaluator(),
-				Collections.<Constraint> emptyList());
+				new MinimalModuleCountEvaluator(), constraints);
 		Distribution dist = generator.getDistribution(functionBlocks,
 				moduleCollection);
 		if (dist.getMapping() == null) {
 			warn("No valid deployment exists");
 		} else {
 			mapBlockToTarget = dist.getMapping();
-			deployment.clearAll();
 			for (FunctionBlock block : mapBlockToTarget.keySet()) {
-				TableItem item = new TableItem(deployment, SWT.NONE);
-				item.setText(0, block.getType());
+
+				TableItem item = getItem(block); // TODO: Effizienter! dauert.
 				item.setText(1, mapBlockToTarget.get(block).getModule()
 						.getName());
 				item.setText(2, mapBlockToTarget.get(block).getModule()
@@ -428,8 +436,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Invoked whenever a Module from moduleCombo is selected. TODO: was jetzt
-	 * damit machen?
+	 * Invoked whenever a Module from moduleCombo is selected.
 	 */
 	private void moduleSelected() {
 		selectedIndex = moduleCombo.getSelectionIndex();
@@ -438,20 +445,18 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 
 	private void saveConstraints() {
 		String text = places.getText();
-		if (text.isEmpty()){
+		if (text.isEmpty()) {
 			placeConstraints.remove(selectedBlock);
-		}
-		else{
+		} else {
 			placeConstraints.put(selectedBlock, text);
 		}
 		selectedItem.setText(2, text);
-		
-		if (selectedID != null && selectedIndex > -1){
+
+		if (selectedID != null && selectedIndex > -1) {
 			moduleConstraints.put(selectedBlock, selectedID);
 			String module = moduleCombo.getItem(selectedIndex);
 			selectedItem.setText(1, module);
-		}
-		else{
+		} else {
 			selectedItem.setText(1, "(no module assigned)");
 			moduleConstraints.remove(selectedBlock);
 		}
@@ -602,7 +607,9 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 
 	/**
 	 * Returns table item representing a given function block.
-	 * @param block The block to find in the table
+	 * 
+	 * @param block
+	 *            The block to find in the table
 	 * @return item holding the block
 	 */
 	private TableItem getItem(FunctionBlock block) {
@@ -638,9 +645,9 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	@Override
-	public void dispose(){
+	public void dispose() {
 		manager.removeModuleManagerListener(this);
 	}
 
