@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.TableItem;
 
 import edu.teco.dnd.discover.ModuleQuery;
 import edu.teco.dnd.module.Module;

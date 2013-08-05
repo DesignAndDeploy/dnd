@@ -70,9 +70,9 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	private ArrayList<UUID> idList = new ArrayList<UUID>();
 
 	private Collection<FunctionBlock> functionBlocks;
-	private Map<TableItem, FunctionBlock> map;
+	private Map<TableItem, FunctionBlock> mapItemToBlock;
 
-	private Map<FunctionBlock, BlockTarget> blocksOnTargetsMap;
+	private Map<FunctionBlock, BlockTarget> mapBlockToTarget;
 
 	private Button serverButton;
 	private Button updateButton; // Button to update moduleCombo
@@ -125,7 +125,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		}
 		manager.addModuleManagerListener(this);
 		LOGGER.exit();
-		blocksOnTargetsMap = new HashMap<FunctionBlock, BlockTarget>();
+		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		parent.setLayout(layout);
 
 		functionBlocks = new ArrayList<FunctionBlock>();
-		map = new HashMap<TableItem, FunctionBlock>();
+		mapItemToBlock = new HashMap<TableItem, FunctionBlock>();
 
 		appName = new Label(parent, SWT.NONE);
 		appName.pack();
@@ -381,14 +381,14 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		if (dist.getMapping() == null) {
 			warn("No valid deployment exists");
 		} else {
-			blocksOnTargetsMap = dist.getMapping();
+			mapBlockToTarget = dist.getMapping();
 			deployment.clearAll();
-			for (FunctionBlock block : blocksOnTargetsMap.keySet()) {
+			for (FunctionBlock block : mapBlockToTarget.keySet()) {
 				TableItem item = new TableItem(deployment, SWT.NONE);
 				item.setText(0, block.getType());
-				item.setText(1, blocksOnTargetsMap.get(block).getModule()
+				item.setText(1, mapBlockToTarget.get(block).getModule()
 						.getName());
-				item.setText(2, blocksOnTargetsMap.get(block).getModule()
+				item.setText(2, mapBlockToTarget.get(block).getModule()
 						.getLocation());
 			}
 		}
@@ -398,7 +398,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever the Deploy Button is pressed.
 	 */
 	private void deploy() {
-		if (blocksOnTargetsMap.isEmpty()) {
+		if (mapBlockToTarget.isEmpty()) {
 			warn("No deployment created yet");
 			return;
 		}
@@ -415,7 +415,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		TableItem[] items = deployment.getSelection();
 		if (items.length == 1) {
 			selectedItem = items[0];
-			selectedBlock = map.get(items[0]);
+			selectedBlock = mapItemToBlock.get(items[0]);
 			blockLabel.setText(selectedBlock.getType());
 			if (placeConstraints.containsKey(selectedBlock)) {
 				places.setText(placeConstraints.get(selectedBlock));
@@ -423,6 +423,8 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 				places.setText("");
 			}
 		}
+		selectedIndex = -1;
+		selectedID = null;
 	}
 
 	/**
@@ -444,7 +446,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		}
 		selectedItem.setText(2, text);
 		
-		if (selectedID != null){
+		if (selectedID != null && selectedIndex > -1){
 			moduleConstraints.put(selectedBlock, selectedID);
 			String module = moduleCombo.getItem(selectedIndex);
 			selectedItem.setText(1, module);
@@ -516,7 +518,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 			item.setText(0, block.getType());
 			item.setText(1, "(no module assigned yet)");
 			item.setText(3, "(not deployed yet)");
-			map.put(item, block);
+			mapItemToBlock.put(item, block);
 		}
 	}
 
@@ -598,10 +600,15 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		return collection;
 	}
 
+	/**
+	 * Returns table item representing a given function block.
+	 * @param block The block to find in the table
+	 * @return item holding the block
+	 */
 	private TableItem getItem(FunctionBlock block) {
 		UUID id = block.getID();
-		for (TableItem i : map.keySet()) {
-			if (map.get(i).getID() == id) {
+		for (TableItem i : mapItemToBlock.keySet()) {
+			if (mapItemToBlock.get(i).getID() == id) {
 				return i;
 			}
 		}
