@@ -17,8 +17,6 @@ public class Module {
 	private String location;
 	private BlockTypeHolder holder;
 
-	// TODO this needs hashcode() equals() toString()
-
 	/**
 	 * Creates a new representation of a module.
 	 * 

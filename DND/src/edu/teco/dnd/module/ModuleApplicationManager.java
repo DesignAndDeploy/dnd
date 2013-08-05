@@ -89,6 +89,9 @@ public class ModuleApplicationManager {
 		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
 		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
 
+		// FIXME: connMan.registerTypeAdapter(FunctionBlock.class, new SerializableAdapter(classLoader));
+		// FIXME: connMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(classLoader));
+
 	}
 
 	/**
@@ -118,7 +121,7 @@ public class ModuleApplicationManager {
 			if (app == null) {
 				LOGGER.warn("Tried to start non existing app: {}", appId);
 				throw new IllegalArgumentException("tried to start app that does not exist.");
-			}else {
+			} else {
 				runningApps.get(appId).startBlock(func);
 			}
 

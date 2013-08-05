@@ -16,7 +16,6 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, BlockMessage message) {
-		//TODO whatever deserializes this message probably wants the apps classloader!
 		if(appManager.scheduleBlock(message.getApplicationID(), message.block)) {
 			return new BlockAck(message.className, message.getApplicationID());
 		} else {

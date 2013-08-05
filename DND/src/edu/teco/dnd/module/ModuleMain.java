@@ -16,10 +16,8 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
-import edu.teco.dnd.module.messages.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
@@ -54,7 +52,6 @@ import edu.teco.dnd.util.Base64Adapter;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
 import edu.teco.dnd.util.NetConnectionAdapter;
-import edu.teco.dnd.util.SerializableAdapter;
 
 /**
  * The main class that is started on a Module.
@@ -144,7 +141,6 @@ public class ModuleMain {
 		for (final NetConnection address : moduleConfig.getMulticast()) {
 			beacon.addAddress(address.getInterface(), address.getAddress());
 		}
-		
 
 		connectionManager.addMessageType(PeerMessage.class);
 
@@ -161,8 +157,6 @@ public class ModuleMain {
 		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		connectionManager.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		connectionManager.registerTypeAdapter(byte[].class, new Base64Adapter());
-		connectionManager.registerTypeAdapter(FunctionBlock.class, new SerializableAdapter(null));
-		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(null));
 
 		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);
