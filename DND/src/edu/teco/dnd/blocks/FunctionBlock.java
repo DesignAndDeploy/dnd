@@ -495,8 +495,15 @@ public abstract class FunctionBlock implements Serializable {
 		if (connectionTargets == null) {
 			if (other.connectionTargets != null)
 				return false;
-		} else if (!connectionTargets.equals(other.connectionTargets))
+		} else if (connectionTargets.size() != other.connectionTargets.size()) {
 			return false;
+		} else {
+			for (String str : connectionTargets.keySet()) {
+				if (!connectionTargets.get(str).equals(other.connectionTargets.get(str))) {
+					return false;
+				}
+			}
+		}
 		if (id == null) {
 			if (other.id != null)
 				return false;

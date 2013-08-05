@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
+import edu.teco.dnd.module.messages.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
@@ -71,6 +72,7 @@ public class GsonDeEnCodingTest implements Serializable {
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
 		builder.registerTypeAdapter(FunctionBlock.class, new SerializableAdapter(null));
+		builder.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(null));
 		gson = builder.create();
 	}
 
@@ -230,19 +232,6 @@ public class GsonDeEnCodingTest implements Serializable {
 	}
 
 	@Test
-	public void ValueMessageTest() {
-		@SuppressWarnings({ "unused", "serial" })
-		class Seri implements Serializable {
-			int a = 42;
-			Long l = 12L;
-			FunctionBlock con = new BeamerOperatorBlock(TEST_FUNBLOCK_UUID);
-		}
-
-		msgAdapter.addMessageType(ValueMessage.class);
-		testEnDeCoding(new ValueMessage(TEST_APP_UUID, TEST_FUNBLOCK_UUID, "InputName", new Seri()));
-	}
-
-	@Test
 	public void ValueNakTest() {
 
 		msgAdapter.addMessageType(ValueNak.class);
@@ -258,25 +247,81 @@ public class GsonDeEnCodingTest implements Serializable {
 
 	}
 
-	// TODO overwrite equals/toString of Messages properly.
+	@Test
+	public void ValueMessageTest() { // gets special handling because we are dealing with serializables and they do not
+										// provide equals.
+
+		@SuppressWarnings({ "serial" })
+		class Seri implements Serializable {
+			int a = 42;
+			Long l = 12L;
+			FunctionBlock con = new BeamerOperatorBlock(TEST_FUNBLOCK_UUID);
+
+			@Override
+			public String toString() {
+				return "Seri [a=" + a + ", l=" + l + ", con=" + con + "]";
+			}
+
+		}
+
+		Seri oldSeri = new Seri();
+
+		msgAdapter.addMessageType(ValueMessage.class);
+		ValueMessage msg = new ValueMessage(TEST_APP_UUID, TEST_FUNBLOCK_UUID, "InputName", oldSeri);
+
+		String gsonHolder;
+		ValueMessage decodedMsg;
+
+		try {
+			gsonHolder = gson.toJson(msg, Message.class);
+		} catch (Exception ex) {
+			LOGGER.fatal("Encoding Error in MSG: {} .FAIL: {}", msg, msg.getClass());
+			throw new Error(ex);
+		}
+		try {
+			decodedMsg = (ValueMessage) gson.fromJson(gsonHolder, Message.class);
+		} catch (Exception ex) {
+			LOGGER.fatal("{}\nDecoding Error.Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
+			throw new Error(ex);
+		}
+		boolean isEqual = true;
+
+		if (!decodedMsg.getApplicationID().equals(msg.getApplicationID())) {
+			isEqual = false;
+		}
+		if (!decodedMsg.blockId.equals(msg.blockId)) {
+			isEqual = false;
+		}
+		if (!decodedMsg.input.equals(msg.input)) {
+			isEqual = false;
+		}
+		Seri decodedSeri = (Seri) decodedMsg.value;
+		if (decodedSeri == null || decodedSeri.a != oldSeri.a || !decodedSeri.l.equals(oldSeri.l)
+				|| !decodedSeri.con.equals(oldSeri.con)) {
+			isEqual = false;
+			LOGGER.warn("value before: " + oldSeri);
+			LOGGER.warn("value after:  " + decodedSeri);
+		}
+
+		Assert.assertTrue("Decoded " + msg + " wrong.(Or messages equal methode is broken)\nWas decoded to: "
+				+ decodedMsg, isEqual);
+
+	}
 
 	public static void testEnDeCoding(Message msg) {
 		String gsonHolder;
 		Message decodedMsg;
 
-		LOGGER.info(msg.getClass().toString());
 		try {
 			gsonHolder = gson.toJson(msg, Message.class);
 		} catch (Exception ex) {
-			LOGGER.fatal("Encoding Error in MSG: {} .\n#\n#\n#\n####################FAIL: {}", msg, msg.getClass());
+			LOGGER.fatal("Encoding Error in MSG: {} .\nFAIL: {}", msg, msg.getClass());
 			throw new Error(ex);
 		}
-		LOGGER.info("Gson is:\n--\n{}\n--", gsonHolder);
 		try {
 			decodedMsg = gson.fromJson(gsonHolder, Message.class);
 		} catch (Exception ex) {
-			LOGGER.fatal("{}\nDecoding Error.Encoded Gson: \n\n{}\n\n#\n#\n#\n####################FAIL: {}", msg,
-					gsonHolder, msg.getClass());
+			LOGGER.fatal("{}\nDecoding Error.Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
 			throw new Error(ex);
 		}
 
