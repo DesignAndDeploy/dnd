@@ -71,6 +71,21 @@ public interface FunctionBlockModel extends EObject {
 	 * @generated
 	 */
 	void setPosition(String value);
+	
+	/**
+	 * @model
+	 */
+	String getBlockName();
+
+	/**
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockName <em>BlockNam</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>BlockName</em>' attribute.
+	 * @see #getBlockName()
+	 * @generated
+	 */
+	void setBlockName(String value);
 
 	/**
 	 * Whether or not this FunctionBlock is a sensor. A FunctionBlock is a sensor if it has no inputs and at

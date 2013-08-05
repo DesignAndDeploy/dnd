@@ -51,6 +51,7 @@ import edu.teco.dnd.module.RemoteConnectionTarget;
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getOptions <em>Options</em>}</li>
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getID <em>ID</em>}</li>
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getPosition <em>Position</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getBlockName <em>BlockName</em>}</li>
  * </ul>
  * </p>
  *
@@ -144,6 +145,28 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @ordered
 	 */
 	protected String position = POSITION_EDEFAULT;
+	
+	/**
+	 * The default value of the '{@link #getBlockName() <em>BlockName</em>}' attribute.
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * @see #getBlockName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String BLOCKNAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getBlockName() <em>BlockName</em>}' attribute.
+	 * <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * @see #getBlockName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String blockName = BLOCKNAME_EDEFAULT;
+	
+	
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -195,6 +218,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			} catch (NoSuchMethodException e) {
 			} catch (SecurityException e) {
 			}
+
 			if (block != null) {
 				for (Object optionObject : getOptions()) {
 					OptionModel option = (OptionModel) optionObject;
@@ -308,6 +332,26 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__POSITION, oldPosition, position));
 	}
+	
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getBlockName() {
+		return blockName;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setBlockName(String newBlockName) {
+		String oldBlockName = blockName;
+		blockName = newBlockName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__BLOCKNAME, oldBlockName, blockName));
+	}
+	
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -359,6 +403,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 				return getID();
 			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
 				return getPosition();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCKNAME:
+				return getBlockName();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -391,6 +437,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
 				setPosition((String)newValue);
 				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCKNAME:
+				setBlockName((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -419,6 +468,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
 				setPosition(POSITION_EDEFAULT);
 				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCKNAME:
+				setBlockName(BLOCKNAME_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -441,6 +493,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 				return ID_EDEFAULT == null ? iD != null : !ID_EDEFAULT.equals(iD);
 			case ModelPackage.FUNCTION_BLOCK_MODEL__POSITION:
 				return POSITION_EDEFAULT == null ? position != null : !POSITION_EDEFAULT.equals(position);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCKNAME:
+				return BLOCKNAME_EDEFAULT == null ? blockName != null : !BLOCKNAME_EDEFAULT.equals(blockName);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -459,6 +513,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		result.append(iD);
 		result.append(", position: ");
 		result.append(position);
+		result.append(", blockName: ");
+		result.append(blockName);
 		result.append(')');
 		return result.toString();
 	}
@@ -540,6 +596,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			}
 		}
 		block.setPosition(getPosition());
+		blockName = block.getBlockName();
 		return block;
 	}
 } // FunctionBlockModelImpl

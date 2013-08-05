@@ -204,6 +204,15 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 	public EAttribute getFunctionBlockModel_Position() {
 		return (EAttribute)functionBlockModelEClass.getEStructuralFeatures().get(5);
 	}
+	
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFunctionBlockModel_BlockName() {
+		return (EAttribute)functionBlockModelEClass.getEStructuralFeatures().get(6);
+	}
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -411,6 +420,7 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		createEReference(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__OPTIONS);
 		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__ID);
 		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__POSITION);
+		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__BLOCKNAME);
 
 		inputModelEClass = createEClass(INPUT_MODEL);
 		createEAttribute(inputModelEClass, INPUT_MODEL__NAME);
@@ -470,7 +480,8 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		initEReference(getFunctionBlockModel_Options(), this.getOptionModel(), this.getOptionModel_FunctionBlock(), "options", null, 0, -1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFunctionBlockModel_ID(), this.getUUID(), "iD", null, 0, 1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFunctionBlockModel_Position(), ecorePackage.getEString(), "position", null, 0, 1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-
+		initEAttribute(getFunctionBlockModel_BlockName(), ecorePackage.getEString(), "blockName", null, 0, 1, FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		
 		initEClass(inputModelEClass, InputModel.class, "InputModel", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getInputModel_Name(), ecorePackage.getEString(), "name", null, 0, 1, InputModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getInputModel_FunctionBlock(), this.getFunctionBlockModel(), this.getFunctionBlockModel_Inputs(), "functionBlock", null, 0, 1, InputModel.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
