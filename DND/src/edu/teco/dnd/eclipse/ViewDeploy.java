@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -162,7 +161,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		data.horizontalAlignment = SWT.FILL;
 		serverButton = new Button(parent, SWT.NONE);
 		serverButton.setLayoutData(data);
-		if (Activator.getDefault().isRunning()) {
+		if (activator.isRunning()) {
 			serverButton.setText("Stop server");
 		} else {
 			serverButton.setText("Start server");
@@ -631,6 +630,11 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	public boolean isSaveAsAllowed() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	@Override
+	public void dispose(){
+		manager.removeModuleManagerListener(this);
 	}
 
 	@Override

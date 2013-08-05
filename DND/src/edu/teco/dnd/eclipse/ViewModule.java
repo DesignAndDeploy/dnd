@@ -70,8 +70,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 
 	@Override
 	public void dispose() {
-		// hier noch ModuleManager Listener löschen, aber noch nicht in
-		// ModuleManager vorhanden.
+		manager.removeModuleManagerListener(this);
 	}
 
 	@Override

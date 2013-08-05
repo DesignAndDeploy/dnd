@@ -62,12 +62,18 @@ DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
 		}
 	}
 	
+	public void removeModuleManagerListener(final ModuleManagerListener listener){
+		moduleLock.writeLock().lock();
+		moduleManagerListener.remove(listener);
+		moduleLock.writeLock().unlock();
+	}
+	
 	@Override
-	public void serverStarted(ConnectionManager connectionManager,
+	public void serverStarted(ConnectionManager externConnectionManager,
 			UDPMulticastBeacon beacon) {
 		query = new ModuleQuery(connectionManager);
 		
-		connectionManager = activator.getConnectionManager();
+		connectionManager = externConnectionManager;
 		for (UUID id : new ArrayList<UUID>(map.keySet())) {
 			map.remove(id);
 		}
