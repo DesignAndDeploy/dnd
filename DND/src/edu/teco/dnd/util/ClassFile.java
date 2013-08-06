@@ -46,4 +46,9 @@ public class ClassFile {
 	public String getClassName() {
 		return this.className;
 	}
+	
+	@Override
+	public String toString() {
+		return "ClassFile[className=" + className + ",file=" + file + "]";
+	}
 }
