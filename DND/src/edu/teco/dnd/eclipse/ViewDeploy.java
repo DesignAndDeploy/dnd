@@ -81,7 +81,8 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	private Button constraintsButton;
 	private Label appName;
 	private Label blockSpecifications;
-	private Label blockLabel; // Block to edit specifications
+	private Label blockLabel; // Block to edit specifications:
+	private Text blockName; // Name of Block
 	private Label module;
 	private Label place; // TODO: Problem: In Graphiti kann man auch schon den
 							// Ort festlegen => Redundanz / Inkonsistenz
@@ -146,6 +147,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		createDeploymentTable(parent);
 		createUpdateButton(parent);
 		createBlockLabel(parent);
+		createBlockName(parent);
 		createCreateButton(parent);
 		createModuleLabel(parent);
 		createmoduleCombo(parent);
@@ -265,12 +267,20 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	}
 
 	private void createBlockLabel(Composite parent) {
-		GridData data = new GridData();
-		data.horizontalSpan = 2;
 		blockLabel = new Label(parent, SWT.NONE);
-		blockLabel.setText("(select block on the left)");
-		blockLabel.setLayoutData(data);
+		blockLabel.setText("Name:");
 		blockLabel.pack();
+	}
+
+	private void createBlockName(Composite parent) {
+		GridData data = new GridData();
+		data.horizontalAlignment = SWT.FILL;
+		blockName = new Text(parent, SWT.NONE);
+		blockName.setLayoutData(data);
+		blockName.setText("(select block on the left)");
+		blockName.setEnabled(false);
+		blockName.pack();
+
 	}
 
 	private void createDeployButton(Composite parent) {
@@ -420,11 +430,12 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		moduleCombo.setEnabled(true);
 		places.setEnabled(true);
 		constraintsButton.setEnabled(true);
+		blockName.setEnabled(true);
 		TableItem[] items = deployment.getSelection();
 		if (items.length == 1) {
 			selectedItem = items[0];
 			selectedBlock = mapItemToBlock.get(items[0]);
-			blockLabel.setText(selectedBlock.getType());
+			blockName.setText(selectedBlock.getBlockName());
 			if (placeConstraints.containsKey(selectedBlock)) {
 				places.setText(placeConstraints.get(selectedBlock));
 			} else {
@@ -445,6 +456,21 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 
 	private void saveConstraints() {
 		String text = places.getText();
+
+		if (!text.isEmpty() && selectedID != null) { // skfdjhasdfhsdfksjdhkfjhsdfkjsldkfjslkdjfsajdhfka
+														// bka bla bla bla lkj j
+														// sdf sdf
+			int cancel = warn("You entered both a place and a module. " +
+					"Keep in mind that if the module doesn't match the place," +
+					" no possible distribution will be found." +
+					" If you still want to save both the module and the place" +
+					" for this function block, press OK. " +
+					"If you want to abort, close this window.");
+			if (cancel == -4) {
+				return;
+			}
+		}
+
 		if (text.isEmpty()) {
 			placeConstraints.remove(selectedBlock);
 		} else {
@@ -460,6 +486,9 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 			selectedItem.setText(1, "(no module assigned)");
 			moduleConstraints.remove(selectedBlock);
 		}
+
+		selectedBlock.setBlockName(this.blockName.getText());
+		selectedItem.setText(0, blockName.getText());
 	}
 
 	/**
@@ -520,7 +549,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		}
 		for (FunctionBlock block : functionBlocks) {
 			TableItem item = new TableItem(deployment, SWT.NONE);
-			if (block.getBlockName() != null){
+			if (block.getBlockName() != null) {
 				item.setText(0, block.getBlockName());
 			}
 			item.setText(1, "(no module assigned yet)");
@@ -579,13 +608,13 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	 * @param message
 	 *            Warning message
 	 */
-	private void warn(String message) {
+	private int warn(String message) {
 		Display display = Display.getCurrent();
 		Shell shell = new Shell(display);
 		MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
 		dialog.setText("Warning");
 		dialog.setMessage(message);
-		dialog.open();
+		return dialog.open();
 	}
 
 	/**
@@ -719,6 +748,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 				updateButton.setEnabled(true);
 				createButton.setEnabled(true);
 				deployButton.setEnabled(true);
+				moduleCombo.setToolTipText("");
 
 				synchronized (ViewDeploy.this) {
 					while (!idList.isEmpty()) {
@@ -744,6 +774,8 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 				updateButton.setEnabled(false);
 				createButton.setEnabled(false);
 				deployButton.setEnabled(false);
+				moduleCombo
+						.setToolTipText("You have to start the server to be able to select among running modules");
 				synchronized (ViewDeploy.this) {
 					while (!idList.isEmpty()) {
 						removeID(idList.get(0)); // TODO: Unschön, aber geht
