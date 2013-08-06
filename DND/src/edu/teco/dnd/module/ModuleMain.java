@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
-import edu.teco.dnd.module.messages.BlockMessageAdapter;
+import edu.teco.dnd.module.messages.BlockMessageDeserializerAdapter;
 import edu.teco.dnd.module.messages.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
@@ -191,8 +191,8 @@ public class ModuleMain {
 	public static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
 			ModuleApplicationManager appMan) {
 		globalRegisterMessageAdapterType(connectionManager);
-		connectionManager.registerTypeAdapter(BlockMessage.class, new BlockMessageAdapter(appMan));
 		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
+		connectionManager.registerTypeAdapter(BlockMessage.class, new BlockMessageDeserializerAdapter(appMan));
 
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
 		connectionManager.addHandler(RequestApplicationListMessage.class, new RequestApplicationListMsgHandler(

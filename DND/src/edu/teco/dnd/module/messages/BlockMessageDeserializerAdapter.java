@@ -12,40 +12,21 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
 import edu.teco.dnd.util.Base64;
 
-public class BlockMessageAdapter implements JsonDeserializer<BlockMessage>, JsonSerializer<BlockMessage> {
+public class BlockMessageDeserializerAdapter implements JsonDeserializer<BlockMessage> {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(BlockMessageAdapter.class);
+	private static final Logger LOGGER = LogManager.getLogger(BlockMessageDeserializerAdapter.class);
 	private final ModuleApplicationManager appMan;
 
-	public BlockMessageAdapter(ModuleApplicationManager appMan) {
+	public BlockMessageDeserializerAdapter(ModuleApplicationManager appMan) {
 		this.appMan = appMan;
-	}
-
-	@Override
-	public JsonElement serialize(BlockMessage src, Type typeOfSrc, JsonSerializationContext context) {
-		LOGGER.entry(src, typeOfSrc, context);
-		final JsonObject jsonObject = new JsonObject();
-		jsonObject.add("appId", context.serialize(src.getApplicationID()));
-		jsonObject.add("uuid", context.serialize(src.getUUID()));
-		try {
-			jsonObject.add("block", new JsonPrimitive(Base64.encodeObject(src.block)));
-		} catch (IOException e) {
-			throw new JsonParseException("Can not base64 value of valueMessage.");
-		}
-
-		LOGGER.exit(jsonObject);
-		return jsonObject;
 	}
 
 	@Override
@@ -75,5 +56,4 @@ public class BlockMessageAdapter implements JsonDeserializer<BlockMessage>, Json
 
 		return new BlockMessage(msgUuid, appId, block);
 	}
-
 }
