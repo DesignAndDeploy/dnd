@@ -9,66 +9,40 @@ public class BlockMessage extends ApplicationSpecificMessage {
 
 	public static String MESSAGE_TYPE = "block";
 
-	public String className;
 	public FunctionBlock block;
 
-	public BlockMessage(UUID uuid, UUID appId,String className, FunctionBlock funBlock) {
+	public BlockMessage(UUID uuid, UUID appId, FunctionBlock funBlock) {
 		super(uuid, appId);
-		this.className = className;
 		this.block = funBlock;
 	}
 
-	public BlockMessage(UUID appId,String className, FunctionBlock funBlock) {
+	public BlockMessage(UUID appId, FunctionBlock funBlock) {
 		super(appId);
-		this.className = className;
 		this.block = funBlock;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((block == null) ? 0 : block.hashCode());
-		result = prime * result + ((className == null) ? 0 : className.hashCode());
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!super.equals(obj)) {
+		if (!super.equals(obj))
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		BlockMessage other = (BlockMessage) obj;
 		if (block == null) {
-			if (other.block != null) {
+			if (other.block != null)
 				return false;
-			}
-		} else if (!block.equals(other.block)) {
+		} else if (!block.equals(other.block))
 			return false;
-		}
-		if (className == null) {
-			if (other.className != null) {
-				return false;
-			}
-		} else if (!className.equals(other.className)) {
-			return false;
-		}
 		return true;
 	}
 
@@ -79,8 +53,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 */
 	@Override
 	public String toString() {
-		return "BlockMessage [className=" + className + ", block=" + block + ", getApplicationID()="
+		return "BlockMessage[block=" + block + ", getApplicationID()="
 				+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
 	}
-
 }

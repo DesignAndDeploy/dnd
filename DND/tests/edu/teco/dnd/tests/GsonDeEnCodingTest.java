@@ -185,7 +185,7 @@ public class GsonDeEnCodingTest implements Serializable {
 	@Test
 	public void BlockAckTest() {
 		msgAdapter.addMessageType(BlockAck.class);
-		testEnDeCoding(new BlockAck("ClassName", TEST_APP_UUID));
+		testEnDeCoding(new BlockAck());
 
 	}
 
@@ -193,14 +193,14 @@ public class GsonDeEnCodingTest implements Serializable {
 	public void BlockMessageTest() {
 
 		msgAdapter.addMessageType(BlockMessage.class);
-		testEnDeCoding(new BlockMessage(TEST_APP_UUID, "ClassName", new BeamerOperatorBlock(TEST_FUNBLOCK_UUID)));
+		testEnDeCoding(new BlockMessage(TEST_APP_UUID, new BeamerOperatorBlock(TEST_FUNBLOCK_UUID)));
 	}
 
 	@Test
 	public void BlockNakTest() {
 
 		msgAdapter.addMessageType(BlockNak.class);
-		testEnDeCoding(new BlockNak("ClassName", TEST_APP_UUID));
+		testEnDeCoding(new BlockNak());
 	}
 
 	@Test

@@ -17,9 +17,9 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, BlockMessage message) {
 		if(appManager.scheduleBlock(message.getApplicationID(), message.block)) {
-			return new BlockAck(message.className, message.getApplicationID());
+			return new BlockAck();
 		} else {
-			return new BlockNak(message.className, message.getApplicationID());
+			return new BlockNak();
 		}
 
 	}

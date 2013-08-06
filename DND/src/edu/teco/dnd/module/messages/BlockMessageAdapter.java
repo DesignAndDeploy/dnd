@@ -37,7 +37,6 @@ public class BlockMessageAdapter implements JsonDeserializer<BlockMessage>, Json
 		LOGGER.entry(src, typeOfSrc, context);
 		final JsonObject jsonObject = new JsonObject();
 		jsonObject.add("appId", context.serialize(src.getApplicationID()));
-		jsonObject.add("className", context.serialize(src.className));
 		jsonObject.add("uuid", context.serialize(src.getUUID()));
 		try {
 			jsonObject.add("block", new JsonPrimitive(Base64.encodeObject(src.block)));
@@ -53,7 +52,6 @@ public class BlockMessageAdapter implements JsonDeserializer<BlockMessage>, Json
 	public BlockMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
 		UUID appId;
 		UUID msgUuid;
-		String className;
 		FunctionBlock block;
 
 		LOGGER.entry(json, typeOfT, context);
@@ -66,7 +64,6 @@ public class BlockMessageAdapter implements JsonDeserializer<BlockMessage>, Json
 		appId = context.deserialize(jObject.get("appId"), UUID.class);
 		msgUuid = context.deserialize(jObject.get("uuid"), UUID.class);
 		ClassLoader loader = appMan.getAppClassLoader(appId);
-		className = context.deserialize(jObject.get("className"), String.class);
 		try {
 			block = (FunctionBlock) Base64
 					.decodeToObject(jObject.get("block").getAsString(), Base64.NO_OPTIONS, loader);
@@ -76,7 +73,7 @@ public class BlockMessageAdapter implements JsonDeserializer<BlockMessage>, Json
 			throw new JsonParseException("no appropriate class to decode serializable in value message.");
 		}
 
-		return new BlockMessage(msgUuid, appId, className, block);
+		return new BlockMessage(msgUuid, appId, block);
 	}
 
 }
