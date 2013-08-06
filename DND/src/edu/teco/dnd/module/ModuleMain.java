@@ -31,7 +31,9 @@ import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessageHandler;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationNak;
+import edu.teco.dnd.module.messages.joinStartApp.StartApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
+import edu.teco.dnd.module.messages.joinStartApp.StartApplicationNak;
 import edu.teco.dnd.module.messages.killApp.KillAppAck;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppNak;
@@ -182,6 +184,8 @@ public class ModuleMain {
 		connectionManager.addMessageType(KillAppAck.class);
 		connectionManager.addMessageType(KillAppMessage.class);
 		connectionManager.addMessageType(StartApplicationMessage.class);
+		connectionManager.addMessageType(StartApplicationAck.class);
+		connectionManager.addMessageType(StartApplicationNak.class);
 		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(RequestApplicationListMessage.class);
 		connectionManager.addMessageType(ApplicationListResponse.class);
