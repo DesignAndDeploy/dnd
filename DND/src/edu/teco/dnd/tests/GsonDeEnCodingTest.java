@@ -19,6 +19,7 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.messages.BlockMessageAdapter;
+import edu.teco.dnd.module.messages.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.messages.ValueMessageAdapter;
@@ -86,6 +87,7 @@ public class GsonDeEnCodingTest implements Serializable {
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
 		builder.registerTypeAdapter(BlockMessage.class, new BlockMessageAdapter(appMan));
 		builder.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
+		builder.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
 		gson = builder.create();
 	}
 
