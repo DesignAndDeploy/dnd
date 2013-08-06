@@ -225,18 +225,23 @@ public class Distribution {
 		 * @return the number of slots in used by the Distribution
 		 */
 		public int getDistributionUsage(final Distribution distribution) {
+			LOGGER.entry(distribution);
 			if (holder.isLeave()) {
 				Collection<FunctionBlock> targetCollection = distribution.targets.get(this);
 				if (targetCollection == null) {
+					LOGGER.exit(0);
 					return 0;
 				} else {
-					return targetCollection.size();
+					final int collectionSize = targetCollection.size();
+					LOGGER.exit(collectionSize);
+					return collectionSize;
 				}
 			} else {
 				int sum = 0;
 				for (final BlockTypeHolder child : holder.getChildren()) {
 					sum += distribution.getBlockTarget(module, child).getDistributionUsage(distribution);
 				}
+				LOGGER.exit(sum);
 				return sum;
 			}
 		}
@@ -249,7 +254,14 @@ public class Distribution {
 		 * @return the number of free slots
 		 */
 		public int getFree(final Distribution distribution) {
-			return holder.getAmountLeft() - getDistributionUsage(distribution);
+			LOGGER.entry(distribution);
+			if (holder.getAmountAllowed() < 0) {
+				LOGGER.exit(Integer.MAX_VALUE);
+				return Integer.MAX_VALUE;
+			}
+			final int free = holder.getAmountLeft() - getDistributionUsage(distribution);
+			LOGGER.exit(free);
+			return free;
 		}
 		
 		/**
@@ -261,7 +273,24 @@ public class Distribution {
 		 * @return true if the mapping is valid
 		 */
 		public boolean canAdd(final Distribution distribution, final FunctionBlock block) {
-			return holder.isLeave() && holder.getType().equals(block.getType()) && getFree(distribution) > 0;
+			LOGGER.entry(distribution, block);
+			if (!holder.isLeave()) {
+				LOGGER.exit(false);
+				return false;
+			}
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("holder type: {}, block type: {}", holder.getType(), block.getType());
+			}
+			if (!holder.getType().equals(block.getType())) {
+				LOGGER.exit(false);
+				return false;
+			}
+			if (getFree(distribution) <= 0) {
+				LOGGER.exit(false);
+				return false;
+			}
+			LOGGER.exit(true);
+			return true;
 		}
 		
 		/**

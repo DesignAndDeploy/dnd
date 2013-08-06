@@ -144,6 +144,7 @@ public class DistributionGenerator {
 	private boolean isAllowed(final Distribution distribution, final FunctionBlock block, final Module module, final BlockTypeHolder holder) {
 		for (final Constraint constraint : constraints) {
 			if (!constraint.isAllowed(distribution, block, module, holder)) {
+				LOGGER.debug("not adding block {} to module {}, holder {} in distribution {} because of {}", block, module, holder, distribution, constraint);
 				return false;
 			}
 		}
