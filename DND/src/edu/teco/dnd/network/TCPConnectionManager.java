@@ -371,9 +371,15 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 *            the address to connect to
 	 */
 	public void connectTo(final InetSocketAddress address) {
+		LOGGER.entry(address);
+		if (address == null) {
+			LOGGER.exit();
+			return;
+		}
 		channelsLock.readLock().lock();
 		try {
 			if (shutdown) {
+				LOGGER.debug("not connecting to {} as we're shutting down", address);
 				return;
 			}
 		} finally {
@@ -382,13 +388,16 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		channelsLock.writeLock().lock();
 		try {
 			if (shutdown) {
+				LOGGER.debug("not connecting to {} as we're shutting down", address);
 				return;
 			}
+			LOGGER.debug("connecting to {}", address);
 			final ChannelFuture future = clientFactory.connect(address);
 			unconnectedChannels.add(future.channel());
 		} finally {
 			channelsLock.writeLock().unlock();
 		}
+		LOGGER.exit();
 	}
 
 	@Override
@@ -404,6 +413,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			channelsLock.readLock().unlock();
 		}
 		for (final InetSocketAddress address : beacon.getAddresses()) {
+			LOGGER.trace("calling connectionManager.connectTo({})", address);
 			connectTo(address);
 		}
 	}
