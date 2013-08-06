@@ -33,9 +33,14 @@ public class JoinedFutureNotifier<T> extends DefaultFutureNotifier<Collection<T>
 	 */
 	public JoinedFutureNotifier(final Collection<FutureNotifier<? extends T>> futures) {
 		this.futures = Collections.unmodifiableSet(new HashSet<FutureNotifier<? extends T>>(futures));
-		unfinished = new AtomicInteger(this.futures.size());
-		for (FutureNotifier<? extends T> future : this.futures) {
-			future.addListener(this);
+		final int unfinished = this.futures.size();
+		this.unfinished = new AtomicInteger(unfinished);
+		if (unfinished <= 0) {
+			setSuccess(new ArrayList<T>());
+		} else {
+			for (FutureNotifier<? extends T> future : this.futures) {
+				future.addListener(this);
+			}
 		}
 	}
 
