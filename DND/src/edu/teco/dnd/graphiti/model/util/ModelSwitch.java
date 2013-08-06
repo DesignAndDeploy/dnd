@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.util.Switch;
 
 /**
  * <!-- begin-user-doc -->
@@ -26,7 +28,7 @@ import org.eclipse.emf.ecore.EObject;
  * @see edu.teco.dnd.graphiti.model.ModelPackage
  * @generated
  */
-public class ModelSwitch {
+public class ModelSwitch<T> extends Switch<T> {
 	/**
 	 * The cached model package
 	 * <!-- begin-user-doc -->
@@ -48,14 +50,16 @@ public class ModelSwitch {
 	}
 
 	/**
-	 * Calls <code>caseXXX</code> for each class of the model until one returns a non null result; it yields that result.
+	 * Checks whether this is a switch for the given package.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the first non-null result returned by a <code>caseXXX</code> call.
+	 * @parameter ePackage the package in question.
+	 * @return whether this is a switch for the given package.
 	 * @generated
 	 */
-	public Object doSwitch(EObject theEObject) {
-		return doSwitch(theEObject.eClass(), theEObject);
+	@Override
+	protected boolean isSwitchFor(EPackage ePackage) {
+		return ePackage == modelPackage;
 	}
 
 	/**
@@ -65,49 +69,30 @@ public class ModelSwitch {
 	 * @return the first non-null result returned by a <code>caseXXX</code> call.
 	 * @generated
 	 */
-	protected Object doSwitch(EClass theEClass, EObject theEObject) {
-		if (theEClass.eContainer() == modelPackage) {
-			return doSwitch(theEClass.getClassifierID(), theEObject);
-		}
-		else {
-			List eSuperTypes = theEClass.getESuperTypes();
-			return
-				eSuperTypes.isEmpty() ?
-					defaultCase(theEObject) :
-					doSwitch((EClass)eSuperTypes.get(0), theEObject);
-		}
-	}
-
-	/**
-	 * Calls <code>caseXXX</code> for each class of the model until one returns a non null result; it yields that result.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the first non-null result returned by a <code>caseXXX</code> call.
-	 * @generated
-	 */
-	protected Object doSwitch(int classifierID, EObject theEObject) {
+	@Override
+	protected T doSwitch(int classifierID, EObject theEObject) {
 		switch (classifierID) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL: {
 				FunctionBlockModel functionBlockModel = (FunctionBlockModel)theEObject;
-				Object result = caseFunctionBlockModel(functionBlockModel);
+				T result = caseFunctionBlockModel(functionBlockModel);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case ModelPackage.INPUT_MODEL: {
 				InputModel inputModel = (InputModel)theEObject;
-				Object result = caseInputModel(inputModel);
+				T result = caseInputModel(inputModel);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case ModelPackage.OPTION_MODEL: {
 				OptionModel optionModel = (OptionModel)theEObject;
-				Object result = caseOptionModel(optionModel);
+				T result = caseOptionModel(optionModel);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case ModelPackage.OUTPUT_MODEL: {
 				OutputModel outputModel = (OutputModel)theEObject;
-				Object result = caseOutputModel(outputModel);
+				T result = caseOutputModel(outputModel);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -126,7 +111,7 @@ public class ModelSwitch {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public Object caseFunctionBlockModel(FunctionBlockModel object) {
+	public T caseFunctionBlockModel(FunctionBlockModel object) {
 		return null;
 	}
 
@@ -141,7 +126,7 @@ public class ModelSwitch {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public Object caseInputModel(InputModel object) {
+	public T caseInputModel(InputModel object) {
 		return null;
 	}
 
@@ -156,7 +141,7 @@ public class ModelSwitch {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public Object caseOptionModel(OptionModel object) {
+	public T caseOptionModel(OptionModel object) {
 		return null;
 	}
 
@@ -171,7 +156,7 @@ public class ModelSwitch {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public Object caseOutputModel(OutputModel object) {
+	public T caseOutputModel(OutputModel object) {
 		return null;
 	}
 
@@ -186,7 +171,8 @@ public class ModelSwitch {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject)
 	 * @generated
 	 */
-	public Object defaultCase(EObject object) {
+	@Override
+	public T defaultCase(EObject object) {
 		return null;
 	}
 

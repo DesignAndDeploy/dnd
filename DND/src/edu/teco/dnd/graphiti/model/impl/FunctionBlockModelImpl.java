@@ -86,7 +86,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 * @ordered
 	 */
-	protected EList inputs;
+	protected EList<InputModel> inputs;
 
 	/**
 	 * The cached value of the '{@link #getOutputs() <em>Outputs</em>}' containment reference list.
@@ -96,7 +96,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 * @ordered
 	 */
-	protected EList outputs;
+	protected EList<OutputModel> outputs;
 
 	/**
 	 * The cached value of the '{@link #getOptions() <em>Options</em>}' containment reference list.
@@ -106,7 +106,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 * @ordered
 	 */
-	protected EList options;
+	protected EList<OptionModel> options;
 
 	/**
 	 * The default value of the '{@link #getID() <em>ID</em>}' attribute.
@@ -238,6 +238,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	protected EClass eStaticClass() {
 		return ModelPackage.Literals.FUNCTION_BLOCK_MODEL;
 	}
@@ -265,9 +266,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList getInputs() {
+	public EList<InputModel> getInputs() {
 		if (inputs == null) {
-			inputs = new EObjectContainmentWithInverseEList(InputModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS, ModelPackage.INPUT_MODEL__FUNCTION_BLOCK);
+			inputs = new EObjectContainmentWithInverseEList<InputModel>(InputModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS, ModelPackage.INPUT_MODEL__FUNCTION_BLOCK);
 		}
 		return inputs;
 	}
@@ -276,9 +277,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList getOutputs() {
+	public EList<OutputModel> getOutputs() {
 		if (outputs == null) {
-			outputs = new EObjectContainmentWithInverseEList(OutputModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS, ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK);
+			outputs = new EObjectContainmentWithInverseEList<OutputModel>(OutputModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS, ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK);
 		}
 		return outputs;
 	}
@@ -287,9 +288,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList getOptions() {
+	public EList<OptionModel> getOptions() {
 		if (options == null) {
-			options = new EObjectContainmentWithInverseEList(OptionModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS, ModelPackage.OPTION_MODEL__FUNCTION_BLOCK);
+			options = new EObjectContainmentWithInverseEList<OptionModel>(OptionModel.class, this, ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS, ModelPackage.OPTION_MODEL__FUNCTION_BLOCK);
 		}
 		return options;
 	}
@@ -357,14 +358,16 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
+		@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-				return ((InternalEList)getInputs()).basicAdd(otherEnd, msgs);
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getInputs()).basicAdd(otherEnd, msgs);
 			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-				return ((InternalEList)getOutputs()).basicAdd(otherEnd, msgs);
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getOutputs()).basicAdd(otherEnd, msgs);
 			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-				return ((InternalEList)getOptions()).basicAdd(otherEnd, msgs);
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getOptions()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
@@ -373,14 +376,15 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
-				return ((InternalEList)getInputs()).basicRemove(otherEnd, msgs);
+				return ((InternalEList<?>)getInputs()).basicRemove(otherEnd, msgs);
 			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
-				return ((InternalEList)getOutputs()).basicRemove(otherEnd, msgs);
+				return ((InternalEList<?>)getOutputs()).basicRemove(otherEnd, msgs);
 			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
-				return ((InternalEList)getOptions()).basicRemove(otherEnd, msgs);
+				return ((InternalEList<?>)getOptions()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -389,6 +393,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
@@ -414,6 +419,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
@@ -421,15 +427,15 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 				return;
 			case ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS:
 				getInputs().clear();
-				getInputs().addAll((Collection)newValue);
+				getInputs().addAll((Collection<? extends InputModel>)newValue);
 				return;
 			case ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS:
 				getOutputs().clear();
-				getOutputs().addAll((Collection)newValue);
+				getOutputs().addAll((Collection<? extends OutputModel>)newValue);
 				return;
 			case ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS:
 				getOptions().clear();
-				getOptions().addAll((Collection)newValue);
+				getOptions().addAll((Collection<? extends OptionModel>)newValue);
 				return;
 			case ModelPackage.FUNCTION_BLOCK_MODEL__ID:
 				setID((UUID)newValue);
@@ -448,6 +454,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
@@ -479,6 +486,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case ModelPackage.FUNCTION_BLOCK_MODEL__TYPE:
@@ -503,6 +511,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String toString() {
 		if (eIsProxy()) return super.toString();
 

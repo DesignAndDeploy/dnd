@@ -124,6 +124,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	protected EClass eStaticClass() {
 		return ModelPackage.Literals.INPUT_MODEL;
 	}
@@ -297,6 +298,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ModelPackage.INPUT_MODEL__FUNCTION_BLOCK:
@@ -316,6 +318,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ModelPackage.INPUT_MODEL__FUNCTION_BLOCK:
@@ -331,6 +334,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
 		switch (eContainerFeatureID()) {
 			case ModelPackage.INPUT_MODEL__FUNCTION_BLOCK:
@@ -344,6 +348,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
 			case ModelPackage.INPUT_MODEL__NAME:
@@ -356,7 +361,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 			case ModelPackage.INPUT_MODEL__TYPE:
 				return getType();
 			case ModelPackage.INPUT_MODEL__QUEUED:
-				return isQueued() ? Boolean.TRUE : Boolean.FALSE;
+				return isQueued();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -366,6 +371,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case ModelPackage.INPUT_MODEL__NAME:
@@ -381,7 +387,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 				setType((String)newValue);
 				return;
 			case ModelPackage.INPUT_MODEL__QUEUED:
-				setQueued(((Boolean)newValue).booleanValue());
+				setQueued((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -392,6 +398,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case ModelPackage.INPUT_MODEL__NAME:
@@ -418,6 +425,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case ModelPackage.INPUT_MODEL__NAME:
@@ -439,6 +447,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String toString() {
 		if (eIsProxy()) return super.toString();
 

@@ -73,7 +73,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * @generated
 	 * @ordered
 	 */
-	protected EList inputs;
+	protected EList<InputModel> inputs;
 
 	/**
 	 * The default value of the '{@link #getType() <em>Type</em>}' attribute.
@@ -109,6 +109,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	protected EClass eStaticClass() {
 		return ModelPackage.Literals.OUTPUT_MODEL;
 	}
@@ -180,9 +181,9 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EList getInputs() {
+	public EList<InputModel> getInputs() {
 		if (inputs == null) {
-			inputs = new EObjectWithInverseResolvingEList(InputModel.class, this, ModelPackage.OUTPUT_MODEL__INPUTS, ModelPackage.INPUT_MODEL__OUTPUT);
+			inputs = new EObjectWithInverseResolvingEList<InputModel>(InputModel.class, this, ModelPackage.OUTPUT_MODEL__INPUTS, ModelPackage.INPUT_MODEL__OUTPUT);
 		}
 		return inputs;
 	}
@@ -213,6 +214,8 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
+		@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK:
@@ -220,7 +223,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 					msgs = eBasicRemoveFromContainer(msgs);
 				return basicSetFunctionBlock((FunctionBlockModel)otherEnd, msgs);
 			case ModelPackage.OUTPUT_MODEL__INPUTS:
-				return ((InternalEList)getInputs()).basicAdd(otherEnd, msgs);
+				return ((InternalEList<InternalEObject>)(InternalEList<?>)getInputs()).basicAdd(otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
@@ -230,12 +233,13 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK:
 				return basicSetFunctionBlock(null, msgs);
 			case ModelPackage.OUTPUT_MODEL__INPUTS:
-				return ((InternalEList)getInputs()).basicRemove(otherEnd, msgs);
+				return ((InternalEList<?>)getInputs()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -245,6 +249,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
 		switch (eContainerFeatureID()) {
 			case ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK:
@@ -258,6 +263,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
 			case ModelPackage.OUTPUT_MODEL__NAME:
@@ -278,6 +284,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
 			case ModelPackage.OUTPUT_MODEL__NAME:
@@ -288,7 +295,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 				return;
 			case ModelPackage.OUTPUT_MODEL__INPUTS:
 				getInputs().clear();
-				getInputs().addAll((Collection)newValue);
+				getInputs().addAll((Collection<? extends InputModel>)newValue);
 				return;
 			case ModelPackage.OUTPUT_MODEL__TYPE:
 				setType((String)newValue);
@@ -302,6 +309,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
 			case ModelPackage.OUTPUT_MODEL__NAME:
@@ -325,6 +333,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case ModelPackage.OUTPUT_MODEL__NAME:
@@ -344,6 +353,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String toString() {
 		if (eIsProxy()) return super.toString();
 

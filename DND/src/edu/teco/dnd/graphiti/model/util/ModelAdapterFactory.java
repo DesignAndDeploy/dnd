@@ -52,6 +52,7 @@ public class ModelAdapterFactory extends AdapterFactoryImpl {
 	 * @return whether this factory is applicable for the type of the object.
 	 * @generated
 	 */
+	@Override
 	public boolean isFactoryForType(Object object) {
 		if (object == modelPackage) {
 			return true;
@@ -68,21 +69,26 @@ public class ModelAdapterFactory extends AdapterFactoryImpl {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ModelSwitch modelSwitch =
-		new ModelSwitch() {
-			public Object caseFunctionBlockModel(FunctionBlockModel object) {
+	protected ModelSwitch<Adapter> modelSwitch =
+		new ModelSwitch<Adapter>() {
+			@Override
+			public Adapter caseFunctionBlockModel(FunctionBlockModel object) {
 				return createFunctionBlockModelAdapter();
 			}
-			public Object caseInputModel(InputModel object) {
+			@Override
+			public Adapter caseInputModel(InputModel object) {
 				return createInputModelAdapter();
 			}
-			public Object caseOptionModel(OptionModel object) {
+			@Override
+			public Adapter caseOptionModel(OptionModel object) {
 				return createOptionModelAdapter();
 			}
-			public Object caseOutputModel(OutputModel object) {
+			@Override
+			public Adapter caseOutputModel(OutputModel object) {
 				return createOutputModelAdapter();
 			}
-			public Object defaultCase(EObject object) {
+			@Override
+			public Adapter defaultCase(EObject object) {
 				return createEObjectAdapter();
 			}
 		};
@@ -95,8 +101,9 @@ public class ModelAdapterFactory extends AdapterFactoryImpl {
 	 * @return the adapter for the <code>target</code>.
 	 * @generated
 	 */
+	@Override
 	public Adapter createAdapter(Notifier target) {
-		return (Adapter)modelSwitch.doSwitch((EObject)target);
+		return modelSwitch.doSwitch((EObject)target);
 	}
 
 

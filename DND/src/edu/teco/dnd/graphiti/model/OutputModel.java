@@ -38,7 +38,7 @@ public interface OutputModel extends EObject {
 	/**
 	 * @model opposite="output"
 	 */
-	EList getInputs();
+	EList<InputModel> getInputs();
 
 	/**
 	 * @model

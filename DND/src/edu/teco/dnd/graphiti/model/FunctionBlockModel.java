@@ -30,17 +30,17 @@ public interface FunctionBlockModel extends EObject {
 	/**
 	 * @model containment="true" opposite="functionBlock"
 	 */
-	EList getInputs();
+	EList<InputModel> getInputs();
 
 	/**
 	 * @model containment="true" opposite="functionBlock"
 	 */
-	EList getOutputs();
+	EList<OutputModel> getOutputs();
 
 	/**
 	 * @model containment="true" opposite="functionBlock"
 	 */
-	EList getOptions();
+	EList<OptionModel> getOptions();
 
 	/**
 	 * @model

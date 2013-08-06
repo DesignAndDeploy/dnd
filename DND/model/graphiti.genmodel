@@ -3,7 +3,7 @@
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/DND/src"
     modelPluginID="DesignAndDeploy" modelName="Graphiti" importerID="org.eclipse.emf.importer.java"
-    copyrightFields="false">
+    complianceLevel="5.0" copyrightFields="false">
   <foreignModel>@model</foreignModel>
   <genPackages prefix="Model" basePackage="edu.teco.dnd.graphiti" disposableProviderFactory="true"
       ecorePackage="model.ecore#/">
