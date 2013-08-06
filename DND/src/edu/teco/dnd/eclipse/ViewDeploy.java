@@ -415,10 +415,10 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 			for (FunctionBlock block : mapBlockToTarget.keySet()) {
 				FunctionBlockModel blockModel = blocksToModels.get(block);
 				TableItem item = getItem(blockModel);
-				item.setText(1, mapBlockToTarget.get(block).getModule()
-						.getName());
-				item.setText(2, mapBlockToTarget.get(block).getModule()
-						.getLocation());
+				final String name = mapBlockToTarget.get(block).getModule().getName();
+				item.setText(1, name == null ? "" : name);
+				final String location = mapBlockToTarget.get(block).getModule().getLocation();
+				item.setText(2, location == null ? "" : location);
 			}
 		}
 	}
