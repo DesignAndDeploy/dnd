@@ -794,6 +794,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		}
 	}
 
+	// TODO: prevent this from generating a response
 	private class ConnectionEstablishedMessageHandler extends AbstractTCPMessageHandler<ConnectionEstablishedMessage> {
 		@Override
 		public Response handleMessage(ChannelHandlerContext ctx, ConnectionEstablishedMessage msg) {
