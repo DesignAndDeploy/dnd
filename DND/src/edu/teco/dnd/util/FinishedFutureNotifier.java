@@ -51,7 +51,7 @@ public class FinishedFutureNotifier<V> extends AbstractFutureNotifier<V> {
 	
 	@Override
 	public boolean isSuccess() {
-		return cause != null;
+		return cause == null;
 	}
 
 	@Override
