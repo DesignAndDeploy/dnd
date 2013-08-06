@@ -8,9 +8,7 @@ package edu.teco.dnd.graphiti.model.util;
 
 import edu.teco.dnd.graphiti.model.*;
 
-import java.util.List;
 
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.util.Switch;

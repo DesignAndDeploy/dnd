@@ -10,13 +10,8 @@ import edu.teco.dnd.blocks.FunctionBlock;
 
 import edu.teco.dnd.graphiti.model.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
+import java.io.Serializable;
 import java.util.UUID;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;

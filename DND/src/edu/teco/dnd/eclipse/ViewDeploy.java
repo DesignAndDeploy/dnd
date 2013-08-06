@@ -1,8 +1,6 @@
 package edu.teco.dnd.eclipse;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

@@ -12,8 +12,6 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.impl.AbstractDirectEditingFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
-import org.eclipse.graphiti.mm.algorithms.Text;
-import org.eclipse.graphiti.mm.algorithms.styles.Orientation;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
 /**
@@ -101,7 +99,7 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 		try {
 			Pattern.compile(value);
 		} catch (PatternSyntaxException e) {
-			return Messages.DNDEditBlockNameFeature_NotARegex_Info;
+			return Messages.NotARegex_Info;
 		}
 		return null;
 	}
