@@ -90,6 +90,7 @@ public class JsonConfig extends ConfigReader {
 
 	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess,
 			final BlockTypeHolder currentBlock) {
+		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children == null) {
 			blockQuickaccess.put(currentBlock.type, currentBlock);
