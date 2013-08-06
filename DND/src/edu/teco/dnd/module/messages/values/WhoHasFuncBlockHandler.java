@@ -23,7 +23,7 @@ public class WhoHasFuncBlockHandler implements MessageHandler<WhoHasBlockMessage
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, WhoHasBlockMessage message) {
 		if (app.isExecuting(message.blockId)) {
-			return new BlockFoundMessage(message.getApplicationID(), ownModUuid, message.blockId); //TODO implement as Response.
+			return new BlockFoundMessage(message.getApplicationID(), ownModUuid, message.blockId);
 			// TODO register
 		} else {
 			LOGGER.trace("received who has msg for {}", message.blockId);

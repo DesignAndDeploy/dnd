@@ -89,8 +89,6 @@ public class ModuleApplicationManager {
 		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
 		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
 
-		// FIXME: connMan.registerTypeAdapter(FunctionBlock.class, new BlockMessageAdapter(classLoader));
-		// FIXME: connMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(classLoader));
 
 	}
 
