@@ -13,6 +13,8 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -37,6 +39,19 @@ public class JsonConfig extends ConfigReader {
 		builder.setPrettyPrinting();
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
+		final ExclusionStrategy amountLeftExclusionStrategy = new ExclusionStrategy() {
+			@Override
+			public boolean shouldSkipField(final FieldAttributes f) {
+				return BlockTypeHolder.class.equals(f.getDeclaringClass()) && "amountLeft".equals(f.getName());
+			}
+			
+			@Override
+			public boolean shouldSkipClass(final Class<?> clazz) {
+				return false;
+			}
+		};
+		builder.addDeserializationExclusionStrategy(amountLeftExclusionStrategy);
+		builder.addSerializationExclusionStrategy(amountLeftExclusionStrategy);
 		gson = builder.create();
 	}
 
@@ -164,5 +179,4 @@ public class JsonConfig extends ConfigReader {
 	public boolean getAllowNIO() {
 		return allowNIO;
 	}
-
 }

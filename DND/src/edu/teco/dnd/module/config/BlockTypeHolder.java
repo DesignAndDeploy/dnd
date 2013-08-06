@@ -29,7 +29,7 @@ public class BlockTypeHolder {
 	private Set<BlockTypeHolder> children = null;
 
 	private transient BlockTypeHolder parent = null;
-	private transient int amountLeft = -1;
+	private int amountLeft = -1;
 
 	public BlockTypeHolder() {
 		this((String) null, -1);
