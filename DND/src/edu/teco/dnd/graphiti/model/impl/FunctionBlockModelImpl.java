@@ -605,7 +605,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			}
 		}
 		block.setPosition(getPosition());
-		blockName = block.getBlockName();
+		block.setBlockName(getBlockName());
 		return block;
 	}
 } // FunctionBlockModelImpl

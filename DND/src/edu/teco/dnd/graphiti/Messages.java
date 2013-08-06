@@ -9,6 +9,7 @@ public class Messages extends NLS {
 	public static String DNDCreateDataConnectionFeature_CreateConnection_Long_Info;
 	public static String DNDEditIntegerOptionFeature_NotANumber_Info;
 	public static String DNDEditPositionFeature_NotARegex_Info;
+	public static String DNDEditBlockNameFeature_NotARegex_Info;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

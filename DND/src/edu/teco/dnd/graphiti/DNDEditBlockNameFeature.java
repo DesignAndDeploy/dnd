@@ -19,11 +19,11 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 /**
  * Direct editing feature for {@link Option}s.
  */
-public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
+public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDEditPositionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(DNDEditBlockNameFeature.class);
 
 	/**
 	 * Passes the feature provider to the super constructor.
@@ -31,7 +31,7 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDEditPositionFeature(final IFeatureProvider fp) {
+	public DNDEditBlockNameFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -52,7 +52,7 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 			return false;
 		}
 		GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
-		if (!TypePropertyUtil.isPositionText(ga)) {
+		if (!TypePropertyUtil.isBlockNameText(ga)) {
 			LOGGER.exit(false);
 			return false;
 		}
@@ -82,7 +82,7 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 		LOGGER.entry(context);
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(context
 				.getPictogramElement());
-		String value = block.getPosition();
+		String value = block.getBlockName();
 		LOGGER.exit(value);
 		return value;
 	}
@@ -101,7 +101,7 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 		try {
 			Pattern.compile(value);
 		} catch (PatternSyntaxException e) {
-			return Messages.DNDEditPositionFeature_NotARegex_Info;
+			return Messages.DNDEditBlockNameFeature_NotARegex_Info;
 		}
 		return null;
 	}
@@ -120,7 +120,8 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 		PictogramElement pe = context.getPictogramElement();
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(context
 				.getPictogramElement());
-		block.setPosition(value);
+		block.setBlockName(value);
+		//TODO: inform DeployView on change.
 		updatePictogramElement(pe);
 		LOGGER.exit();
 	}

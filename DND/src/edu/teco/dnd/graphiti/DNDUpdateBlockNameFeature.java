@@ -18,11 +18,11 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
  * 
  * @author philipp
  */
-public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
+public class DNDUpdateBlockNameFeature extends AbstractUpdateFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDUpdatePositionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(DNDUpdateBlockNameFeature.class);
 
 	/**
 	 * Initializes a new DNDUpdateOptionFeature.
@@ -30,7 +30,7 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 	 * @param fp
 	 *            the FeatureProvider
 	 */
-	public DNDUpdatePositionFeature(final IFeatureProvider fp) {
+	public DNDUpdateBlockNameFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -40,7 +40,8 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 		PictogramElement pe = context.getPictogramElement();
 		GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 		Object bo = getBusinessObjectForPictogramElement(pe);
-		if (TypePropertyUtil.isPositionText(ga) && bo instanceof FunctionBlockModel) {
+		LOGGER.debug("ga: {}, bo: {}", ga, bo);
+		if (TypePropertyUtil.isBlockNameText(ga) && bo instanceof FunctionBlockModel) {
 			LOGGER.exit(true);
 			return true;
 		}
@@ -54,7 +55,7 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 		PictogramElement pe = context.getPictogramElement();
 		Text text = (Text) pe.getGraphicsAlgorithm();
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
-		String value = block.getPosition();
+		String value = block.getBlockName();
 		if (value == null) {
 			value = "";
 		}
@@ -63,7 +64,7 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 		if (value.equals(current)) {
 			reason = Reason.createFalseReason();
 		} else {
-			reason = Reason.createTrueReason("position is out of date");
+			reason = Reason.createTrueReason("blockName is out of date");
 		}
 		LOGGER.exit(reason);
 		return reason;
@@ -75,7 +76,7 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 		PictogramElement pe = context.getPictogramElement();
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
 		Text text = (Text) pe.getGraphicsAlgorithm();
-		String value = block.getPosition();
+		String value = block.getBlockName();
 		if (value == null) {
 			value = "";
 		}

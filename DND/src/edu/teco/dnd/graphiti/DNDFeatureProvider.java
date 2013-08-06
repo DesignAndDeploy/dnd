@@ -211,8 +211,11 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			return new DNDUpdateOptionFeature(this);
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
-			if (ga instanceof Text && ((Text) ga).getHorizontalAlignment() == Orientation.ALIGNMENT_RIGHT) {
+			if (TypePropertyUtil.isPositionText(ga)) {
 				return new DNDUpdatePositionFeature(this);
+			}
+			else if (TypePropertyUtil.isBlockNameText(ga)){
+				return new DNDUpdateBlockNameFeature(this);
 			}
 		}
 		return super.getUpdateFeature(context);
@@ -257,7 +260,10 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			}
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
-			if (ga instanceof Text && ((Text) ga).getHorizontalAlignment() == Orientation.ALIGNMENT_RIGHT) {
+			if (TypePropertyUtil.isBlockNameText(ga)){
+				feature = new DNDEditBlockNameFeature(this);
+			}
+			else if (TypePropertyUtil.isPositionText(ga)){
 				feature = new DNDEditPositionFeature(this);
 			}
 		}
