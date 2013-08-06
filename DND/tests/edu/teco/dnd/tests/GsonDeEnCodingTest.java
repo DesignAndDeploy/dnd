@@ -120,7 +120,6 @@ public class GsonDeEnCodingTest implements Serializable {
 
 	}
 
-	// TODO change failures into exceptions
 	@Test
 	public void RequestModuleInfoMessageTest() {
 
