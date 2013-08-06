@@ -69,8 +69,8 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 
 	private ArrayList<UUID> idList = new ArrayList<UUID>();
 
-	private Collection<FunctionBlock> functionBlocks;
-	private Map<TableItem, FunctionBlock> mapItemToBlock;
+	private Collection<FunctionBlockModel> functionBlockModels;
+	private Map<TableItem, FunctionBlockModel> mapItemToBlockModel;
 
 	private Map<FunctionBlock, BlockTarget> mapBlockToTarget;
 
@@ -80,30 +80,32 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	private Button deployButton; // Button to deploy deployment
 	private Button constraintsButton;
 	private Label appName;
-	private Label blockSpecifications;
-	private Label blockLabel; // Block to edit specifications:
-	private Text blockName; // Name of Block
+	private Label blockModelSpecifications;
+	private Label blockModelLabel; // BlockModel to edit specifications:
+	private Text blockModelName; // Name of BlockModel
 	private Label module;
 	private Label place; // TODO: Problem: In Graphiti kann man auch schon den
 							// Ort festlegen => Redundanz / Inkonsistenz
 	private Combo moduleCombo;
 	private Text places;
-	private Table deployment; // Table to show blocks and current deployment
+	private Table deployment; // Table to show blockModels and current
+								// deployment
 
 	private int selectedIndex; // Index of selected field of moduleCombo
 	private UUID selectedID;
 	private TableItem selectedItem;
-	private FunctionBlock selectedBlock; // Functionblock to edit specs
+	private FunctionBlockModel selectedBlockModel; // FunctionblockModel to edit
+													// specs
 	/**
-	 * Enthält für jeden Funktionsblock die UUID des Moduls, auf das er
+	 * Enthält für jeden FunktionsblockModel die UUID des Moduls, auf das er
 	 * gewünscht ist, oder null, falls kein Modul vom User ausgewählt. Achtung:
 	 * Kann UUIDs von Modulen enthalten, die nicht mehr laufen.
 	 * 
 	 * Vielleicht gut: Constraints auch speichern, wenn Anwendung geschlossen
 	 * wird.
 	 */
-	private Map<FunctionBlock, UUID> moduleConstraints = new HashMap<FunctionBlock, UUID>();
-	private Map<FunctionBlock, String> placeConstraints = new HashMap<FunctionBlock, String>();
+	private Map<FunctionBlockModel, UUID> moduleConstraints = new HashMap<FunctionBlockModel, UUID>();
+	private Map<FunctionBlockModel, String> placeConstraints = new HashMap<FunctionBlockModel, String>();
 
 	@Override
 	public void setFocus() {
@@ -136,18 +138,18 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		layout.numColumns = 4;
 		parent.setLayout(layout);
 
-		functionBlocks = new ArrayList<FunctionBlock>();
-		mapItemToBlock = new HashMap<TableItem, FunctionBlock>();
+		functionBlockModels = new ArrayList<FunctionBlockModel>();
+		mapItemToBlockModel = new HashMap<TableItem, FunctionBlockModel>();
 
 		appName = new Label(parent, SWT.NONE);
 		appName.pack();
 
 		createServerButton(parent);
-		createBlockSpecsLabel(parent);
+		createBlockModelSpecsLabel(parent);
 		createDeploymentTable(parent);
 		createUpdateButton(parent);
-		createBlockLabel(parent);
-		createBlockName(parent);
+		createBlockModelLabel(parent);
+		createBlockModelName(parent);
 		createCreateButton(parent);
 		createModuleLabel(parent);
 		createmoduleCombo(parent);
@@ -156,7 +158,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		createPlacesText(parent);
 		createConstraintsButton(parent);
 
-		loadBlocks(getEditorInput());
+		loadBlockModels(getEditorInput());
 	}
 
 	private void createServerButton(Composite parent) {
@@ -200,19 +202,19 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		deployment.setLayoutData(data);
 
 		TableColumn column1 = new TableColumn(deployment, SWT.None);
-		column1.setText("Function Block");
+		column1.setText("Function BlockModel");
 		TableColumn column2 = new TableColumn(deployment, SWT.NONE);
 		column2.setText("Module");
-		column2.setToolTipText("Deploy Block on this Module, if possible. No module selected means no constraint for deployment");
+		column2.setToolTipText("Deploy BlockModel on this Module, if possible. No module selected means no constraint for deployment");
 		TableColumn column3 = new TableColumn(deployment, SWT.NONE);
 		column3.setText("place");
-		column3.setToolTipText("Deploy Block at this place, if possible. No place selected means no constraint for deployment");
+		column3.setToolTipText("Deploy BlockModel at this place, if possible. No place selected means no constraint for deployment");
 		TableColumn column4 = new TableColumn(deployment, SWT.NONE);
 		column4.setText("Deployed on:");
-		column4.setToolTipText("Module assigned to the Block by the deployment algorithm");
+		column4.setToolTipText("Module assigned to the BlockModel by the deployment algorithm");
 		TableColumn column5 = new TableColumn(deployment, SWT.NONE);
 		column5.setText("Deployed at:");
-		column5.setToolTipText("Place the Block will be deployed to");
+		column5.setToolTipText("Place the BlockModel will be deployed to");
 		deployment.getColumn(0).pack();
 		deployment.getColumn(1).pack();
 		deployment.getColumn(2).pack();
@@ -222,7 +224,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		deployment.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ViewDeploy.this.blockSelected();
+				ViewDeploy.this.blockModelSelected();
 			}
 		});
 	}
@@ -243,13 +245,13 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		updateButton.pack();
 	}
 
-	private void createBlockSpecsLabel(Composite parent) {
+	private void createBlockModelSpecsLabel(Composite parent) {
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
-		blockSpecifications = new Label(parent, SWT.NONE);
-		blockSpecifications.setText("Block Specifications:");
-		blockSpecifications.setLayoutData(data);
-		blockSpecifications.pack();
+		blockModelSpecifications = new Label(parent, SWT.NONE);
+		blockModelSpecifications.setText("BlockModel Specifications:");
+		blockModelSpecifications.setLayoutData(data);
+		blockModelSpecifications.pack();
 	}
 
 	private void createCreateButton(Composite parent) {
@@ -266,20 +268,20 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		});
 	}
 
-	private void createBlockLabel(Composite parent) {
-		blockLabel = new Label(parent, SWT.NONE);
-		blockLabel.setText("Name:");
-		blockLabel.pack();
+	private void createBlockModelLabel(Composite parent) {
+		blockModelLabel = new Label(parent, SWT.NONE);
+		blockModelLabel.setText("Name:");
+		blockModelLabel.pack();
 	}
 
-	private void createBlockName(Composite parent) {
+	private void createBlockModelName(Composite parent) {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
-		blockName = new Text(parent, SWT.NONE);
-		blockName.setLayoutData(data);
-		blockName.setText("(select block on the left)");
-		blockName.setEnabled(false);
-		blockName.pack();
+		blockModelName = new Text(parent, SWT.NONE);
+		blockModelName.setLayoutData(data);
+		blockModelName.setText("(select blockModel on the left)");
+		blockModelName.setEnabled(false);
+		blockModelName.pack();
 
 	}
 
@@ -305,7 +307,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	private void createModuleLabel(Composite parent) {
 		module = new Label(parent, SWT.NONE);
 		module.setText("Module:");
-		module.setToolTipText("Select a Module for this function block");
+		module.setToolTipText("Select a Module for this function blockModel");
 		module.pack();
 	}
 
@@ -332,7 +334,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		place = new Label(parent, SWT.NONE);
 		place.setLayoutData(data);
 		place.setText("Place:");
-		place.setToolTipText("Select a place for this function block");
+		place.setToolTipText("Select a place for this function blockModel");
 		place.pack();
 	}
 
@@ -341,7 +343,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
 		places = new Text(parent, SWT.NONE);
-		places.setToolTipText("Enter location for selected Function Block");
+		places.setToolTipText("Enter location for selected Function BlockModel");
 		places.setLayoutData(data);
 		places.setEnabled(false);
 	}
@@ -380,13 +382,22 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	 */
 	private void create() {
 		Collection<Module> moduleCollection = getModuleCollection();
-		if (functionBlocks.isEmpty()) {
-			warn("No blocks to distribute");
+		if (functionBlockModels.isEmpty()) {
+			warn("No blockModels to distribute");
 			return;
 		}
 		if (moduleCollection.isEmpty()) {
 			warn("No modules to deploy on");
 			return;
+		}
+
+		Map<FunctionBlock, FunctionBlockModel> blocksToModels = new HashMap<FunctionBlock, FunctionBlockModel>();
+		for (FunctionBlockModel model : functionBlockModels) {
+			try {
+				blocksToModels.put(model.createBlock(), model);
+			} catch (InvalidFunctionBlockException e) {
+				e.printStackTrace();
+			}
 		}
 
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
@@ -395,15 +406,15 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 
 		DistributionGenerator generator = new DistributionGenerator(
 				new MinimalModuleCountEvaluator(), constraints);
-		Distribution dist = generator.getDistribution(functionBlocks,
+		Distribution dist = generator.getDistribution(blocksToModels.keySet(),
 				moduleCollection);
 		if (dist.getMapping() == null) {
 			warn("No valid deployment exists");
 		} else {
 			mapBlockToTarget = dist.getMapping();
 			for (FunctionBlock block : mapBlockToTarget.keySet()) {
-
-				TableItem item = getItem(block); // TODO: Effizienter! dauert.
+				FunctionBlockModel blockModel = blocksToModels.get(block);
+				TableItem item = getItem(blockModel);
 				item.setText(1, mapBlockToTarget.get(block).getModule()
 						.getName());
 				item.setText(2, mapBlockToTarget.get(block).getModule()
@@ -424,20 +435,21 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Invoked whenever a Function Block from the deploymentTable is selected.
+	 * Invoked whenever a Function BlockModel from the deploymentTable is
+	 * selected.
 	 */
-	private void blockSelected() {
+	private void blockModelSelected() {
 		moduleCombo.setEnabled(true);
 		places.setEnabled(true);
 		constraintsButton.setEnabled(true);
-		blockName.setEnabled(true);
+		blockModelName.setEnabled(true);
 		TableItem[] items = deployment.getSelection();
 		if (items.length == 1) {
 			selectedItem = items[0];
-			selectedBlock = mapItemToBlock.get(items[0]);
-			blockName.setText(selectedBlock.getBlockName());
-			if (placeConstraints.containsKey(selectedBlock)) {
-				places.setText(placeConstraints.get(selectedBlock));
+			selectedBlockModel = mapItemToBlockModel.get(items[0]);
+			blockModelName.setText(selectedBlockModel.getBlockName());
+			if (placeConstraints.containsKey(selectedBlockModel)) {
+				places.setText(placeConstraints.get(selectedBlockModel));
 			} else {
 				places.setText("");
 			}
@@ -460,35 +472,35 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		if (!text.isEmpty() && selectedID != null) { // skfdjhasdfhsdfksjdhkfjhsdfkjsldkfjslkdjfsajdhfka
 														// bka bla bla bla lkj j
 														// sdf sdf
-			int cancel = warn("You entered both a place and a module. " +
-					"Keep in mind that if the module doesn't match the place," +
-					" no possible distribution will be found." +
-					" If you still want to save both the module and the place" +
-					" for this function block, press OK. " +
-					"If you want to abort, close this window.");
+			int cancel = warn("You entered both a place and a module. "
+					+ "Keep in mind that if the module doesn't match the place,"
+					+ " no possible distribution will be found."
+					+ " If you still want to save both the module and the place"
+					+ " for this function blockModel, press OK. "
+					+ "If you want to abort, close this window.");
 			if (cancel == -4) {
 				return;
 			}
 		}
 
 		if (text.isEmpty()) {
-			placeConstraints.remove(selectedBlock);
+			placeConstraints.remove(selectedBlockModel);
 		} else {
-			placeConstraints.put(selectedBlock, text);
+			placeConstraints.put(selectedBlockModel, text);
 		}
 		selectedItem.setText(2, text);
 
 		if (selectedID != null && selectedIndex > -1) {
-			moduleConstraints.put(selectedBlock, selectedID);
+			moduleConstraints.put(selectedBlockModel, selectedID);
 			String module = moduleCombo.getItem(selectedIndex);
 			selectedItem.setText(1, module);
 		} else {
 			selectedItem.setText(1, "(no module assigned)");
-			moduleConstraints.remove(selectedBlock);
+			moduleConstraints.remove(selectedBlockModel);
 		}
 
-		selectedBlock.setBlockName(this.blockName.getText());
-		selectedItem.setText(0, blockName.getText());
+		selectedBlockModel.setBlockName(this.blockModelName.getText());
+		selectedItem.setText(0, blockModelName.getText());
 	}
 
 	/**
@@ -530,76 +542,79 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Tries to load function blocks from input.
+	 * Loads the FunctinoBlockModels of a dataflowgraph and displays them in the
+	 * deployment table.
 	 * 
 	 * @param input
 	 *            the input of the editor
 	 */
-	private void loadBlocks(IEditorInput input) {
+	private void loadBlockModels(IEditorInput input) {
 		if (input instanceof FileEditorInput) {
 			try {
-				functionBlocks = loadInput((FileEditorInput) input);
+				functionBlockModels = loadInput((FileEditorInput) input);
 			} catch (IOException e) {
-				LOGGER.catching(e);
-			} catch (InvalidFunctionBlockException e) {
 				LOGGER.catching(e);
 			}
 		} else {
 			LOGGER.error("Input is not a FileEditorInput {}", input);
 		}
-		for (FunctionBlock block : functionBlocks) {
+		for (FunctionBlockModel blockModel : functionBlockModels) {
 			TableItem item = new TableItem(deployment, SWT.NONE);
-			if (block.getBlockName() != null) {
-				item.setText(0, block.getBlockName());
+			if (blockModel.getBlockName() != null) {
+				item.setText(0, blockModel.getBlockName());
 			}
 			item.setText(1, "(no module assigned yet)");
+			String pos = blockModel.getPosition();
+			if (pos != null){
+				item.setText(2, pos);
+				placeConstraints.put(blockModel, pos);
+			}
 			item.setText(3, "(not deployed yet)");
-			mapItemToBlock.put(item, block);
+			mapItemToBlockModel.put(item, blockModel);
 		}
 	}
 
 	/**
 	 * Loads the given data flow graph. The file given in the editor input must
-	 * be a valid graph. It is loaded and converted into actual FunctionBlocks.
+	 * be a valid graph. Its function block models are loaded into a list and
+	 * returned.
 	 * 
 	 * @param input
 	 *            the input of the editor
-	 * @return a collection of FunctionBlocks that were defined in the model
+	 * @return a collection of FunctionBlockModels that were defined in the
+	 *         model
 	 * @throws IOException
 	 *             if reading fails
-	 * @throws InvalidFunctionBlockException
-	 *             if converting the model into actual FunctionBlocks fails
 	 */
-	private Collection<FunctionBlock> loadInput(final FileEditorInput input)
-			throws IOException, InvalidFunctionBlockException {
+	private Collection<FunctionBlockModel> loadInput(final FileEditorInput input)
+			throws IOException {
 		LOGGER.entry(input);
-		Collection<FunctionBlock> blockList = new ArrayList<FunctionBlock>();
+		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
 		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
 
 		Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(input.getFile()
 				.getProject());
 		LOGGER.debug("using paths {}", paths);
-		URL[] urls = new URL[paths.size()];
-		String[] classpath = new String[paths.size()];
+/**
+ * 		URL[] urls = new URL[paths.size()];
+ * 		String[] classpath = new String[paths.size()];
 		int i = 0;
 		for (IPath path : paths) {
 			urls[i] = path.toFile().toURI().toURL();
 			classpath[i] = path.toFile().getPath();
 			i++;
 		}
-		URLClassLoader classLoader = new URLClassLoader(urls, getClass()
-				.getClassLoader());
+ */
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		Resource resource = new XMIResourceImpl(uri);
 		resource.load(null);
 		for (EObject object : resource.getContents()) {
 			if (object instanceof FunctionBlockModel) {
-				LOGGER.trace("found FunctionBlock {}", object);
-				blockList.add(((FunctionBlockModel) object)
-						.createBlock(classLoader));
+				LOGGER.trace("found FunctionBlockModel {}", object);
+				blockModelList.add(((FunctionBlockModel) object));
 			}
 		}
-		return blockList;
+		return blockModelList;
 	}
 
 	/**
@@ -637,16 +652,16 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Returns table item representing a given function block.
+	 * Returns table item representing a given function blockModel.
 	 * 
-	 * @param block
-	 *            The block to find in the table
-	 * @return item holding the block
+	 * @param blockModel
+	 *            The blockModel to find in the table
+	 * @return item holding the blockModel
 	 */
-	private TableItem getItem(FunctionBlock block) {
-		UUID id = block.getID();
-		for (TableItem i : mapItemToBlock.keySet()) {
-			if (mapItemToBlock.get(i).getID() == id) {
+	private TableItem getItem(FunctionBlockModel blockModel) {
+		UUID id = blockModel.getID();
+		for (TableItem i : mapItemToBlockModel.keySet()) {
+			if (mapItemToBlockModel.get(i).getID() == id) {
 				return i;
 			}
 		}
@@ -727,9 +742,10 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 					// Falls das Modul schon einem FB zugeteilt wurde
 					if (moduleConstraints.containsValue(id)) {
 						// Überprüfe alle FB (können auch mehrere sein)
-						for (FunctionBlock block : moduleConstraints.keySet()) {
+						for (FunctionBlockModel blockModel : moduleConstraints
+								.keySet()) {
 							// Setze Text neu.
-							getItem(block).setText(1, text);
+							getItem(blockModel).setText(1, text);
 						}
 					}
 				}

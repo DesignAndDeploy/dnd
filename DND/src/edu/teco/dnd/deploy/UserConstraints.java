@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.InvalidFunctionBlockException;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
@@ -13,9 +15,21 @@ public class UserConstraints implements Constraint{
 	private Map<FunctionBlock, UUID> moduleConstraints = new HashMap<FunctionBlock, UUID>();
 	private Map<FunctionBlock, String> placeConstraints = new HashMap<FunctionBlock, String>();
 	
-	public UserConstraints(Map<FunctionBlock, UUID> modules, Map<FunctionBlock, String> place){
-		this.moduleConstraints = modules;
-		this.placeConstraints = place;
+	public UserConstraints(Map<FunctionBlockModel, UUID> modules, Map<FunctionBlockModel, String> place){
+		for (FunctionBlockModel model : modules.keySet()){
+			try {
+				moduleConstraints.put(model.createBlock(), modules.get(model));
+			} catch (InvalidFunctionBlockException e) {
+				e.printStackTrace();
+			}
+		}
+		for (FunctionBlockModel model: place.keySet()){
+			try {
+				placeConstraints.put(model.createBlock(), place.get(model));
+			} catch (InvalidFunctionBlockException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	
