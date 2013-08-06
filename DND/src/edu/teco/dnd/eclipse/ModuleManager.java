@@ -67,9 +67,8 @@ DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
 	@Override
 	public void serverStarted(ConnectionManager externConnectionManager,
 			UDPMulticastBeacon beacon) {
-		query = new ModuleQuery(connectionManager);
-		
 		connectionManager = externConnectionManager;
+		query = new ModuleQuery(connectionManager);
 		for (UUID id : new ArrayList<UUID>(map.keySet())) {
 			map.remove(id);
 		}
