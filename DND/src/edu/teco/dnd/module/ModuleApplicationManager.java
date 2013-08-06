@@ -57,10 +57,10 @@ public class ModuleApplicationManager {
 	 *            (human readable) name of the application
 	 * 
 	 */
-	public void startApplication(final UUID appId, UUID deployingAgentId, String name) {
-		LOGGER.info("starting app {} ({}), as requested by {}", name, appId, deployingAgentId);
+	public void joinApplication(final UUID appId, UUID deployingAgentId, String name) {
+		LOGGER.info("joining app {} ({}), as requested by {}", name, appId, deployingAgentId);
 		if (runningApps.containsKey(appId)) {
-			LOGGER.info("trying to restart app that is already running.");
+			LOGGER.info("trying to rejoin app that was already joined before.");
 			return;
 		}
 
@@ -93,7 +93,7 @@ public class ModuleApplicationManager {
 	}
 
 	/**
-	 * schedueles a FunctionBlock to be started, when StartApp() is called.
+	 * Schedules a FunctionBlock to be started, when StartApp() is called.
 	 * 
 	 * @param block
 	 *            the FunctionBlock

@@ -18,7 +18,7 @@ public class JoinApplicationMessageHandler implements MessageHandler<JoinApplica
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, JoinApplicationMessage message) {
 		try {
-			appManager.startApplication(message.appId, remoteUUID, message.name);
+			appManager.joinApplication(message.appId, remoteUUID, message.name);
 		} catch (Exception e) {
 			return  new JoinApplicationNak(message.name, message.appId);
 		}
