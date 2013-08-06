@@ -105,7 +105,7 @@ public class ModuleApplicationManager {
 			return false;
 		}
 
-		if (blockAllowed.tryDecrease()) {
+		if (!blockAllowed.tryDecrease()) {
 			LOGGER.info("Blockamount of {} exceeded. Not scheduling!", block.getType());
 			return false;
 		}

@@ -97,6 +97,7 @@ public class BlockTypeHolder {
 	}
 
 	public void setAmountLeft(int amountLeft) {
+		LOGGER.trace("setting amountLeft to {}", amountLeft);
 		this.amountLeft = amountLeft;
 	}
 
@@ -118,12 +119,15 @@ public class BlockTypeHolder {
 	 * @return true iff the action is possible false otherwise. see above!
 	 */
 	public synchronized boolean tryDecrease() {
+		LOGGER.entry();
 		if (amountLeft != 0 && (parent == null || parent.tryDecrease())) {
 			if (amountLeft > 0) {
 				amountLeft--;
 			}
+			LOGGER.exit(true);
 			return true;
 		} else {
+			LOGGER.exit(false);
 			return false;
 		}
 	}
