@@ -17,6 +17,8 @@ import com.google.gson.GsonBuilder;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
+import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.messages.BlockMessageAdapter;
 import edu.teco.dnd.module.messages.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
@@ -47,32 +49,41 @@ import edu.teco.dnd.util.Base64Adapter;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
 import edu.teco.dnd.util.NetConnectionAdapter;
-import edu.teco.dnd.util.SerializableAdapter;
 
 public class GsonDeEnCodingTest implements Serializable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -6437521431147083820L;
 
 	private static final Logger LOGGER = LogManager.getLogger(GsonDeEnCodingTest.class);
 
-	private final static UUID TEST_MODULE_UUID = UUID.fromString("00000000-9abc-def0-1234-56789abcdef0");
-	private final static UUID TEST_APP_UUID = UUID.fromString("11111111-9abc-def0-1234-56789abcdef0");
-	private final static UUID TEST_FUNBLOCK_UUID = UUID.fromString("99999999-9abc-def0-1234-56789abcdef0");
+	private static final UUID TEST_MODULE_UUID = UUID.fromString("00000000-9abc-def0-1234-56789abcdef0");
+	private static final UUID TEST_APP_UUID = UUID.fromString("11111111-9abc-def0-1234-56789abcdef0");
+	private static final UUID TEST_FUNBLOCK_UUID = UUID.fromString("99999999-9abc-def0-1234-56789abcdef0");
 
 	private static final Gson gson;
 	private static final MessageAdapter msgAdapter = new MessageAdapter();
 
 	static {
+
+		ModuleApplicationManager appMan;
+		try {
+			appMan = new ModuleApplicationManager(TestConfigReader.getPredefinedReader(), null) {
+				public ClassLoader getAppClassLoader(UUID appId) {
+					return null;
+				};
+			};
+		} catch (SocketException e) {
+			throw new Error(e);
+		}
+
 		GsonBuilder builder = new GsonBuilder();
 		builder.setPrettyPrinting();
 		builder.registerTypeAdapter(Message.class, msgAdapter);
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
-		builder.registerTypeAdapter(FunctionBlock.class, new SerializableAdapter(null));
-		builder.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(null));
+		builder.registerTypeAdapter(BlockMessage.class, new BlockMessageAdapter(appMan));
+		builder.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
 		gson = builder.create();
 	}
 
@@ -178,7 +189,7 @@ public class GsonDeEnCodingTest implements Serializable {
 	public void BlockMessageTest() {
 
 		msgAdapter.addMessageType(BlockMessage.class);
-		testEnDeCoding(new BlockMessage("ClassName", TEST_APP_UUID, new BeamerOperatorBlock(TEST_FUNBLOCK_UUID)));
+		testEnDeCoding(new BlockMessage(TEST_APP_UUID, "ClassName", new BeamerOperatorBlock(TEST_FUNBLOCK_UUID)));
 	}
 
 	@Test

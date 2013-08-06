@@ -18,6 +18,8 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
+import edu.teco.dnd.module.messages.BlockMessageAdapter;
+import edu.teco.dnd.module.messages.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
@@ -157,6 +159,8 @@ public class ModuleMain {
 		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		connectionManager.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		connectionManager.registerTypeAdapter(byte[].class, new Base64Adapter());
+		connectionManager.registerTypeAdapter(BlockMessage.class, new BlockMessageAdapter(appMan));
+		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
 
 		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);

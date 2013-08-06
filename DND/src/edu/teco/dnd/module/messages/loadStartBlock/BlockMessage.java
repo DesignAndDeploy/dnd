@@ -12,7 +12,13 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	public String className;
 	public FunctionBlock block;
 
-	public BlockMessage(String className, UUID appId, FunctionBlock funBlock) {
+	public BlockMessage(UUID uuid, UUID appId,String className, FunctionBlock funBlock) {
+		super(uuid, appId);
+		this.className = className;
+		this.block = funBlock;
+	}
+
+	public BlockMessage(UUID appId,String className, FunctionBlock funBlock) {
 		super(appId);
 		this.className = className;
 		this.block = funBlock;

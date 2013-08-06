@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.UUID;
 
@@ -17,31 +16,31 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.ModuleApplicationManager;
-import edu.teco.dnd.module.messages.values.ValueMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
 import edu.teco.dnd.util.Base64;
 
-public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, JsonSerializer<ValueMessage> {
-
+public class BlockMessageAdapter implements JsonDeserializer<BlockMessage>, JsonSerializer<BlockMessage> {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(ValueMessageAdapter.class);
+	private static final Logger LOGGER = LogManager.getLogger(BlockMessageAdapter.class);
 	private final ModuleApplicationManager appMan;
 
-	public ValueMessageAdapter(ModuleApplicationManager appMan) {
+	public BlockMessageAdapter(ModuleApplicationManager appMan) {
 		this.appMan = appMan;
 	}
 
 	@Override
-	public JsonElement serialize(ValueMessage src, Type typeOfSrc, JsonSerializationContext context) {
+	public JsonElement serialize(BlockMessage src, Type typeOfSrc, JsonSerializationContext context) {
 		LOGGER.entry(src, typeOfSrc, context);
 		final JsonObject jsonObject = new JsonObject();
 		jsonObject.add("appId", context.serialize(src.getApplicationID()));
-		jsonObject.add("blockUuid", context.serialize(src.blockId));
-		jsonObject.add("input", context.serialize(src.input));
+		jsonObject.add("className", context.serialize(src.className));
+		jsonObject.add("uuid", context.serialize(src.getUUID()));
 		try {
-			jsonObject.add("value", new JsonPrimitive(Base64.encodeObject(src.value)));
+			jsonObject.add("block", new JsonPrimitive(Base64.encodeObject(src.block)));
 		} catch (IOException e) {
 			throw new JsonParseException("Can not base64 value of valueMessage.");
 		}
@@ -51,12 +50,11 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 	}
 
 	@Override
-	public ValueMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-			throws JsonParseException {
+	public BlockMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
 		UUID appId;
-		UUID blockUuid;
-		String input;
-		Serializable value;
+		UUID msgUuid;
+		String className;
+		FunctionBlock block;
 
 		LOGGER.entry(json, typeOfT, context);
 		if (!json.isJsonObject()) {
@@ -66,18 +64,19 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 		JsonObject jObject = json.getAsJsonObject();
 
 		appId = context.deserialize(jObject.get("appId"), UUID.class);
+		msgUuid = context.deserialize(jObject.get("uuid"), UUID.class);
 		ClassLoader loader = appMan.getAppClassLoader(appId);
-		blockUuid = context.deserialize(jObject.get("blockUuid"), UUID.class);
-		input = context.deserialize(jObject.get("input"), String.class);
+		className = context.deserialize(jObject.get("className"), String.class);
 		try {
-			value = (Serializable) Base64.decodeToObject(jObject.get("value").getAsString(), Base64.NO_OPTIONS, loader);
+			block = (FunctionBlock) Base64
+					.decodeToObject(jObject.get("block").getAsString(), Base64.NO_OPTIONS, loader);
 		} catch (IOException e) {
 			throw new JsonParseException("can not parse base64 serializable");
 		} catch (ClassNotFoundException e) {
 			throw new JsonParseException("no appropriate class to decode serializable in value message.");
 		}
 
-		return new ValueMessage(appId, blockUuid, input, value);
+		return new BlockMessage(msgUuid, appId, className, block);
 	}
 
 }
