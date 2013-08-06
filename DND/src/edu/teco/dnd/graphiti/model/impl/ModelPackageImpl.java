@@ -420,7 +420,7 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		createEReference(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__OPTIONS);
 		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__ID);
 		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__POSITION);
-		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__BLOCKNAME);
+		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__BLOCK_NAME);
 
 		inputModelEClass = createEClass(INPUT_MODEL);
 		createEAttribute(inputModelEClass, INPUT_MODEL__NAME);

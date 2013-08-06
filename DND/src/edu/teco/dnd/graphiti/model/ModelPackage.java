@@ -121,15 +121,14 @@ public interface ModelPackage extends EPackage {
 	int FUNCTION_BLOCK_MODEL__POSITION = 5;
 
 	/**
-	 * The feature id for the '<em><b>BlockName</b></em>' attribute.
+	 * The feature id for the '<em><b>Block Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int FUNCTION_BLOCK_MODEL__BLOCKNAME = 6;
+	int FUNCTION_BLOCK_MODEL__BLOCK_NAME = 6;
 
-	
 	/**
 	 * The number of structural features of the '<em>Function Block Model</em>' class.
 	 * <!-- begin-user-doc -->
@@ -423,16 +422,16 @@ public interface ModelPackage extends EPackage {
 	EAttribute getFunctionBlockModel_Position();
 
 	/**
-	 * Returns the meta object for the attribute '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockName <em>BlockName</em>}'.
+	 * Returns the meta object for the attribute '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockName <em>Block Name</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>BlockName</em>'.
-	 * @see edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockNamen()
+	 * @return the meta object for the attribute '<em>Block Name</em>'.
+	 * @see edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockName()
 	 * @see #getFunctionBlockModel()
 	 * @generated
 	 */
 	EAttribute getFunctionBlockModel_BlockName();
-	
+
 	/**
 	 * Returns the meta object for class '{@link edu.teco.dnd.graphiti.model.InputModel <em>Input Model</em>}'.
 	 * <!-- begin-user-doc -->
@@ -720,14 +719,13 @@ public interface ModelPackage extends EPackage {
 		EAttribute FUNCTION_BLOCK_MODEL__POSITION = eINSTANCE.getFunctionBlockModel_Position();
 
 		/**
-		 * The meta object literal for the '<em><b>BlockName</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Block Name</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute FUNCTION_BLOCK_MODEL__BLOCKNAME = eINSTANCE.getFunctionBlockModel_BlockName();
+		EAttribute FUNCTION_BLOCK_MODEL__BLOCK_NAME = eINSTANCE.getFunctionBlockModel_BlockName();
 
-		
 		/**
 		 * The meta object literal for the '{@link edu.teco.dnd.graphiti.model.impl.InputModelImpl <em>Input Model</em>}' class.
 		 * <!-- begin-user-doc -->

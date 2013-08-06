@@ -78,10 +78,10 @@ public interface FunctionBlockModel extends EObject {
 	String getBlockName();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockName <em>BlockNam</em>}' attribute.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockName <em>Block Name</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>BlockName</em>' attribute.
+	 * @param value the new value of the '<em>Block Name</em>' attribute.
 	 * @see #getBlockName()
 	 * @generated
 	 */
