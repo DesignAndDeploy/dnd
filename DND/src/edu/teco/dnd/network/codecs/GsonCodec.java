@@ -55,6 +55,8 @@ public class GsonCodec extends MessageToMessageCodec<String, Object> {
 			gsonBuilder.setPrettyPrinting();
 		}
 		
+		gsonBuilder.disableHtmlEscaping();
+		
 		gson = new AtomicReference<Gson>(gsonBuilder.create());
 	}
 	
