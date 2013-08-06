@@ -2,6 +2,7 @@ package edu.teco.dnd.module.messages.infoReq;
 
 import java.util.UUID;
 
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
@@ -16,7 +17,7 @@ public class RequestModuleInfoMsgHandler implements MessageHandler<RequestModule
 
 	@Override
 	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, RequestModuleInfoMessage message) {
-		return new ModuleInfoMessage(conf);
+		return new ModuleInfoMessage(new Module(conf.getUuid(), conf.getName(), conf.getBlockRoot()));
 	}
 
 }

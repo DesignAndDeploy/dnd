@@ -20,6 +20,7 @@ import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.messages.BlockMessageAdapter;
 import edu.teco.dnd.module.messages.ValueMessageAdapter;
+import edu.teco.dnd.module.messages.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
@@ -46,6 +47,7 @@ import edu.teco.dnd.module.messages.values.ValueAck;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueNak;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
+import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
@@ -151,16 +153,12 @@ public class ModuleMain {
 
 		return connectionManager;
 	}
-
-	public static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
-			ModuleApplicationManager appMan) {
-
-		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+	
+	public static void registerMessageTypes(TCPConnectionManager connectionManager) {
 		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		connectionManager.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		connectionManager.registerTypeAdapter(byte[].class, new Base64Adapter());
-		connectionManager.registerTypeAdapter(BlockMessage.class, new BlockMessageAdapter(appMan));
-		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
+		connectionManager.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
 
 		connectionManager.addMessageType(RequestModuleInfoMessage.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);
@@ -189,6 +187,13 @@ public class ModuleMain {
 		connectionManager.addMessageType(RequestApplicationListMessage.class);
 		connectionManager.addMessageType(ApplicationListResponse.class);
 		connectionManager.addMessageType(ModuleInfoMessage.class);
+	}
+
+	public static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
+			ModuleApplicationManager appMan) {
+		registerMessageTypes(connectionManager);
+		connectionManager.registerTypeAdapter(BlockMessage.class, new BlockMessageAdapter(appMan));
+		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
 
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
 		connectionManager.addHandler(RequestApplicationListMessage.class, new RequestApplicationListMsgHandler(

@@ -19,6 +19,8 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.messages.BlockMessageAdapter;
+import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.messages.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
@@ -107,7 +109,8 @@ public class GsonDeEnCodingTest implements Serializable {
 	public void ModuleInfoMessageTest() {
 		msgAdapter.addMessageType(ModuleInfoMessage.class);
 		try {
-			testEnDeCoding(new ModuleInfoMessage(TestConfigReader.getPredefinedReader()));
+			final ConfigReader configReader = TestConfigReader.getPredefinedReader();
+			testEnDeCoding(new ModuleInfoMessage(new Module(configReader.getUuid(), configReader.getName(), configReader.getBlockRoot())));
 		} catch (SocketException e) {
 			e.printStackTrace();
 			throw new Error(e);

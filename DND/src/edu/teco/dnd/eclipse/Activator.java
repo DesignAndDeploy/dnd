@@ -29,6 +29,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
@@ -132,12 +133,7 @@ public class Activator extends AbstractUIPlugin {
 							return new NioSocketChannel();
 						}
 					}, uuid);
-			// TODO: make prettier
-			connectionManager.addMessageType(PeerMessage.class);
-			connectionManager.addMessageType(RequestModuleInfoMessage.class);
-			connectionManager.addMessageType(ModuleInfoMessage.class);
-			connectionManager.addMessageType(RequestApplicationListMessage.class);
-			connectionManager.addMessageType(ApplicationListResponse.class);
+			ModuleMain.registerMessageTypes(connectionManager);
 			this.connectionManager = connectionManager;
 		
 			beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
