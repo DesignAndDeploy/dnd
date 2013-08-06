@@ -2,11 +2,13 @@ package edu.teco.dnd.eclipse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,11 +45,15 @@ import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.deploy.Constraint;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
+import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DistributionGenerator;
 import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.util.Dependencies;
+import edu.teco.dnd.util.FutureListener;
+import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * Planung: Gebraucht: - Verfügbare Anwendungen anzeigen - Anwendung anwählen -
@@ -429,7 +435,16 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 			warn("No deployment created yet");
 			return;
 		}
-		// TODO: deploy map.
+		
+		final Deploy deploy = new Deploy(Activator.getDefault().getConnectionManager(), new Dependencies(Arrays.asList(Pattern.compile("java\\..*"))));
+		deploy.deploy("foo", UUID.randomUUID(), mapBlockToTarget).addListener(new FutureListener<FutureNotifier<? super Void>>() {
+			@Override
+			public void operationComplete(FutureNotifier<? super Void> future) {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("deploy: {}", future.isSuccess());
+				}
+			}
+		});
 	}
 
 	/**
