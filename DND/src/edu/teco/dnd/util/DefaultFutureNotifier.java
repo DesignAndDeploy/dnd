@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -214,6 +215,7 @@ public abstract class DefaultFutureNotifier<V> extends AbstractFutureNotifier<V>
 		try {
 			((FutureListener) listener).operationComplete(this);
 		} catch (final Exception e) {
+			LOGGER.catching(Level.WARN, e);
 			LOGGER.warn("listener {} threw exception {}", listener, e);
 		}
 	}
