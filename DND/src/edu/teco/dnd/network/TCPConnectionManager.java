@@ -419,12 +419,12 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		}
 		if (channel != null && channel.isActive()) {
 			if (message instanceof Response) {
-				channel.write(message);
+				channel.writeAndFlush(message);
 				return null;
 			} else {
 				final FutureNotifier<Response> responseNotifier =
 						responseHandler.getResponseFutureNotifier(message.getUUID());
-				channel.write(message).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
+				channel.writeAndFlush(message).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
 					@Override
 					public void operationComplete(io.netty.util.concurrent.Future<Void> future) throws Exception {
 						if (!future.isSuccess()) {
@@ -705,7 +705,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			} finally {
 				channelsLock.readLock().unlock();
 			}
-			ctx.write(firstMessage);
+			ctx.writeAndFlush(firstMessage);
 			LOGGER.exit();
 			ThreadContext.clear();
 		}
@@ -765,7 +765,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			ThreadContext.put("remoteUUID", remoteUUID.toString());
 			if (localUUID.equals(remoteUUID)) {
 				LOGGER.warn("remote UUID is my own, closing connection");
-				ctx.write(new ConnectionClosedMessage());
+				ctx.writeAndFlush(new ConnectionClosedMessage());
 				ctx.close();
 			} else if (localUUID.compareTo(remoteUUID) < 0) {
 				boolean establish = false;
@@ -782,10 +782,10 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				}
 				channelsLock.readLock().unlock();
 				if (establish) {
-					ctx.write(new ConnectionEstablishedMessage());
+					ctx.writeAndFlush(new ConnectionEstablishedMessage());
 				} else {
 					LOGGER.debug("we already have a connection, closing");
-					ctx.write(new ConnectionClosedMessage());
+					ctx.writeAndFlush(new ConnectionClosedMessage());
 					ctx.close();
 				}
 			}
@@ -835,7 +835,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				}
 				clientChannels.put(remoteUUID, ctx.channel());
 				channelsLock.writeLock().unlock();
-				ctx.write(msg);
+				ctx.writeAndFlush(msg);
 				notifyEstablished(remoteUUID);
 			}
 			LOGGER.exit(null);
@@ -942,7 +942,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			}
 			for (final Channel channel : clientChannels.values()) {
 				if (channel.isActive()) {
-					channel.write(new ConnectionClosedMessage());
+					channel.writeAndFlush(new ConnectionClosedMessage());
 				}
 				channel.close();
 			}
