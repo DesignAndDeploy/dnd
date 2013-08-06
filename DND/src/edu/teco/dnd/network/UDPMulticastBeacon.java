@@ -365,7 +365,7 @@ public class UDPMulticastBeacon {
 			for (final DatagramChannel channel : channels.values()) {
 				if (channel.isActive()) {
 					LOGGER.trace("trying to send on {}", channel);
-					channel.write(msg).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
+					channel.writeAndFlush(msg).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
 						@Override
 						public void operationComplete(io.netty.util.concurrent.Future<Void> future) throws Exception {
 							LOGGER.trace(future);
