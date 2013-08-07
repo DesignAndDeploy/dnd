@@ -91,12 +91,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private Button deployButton; // Button to deploy deployment
 	private Button constraintsButton;
 	private Label appName;
-	private Label blockModelSpecifications;
-	private Label blockModelLabel; // BlockModel to edit specifications:
 	private Text blockModelName; // Name of BlockModel
-	private Label module;
-	private Label place; // TODO: Problem: In Graphiti kann man auch schon den
-							// Ort festlegen => Redundanz / Inkonsistenz
 	private Combo moduleCombo;
 	private Text places;
 	private Table deployment; // Table to show blockModels and current
@@ -158,16 +153,16 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		appName.pack();
 
 		serverButton = graphicsManager.createServerButton(parent);
-		blockModelSpecifications = graphicsManager.createBlockModelSpecsLabel(parent);
+		graphicsManager.createBlockModelSpecsLabel(parent);
 		deployment = graphicsManager.createDeploymentTable(parent);
 		updateModulesButton = graphicsManager.createUpdateModulesButton(parent);
-		blockModelLabel = graphicsManager.createBlockModelLabel(parent);
+		graphicsManager.createBlockModelLabel(parent);
 		blockModelName = graphicsManager.createBlockModelName(parent);
 		updateBlocksButton = graphicsManager.createUpdateBlocksButton(parent);
-		module = graphicsManager.createModuleLabel(parent);
+		graphicsManager.createModuleLabel(parent);
 		moduleCombo = graphicsManager.createModuleCombo(parent);
 		createButton = graphicsManager.createCreateButton(parent);
-		place = graphicsManager.createPlaceLabel(parent);
+		graphicsManager.createPlaceLabel(parent);
 		places = graphicsManager.createPlacesText(parent);
 		deployButton = graphicsManager.createDeployButton(parent);
 		constraintsButton = graphicsManager.createConstraintsButton(parent);
@@ -340,7 +335,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			String module = moduleCombo.getItem(selectedIndex);
 			selectedItem.setText(1, module);
 		} else {
-			selectedItem.setText(1, "(no module assigned)");
+			selectedItem.setText(1, "");
 			moduleConstraints.remove(selectedBlockModel);
 		}
 
@@ -379,6 +374,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		if (index >= 0) {
 			moduleCombo.remove(index);
 			idList.remove(index);
+			mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
+			for (FunctionBlockModel model : moduleConstraints.keySet()){
+				if (moduleConstraints.get(model).equals(id)){
+					moduleConstraints.remove(model);
+					getItem(model).setText(1, "");
+				}
+			}
 			LOGGER.trace("found combo entry for id {}", id);
 		} else {
 			LOGGER.debug("trying to remove nonexistant id {}", id);
@@ -409,7 +411,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			if (blockModel.getBlockName() != null) {
 				item.setText(0, blockModel.getBlockName());
 			}
-			item.setText(1, "(no module assigned yet)");
 			String pos = blockModel.getPosition();
 			if (pos != null) {
 				item.setText(2, pos);

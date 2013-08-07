@@ -35,4 +35,5 @@ public class DeployViewTexts {
 	public static final String WARN_CONSTRAINTS = "You entered both a place and a module. Keep in mind that if the module doesn't match the place, no possible distribution will be found. If you still want to save both the module and the place for this function blockModel, press OK. If you want to abort, close this window.";
 
 	public static final String NO_DEPLOYMENT_YET = "No deployment created yet";
+	
 }
