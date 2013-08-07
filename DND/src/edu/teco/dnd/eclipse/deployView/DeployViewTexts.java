@@ -6,6 +6,7 @@ package edu.teco.dnd.eclipse.deployView;
  * @author jung
  * 
  */
+//TODO: Use message.properties
 public class DeployViewTexts {
 
 	public static final String COLUMN1_TOOLTIP = "Deploy function block on this module, if possible. No module selected means no constraint for deployment";
