@@ -1,7 +1,7 @@
 package edu.teco.dnd.eclipse.deployView;
 
 /**
- * Contains all longer texts displayed in the DeployView.
+ * This class contains all longer texts displayed by the DeployView.
  * 
  * @author jung
  * 
@@ -37,5 +37,7 @@ public class DeployViewTexts {
 	public static final String NO_DEPLOYMENT_YET = "No deployment created yet";
 
 	public static final String NEWCONSTRAINTS = "You changed some constraints on your function blocks after the current deployment was created. Keep in mind that this deployment might not fullfill your constraints anymore.\n\n Press OK to deploy anyway. Close this window to abort.";
+
+	public static final String CONSTRAINTS_TOOLTIP = "Constrain on which module and / or place your function block should run.";
 	
 }

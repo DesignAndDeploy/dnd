@@ -2,6 +2,7 @@ package edu.teco.dnd.eclipse.deployView;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -24,12 +25,39 @@ import edu.teco.dnd.eclipse.Activator;
 public class DeployViewGraphics {
 
 	private Activator activator;
+	private Composite parent;
+	
+	/**
+	 * Horizontal space between cells.
+	 */
+	public static final int HORIZONTAL_SPACE = 20;
+	
+	/**
+	 * Vertical space between cells.
+	 */
+	public static final int VERTICAL_SPACE = 7;
 	
 	public DeployViewGraphics(Composite parent, Activator activator){
 		this.activator = activator;
+		this.parent = parent;
 	}
 
-	protected Button createServerButton(Composite parent) {
+	protected void initializeParent(){
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 4;
+		layout.horizontalSpacing = HORIZONTAL_SPACE;
+		layout.verticalSpacing = VERTICAL_SPACE;
+		parent.setLayout(layout);
+	}
+	
+	protected Label createAppNameLabel(){
+		Label appName = new Label(parent, SWT.NONE);
+		appName.setText("Loading application...");
+		appName.pack();
+		return appName;
+	}
+	
+	protected Button createServerButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		Button serverButton = new Button(parent, SWT.NONE);
@@ -39,22 +67,22 @@ public class DeployViewGraphics {
 		} else {
 			serverButton.setText("Start server");
 		}
-
 		return serverButton;
 
 	}
 
-	protected Label createBlockModelSpecsLabel(Composite parent) {
+	protected Label createBlockModelSpecsLabel() {
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
 		Label blockModelSpecifications = new Label(parent, SWT.NONE);
-		blockModelSpecifications.setText("BlockModel Specifications:");
+		blockModelSpecifications.setText("Block Specifications:");
+		blockModelSpecifications.setToolTipText(DeployViewTexts.CONSTRAINTS_TOOLTIP);
 		blockModelSpecifications.setLayoutData(data);
 		blockModelSpecifications.pack();
 		return blockModelSpecifications;
 	}
 
-	protected Table createDeploymentTable(Composite parent) {
+	protected Table createDeploymentTable() {
 		GridData data = new GridData();
 		data.verticalSpan = 4;
 		data.horizontalAlignment = SWT.FILL;
@@ -80,6 +108,7 @@ public class DeployViewGraphics {
 		TableColumn column4 = new TableColumn(deployment, SWT.NONE);
 		column4.setText("Deployed at:");
 		column4.setToolTipText(DeployViewTexts.COLUMN4_TOOLTIP);
+		
 		deployment.getColumn(0).pack();
 		deployment.getColumn(1).pack();
 		deployment.getColumn(2).pack();
@@ -90,7 +119,7 @@ public class DeployViewGraphics {
 		return deployment;
 	}
 
-	protected Button createUpdateModulesButton(Composite parent) {
+	protected Button createUpdateModulesButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		Button updateModulesButton = new Button(parent, SWT.NONE);
@@ -98,19 +127,18 @@ public class DeployViewGraphics {
 		updateModulesButton.setText("Update Modules");
 		updateModulesButton
 				.setToolTipText(DeployViewTexts.UPDATEMODULES_TOOLTIP);
-
 		updateModulesButton.pack();
 		return updateModulesButton;
 	}
 
-	protected Label createBlockModelLabel(Composite parent) {
+	protected Label createBlockModelLabel() {
 		Label blockModelLabel = new Label(parent, SWT.NONE);
 		blockModelLabel.setText("Name:");
 		blockModelLabel.pack();
 		return blockModelLabel;
 	}
 
-	protected Text createBlockModelName(Composite parent) {
+	protected Text createBlockModelName() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		Text blockModelName = new Text(parent, SWT.NONE);
@@ -123,19 +151,18 @@ public class DeployViewGraphics {
 
 	}
 
-	protected Button createUpdateBlocksButton(Composite parent) {
+	protected Button createUpdateBlocksButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		Button updateBlocksButton = new Button(parent, SWT.NONE);
 		updateBlocksButton.setLayoutData(data);
 		updateBlocksButton.setText("Update Blocks");
 		updateBlocksButton.setToolTipText(DeployViewTexts.UPDATEBLOCKS_TOOLTIP);
-
 		updateBlocksButton.pack();
 		return updateBlocksButton;
 	}
 
-	protected Label createModuleLabel(Composite parent) {
+	protected Label createModuleLabel() {
 		Label module = new Label(parent, SWT.NONE);
 		module.setText("Module:");
 		module.setToolTipText(DeployViewTexts.SELECTMODULE_TOOLTIP);
@@ -143,7 +170,7 @@ public class DeployViewGraphics {
 		return module;
 	}
 
-	protected Combo createModuleCombo(Composite parent) {
+	protected Combo createModuleCombo() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
@@ -155,18 +182,17 @@ public class DeployViewGraphics {
 		return moduleCombo;
 	}
 
-	protected Button createCreateButton(Composite parent) {
+	protected Button createCreateButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		Button createButton = new Button(parent, SWT.NONE);
 		createButton.setLayoutData(data);
 		createButton.setText("Create Deployment");
 		createButton.setToolTipText(DeployViewTexts.CREATE_TOOLTIP);
-
 		return createButton;
 	}
 
-	protected Label createPlaceLabel(Composite parent) {
+	protected Label createPlaceLabel() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.verticalSpan = 2;
@@ -178,7 +204,7 @@ public class DeployViewGraphics {
 		return place;
 	}
 
-	protected Text createPlacesText(Composite parent) {
+	protected Text createPlacesText() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
@@ -189,7 +215,7 @@ public class DeployViewGraphics {
 		return places;
 	}
 
-	protected Button createDeployButton(Composite parent) {
+	protected Button createDeployButton() {
 		GridData data = new GridData();
 		data.verticalSpan = 3;
 		data.horizontalAlignment = SWT.FILL;
@@ -199,25 +225,19 @@ public class DeployViewGraphics {
 		deployButton.setText("Deploy");
 		deployButton
 				.setToolTipText(DeployViewTexts.DEPLOY_TOOLTIP);
-
 		deployButton.setLayoutData(data);
 		return deployButton;
 	}
 
-	protected Button createConstraintsButton(Composite parent) {
+	protected Button createConstraintsButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		data.verticalAlignment = SWT.BEGINNING;
 		Button constraintsButton = new Button(parent, SWT.NONE);
 		constraintsButton.setLayoutData(data);
 		constraintsButton.setText("Save constraints");
-	
 		constraintsButton.setEnabled(false);
 		constraintsButton.pack();
 		return constraintsButton;
 	}
-
-	
-	
-	
 }

@@ -21,8 +21,6 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -31,7 +29,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
@@ -60,9 +57,10 @@ import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
 
 /**
- * Planung: Gebraucht: - Verfügbare Anwendungen anzeigen - Anwendung anwählen -
- * Verteilungsalgorithmus auswählen - Fest im Code einbinden? - Verteilung
- * erstellen lassen und anzeigen - Verteilung bestätigen
+ * This class gives the user access to all functionality needed to deploy an
+ * application. The user can load an existing data flow graph, rename its function
+ * blocks and constrain them to specific modules and / or places. The user can
+ * also create a distribution and deploy the function blocks on the modules.
  * 
  */
 public class DeployView extends EditorPart implements ModuleManagerListener {
@@ -85,7 +83,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private DeployViewGraphics graphicsManager;
 
 	private boolean newConstraints;
-	
+
 	private Button serverButton;
 	private Button updateModulesButton; // Button to update moduleCombo
 	private Button updateBlocksButton;
@@ -100,19 +98,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 								// deployment
 
 	private int selectedIndex; // Index of selected field of moduleCombo
-								//= index in idList + 1
+								// = index in idList + 1
 	private UUID selectedID;
 	private TableItem selectedItem;
-	private FunctionBlockModel selectedBlockModel; // FunctionblockModel to edit
-													// specs
-	/**
-	 * Enthält für jeden FunktionsblockModel die UUID des Moduls, auf das er
-	 * gewünscht ist, oder null, falls kein Modul vom User ausgewählt. Achtung:
-	 * Kann UUIDs von Modulen enthalten, die nicht mehr laufen.
-	 * 
-	 * Vielleicht gut: Constraints auch speichern, wenn Anwendung geschlossen
-	 * wird.
-	 */
+	private FunctionBlockModel selectedBlockModel;
 	private Map<FunctionBlockModel, UUID> moduleConstraints = new HashMap<FunctionBlockModel, UUID>();
 	private Map<FunctionBlockModel, String> placeConstraints = new HashMap<FunctionBlockModel, String>();
 
@@ -143,32 +132,27 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		graphicsManager = new DeployViewGraphics(parent, activator);
-
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 4;
-		parent.setLayout(layout);
-
 		functionBlockModels = new ArrayList<FunctionBlockModel>();
 		mapItemToBlockModel = new HashMap<TableItem, FunctionBlockModel>();
 
-		appName = new Label(parent, SWT.NONE);
-		appName.pack();
+		graphicsManager = new DeployViewGraphics(parent, activator);
+		graphicsManager.initializeParent();
 
-		serverButton = graphicsManager.createServerButton(parent);
-		graphicsManager.createBlockModelSpecsLabel(parent);
-		deployment = graphicsManager.createDeploymentTable(parent);
-		updateModulesButton = graphicsManager.createUpdateModulesButton(parent);
-		graphicsManager.createBlockModelLabel(parent);
-		blockModelName = graphicsManager.createBlockModelName(parent);
-		updateBlocksButton = graphicsManager.createUpdateBlocksButton(parent);
-		graphicsManager.createModuleLabel(parent);
-		moduleCombo = graphicsManager.createModuleCombo(parent);
-		createButton = graphicsManager.createCreateButton(parent);
-		graphicsManager.createPlaceLabel(parent);
-		places = graphicsManager.createPlacesText(parent);
-		deployButton = graphicsManager.createDeployButton(parent);
-		constraintsButton = graphicsManager.createConstraintsButton(parent);
+		appName = graphicsManager.createAppNameLabel();
+		serverButton = graphicsManager.createServerButton();
+		graphicsManager.createBlockModelSpecsLabel();
+		deployment = graphicsManager.createDeploymentTable();
+		updateModulesButton = graphicsManager.createUpdateModulesButton();
+		graphicsManager.createBlockModelLabel();
+		blockModelName = graphicsManager.createBlockModelName();
+		updateBlocksButton = graphicsManager.createUpdateBlocksButton();
+		graphicsManager.createModuleLabel();
+		moduleCombo = graphicsManager.createModuleCombo();
+		createButton = graphicsManager.createCreateButton();
+		graphicsManager.createPlaceLabel();
+		places = graphicsManager.createPlacesText();
+		deployButton = graphicsManager.createDeployButton();
+		constraintsButton = graphicsManager.createConstraintsButton();
 		createSelectionListeners();
 
 		loadBlockModels(getEditorInput());
@@ -264,14 +248,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
 			return;
 		}
-		
-		if (newConstraints){
+
+		if (newConstraints) {
 			int cancel = warn(DeployViewTexts.NEWCONSTRAINTS);
-			if (cancel == -4){
+			if (cancel == -4) {
 				return;
 			}
 		}
-		
+
 		final Deploy deploy = new Deploy(Activator.getDefault()
 				.getConnectionManager(), new Dependencies(Arrays.asList(Pattern
 				.compile("java\\..*"))));
@@ -357,7 +341,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Adds a Module ID to the moduleCombo.
+	 * Adds a Module ID.
 	 * 
 	 * @param id
 	 *            the ID to add
@@ -376,7 +360,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Removes a Module ID from the moduleCombo.
+	 * Removes a Module ID including all dependent information on this module.
 	 * 
 	 * @param id
 	 *            the ID to remove
@@ -385,7 +369,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		LOGGER.entry(id);
 		int idIndex = idList.indexOf(id);
 		if (idIndex >= 0) {
-			moduleCombo.remove(idIndex+1);
+			moduleCombo.remove(idIndex + 1);
 			idList.remove(idIndex);
 			resetDeployment();
 			for (FunctionBlockModel model : moduleConstraints.keySet()) {
@@ -526,7 +510,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	/**
 	 * Invoked whenever a possibly created deployment gets invalid.
 	 */
-	private void resetDeployment(){
+	private void resetDeployment() {
 		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
 		deployButton.setEnabled(false);
 		for (TableItem item : deployment.getItems()) {
@@ -534,7 +518,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			item.setText(4, "");
 		}
 	}
-	
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
