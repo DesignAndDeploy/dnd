@@ -25,11 +25,11 @@ public class BlockTypeHolder {
 	/** allowed blocks of this type, <0 means infinity. */
 	@SerializedName("amount")
 	private int amountAllowed = -1;
+	private int amountLeft = -1;
 	/** null if none */
 	private Set<BlockTypeHolder> children = null;
 
 	private transient BlockTypeHolder parent = null;
-	private int amountLeft = -1;
 
 	public BlockTypeHolder() {
 		this((String) null, -1);

@@ -110,6 +110,7 @@ public class ModuleApplicationManager {
 			return false;
 		}
 		scheduledToStart.add(block);
+		LOGGER.info("succesfully scheduled block {}, in App {}({})",  block, runningApps.get(appId), appId);
 		return true;
 	}
 
