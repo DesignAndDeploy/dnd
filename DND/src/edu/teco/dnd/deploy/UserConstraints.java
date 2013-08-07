@@ -46,7 +46,7 @@ public class UserConstraints implements Constraint{
 		
 		if (placeConstraints.containsKey(block)){
 			String place = module.getLocation();
-			if(!place.equals(placeConstraints.get(block))){
+			if(!placeConstraints.get(block).equals(place)){
 				return false;
 			}
 		}
