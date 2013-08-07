@@ -255,20 +255,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				return;
 			}
 		}
-
-		final Deploy deploy = new Deploy(Activator.getDefault()
-				.getConnectionManager(), new Dependencies(Arrays.asList(Pattern
-				.compile("java\\..*"))));
-		deploy.deploy("foo", UUID.randomUUID(), mapBlockToTarget).addListener(
-				new FutureListener<FutureNotifier<? super Void>>() {
-					@Override
-					public void operationComplete(
-							FutureNotifier<? super Void> future) {
-						if (LOGGER.isInfoEnabled()) {
-							LOGGER.info("deploy: {}", future.isSuccess());
-						}
-					}
-				});
+		
+		final Deploy deploy = new Deploy(Activator.getDefault().getConnectionManager(), mapBlockToTarget, appName.getText(), new Dependencies(Arrays.asList(Pattern.compile("java\\..*"))));
+		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
+			@Override
+			public void operationComplete(FutureNotifier<? super Void> future) {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("deploy: {}", future.isSuccess());
+				}
+			}
+		});
+		deploy.deploy();
 		resetDeployment();
 	}
 
