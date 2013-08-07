@@ -41,9 +41,9 @@
             class="edu.teco.dnd.eclipse.ViewApp"/>
    </extension>
       <extension point="org.eclipse.ui.editors">
-      <editor class="edu.teco.dnd.eclipse.ViewDeploy"
+      <editor class="edu.teco.dnd.eclipse.deployView.DeployView"
       		extensions="diagram"
-      		id="edu.teco.dnd.eclipse.ViewDeploy"
+      		id="edu.teco.dnd.eclipse.deployView.DeployView"
       		name="Deploy"/>
    </extension>
    <extension point="org.eclipse.ui.preferencePages">

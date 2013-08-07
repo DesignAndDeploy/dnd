@@ -414,7 +414,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		moduleConstraints.clear();
 		placeConstraints.clear();
 		mapItemToBlockModel.clear();
-		mapBlockToTarget.clear();
+		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
 		selectedItem = null;
 		selectedBlockModel = null;
 		moduleCombo.setEnabled(false);
