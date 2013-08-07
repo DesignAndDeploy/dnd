@@ -83,7 +83,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private Map<FunctionBlock, BlockTarget> mapBlockToTarget;
 
 	private DeployViewGraphics graphicsManager;
-	
+
 	private Button serverButton;
 	private Button updateModulesButton; // Button to update moduleCombo
 	private Button updateBlocksButton;
@@ -98,6 +98,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 								// deployment
 
 	private int selectedIndex; // Index of selected field of moduleCombo
+								//= index in idList + 1
 	private UUID selectedID;
 	private TableItem selectedItem;
 	private FunctionBlockModel selectedBlockModel; // FunctionblockModel to edit
@@ -141,7 +142,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	@Override
 	public void createPartControl(Composite parent) {
 		graphicsManager = new DeployViewGraphics(parent, activator);
-		
+
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 4;
 		parent.setLayout(layout);
@@ -167,7 +168,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		deployButton = graphicsManager.createDeployButton(parent);
 		constraintsButton = graphicsManager.createConstraintsButton(parent);
 		createSelectionListeners();
-		
+
 		loadBlockModels(getEditorInput());
 	}
 
@@ -194,10 +195,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
 		selectedItem = null;
 		selectedBlockModel = null;
-		moduleCombo.setEnabled(false);
-		places.setEnabled(false);
 		blockModelName.setText("<select block on the left>");
 		blockModelName.setEnabled(false);
+		moduleCombo.setEnabled(false);
+		places.setEnabled(false);
+		constraintsButton.setEnabled(false);
 		loadBlockModels(getEditorInput());
 	}
 
@@ -273,7 +275,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 					}
 				});
 		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
-		for (TableItem item : deployment.getItems()){
+		for (TableItem item : deployment.getItems()) {
 			item.setText(3, "");
 			item.setText(4, "");
 		}
@@ -298,9 +300,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			} else {
 				places.setText("");
 			}
+			selectedIndex = idList.indexOf(moduleConstraints
+					.get(selectedBlockModel)) + 1;
+			moduleCombo.select(selectedIndex);
 		}
-		selectedIndex = -1;
-		selectedID = null;
 	}
 
 	/**
@@ -308,15 +311,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 */
 	private void moduleSelected() {
 		selectedIndex = moduleCombo.getSelectionIndex();
-		selectedID = idList.get(selectedIndex);
 	}
 
 	private void saveConstraints() {
 		String text = places.getText();
+		if (selectedIndex > 0) {
+			selectedID = idList.get(selectedIndex - 1);
+		} else {
+			selectedID = null;
+		}
 
-		if (!text.isEmpty() && selectedID != null) { // skfdjhasdfhsdfksjdhkfjhsdfkjsldkfjslkdjfsajdhfka
-														// bka bla bla bla lkj j
-														// sdf sdf
+		if (!text.isEmpty() && selectedID != null) {
 			int cancel = warn(DeployViewTexts.WARN_CONSTRAINTS);
 			if (cancel == -4) {
 				return;
@@ -330,7 +335,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 		selectedItem.setText(2, text);
 
-		if (selectedID != null && selectedIndex > -1) {
+		if (selectedID != null) {
 			moduleConstraints.put(selectedBlockModel, selectedID);
 			String module = moduleCombo.getItem(selectedIndex);
 			selectedItem.setText(1, module);
@@ -375,8 +380,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			moduleCombo.remove(index);
 			idList.remove(index);
 			mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
-			for (FunctionBlockModel model : moduleConstraints.keySet()){
-				if (moduleConstraints.get(model).equals(id)){
+			for (FunctionBlockModel model : moduleConstraints.keySet()) {
+				if (moduleConstraints.get(model).equals(id)) {
 					moduleConstraints.remove(model);
 					getItem(model).setText(1, "");
 				}
@@ -570,25 +575,25 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				int index = idList.indexOf(id);
-				if (index < 0) {
-					addID(id);
-				} else {
-					String text = id.toString();
-					text.concat(" : ");
-					if (module.getName() != null) {
-						text.concat(module.getName());
-					}
-					moduleCombo.setItem(index, text);
+				if (!idList.contains(id)) {
+					LOGGER.entry(id);
+					LOGGER.trace("id {} is new, adding", id);
+					idList.add(id);
+					LOGGER.exit();
+				}
 
-					// Falls das Modul schon einem FB zugeteilt wurde
-					if (moduleConstraints.containsValue(id)) {
-						// Überprüfe alle FB (können auch mehrere sein)
-						for (FunctionBlockModel blockModel : moduleConstraints
-								.keySet()) {
-							// Setze Text neu.
-							getItem(blockModel).setText(1, text);
-						}
+				int comboIndex = idList.indexOf(id) + 1;
+				String text = "";
+				if (module.getName() != null) {
+					text = module.getName();
+				}
+				text = text.concat(" : ");
+				text = text.concat(id.toString());
+				moduleCombo.setItem(comboIndex, text);
+				if (moduleConstraints.containsValue(id)) {
+					for (FunctionBlockModel blockModel : moduleConstraints
+							.keySet()) {
+						getItem(blockModel).setText(1, text);
 					}
 				}
 			}
@@ -644,8 +649,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		});
 	}
 
-	
-	private void createSelectionListeners(){
+	private void createSelectionListeners() {
 		serverButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -661,49 +665,49 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				}.run();
 			}
 		});
-		
+
 		deployment.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.blockModelSelected();
 			}
 		});
-		
+
 		updateModulesButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.updateModules();
 			}
 		});
-		
+
 		updateBlocksButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.updateBlocks();
 			}
 		});
-		
+
 		moduleCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.moduleSelected();
 			}
 		});
-		
+
 		createButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.create();
 			}
 		});
-		
+
 		deployButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.deploy();
 			}
 		});
-		
+
 		constraintsButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

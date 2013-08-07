@@ -150,7 +150,7 @@ public class DeployViewGraphics {
 		Combo moduleCombo = new Combo(parent, SWT.NONE);
 		moduleCombo.setLayoutData(data);
 		moduleCombo.setToolTipText(DeployViewTexts.SELECTMODULE_TOOLTIP);
-
+		moduleCombo.add("");
 		moduleCombo.setEnabled(false);
 		return moduleCombo;
 	}
