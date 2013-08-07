@@ -39,7 +39,7 @@ public class UserConstraints implements Constraint{
 
 		if (moduleConstraints.containsKey(block)){
 			UUID id = module.getUUID();
-			if (!id.equals(moduleConstraints.get(block))){
+			if (!moduleConstraints.get(block).equals(id)){
 				return false;
 			}
 		}
