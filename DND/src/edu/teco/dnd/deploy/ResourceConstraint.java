@@ -5,7 +5,8 @@ import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
- * A Constraint that ensures that there are enough free slots in the given BlockTypeHolder.
+ * A Constraint that ensures that there are enough free slots in the given BlockTypeHolder. This only accepts slots of the same type as the
+ * blocks type.
  *
  * @author Philipp Adolf
  */
