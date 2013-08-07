@@ -259,11 +259,33 @@ public class Distribution {
 				LOGGER.exit(Integer.MAX_VALUE);
 				return Integer.MAX_VALUE;
 			}
-			final int free = holder.getAmountLeft() - getDistributionUsage(distribution);
-			LOGGER.exit(free);
-			return free;
+			final int localFree = holder.getAmountLeft() - getDistributionUsage(distribution);
+			final BlockTarget parent = getParent(distribution);
+			if (localFree <= 0 || parent == null) {
+				LOGGER.exit(localFree);
+				return localFree;
+			} else {
+				final int result = Math.min(localFree, parent.getFree(distribution));
+				LOGGER.exit(result);
+				return result;
+			}
 		}
 		
+		/**
+		 * Returns the parent of this BlockTarget for the given distribution.
+		 * 
+		 * @param distribution the distribution to check
+		 * @return the parent of this object or null if there is none
+		 */
+		public BlockTarget getParent(final Distribution distribution) {
+			final BlockTypeHolder parentHolder = holder.getParent();
+			if (parentHolder == null) {
+				return null;
+			} else {
+				return distribution.getBlockTarget(module, parentHolder);
+			}
+		}
+
 		/**
 		 * Checks if a mapping for a given block is valid. A mapping is valid if the BlockTypeHolder is a
 		 * leave, the type of block matches the type of the BlockTypeHolder and there are free slots.
