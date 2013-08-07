@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse;
+package edu.teco.dnd.eclipse.deployView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +49,10 @@ import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DistributionGenerator;
 import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.deploy.UserConstraints;
+import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.eclipse.EclipseUtil;
+import edu.teco.dnd.eclipse.ModuleManager;
+import edu.teco.dnd.eclipse.ModuleManagerListener;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Dependencies;
@@ -61,12 +65,12 @@ import edu.teco.dnd.util.FutureNotifier;
  * erstellen lassen und anzeigen - Verteilung bestätigen
  * 
  */
-public class ViewDeploy extends EditorPart implements ModuleManagerListener {
+public class DeployView extends EditorPart implements ModuleManagerListener {
 
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(ViewDeploy.class);
+	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
 	private Display display;
 	private Activator activator;
 	private ModuleManager manager;
@@ -79,7 +83,8 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	private Map<FunctionBlock, BlockTarget> mapBlockToTarget;
 
 	private Button serverButton;
-	private Button updateButton; // Button to update moduleCombo
+	private Button updateModulesButton; // Button to update moduleCombo
+	private Button updateBlocksButton;
 	private Button createButton; // Button to create deployment
 	private Button deployButton; // Button to deploy deployment
 	private Button constraintsButton;
@@ -151,15 +156,16 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		createServerButton(parent);
 		createBlockModelSpecsLabel(parent);
 		createDeploymentTable(parent);
-		createUpdateButton(parent);
+		createUpdateModulesButton(parent);
 		createBlockModelLabel(parent);
 		createBlockModelName(parent);
-		createCreateButton(parent);
+		createUpdateBlocksButton(parent);
 		createModuleLabel(parent);
 		createmoduleCombo(parent);
-		createDeployButton(parent);
+		createCreateButton(parent);
 		createPlaceLabel(parent);
 		createPlacesText(parent);
+		createDeployButton(parent);
 		createConstraintsButton(parent);
 
 		loadBlockModels(getEditorInput());
@@ -181,16 +187,25 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 				new Thread() {
 					@Override
 					public void run() {
-						if (ViewDeploy.this.activator.isRunning()) {
-							ViewDeploy.this.activator.shutdownServer();
+						if (DeployView.this.activator.isRunning()) {
+							DeployView.this.activator.shutdownServer();
 						} else {
-							ViewDeploy.this.activator.startServer();
+							DeployView.this.activator.startServer();
 						}
 					}
 				}.run();
 			}
 		});
 
+	}
+
+	private void createBlockModelSpecsLabel(Composite parent) {
+		GridData data = new GridData();
+		data.horizontalSpan = 2;
+		blockModelSpecifications = new Label(parent, SWT.NONE);
+		blockModelSpecifications.setText("BlockModel Specifications:");
+		blockModelSpecifications.setLayoutData(data);
+		blockModelSpecifications.pack();
 	}
 
 	private void createDeploymentTable(Composite parent) {
@@ -205,20 +220,20 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		deployment.setHeaderVisible(true);
 		deployment.setLayoutData(data);
 
-		TableColumn column1 = new TableColumn(deployment, SWT.None);
-		column1.setText("Function BlockModel");
+		TableColumn column0 = new TableColumn(deployment, SWT.None);
+		column0.setText("Function Block");
+		TableColumn column1 = new TableColumn(deployment, SWT.NONE);
+		column1.setText("Module");
+		column1.setToolTipText(DeployViewTexts.COLUMN1_TOOLTIP);
 		TableColumn column2 = new TableColumn(deployment, SWT.NONE);
-		column2.setText("Module");
-		column2.setToolTipText("Deploy BlockModel on this Module, if possible. No module selected means no constraint for deployment");
+		column2.setText("Place");
+		column2.setToolTipText(DeployViewTexts.COLUMN2_TOOLTIP);
 		TableColumn column3 = new TableColumn(deployment, SWT.NONE);
-		column3.setText("place");
-		column3.setToolTipText("Deploy BlockModel at this place, if possible. No place selected means no constraint for deployment");
+		column3.setText("Deployed on:");
+		column3.setToolTipText(DeployViewTexts.COLUMN3_TOOLTIP);
 		TableColumn column4 = new TableColumn(deployment, SWT.NONE);
-		column4.setText("Deployed on:");
-		column4.setToolTipText("Module assigned to the BlockModel by the deployment algorithm");
-		TableColumn column5 = new TableColumn(deployment, SWT.NONE);
-		column5.setText("Deployed at:");
-		column5.setToolTipText("Place the BlockModel will be deployed to");
+		column4.setText("Deployed at:");
+		column4.setToolTipText(DeployViewTexts.COLUMN4_TOOLTIP);
 		deployment.getColumn(0).pack();
 		deployment.getColumn(1).pack();
 		deployment.getColumn(2).pack();
@@ -228,48 +243,26 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		deployment.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ViewDeploy.this.blockModelSelected();
+				DeployView.this.blockModelSelected();
 			}
 		});
 	}
 
-	private void createUpdateButton(Composite parent) {
+	private void createUpdateModulesButton(Composite parent) {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
-		updateButton = new Button(parent, SWT.NONE);
-		updateButton.setLayoutData(data);
-		updateButton.setText("Update");
-		updateButton.setToolTipText("Updates information on moduleCombo");
-		updateButton.addSelectionListener(new SelectionAdapter() {
+		updateModulesButton = new Button(parent, SWT.NONE);
+		updateModulesButton.setLayoutData(data);
+		updateModulesButton.setText("Update Modules");
+		updateModulesButton
+				.setToolTipText(DeployViewTexts.UPDATEMODULES_TOOLTIP);
+		updateModulesButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ViewDeploy.this.update();
+				DeployView.this.updateModules();
 			}
 		});
-		updateButton.pack();
-	}
-
-	private void createBlockModelSpecsLabel(Composite parent) {
-		GridData data = new GridData();
-		data.horizontalSpan = 2;
-		blockModelSpecifications = new Label(parent, SWT.NONE);
-		blockModelSpecifications.setText("BlockModel Specifications:");
-		blockModelSpecifications.setLayoutData(data);
-		blockModelSpecifications.pack();
-	}
-
-	private void createCreateButton(Composite parent) {
-		GridData data = new GridData();
-		data.horizontalAlignment = SWT.FILL;
-		createButton = new Button(parent, SWT.NONE);
-		createButton.setLayoutData(data);
-		createButton.setText("Create Deployment");
-		createButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				ViewDeploy.this.create();
-			}
-		});
+		updateModulesButton.pack();
 	}
 
 	private void createBlockModelLabel(Composite parent) {
@@ -283,10 +276,86 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		data.horizontalAlignment = SWT.FILL;
 		blockModelName = new Text(parent, SWT.NONE);
 		blockModelName.setLayoutData(data);
-		blockModelName.setText("(select blockModel on the left)");
+		blockModelName.setText("<select block on the left>");
+		blockModelName.setToolTipText(DeployViewTexts.RENAMEBLOCK_TOOLTIP);
 		blockModelName.setEnabled(false);
 		blockModelName.pack();
 
+	}
+
+	private void createUpdateBlocksButton(Composite parent) {
+		GridData data = new GridData();
+		data.horizontalAlignment = SWT.FILL;
+		updateBlocksButton = new Button(parent, SWT.NONE);
+		updateBlocksButton.setLayoutData(data);
+		updateBlocksButton.setText("Update Blocks");
+		updateBlocksButton.setToolTipText(DeployViewTexts.UPDATEBLOCKS_TOOLTIP);
+		updateBlocksButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				DeployView.this.updateBlocks();
+			}
+		});
+		updateModulesButton.pack();
+	}
+
+	private void createModuleLabel(Composite parent) {
+		module = new Label(parent, SWT.NONE);
+		module.setText("Module:");
+		module.setToolTipText(DeployViewTexts.SELECTMODULE_TOOLTIP);
+		module.pack();
+	}
+
+	private void createmoduleCombo(Composite parent) {
+		GridData data = new GridData();
+		data.verticalAlignment = SWT.BEGINNING;
+		data.horizontalAlignment = SWT.FILL;
+		moduleCombo = new Combo(parent, SWT.NONE);
+		moduleCombo.setLayoutData(data);
+		moduleCombo.setToolTipText(DeployViewTexts.SELECTMODULE_TOOLTIP);
+		moduleCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				DeployView.this.moduleSelected();
+			}
+		});
+		moduleCombo.setEnabled(false);
+	}
+
+	private void createCreateButton(Composite parent) {
+		GridData data = new GridData();
+		data.horizontalAlignment = SWT.FILL;
+		createButton = new Button(parent, SWT.NONE);
+		createButton.setLayoutData(data);
+		createButton.setText("Create Deployment");
+		createButton.setToolTipText(DeployViewTexts.CREATE_TOOLTIP);
+		createButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				DeployView.this.create();
+			}
+		});
+	}
+
+	private void createPlaceLabel(Composite parent) {
+		GridData data = new GridData();
+		data.verticalAlignment = SWT.BEGINNING;
+		data.verticalSpan = 2;
+		place = new Label(parent, SWT.NONE);
+		place.setLayoutData(data);
+		place.setText("Place:");
+		place.setToolTipText(DeployViewTexts.SELECTPLACE_TOOLTIP);
+		place.pack();
+	}
+
+	private void createPlacesText(Composite parent) {
+		GridData data = new GridData();
+		data.verticalAlignment = SWT.BEGINNING;
+		data.horizontalAlignment = SWT.FILL;
+		places = new Text(parent, SWT.NONE);
+		places.setToolTipText(DeployViewTexts.SELECTPLACE_TOOLTIP);
+		places.setLayoutData(data);
+		places.setEnabled(false);
 	}
 
 	private void createDeployButton(Composite parent) {
@@ -298,58 +367,14 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		deployButton = new Button(parent, SWT.NONE);
 		deployButton.setText("Deploy");
 		deployButton
-				.setToolTipText("Submit the created deployment to deploy your application");
+				.setToolTipText(DeployViewTexts.DEPLOY_TOOLTIP);
 		deployButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ViewDeploy.this.deploy();
+				DeployView.this.deploy();
 			}
 		});
 		deployButton.setLayoutData(data);
-	}
-
-	private void createModuleLabel(Composite parent) {
-		module = new Label(parent, SWT.NONE);
-		module.setText("Module:");
-		module.setToolTipText("Select a Module for this function blockModel");
-		module.pack();
-	}
-
-	private void createmoduleCombo(Composite parent) {
-		GridData data = new GridData();
-		data.verticalAlignment = SWT.BEGINNING;
-		data.horizontalAlignment = SWT.FILL;
-		moduleCombo = new Combo(parent, SWT.NONE);
-		moduleCombo.setLayoutData(data);
-
-		moduleCombo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				ViewDeploy.this.moduleSelected();
-			}
-		});
-		moduleCombo.setEnabled(false);
-	}
-
-	private void createPlaceLabel(Composite parent) {
-		GridData data = new GridData();
-		data.verticalAlignment = SWT.BEGINNING;
-		data.verticalSpan = 2;
-		place = new Label(parent, SWT.NONE);
-		place.setLayoutData(data);
-		place.setText("Place:");
-		place.setToolTipText("Select a place for this function blockModel");
-		place.pack();
-	}
-
-	private void createPlacesText(Composite parent) {
-		GridData data = new GridData();
-		data.verticalAlignment = SWT.BEGINNING;
-		data.horizontalAlignment = SWT.FILL;
-		places = new Text(parent, SWT.NONE);
-		places.setToolTipText("Enter location for selected Function BlockModel");
-		places.setLayoutData(data);
-		places.setEnabled(false);
 	}
 
 	private void createConstraintsButton(Composite parent) {
@@ -362,7 +387,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		constraintsButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ViewDeploy.this.saveConstraints();
+				DeployView.this.saveConstraints();
 			}
 		});
 		constraintsButton.setEnabled(false);
@@ -370,15 +395,33 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Invoked whenever the Update Button is pressed.
+	 * Invoked whenever the UpdateModules Button is pressed.
 	 */
-	private void update() {
+	private void updateModules() {
 		if (Activator.getDefault().isRunning()) {
 			warn("Not implemented yet. \n Later: Will update information on moduleCombo");
 		} else {
 			warn("Server not running");
 		}
 
+	}
+
+	/**
+	 * Invoked whenever the UpdateBlocks Button is pressed.
+	 */
+	private void updateBlocks() {
+		deployment.removeAll();
+		moduleConstraints.clear();
+		placeConstraints.clear();
+		mapItemToBlockModel.clear();
+		mapBlockToTarget.clear();
+		selectedItem = null;
+		selectedBlockModel = null;
+		moduleCombo.setEnabled(false);
+		places.setEnabled(false);
+		blockModelName.setText("<select block on the left>");
+		blockModelName.setEnabled(false);
+		loadBlockModels(getEditorInput());
 	}
 
 	/**
@@ -412,17 +455,20 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 				new MinimalModuleCountEvaluator(), constraints);
 		Distribution dist = generator.getDistribution(blocksToModels.keySet(),
 				moduleCollection);
-		if (dist.getMapping() == null) {
+
+		if (dist == null) {
 			warn("No valid deployment exists");
 		} else {
 			mapBlockToTarget = dist.getMapping();
 			for (FunctionBlock block : mapBlockToTarget.keySet()) {
 				FunctionBlockModel blockModel = blocksToModels.get(block);
 				TableItem item = getItem(blockModel);
-				final String name = mapBlockToTarget.get(block).getModule().getName();
-				item.setText(1, name == null ? "" : name);
-				final String location = mapBlockToTarget.get(block).getModule().getLocation();
-				item.setText(2, location == null ? "" : location);
+				final String name = mapBlockToTarget.get(block).getModule()
+						.getName();
+				item.setText(3, name == null ? "" : name);
+				final String location = mapBlockToTarget.get(block).getModule()
+						.getLocation();
+				item.setText(4, location == null ? "" : location);
 			}
 		}
 	}
@@ -432,19 +478,24 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 	 */
 	private void deploy() {
 		if (mapBlockToTarget.isEmpty()) {
-			warn("No deployment created yet");
+			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
 			return;
 		}
-		
-		final Deploy deploy = new Deploy(Activator.getDefault().getConnectionManager(), new Dependencies(Arrays.asList(Pattern.compile("java\\..*"))));
-		deploy.deploy("foo", UUID.randomUUID(), mapBlockToTarget).addListener(new FutureListener<FutureNotifier<? super Void>>() {
-			@Override
-			public void operationComplete(FutureNotifier<? super Void> future) {
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("deploy: {}", future.isSuccess());
-				}
-			}
-		});
+
+		final Deploy deploy = new Deploy(Activator.getDefault()
+				.getConnectionManager(), new Dependencies(Arrays.asList(Pattern
+				.compile("java\\..*"))));
+		deploy.deploy("foo", UUID.randomUUID(), mapBlockToTarget).addListener(
+				new FutureListener<FutureNotifier<? super Void>>() {
+					@Override
+					public void operationComplete(
+							FutureNotifier<? super Void> future) {
+						if (LOGGER.isInfoEnabled()) {
+							LOGGER.info("deploy: {}", future.isSuccess());
+						}
+					}
+				});
+
 	}
 
 	/**
@@ -485,12 +536,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		if (!text.isEmpty() && selectedID != null) { // skfdjhasdfhsdfksjdhkfjhsdfkjsldkfjslkdjfsajdhfka
 														// bka bla bla bla lkj j
 														// sdf sdf
-			int cancel = warn("You entered both a place and a module. "
-					+ "Keep in mind that if the module doesn't match the place,"
-					+ " no possible distribution will be found."
-					+ " If you still want to save both the module and the place"
-					+ " for this function blockModel, press OK. "
-					+ "If you want to abort, close this window.");
+			int cancel = warn(DeployViewTexts.WARN_CONSTRAINTS);
 			if (cancel == -4) {
 				return;
 			}
@@ -571,6 +617,7 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		} else {
 			LOGGER.error("Input is not a FileEditorInput {}", input);
 		}
+		mapItemToBlockModel.clear();
 		for (FunctionBlockModel blockModel : functionBlockModels) {
 			TableItem item = new TableItem(deployment, SWT.NONE);
 			if (blockModel.getBlockName() != null) {
@@ -578,11 +625,10 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 			}
 			item.setText(1, "(no module assigned yet)");
 			String pos = blockModel.getPosition();
-			if (pos != null){
+			if (pos != null) {
 				item.setText(2, pos);
 				placeConstraints.put(blockModel, pos);
 			}
-			item.setText(3, "(not deployed yet)");
 			mapItemToBlockModel.put(item, blockModel);
 		}
 	}
@@ -608,16 +654,12 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 		Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(input.getFile()
 				.getProject());
 		LOGGER.debug("using paths {}", paths);
-/**
- * 		URL[] urls = new URL[paths.size()];
- * 		String[] classpath = new String[paths.size()];
-		int i = 0;
-		for (IPath path : paths) {
-			urls[i] = path.toFile().toURI().toURL();
-			classpath[i] = path.toFile().getPath();
-			i++;
-		}
- */
+		/**
+		 * URL[] urls = new URL[paths.size()]; String[] classpath = new
+		 * String[paths.size()]; int i = 0; for (IPath path : paths) { urls[i] =
+		 * path.toFile().toURI().toURL(); classpath[i] =
+		 * path.toFile().getPath(); i++; }
+		 */
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		Resource resource = new XMIResourceImpl(uri);
 		resource.load(null);
@@ -774,12 +816,12 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 				if (serverButton != null) {
 					serverButton.setText("Stop Server");
 				}
-				updateButton.setEnabled(true);
+				updateModulesButton.setEnabled(true);
 				createButton.setEnabled(true);
 				deployButton.setEnabled(true);
 				moduleCombo.setToolTipText("");
 
-				synchronized (ViewDeploy.this) {
+				synchronized (DeployView.this) {
 					while (!idList.isEmpty()) {
 						removeID(idList.get(0)); // TODO: Unschön, aber geht
 													// hoffentlich?
@@ -800,12 +842,12 @@ public class ViewDeploy extends EditorPart implements ModuleManagerListener {
 				if (serverButton != null) {
 					serverButton.setText("Start Server");
 				}
-				updateButton.setEnabled(false);
+				updateModulesButton.setEnabled(false);
 				createButton.setEnabled(false);
 				deployButton.setEnabled(false);
 				moduleCombo
-						.setToolTipText("You have to start the server to be able to select among running modules");
-				synchronized (ViewDeploy.this) {
+						.setToolTipText(DeployViewTexts.SELECTMODULEOFFLINE_TOOLTIP);
+				synchronized (DeployView.this) {
 					while (!idList.isEmpty()) {
 						removeID(idList.get(0)); // TODO: Unschön, aber geht
 													// hoffentlich?
