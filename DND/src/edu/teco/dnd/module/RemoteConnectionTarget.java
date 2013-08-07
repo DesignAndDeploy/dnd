@@ -39,7 +39,7 @@ public class RemoteConnectionTarget extends ConnectionTarget {
 		if (app != null) {
 			app.sendValue(targetFunctionBlock, targetInput, value);
 		} else {
-			throw LOGGER.throwing(new IllegalStateException("appMan not set before trying to send a value."));
+			throw LOGGER.throwing(new IllegalStateException("associated application not set before trying to send a value."));
 		}
 	}
 	
