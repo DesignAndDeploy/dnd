@@ -32,8 +32,10 @@ public class DeployViewTexts {
 
 	public static final String SELECTPLACE_TOOLTIP = "Enter a place for this function block to run on.";
 
-	public static final String WARN_CONSTRAINTS = "You entered both a place and a module. Keep in mind that if the module doesn't match the place, no possible distribution will be found. If you still want to save both the module and the place for this function blockModel, press OK. If you want to abort, close this window.";
+	public static final String WARN_CONSTRAINTS = "You entered both a module and a place. Keep in mind that if the module doesn't match the place, no possible distribution will be found.\n\n Press OK to constrain both module and place for this function block anyway. Close this window to abort.";
 
 	public static final String NO_DEPLOYMENT_YET = "No deployment created yet";
+
+	public static final String NEWCONSTRAINTS = "You changed some constraints on your function blocks after the current deployment was created. Keep in mind that this deployment might not fullfill your constraints anymore.\n\n Press OK to deploy anyway. Close this window to abort.";
 	
 }

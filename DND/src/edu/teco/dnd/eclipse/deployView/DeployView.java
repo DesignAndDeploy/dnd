@@ -84,6 +84,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 	private DeployViewGraphics graphicsManager;
 
+	private boolean newConstraints;
+	
 	private Button serverButton;
 	private Button updateModulesButton; // Button to update moduleCombo
 	private Button updateBlocksButton;
@@ -188,11 +190,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever the UpdateBlocks Button is pressed.
 	 */
 	private void updateBlocks() {
+		resetDeployment();
 		deployment.removeAll();
 		moduleConstraints.clear();
 		placeConstraints.clear();
 		mapItemToBlockModel.clear();
-		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
 		selectedItem = null;
 		selectedBlockModel = null;
 		blockModelName.setText("<select block on the left>");
@@ -248,6 +250,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				final String location = mapBlockToTarget.get(block).getModule()
 						.getLocation();
 				item.setText(4, location == null ? "" : location);
+				deployButton.setEnabled(true);
+				newConstraints = false;
 			}
 		}
 	}
@@ -260,7 +264,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
 			return;
 		}
-
+		
+		if (newConstraints){
+			int cancel = warn(DeployViewTexts.NEWCONSTRAINTS);
+			if (cancel == -4){
+				return;
+			}
+		}
+		
 		final Deploy deploy = new Deploy(Activator.getDefault()
 				.getConnectionManager(), new Dependencies(Arrays.asList(Pattern
 				.compile("java\\..*"))));
@@ -274,11 +285,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 						}
 					}
 				});
-		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
-		for (TableItem item : deployment.getItems()) {
-			item.setText(3, "");
-			item.setText(4, "");
-		}
+		resetDeployment();
 	}
 
 	/**
@@ -346,6 +353,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 		selectedBlockModel.setBlockName(this.blockModelName.getText());
 		selectedItem.setText(0, blockModelName.getText());
+		newConstraints = true;
 	}
 
 	/**
@@ -375,11 +383,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 */
 	private synchronized void removeID(final UUID id) {
 		LOGGER.entry(id);
-		int index = idList.indexOf(id);
-		if (index >= 0) {
-			moduleCombo.remove(index);
-			idList.remove(index);
-			mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
+		int idIndex = idList.indexOf(id);
+		if (idIndex >= 0) {
+			moduleCombo.remove(idIndex+1);
+			idList.remove(idIndex);
+			resetDeployment();
 			for (FunctionBlockModel model : moduleConstraints.keySet()) {
 				if (moduleConstraints.get(model).equals(id)) {
 					moduleConstraints.remove(model);
@@ -515,6 +523,18 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		return null;
 	}
 
+	/**
+	 * Invoked whenever a possibly created deployment gets invalid.
+	 */
+	private void resetDeployment(){
+		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
+		deployButton.setEnabled(false);
+		for (TableItem item : deployment.getItems()) {
+			item.setText(3, "");
+			item.setText(4, "");
+		}
+	}
+	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
@@ -610,7 +630,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				}
 				updateModulesButton.setEnabled(true);
 				createButton.setEnabled(true);
-				deployButton.setEnabled(true);
 				moduleCombo.setToolTipText("");
 
 				synchronized (DeployView.this) {
@@ -636,7 +655,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				}
 				updateModulesButton.setEnabled(false);
 				createButton.setEnabled(false);
-				deployButton.setEnabled(false);
+				resetDeployment();
 				moduleCombo
 						.setToolTipText(DeployViewTexts.SELECTMODULEOFFLINE_TOOLTIP);
 				synchronized (DeployView.this) {
