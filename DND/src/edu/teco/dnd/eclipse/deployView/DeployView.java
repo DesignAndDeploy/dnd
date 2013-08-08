@@ -420,6 +420,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 *            the input of the editor
 	 */
 	private void loadBlockModels(IEditorInput input) {
+		// set to empty Collection to prevent NPE in case loading fails
+		functionBlockModels = new ArrayList<FunctionBlockModel>();
 		if (input instanceof FileEditorInput) {
 			try {
 				functionBlockModels = loadInput((FileEditorInput) input);
