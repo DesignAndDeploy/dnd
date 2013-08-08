@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -65,9 +66,10 @@ import edu.teco.dnd.util.StringUtil;
 
 /**
  * This class gives the user access to all functionality needed to deploy an
- * application. The user can load an existing data flow graph, rename its function
- * blocks and constrain them to specific modules and / or places. The user can
- * also create a distribution and deploy the function blocks on the modules.
+ * application. The user can load an existing data flow graph, rename its
+ * function blocks and constrain them to specific modules and / or places. The
+ * user can also create a distribution and deploy the function blocks on the
+ * modules.
  * 
  */
 public class DeployView extends EditorPart implements ModuleManagerListener {
@@ -183,19 +185,128 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever the UpdateBlocks Button is pressed.
 	 */
 	private void updateBlocks() {
+		Collection<FunctionBlockModel> newBlockModels = new ArrayList<FunctionBlockModel>();
+		Map<UUID, FunctionBlockModel> newIDs = new HashMap<UUID, FunctionBlockModel>();
+		Map<UUID, FunctionBlockModel> oldIDs = new HashMap<UUID, FunctionBlockModel>();
+
+		if (getEditorInput() instanceof FileEditorInput) {
+			try {
+				newBlockModels = loadInput((FileEditorInput) getEditorInput());
+			} catch (IOException e) {
+				LOGGER.catching(e);
+			}
+		} else {
+			LOGGER.error("Input is not a FileEditorInput {}", getEditorInput());
+		}
+
+		for (FunctionBlockModel model : newBlockModels) {
+			newIDs.put(model.getID(), model);
+		}
+		for (FunctionBlockModel model : functionBlockModels) {
+			oldIDs.put(model.getID(), model);
+		}
+
 		resetDeployment();
-		deployment.removeAll();
-		moduleConstraints.clear();
-		placeConstraints.clear();
-		mapItemToBlockModel.clear();
-		selectedItem = null;
-		selectedBlockModel = null;
-		blockModelName.setText("<select block on the left>");
-		blockModelName.setEnabled(false);
-		moduleCombo.setEnabled(false);
-		places.setEnabled(false);
-		constraintsButton.setEnabled(false);
-		loadBlockModels(getEditorInput());
+
+		if (selectedBlockModel != null) {
+			if (!newIDs.keySet().contains(selectedBlockModel.getID())) {
+				resetSelectedBlock();
+			} else {
+				selectedBlockModel = newIDs.get(selectedBlockModel.getID());
+				if (selectedBlockModel.getPosition() != null) {
+					places.setText(selectedBlockModel.getPosition());
+				}
+				if (selectedBlockModel.getBlockName() != null) {
+					blockModelName.setText(selectedBlockModel.getBlockName());
+				}
+			}
+		}
+
+		for (FunctionBlockModel oldModel : functionBlockModels) {
+			if (newIDs.containsKey(oldModel.getID())) {
+				FunctionBlockModel newModel = newIDs.get(oldModel.getID());
+				replaceBlock(oldModel, newModel);
+			} else {
+				removeBlock(oldModel);
+			}
+		}
+
+		for (FunctionBlockModel newModel : newBlockModels) {
+			if (!oldIDs.containsKey(newModel.getID())) {
+				addBlock(newModel);
+			}
+		}
+		functionBlockModels = newBlockModels;
+	}
+
+	/**
+	 * Adds representation of a functionBlockModel that has just been added to
+	 * the functionBlockModels list.
+	 * 
+	 * @param model
+	 *            FunctionBlockModel to add.
+	 */
+	private void addBlock(FunctionBlockModel model) {
+		TableItem item = new TableItem(deployment, SWT.NONE);
+
+		String name = model.getBlockName();
+		if (name != null) {
+			item.setText(0, name);
+		}
+
+		String position = model.getPosition();
+		if (position != null && !position.isEmpty()) {
+			item.setText(2, position);
+			placeConstraints.put(model, position);
+		}
+
+		mapItemToBlockModel.put(item, model);
+	}
+
+	/**
+	 * Replaces a FunctionBlockModel another FunctionBlockModel. This method
+	 * does NOT add the newBlock to the functionBlockModels list but takes care
+	 * of everything else - representation and constraints.
+	 * 
+	 * @param oldBlock
+	 *            old Block
+	 * @param newBlock
+	 *            new Block.
+	 */
+	private void replaceBlock(FunctionBlockModel oldBlock,
+			FunctionBlockModel newBlock) {
+		TableItem item = getItem(oldBlock);
+		UUID module = moduleConstraints.get(oldBlock);
+		moduleConstraints.remove(oldBlock);
+		placeConstraints.remove(oldBlock);
+
+		mapItemToBlockModel.put(item, newBlock);
+
+		if (newBlock.getBlockName() != null) {
+			item.setText(0, newBlock.getBlockName());
+		}
+
+		if (module != null) {
+			moduleConstraints.put(newBlock, module);
+		}
+
+		String newPosition = newBlock.getPosition();
+		if (newPosition != null) {
+			item.setText(2, newPosition);
+			if (!newPosition.isEmpty()) {
+				placeConstraints.put(newBlock, newPosition);
+			}
+		} else {
+			item.setText(2, "");
+		}
+	}
+
+	private void removeBlock(FunctionBlockModel model) {
+		TableItem item = getItem(model);
+		moduleConstraints.remove(model);
+		placeConstraints.remove(model);
+		mapItemToBlockModel.remove(item);
+		item.dispose();
 	}
 
 	/**
@@ -289,30 +400,36 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		});
 		deploy.addListener(new DeployListener() {
 			// TODO: actually show the progress. Probably using Eclipse Jobs
-			
+
 			@Override
 			public void moduleJoined(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} joined Application {}", moduleUUID, appId);
+				LOGGER.debug("Module {} joined Application {}", moduleUUID,
+						appId);
 			}
-			
+
 			@Override
 			public void moduleLoadedClasses(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, appId);
+				LOGGER.debug("Module {} loaded all classes for Application {}",
+						moduleUUID, appId);
 			}
-			
+
 			@Override
 			public void moduleLoadedBlocks(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
+				LOGGER.debug(
+						"Module {} loaded all FunctionBlocks for Application {}",
+						moduleUUID, appId);
 			}
-			
+
 			@Override
 			public void moduleStarted(final UUID appId, final UUID moduleUUID) {
-				LOGGER.debug("Module {} started the Application {}", moduleUUID, appId);
+				LOGGER.debug("Module {} started the Application {}",
+						moduleUUID, appId);
 			}
-			
+
 			@Override
 			public void deployFailed(UUID appId, Throwable cause) {
-				LOGGER.debug("deploying Application {} failed: {}", appId, cause);
+				LOGGER.debug("deploying Application {} failed: {}", appId,
+						cause);
 			}
 		});
 		deploy.deploy();
@@ -371,6 +488,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		} else {
 			placeConstraints.put(selectedBlockModel, text);
 		}
+		selectedBlockModel.setPosition(text);
 		selectedItem.setText(2, text);
 
 		if (selectedID != null) {
@@ -433,8 +551,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Loads the FunctinoBlockModels of a dataflowgraph and displays them in the
-	 * deployment table.
+	 * Loads the FunctinoBlockModels of a data flow graph and displays them in
+	 * the deployment table.
 	 * 
 	 * @param input
 	 *            the input of the editor
@@ -460,16 +578,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 		mapItemToBlockModel.clear();
 		for (FunctionBlockModel blockModel : functionBlockModels) {
-			TableItem item = new TableItem(deployment, SWT.NONE);
-			if (blockModel.getBlockName() != null) {
-				item.setText(0, blockModel.getBlockName());
-			}
-			String pos = blockModel.getPosition();
-			if (pos != null) {
-				item.setText(2, pos);
-				placeConstraints.put(blockModel, pos);
-			}
-			mapItemToBlockModel.put(item, blockModel);
+			addBlock(blockModel);
 		}
 	}
 
@@ -582,6 +691,20 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 	}
 
+	/**
+	 * Invoked whenever the selected Block gets dirty.
+	 */
+	private void resetSelectedBlock() {
+		places.setText("");
+		selectedItem = null;
+		selectedBlockModel = null;
+		blockModelName.setText("<select block on the left>");
+		blockModelName.setEnabled(false);
+		moduleCombo.setEnabled(false);
+		places.setEnabled(false);
+		constraintsButton.setEnabled(false);
+	}
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
@@ -623,7 +746,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		LOGGER.exit();
 	}
 
-	// TODO: Was tun, wenn auf modul deployt werden soll, das offline ist?
 	@Override
 	public void moduleOffline(final UUID id) {
 		LOGGER.entry(id);
