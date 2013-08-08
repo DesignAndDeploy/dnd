@@ -10,9 +10,8 @@ public class MissingApplicationNak extends Response {
 
 	public UUID appId;
 
-	public MissingApplicationNak(UUID sourceUUID) {
-		super(sourceUUID);
-		this.appId = sourceUUID;
+	public MissingApplicationNak(UUID appId) {
+		this.appId = appId;
 	}
 
 	@SuppressWarnings("unused")

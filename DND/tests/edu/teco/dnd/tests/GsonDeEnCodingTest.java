@@ -22,6 +22,10 @@ import edu.teco.dnd.module.messages.BlockMessageDeserializerAdapter;
 import edu.teco.dnd.module.messages.BlockMessageSerializerAdapter;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
+import edu.teco.dnd.module.messages.generalModule.ShutdownModuleAck;
+import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
+import edu.teco.dnd.module.messages.generalModule.ShutdownModuleNak;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
@@ -108,6 +112,31 @@ public class GsonDeEnCodingTest implements Serializable {
 		msgAdapter.addMessageType(RequestApplicationListMessage.class);
 		testEnDeCoding(new RequestApplicationListMessage());
 	}
+	
+	@Test
+	public void ShutdownModuleMessageTest() {
+		msgAdapter.addMessageType(ShutdownModuleMessage.class);
+		testEnDeCoding(new ShutdownModuleMessage());
+	}
+	
+	@Test
+	public void ShutdownModuleNakTest() {
+		msgAdapter.addMessageType(ShutdownModuleNak.class);
+		testEnDeCoding(new ShutdownModuleNak());
+	}
+	
+	@Test
+	public void ShutdownModuleAckTest() {
+		msgAdapter.addMessageType(ShutdownModuleAck.class);
+		testEnDeCoding(new ShutdownModuleAck());
+	}
+	
+	@Test
+	public void MissingApplicationNakTest() {
+		msgAdapter.addMessageType(MissingApplicationNak.class);
+		testEnDeCoding(new MissingApplicationNak(TEST_APP_UUID));
+	}
+
 
 	@Test
 	public void ModuleInfoMessageTest() {

@@ -19,9 +19,9 @@ public class ShutdownModuleHandler implements MessageHandler<ShutdownModuleMessa
 		try {
 			appMan.shutdownModule();
 		} catch (Exception ex) {
-			return new ShutdownModuleNak(remoteUUID);
+			return new ShutdownModuleNak();
 		}
-		return new ShutdownModuleAck(remoteUUID);
+		return new ShutdownModuleAck();
 	}
 
 }

@@ -15,12 +15,8 @@ public class ApplicationClassLoader extends ClassLoader {
 
 	private Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	private Map<String, byte[]> classBytes = new HashMap<String, byte[]>();
-	private ConnectionManager connMan;
-	private UUID associatedAppId;
 
 	public ApplicationClassLoader(ConnectionManager connMan, UUID associatedAppId) {
-		this.connMan = connMan;
-		this.associatedAppId = associatedAppId;
 	}
 
 	@Override
@@ -61,7 +57,7 @@ public class ApplicationClassLoader extends ClassLoader {
 		} else {
 			LOGGER.warn("class " + name + " bytecode was not loaded before it was instantiated.");
 			throw new ClassNotFoundException();
-			//TODO This would be a good point to request class bytecode from other modules, if so desired.
+			// TODO This would be a good point to request class bytecode from other modules, if so desired.
 		}
 	}
 
