@@ -71,6 +71,6 @@ public class FileCache {
 			lock.writeLock().unlock();
 		}
 		
-		return null;
+		return data;
 	}
 }
