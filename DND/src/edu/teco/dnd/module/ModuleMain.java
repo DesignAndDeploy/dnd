@@ -74,7 +74,7 @@ public class ModuleMain {
 	 * Default path for config file.
 	 */
 	public static final String DEFAULT_CONFIG_PATH = "module.cfg";
-	
+
 	private static final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
 	private static final OioEventLoopGroup oioGroup = new OioEventLoopGroup();
 
@@ -99,6 +99,14 @@ public class ModuleMain {
 			System.exit(1);
 		}
 		TCPConnectionManager connectionManager = prepareNetwork(moduleConfig);
+
+		try {
+			System.setSecurityManager(new ApplicationSecurityManager());
+		} catch (SecurityException se) {
+			LOGGER.fatal("Can not set SecurityManager.");
+			System.exit(-1);
+		}
+
 		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig, connectionManager);
 		registerHandlerAdapter(moduleConfig, connectionManager, appMan);
 
@@ -122,7 +130,6 @@ public class ModuleMain {
 	public static TCPConnectionManager prepareNetwork(ConfigReader moduleConfig) {
 
 		// TODO: name threads (app threads are already named)
-		
 
 		final TCPConnectionManager connectionManager = new TCPConnectionManager(networkEventLoopGroup,
 				networkEventLoopGroup, new ChannelFactory<NioServerSocketChannel>() {
@@ -160,7 +167,7 @@ public class ModuleMain {
 
 		return connectionManager;
 	}
-	
+
 	public static void globalRegisterMessageAdapterType(TCPConnectionManager connectionManager) {
 		connectionManager.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		connectionManager.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
@@ -208,8 +215,8 @@ public class ModuleMain {
 		connectionManager.addHandler(RequestApplicationListMessage.class, new RequestApplicationListMsgHandler(
 				moduleConfig.getUuid(), appMan));
 		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
-		
-		//Module does not have application but received Message, handlers
+
+		// Module does not have application but received Message, handlers
 		connectionManager.addHandler(null, LoadClassMessage.class, new MissingApplicationHandler());
 		connectionManager.addHandler(null, BlockMessage.class, new MissingApplicationHandler());
 		connectionManager.addHandler(null, StartApplicationMessage.class, new MissingApplicationHandler());
@@ -217,14 +224,12 @@ public class ModuleMain {
 		connectionManager.addHandler(null, ValueMessage.class, new MissingApplicationHandler());
 		connectionManager.addHandler(null, WhoHasBlockMessage.class, new MissingApplicationHandler());
 		connectionManager.addHandler(null, ShutdownModuleMessage.class, new ShutdownModuleHandler(appMan));
-		
-		
+
 	}
-	
+
 	public static void shutdownNetwork() {
 		networkEventLoopGroup.shutdownGracefully();
 		oioGroup.shutdownGracefully();
 	}
-
 
 }

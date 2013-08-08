@@ -846,7 +846,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				channelsLock.writeLock().lock();
 				final Channel channel = clientChannels.get(remoteUUID);
 				if (channel != null && !channel.equals(ctx.channel())) {
-					LOGGER.info("got {} but there is already another connection ({}), closing that");
+					LOGGER.info("got {} but there is already another connection ({}), closing that", msg);
+					//FIXME last {} above is missing.
 					unconnectedChannels.remove(channel);
 					channel.close();
 				}
