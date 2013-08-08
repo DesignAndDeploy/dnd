@@ -2,9 +2,12 @@ package edu.teco.dnd.module;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import edu.teco.dnd.network.ConnectionManager;
 
 public class ApplicationClassLoader extends ClassLoader {
 
@@ -12,6 +15,13 @@ public class ApplicationClassLoader extends ClassLoader {
 
 	private Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	private Map<String, byte[]> classBytes = new HashMap<String, byte[]>();
+	private ConnectionManager connMan;
+	private UUID associatedAppId;
+
+	public ApplicationClassLoader(ConnectionManager connMan, UUID associatedAppId) {
+		this.connMan = connMan;
+		this.associatedAppId = associatedAppId;
+	}
 
 	@Override
 	protected Class<?> loadClass(String name, boolean resolveIt) throws ClassNotFoundException {
