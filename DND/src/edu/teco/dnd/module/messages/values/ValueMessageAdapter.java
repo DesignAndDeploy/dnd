@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.values;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,7 +18,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import edu.teco.dnd.module.ModuleApplicationManager;
-import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.util.Base64;
 
 public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, JsonSerializer<ValueMessage> {

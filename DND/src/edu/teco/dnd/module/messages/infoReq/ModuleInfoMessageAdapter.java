@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.infoReq;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -11,7 +11,6 @@ import com.google.gson.JsonParseException;
 
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
-import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 
 public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMessage> {
 	@Override
