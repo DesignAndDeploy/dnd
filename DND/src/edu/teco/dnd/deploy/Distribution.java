@@ -1,5 +1,6 @@
 package edu.teco.dnd.deploy;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +39,7 @@ public class Distribution {
 	/**
 	 * Mapping from BlockTypeHolder to matching BlockTarget.
 	 */
-	private final Map<BlockTypeHolder, BlockTarget> blockTargets;
+	private final Map<Entry<Module, BlockTypeHolder>, BlockTarget> blockTargets;
 	
 	/**
 	 * Returns the mapping for this distribution.
@@ -55,7 +56,7 @@ public class Distribution {
 	public Distribution() {
 		blocks = new HashMap<FunctionBlock, Distribution.BlockTarget>();
 		targets = new HashMap<Distribution.BlockTarget, Collection<FunctionBlock>>();
-		blockTargets = new HashMap<BlockTypeHolder, Distribution.BlockTarget>();
+		blockTargets = new HashMap<Entry<Module, BlockTypeHolder>, Distribution.BlockTarget>();
 	}
 	
 	/**
@@ -67,7 +68,7 @@ public class Distribution {
 		this(
 			new HashMap<FunctionBlock, BlockTarget>(old.blocks),
 			new HashMap<BlockTarget, Collection<FunctionBlock>>(old.targets),
-			new HashMap<BlockTypeHolder, BlockTarget>(old.blockTargets)
+			new HashMap<Entry<Module, BlockTypeHolder>, BlockTarget>(old.blockTargets)
 		);
 	}
 	
@@ -80,7 +81,7 @@ public class Distribution {
 	 */
 	private Distribution(final Map<FunctionBlock, BlockTarget> blocks,
 			final Map<BlockTarget, Collection<FunctionBlock>> targets,
-			final Map<BlockTypeHolder, BlockTarget> blockTargets) {
+			final Map<Entry<Module, BlockTypeHolder>, BlockTarget> blockTargets) {
 		this.blocks = blocks;
 		this.targets = targets;
 		this.blockTargets = blockTargets;
@@ -143,10 +144,11 @@ public class Distribution {
 	 * @return the BlockTarget for <code>typeHolder</code>
 	 */
 	private BlockTarget getBlockTarget(final Module module, final BlockTypeHolder typeHolder) {
-		BlockTarget target = blockTargets.get(typeHolder);
+		final Entry<Module, BlockTypeHolder> key = new AbstractMap.SimpleEntry<Module, BlockTypeHolder>(module, typeHolder);
+		BlockTarget target = blockTargets.get(key);
 		if (target == null) {
 			target = new BlockTarget(module, typeHolder);
-			blockTargets.put(typeHolder, target);
+			blockTargets.put(key, target);
 		}
 		
 		return target;
