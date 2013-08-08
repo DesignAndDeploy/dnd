@@ -28,4 +28,9 @@ public class DefaultResponse extends Response {
 	public DefaultResponse() {
 		super();
 	}
+	
+	@Override
+	public String toString() {
+		return "DefaultResponse[uuid=" + getUUID() + ",sourceUUID=" + getSourceUUID() + "]";
+	}
 }
