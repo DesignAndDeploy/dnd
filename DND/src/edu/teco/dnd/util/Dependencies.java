@@ -123,8 +123,8 @@ public class Dependencies {
 	
 	/**
 	 * Returns a collection of all files that the given class depends on. There may be dependencies that are not
-	 * included in the returned collection, for example if the given class file is not found in the classpath. The
-	 * given class will always be included if it can be loaded, even if filters would keep it from getting inspected.
+	 * included in the returned collection, for example if the given class file is not found in the classpath. If
+	 * the class given is filtered and empty collection is returned.
 	 * 
 	 * @param className the class to inspect
 	 * @return a Collection of all ClassFiles that are dependencies of the given class
@@ -132,6 +132,11 @@ public class Dependencies {
 	public Collection<ClassFile> getDependencies(final String className) {
 		LOGGER.entry(className);
 		final Collection<ClassFile> dependencies = new HashSet<ClassFile>();
+		
+		if (isFiltered(className)) {
+			LOGGER.exit(dependencies);
+			return dependencies;
+		}
 		
 		JavaClass cls = null;
 		
@@ -157,7 +162,7 @@ public class Dependencies {
 	
 	/**
 	 * Returns a collection of a all JavaClasses that are dependencies of the given class. This includes the given
-	 * class.
+	 * class. If the class that is given is filtered an empty Collection is returned.
 	 * 
 	 * @param cls the JavaClass to inspect
 	 * @return all dependencies of the class that are not filtered
@@ -165,6 +170,10 @@ public class Dependencies {
 	public Collection<JavaClass> getDependencies(final JavaClass cls) {
 		if (LOGGER.isTraceEnabled(FLOW_MARKER)) {
 			LOGGER.entry(cls.getClassName());
+		}
+		
+		if (isFiltered(cls)) {
+			return Collections.emptyList();
 		}
 		
 		final ConstantPool cp = cls.getConstantPool();
@@ -224,12 +233,13 @@ public class Dependencies {
 	 * @return true if the class is filtered
 	 */
 	private boolean isFiltered(final JavaClass cls) {
-		if (LOGGER.isTraceEnabled(FLOW_MARKER)) {
-			LOGGER.entry(cls.getClassName());
-		}
-		final String name = cls.getClassName();
+		return isFiltered(cls.getClassName());
+	}
+	
+	private boolean isFiltered(final String className) {
+		LOGGER.entry(className);
 		for (final Pattern pattern : filter) {
-			if (pattern.matcher(name).matches()) {
+			if (pattern.matcher(className).matches()) {
 				LOGGER.exit(true);
 				return true;
 			}
