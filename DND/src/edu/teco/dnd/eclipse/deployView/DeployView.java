@@ -43,6 +43,7 @@ import edu.teco.dnd.deploy.Constraint;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.deploy.Deploy;
+import edu.teco.dnd.deploy.DeployListener;
 import edu.teco.dnd.deploy.DistributionGenerator;
 import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.deploy.UserConstraints;
@@ -257,12 +258,41 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 		
 		final Deploy deploy = new Deploy(Activator.getDefault().getConnectionManager(), mapBlockToTarget, appName.getText(), new Dependencies(Arrays.asList(Pattern.compile("java\\..*"))));
+		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes or to run code at that point
 		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
 			@Override
 			public void operationComplete(FutureNotifier<? super Void> future) {
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("deploy: {}", future.isSuccess());
 				}
+			}
+		});
+		deploy.addListener(new DeployListener() {
+			// TODO: actually show the progress. Probably using Eclipse Jobs
+			
+			@Override
+			public void moduleJoined(UUID appId, UUID moduleUUID) {
+				LOGGER.debug("Module {} joined Application {}", moduleUUID, appId);
+			}
+			
+			@Override
+			public void moduleLoadedClasses(UUID appId, UUID moduleUUID) {
+				LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, appId);
+			}
+			
+			@Override
+			public void moduleLoadedBlocks(UUID appId, UUID moduleUUID) {
+				LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
+			}
+			
+			@Override
+			public void moduleStarted(final UUID appId, final UUID moduleUUID) {
+				LOGGER.debug("Module {} started the Application {}", moduleUUID, appId);
+			}
+			
+			@Override
+			public void deployFailed(UUID appId, Throwable cause) {
+				LOGGER.debug("deploying Application {} failed: {}", appId, cause);
 			}
 		});
 		deploy.deploy();

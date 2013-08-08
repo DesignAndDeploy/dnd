@@ -3,6 +3,7 @@ package edu.teco.dnd.deploy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -119,7 +120,7 @@ public class Deploy {
 	/**
 	 * Stores the FunctionBlocks that are to be sent to each Module.
 	 */
-	private Map<Module, Set<FunctionBlock>> moduleMap;
+	private final Map<Module, Set<FunctionBlock>> moduleMap;
 	
 	/**
 	 * Used to make sure that the deployment process is only started once.
@@ -142,6 +143,7 @@ public class Deploy {
 		this.appName = name;
 		this.dependencies = dependencies;
 		this.appId = appId;
+		this.moduleMap = MapUtil.invertMap(getModuleMapping());
 		LOGGER.exit();
 	}
 
@@ -189,6 +191,55 @@ public class Deploy {
 		}
 		LOGGER.exit();
 	}
+	
+	/**
+	 * Returns the name of the Application.
+	 * 
+	 * @return the name of the Application
+	 */
+	public String getName() {
+		return this.appName;
+	}
+	
+	/**
+	 * Returns the UUID of the Application.
+	 * 
+	 * @return the UUID of the Application
+	 */
+	public UUID getApplicationUUID() {
+		return this.appId;
+	}
+	
+	/**
+	 * Returns the number of Modules that will be used by the Application.
+	 * 
+	 * @return the number of Modules that will be used by the Application
+	 */
+	public int getModuleCount() {
+		return this.moduleMap.size();
+	}
+	
+	/**
+	 * Returns all Modules used by the application.
+	 * 
+	 * @return all Modules used by the application
+	 */
+	public Set<Module> getModules() {
+		return Collections.unmodifiableSet(this.moduleMap.keySet());
+	}
+	
+	/**
+	 * Returns the UUIDs of the Modules used by the application.
+	 * 
+	 * @return the UUIDs of the Modules used by the application
+	 */
+	public Collection<UUID> getModuleUUIDs() {
+		final Collection<UUID> uuids = new ArrayList<UUID>(moduleMap.size());
+		for (final Module module : moduleMap.keySet()) {
+			uuids.add(module.getUUID());
+		}
+		return uuids;
+	}
 
 	/**
 	 * Returns a FutureNotifier that represents the state of the deployment process: When the FutureNotifier is finished the deployment process is finished and the
@@ -213,9 +264,6 @@ public class Deploy {
 			LOGGER.exit(false);
 			return false;
 		}
-		
-		final Map<FunctionBlock, Module> moduleMapping = getModuleMapping();
-		moduleMap = MapUtil.invertMap(moduleMapping);
 		
 		unfinishedModules.set(moduleMap.size());
 		
@@ -293,6 +341,8 @@ public class Deploy {
 				LOGGER.exit();
 				return;
 			}
+			
+			informJoined(module.getUUID());
 
 			LOGGER.debug("sending classes to {}", module);
 			sendClasses(module).addListener(new FutureListener<FutureNotifier<Collection<Response>>>() {
@@ -305,6 +355,22 @@ public class Deploy {
 			deployFutureNotifier.setFailure0(future.cause());
 		}
 		LOGGER.exit();
+	}
+	
+	/**
+	 * Calls {@link DeployListener#moduleJoined(UUID)} on all listeners.
+	 * 
+	 * @param moduleUUID the UUID of the Module that joined
+	 */
+	private void informJoined(final UUID moduleUUID) {
+		listenerLock.readLock().lock();
+		try {
+			for (final DeployListener listener : listeners) {
+				listener.moduleJoined(appId, moduleUUID);
+			}
+		} finally {
+			listenerLock.readLock().unlock();
+		}
 	}
 	
 	/**
@@ -362,6 +428,8 @@ public class Deploy {
 				}
 			}
 			
+			informClassesLoaded(module.getUUID());
+			
 			LOGGER.debug("sending blocks to {}", module);
 			sendBlocks(module).addListener(new FutureListener<FutureNotifier<Collection<Response>>>() {
 				@Override
@@ -375,6 +443,22 @@ public class Deploy {
 		LOGGER.exit();
 	}
 	
+	/**
+	 * Calls {@link DeployListener#moduleLoadedClasses(UUID)} on all listeners.
+	 * 
+	 * @param moduleUUID the UUID of the Module that loaded the classes
+	 */
+	private void informClassesLoaded(final UUID moduleUUID) {
+		listenerLock.readLock().lock();
+		try {
+			for (final DeployListener listener : listeners) {
+				listener.moduleLoadedClasses(appId, moduleUUID);
+			}
+		} finally {
+			listenerLock.readLock().unlock();
+		}
+	}
+
 	/**
 	 * Sends all Blocks that are assigned to the given Module to the Module.
 	 * 
@@ -425,6 +509,8 @@ public class Deploy {
 				}
 			}
 			
+			informBlocksLoaded(module.getUUID());
+			
 			LOGGER.debug("module {} finished successfully", module);
 			if (unfinishedModules.decrementAndGet() <= 0) {
 				LOGGER.debug("last module finished, sending StartApplication");
@@ -444,7 +530,24 @@ public class Deploy {
 	}
 	
 	/**
-	 * Sends a {@link StartApplicationMessage} to all Modules
+	 * Calls {@link DeployListener#moduleLoadedBlocks(UUID)} on all listeners.
+	 * 
+	 * @param moduleUUID the UUID of the Module that loaded its blocks
+	 */
+	private void informBlocksLoaded(final UUID moduleUUID) {
+		listenerLock.readLock().lock();
+		try {
+			for (final DeployListener listener : listeners) {
+				listener.moduleLoadedBlocks(appId, moduleUUID);
+			}
+		} finally {
+			listenerLock.readLock().unlock();
+		}
+	}
+
+	/**
+	 * Sends a {@link StartApplicationMessage} to all Modules and adds a listener to each future to call {@link #informModuleStarted(UUID)} if the
+	 * Module started the application successfully.
 	 * 
 	 * @return a FutureNotifier returning the Responses of all Modules
 	 */
@@ -452,7 +555,17 @@ public class Deploy {
 		final StartApplicationMessage startApplicationMessage = new StartApplicationMessage(appId);
 		final Collection<FutureNotifier<? extends Response>> futureNotifiers = new ArrayList<FutureNotifier<? extends Response>>();
 		for (final Module module : moduleMap.keySet()) {
-			futureNotifiers.add(connectionManager.sendMessage(module.getUUID(), startApplicationMessage));
+			final UUID moduleUUID = module.getUUID();
+			final FutureNotifier<Response> futureNotifier = connectionManager.sendMessage(module.getUUID(), startApplicationMessage);
+			futureNotifier.addListener(new FutureListener<FutureNotifier<Response>>() {
+				@Override
+				public void operationComplete(final FutureNotifier<Response> future) {
+					if (future.isSuccess() && future.getNow() instanceof StartApplicationAck) {
+						informModuleStarted(moduleUUID);
+					}
+				}
+			});
+			futureNotifiers.add(futureNotifier);
 		}
 		return new JoinedFutureNotifier<Response>(futureNotifiers);
 	}
@@ -488,6 +601,38 @@ public class Deploy {
 	}
 
 	/**
+	 * Calls {@link DeployListener#moduleStarted(UUID)} on all listeners.
+	 * 
+	 * @param moduleUUID the UUID of the Module that started
+	 */
+	private void informModuleStarted(final UUID moduleUUID) {
+		listenerLock.readLock().lock();
+		try {
+			for (final DeployListener listener : listeners) {
+				listener.moduleStarted(appId, moduleUUID);
+			}
+		} finally {
+			listenerLock.readLock().unlock();
+		}
+	}
+	
+	/**
+	 * Calls {@link DeployListener#deployFailed(Throwable)} on all listeners.
+	 * 
+	 * @param cause the cause for the failure
+	 */
+	private void informDeployFailed(final Throwable cause) {
+		listenerLock.readLock().lock();
+		try {
+			for (final DeployListener listener : listeners) {
+				listener.deployFailed(appId, cause);
+			}
+		} finally {
+			listenerLock.readLock().unlock();
+		}
+	}
+
+	/**
 	 * This class is used to provide a FutureNotifier for the deployment process.
 	 * 
 	 * @author Philipp Adolf
@@ -514,6 +659,8 @@ public class Deploy {
 				for (final Module module : moduleMap.keySet()) {
 					connectionManager.sendMessage(module.getUUID(), killAppMsg);
 				}
+				
+				informDeployFailed(cause);
 			}
 		}
 	}
