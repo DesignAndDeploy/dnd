@@ -164,6 +164,9 @@ public class Application {
 	 *            bytecode of the class to be loaded
 	 */
 	public void loadClass(String classname, byte[] classData) {
+		if (classname == null || classData == null) {
+			throw new IllegalArgumentException("classname and classdata must not be null.");
+		}
 		classLoader.appLoadClass(classname, classData);
 	}
 
@@ -215,7 +218,7 @@ public class Application {
 			if (period < 0) {
 				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
 			} else {
-				scheduledThreadPool.scheduleAtFixedRate(updater, period, period, TimeUnit.SECONDS);
+				scheduledThreadPool.scheduleAtFixedRate(updater, period, period, TimeUnit.MILLISECONDS);
 			}
 		} catch (RejectedExecutionException e) {
 			LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
@@ -275,6 +278,7 @@ public class Application {
 	 */
 	public void shutdown() {
 		scheduledThreadPool.shutdown();
+		// TODO function to tell blocks they are being shut down.
 	}
 
 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
