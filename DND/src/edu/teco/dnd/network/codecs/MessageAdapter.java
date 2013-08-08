@@ -191,8 +191,6 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 			return null;
 		}
 		final JsonElement element = context.serialize(src);
-		// FIXME: Infinite recursion. See edu.teco.dnd.tests.GsonDeEnCodingTest /
-		// edu.teco.dnd.module.messages.ModuleMessageAdapter for a working implementation.
 		if (!(element instanceof JsonObject)) {
 			LOGGER.warn("got {} for {}, which is not a JsonObject", element, src);
 			LOGGER.exit(null);
