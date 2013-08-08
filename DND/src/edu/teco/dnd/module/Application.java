@@ -35,7 +35,6 @@ public class Application {
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
 	private final Map<UUID/* funcBlockId */, UUID/* ModuleId */> moduleForFuncBlock;
-	private final Set<UUID /* funcBlockId */> ownBlocks;
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
 	private final Map<UUID, FunctionBlock> funcBlockById;
@@ -56,7 +55,6 @@ public class Application {
 		this.classLoader = classloader;
 
 		this.moduleForFuncBlock = new HashMap<UUID, UUID>();
-		this.ownBlocks = new HashSet<UUID>();
 		this.funcBlockById = new HashMap<UUID, FunctionBlock>();
 	}
 
@@ -305,6 +303,6 @@ public class Application {
 	 * @return true iff the the given block is executing on this Module.
 	 */
 	public boolean isExecuting(UUID blockId) {
-		return ownBlocks.contains(blockId);
+		return funcBlockById.containsKey(blockId);
 	}
 }
