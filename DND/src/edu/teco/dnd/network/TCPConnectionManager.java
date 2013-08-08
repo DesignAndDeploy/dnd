@@ -839,15 +839,14 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				if (establish) {
 					notifyEstablished(remoteUUID);
 				} else {
-					LOGGER.warn("got {}, my UUID ({}) is lower than remote UUID, but channel is not waiting",
+					LOGGER.warn("got {}, my UUID ({}) is lower than remote UUID ({}), but channel is not waiting",
 							msg, localUUID, remoteUUID);
 				}
 			} else {
 				channelsLock.writeLock().lock();
 				final Channel channel = clientChannels.get(remoteUUID);
 				if (channel != null && !channel.equals(ctx.channel())) {
-					LOGGER.info("got {} but there is already another connection ({}), closing that", msg);
-					//FIXME last {} above is missing.
+					LOGGER.info("got {} but there is already another connection ({}), closing that", msg, channel);
 					unconnectedChannels.remove(channel);
 					channel.close();
 				}
