@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -588,6 +587,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		for (final IPath path : paths) {
 			try {
 				classPath.add(path.toFile().toURI().toURL());
+				System.out.println(path.toOSString());
 			} catch (final MalformedURLException e) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.catching(Level.DEBUG, e);
