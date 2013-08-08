@@ -1,6 +1,9 @@
 package edu.teco.dnd.eclipse.deployView;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,8 +13,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.URI;
@@ -56,6 +61,7 @@ import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Dependencies;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
+import edu.teco.dnd.util.StringUtil;
 
 /**
  * This class gives the user access to all functionality needed to deploy an
@@ -105,6 +111,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private FunctionBlockModel selectedBlockModel;
 	private Map<FunctionBlockModel, UUID> moduleConstraints = new HashMap<FunctionBlockModel, UUID>();
 	private Map<FunctionBlockModel, String> placeConstraints = new HashMap<FunctionBlockModel, String>();
+	
+	private URL[] classPath = new URL[0];
 
 	@Override
 	public void setFocus() {
@@ -204,10 +212,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			return;
 		}
 
+		final ClassLoader classLoader = new URLClassLoader(classPath, DeployView.class.getClassLoader());
 		Map<FunctionBlock, FunctionBlockModel> blocksToModels = new HashMap<FunctionBlock, FunctionBlockModel>();
 		for (FunctionBlockModel model : functionBlockModels) {
 			try {
-				blocksToModels.put(model.createBlock(), model);
+				blocksToModels.put(model.createBlock(classLoader), model);
 			} catch (InvalidFunctionBlockException e) {
 				e.printStackTrace();
 			}
@@ -257,7 +266,18 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			}
 		}
 		
-		final Deploy deploy = new Deploy(Activator.getDefault().getConnectionManager(), mapBlockToTarget, appName.getText(), new Dependencies(Arrays.asList(Pattern.compile("java\\..*"))));
+		final Dependencies dependencies = new Dependencies(
+				StringUtil.joinArray(classPath, ":"),
+				Arrays.asList(
+						Pattern.compile("java\\..*"),
+						Pattern.compile("edu\\.teco\\.dnd\\..*"),
+						Pattern.compile("com\\.google\\.gson\\..*"),
+						Pattern.compile("org\\.apache\\.bcel\\..*"),
+						Pattern.compile("io\\.netty\\..*"),
+						Pattern.compile("org\\.apache\\.logging\\.log4j")
+				)
+			);
+		final Deploy deploy = new Deploy(Activator.getDefault().getConnectionManager(), mapBlockToTarget, appName.getText(), dependencies);
 		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes or to run code at that point
 		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
 			@Override
@@ -423,6 +443,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		// set to empty Collection to prevent NPE in case loading fails
 		functionBlockModels = new ArrayList<FunctionBlockModel>();
 		if (input instanceof FileEditorInput) {
+			final IProject project = EclipseUtil.getWorkspaceProject(((FileEditorInput) input).getPath());
+			if (project != null) {
+				classPath = getClassPath(project);
+			} else {
+				classPath = new URL[0];
+			}
+			
 			try {
 				functionBlockModels = loadInput((FileEditorInput) input);
 			} catch (IOException e) {
@@ -446,6 +473,22 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 	}
 
+	private URL[] getClassPath(final IProject project) {
+		final Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(project);
+		final ArrayList<URL> classPath = new ArrayList<URL>(paths.size());
+		for (final IPath path : paths) {
+			try {
+				classPath.add(path.toFile().toURI().toURL());
+			} catch (final MalformedURLException e) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.catching(Level.DEBUG, e);
+					LOGGER.debug("Not adding path {} to class path", path);
+				}
+			}
+		}
+		return classPath.toArray(new URL[0]);
+	}
+
 	/**
 	 * Loads the given data flow graph. The file given in the editor input must
 	 * be a valid graph. Its function block models are loaded into a list and
@@ -464,15 +507,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
 		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
 
-		Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(input.getFile()
-				.getProject());
-		LOGGER.debug("using paths {}", paths);
-		/**
-		 * URL[] urls = new URL[paths.size()]; String[] classpath = new
-		 * String[paths.size()]; int i = 0; for (IPath path : paths) { urls[i] =
-		 * path.toFile().toURI().toURL(); classpath[i] =
-		 * path.toFile().getPath(); i++; }
-		 */
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		Resource resource = new XMIResourceImpl(uri);
 		resource.load(null);

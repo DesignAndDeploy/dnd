@@ -402,6 +402,7 @@ public class Deploy {
 		} catch (final IOException e) {
 			return new FinishedFutureNotifier<Response>(e);
 		}
+		LOGGER.trace("sending class {} to module {}", classFile, moduleUUID);
 		return connectionManager.sendMessage(moduleUUID, new LoadClassMessage(classFile.getClassName(), classData, appId));
 	}
 
