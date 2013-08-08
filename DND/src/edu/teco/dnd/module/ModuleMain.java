@@ -19,8 +19,9 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.messages.BlockMessageDeserializerAdapter;
-import edu.teco.dnd.module.messages.ModuleInfoMessageAdapter;
-import edu.teco.dnd.module.messages.ValueMessageAdapter;
+import edu.teco.dnd.module.messages.generalModule.MissingApplicationHandler;
+import edu.teco.dnd.module.messages.generalModule.ShutdownModuleHandler;
+import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
@@ -45,8 +46,10 @@ import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassNak;
 import edu.teco.dnd.module.messages.values.AppBlockIdFoundMessage;
 import edu.teco.dnd.module.messages.values.BlockFoundMessage;
+import edu.teco.dnd.module.messages.values.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.values.ValueAck;
 import edu.teco.dnd.module.messages.values.ValueMessage;
+import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.values.ValueNak;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.network.TCPConnectionManager;
@@ -71,6 +74,9 @@ public class ModuleMain {
 	 * Default path for config file.
 	 */
 	public static final String DEFAULT_CONFIG_PATH = "module.cfg";
+	
+	private static final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
+	private static final OioEventLoopGroup oioGroup = new OioEventLoopGroup();
 
 	public static void main(final String[] args) {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
@@ -116,7 +122,7 @@ public class ModuleMain {
 	public static TCPConnectionManager prepareNetwork(ConfigReader moduleConfig) {
 
 		// TODO: name threads (app threads are already named)
-		final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
+		
 
 		final TCPConnectionManager connectionManager = new TCPConnectionManager(networkEventLoopGroup,
 				networkEventLoopGroup, new ChannelFactory<NioServerSocketChannel>() {
@@ -139,7 +145,7 @@ public class ModuleMain {
 			public OioDatagramChannel newChannel() {
 				return new OioDatagramChannel();
 			}
-		}, new OioEventLoopGroup(), networkEventLoopGroup, moduleConfig.getUuid());
+		}, oioGroup, networkEventLoopGroup, moduleConfig.getUuid());
 		beacon.addListener(connectionManager);
 		final List<InetSocketAddress> announce = Arrays.asList(moduleConfig.getAnnounce());
 		beacon.setAnnounceAddresses(announce);
@@ -202,10 +208,23 @@ public class ModuleMain {
 		connectionManager.addHandler(RequestApplicationListMessage.class, new RequestApplicationListMsgHandler(
 				moduleConfig.getUuid(), appMan));
 		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
+		
+		//Module does not have application but received Message, handlers
+		connectionManager.addHandler(null, LoadClassMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(null, BlockMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(null, StartApplicationMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(null, KillAppMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(null, ValueMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(null, WhoHasBlockMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(null, ShutdownModuleMessage.class, new ShutdownModuleHandler(appMan));
+		
+		
+	}
+	
+	public static void shutdownNetwork() {
+		networkEventLoopGroup.shutdownGracefully();
+		oioGroup.shutdownGracefully();
 	}
 
-	// TODO: add method for shutdown
-	// Is that really needed? We can just kill it, nothing important lost, and other modules do not make assumptions
-	// about us working anyway? MM.
 
 }

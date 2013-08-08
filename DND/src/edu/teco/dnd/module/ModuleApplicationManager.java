@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +40,7 @@ public class ModuleApplicationManager {
 	public final int maxAllowedThreadsPerApp;
 	private final ConnectionManager connMan;
 	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
+	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
 
 	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
 		this.localeModuleId = moduleConfig.getUuid();
@@ -59,36 +62,40 @@ public class ModuleApplicationManager {
 	 */
 	public void joinApplication(final UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("joining app {} ({}), as requested by {}", name, appId, deployingAgentId);
-		if (runningApps.containsKey(appId)) {
-			LOGGER.info("trying to rejoin app that was already joined before.");
-			return;
-		}
-
-		final ApplicationClassLoader classLoader = new ApplicationClassLoader();
-
-		ThreadFactory fact = new ThreadFactory() {
-			private int counter = 0;
-			private UUID threadAppId = appId;
-
-			@Override
-			public Thread newThread(Runnable r) {
-				Thread appThread = new Thread(r, "thread: app - " + threadAppId + " - " + counter);
-				appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
-				return appThread;
+		isShuttingDown.readLock().lock();
+		try {
+			if (runningApps.containsKey(appId)) {
+				LOGGER.info("trying to rejoin app that was already joined before.");
+				return;
 			}
-		};
 
-		ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, fact);
-		Application newApp = new Application(appId, name, pool, connMan, classLoader);
-		runningApps.put(appId, newApp);
+			final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
 
-		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, newApp), pool);
-		connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), pool);
-		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
-		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
-		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
-		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
+			ThreadFactory fact = new ThreadFactory() {
+				private int counter = 0;
+				private UUID threadAppId = appId;
 
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread appThread = new Thread(r, "thread: app - " + threadAppId + " - " + counter);
+					appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
+					return appThread;
+				}
+			};
+
+			ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, fact);
+			Application newApp = new Application(appId, name, pool, connMan, classLoader);
+			runningApps.put(appId, newApp);
+
+			connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, newApp), pool);
+			connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), pool);
+			connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
+			connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
+			connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
+			connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
+		} finally {
+			isShuttingDown.readLock().unlock();
+		}
 
 	}
 
@@ -99,19 +106,24 @@ public class ModuleApplicationManager {
 	 *            the FunctionBlock
 	 */
 	public boolean scheduleBlock(UUID appId, FunctionBlock block) {
-		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(block.getType());
-		if (blockAllowed == null) {
-			LOGGER.info("Block {} not allowed in App {}({})", block, runningApps.get(appId), appId);
-			return false;
-		}
+		isShuttingDown.readLock().lock();
+		try {
+			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(block.getType());
+			if (blockAllowed == null) {
+				LOGGER.info("Block {} not allowed in App {}({})", block, runningApps.get(appId), appId);
+				return false;
+			}
 
-		if (!blockAllowed.tryDecrease()) {
-			LOGGER.info("Blockamount of {} exceeded. Not scheduling!", block.getType());
-			return false;
+			if (!blockAllowed.tryDecrease()) {
+				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", block.getType());
+				return false;
+			}
+			scheduledToStart.add(block);
+			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, runningApps.get(appId), appId);
+			return true;
+		} finally {
+			isShuttingDown.readLock().unlock();
 		}
-		scheduledToStart.add(block);
-		LOGGER.info("succesfully scheduled block {}, in App {}({})",  block, runningApps.get(appId), appId);
-		return true;
 	}
 
 	public void startApp(UUID appId) {
@@ -149,6 +161,21 @@ public class ModuleApplicationManager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * triggers a shutdown of all Applications because the module is being shutdown.
+	 */
+	public void shutdownModule() {
+		isShuttingDown.writeLock().lock();
+		try {
+			ModuleMain.shutdownNetwork();
+			for (UUID appId : runningApps.keySet()) {
+				stopApplication(appId);
+			}
+		} finally {
+			isShuttingDown.writeLock().unlock();
+		}
 	}
 
 	/**
