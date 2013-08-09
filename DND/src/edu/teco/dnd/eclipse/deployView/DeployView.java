@@ -24,6 +24,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -77,6 +81,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
+	
+	/**
+	 * Key code for the 'enter' key.
+	 */
+	private static final int ENTER = 13;
 	private Display display;
 	private Activator activator;
 	private ModuleManager manager;
@@ -441,7 +450,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * selected.
 	 */
 	protected void blockModelSelected() {
-		moduleCombo.setEnabled(true);
+		if (!idList.isEmpty()){
+			moduleCombo.setEnabled(true);
+		}
 		places.setEnabled(true);
 		constraintsButton.setEnabled(true);
 		blockModelName.setEnabled(true);
@@ -883,10 +894,26 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			}
 		});
 
+		blockModelName.addKeyListener(new KeyAdapter(){
+			public void keyReleased(KeyEvent e){
+				if (e.keyCode == 13){
+					DeployView.this.saveConstraints();
+				}
+			}
+		});
+		
 		moduleCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.moduleSelected();
+			}
+		});
+		
+		places.addKeyListener(new KeyAdapter(){
+			public void keyReleased(KeyEvent e){
+				if (e.keyCode == 13){
+					DeployView.this.saveConstraints();
+				}
 			}
 		});
 
