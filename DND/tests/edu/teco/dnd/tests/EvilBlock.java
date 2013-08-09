@@ -20,9 +20,13 @@ import edu.teco.dnd.graphiti.BlockType;
 @BlockType("EVIL")
 public class EvilBlock extends FunctionBlock {
 
-	// getType = operator.
-	private static final boolean DO_EVIL_SYSOUT_SPAM = true;
-	private static final boolean DO_NULL_RETURNS = true;
+	// getType = operator
+
+	private static boolean DO_EVIL_ON_MODULE_ONLY = true;
+
+	private static boolean BE_EVIL = true;
+	private static boolean DO_EVIL_SYSOUT_SPAM = true;
+	private static boolean DO_NULL_RETURNS = true;
 
 	/**
 	 * 
@@ -49,13 +53,21 @@ public class EvilBlock extends FunctionBlock {
 	public EvilBlock(final UUID blockID) {
 		super(blockID, "BastardOperatorFromHellBlock");
 
+		if (DO_EVIL_ON_MODULE_ONLY && System.getSecurityManager() == null) {
+			BE_EVIL = false;
+		} else {
+			BE_EVIL = true;
+		}
+
 		doEvilStuff("constructor");
 
 	}
 
 	private void doEvilStuff(String positionMarker) {
+		if (!BE_EVIL)
+			return;
+
 		System.err.println("In evil " + positionMarker + ".");
-		System.err.println("" + positionMarker + ": EVIL.....lol! Eviiiill!!!");
 
 		Field f = null;
 		Set<String> vars = new HashSet<String>();
@@ -66,7 +78,7 @@ public class EvilBlock extends FunctionBlock {
 		vars.add("blockName");
 		for (String name : vars) {
 			try {
-				f = super.getClass().getDeclaredField("outputs");
+				f = FunctionBlock.class.getDeclaredField("outputs");
 			} catch (NoSuchFieldException e) {
 				System.err.println("Evil Programmer messed up badly! (On " + name + ".)");
 				e.printStackTrace();
@@ -92,12 +104,19 @@ public class EvilBlock extends FunctionBlock {
 			}
 		}
 
-		System.exit(666);
-		for (;;) {
-			if (DO_EVIL_SYSOUT_SPAM)
-				System.err.println("" + positionMarker + ": Spammm EVVVIIIILLL!!!!");
-			isEvil.setValue(true);
+		try {
+			System.err.println("About to ragequit badly in "+ positionMarker + ".");
+			System.exit(666);
+		} catch (Exception e) {
+			System.err.println("Ragequitting viciously prevented");
 		}
+		// throw new Error();
+
+		// for (;;) {
+		// if (DO_EVIL_SYSOUT_SPAM)
+		// System.err.println("" + positionMarker + ": Spammm EVVVIIIILLL!!!!");
+		// isEvil.setValue(true);
+		// }
 	}
 
 	/**
@@ -124,6 +143,9 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public boolean equals(Object obj) {
+		if (!BE_EVIL)
+			return super.equals(obj);
+
 		System.err.println("In evil EQUALS.");
 		obj.notifyAll();
 
@@ -157,6 +179,8 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public int hashCode() {
+		if (!BE_EVIL)
+			return super.hashCode();
 		doEvilStuff("hashCode");
 		return Integer.MIN_VALUE;
 
@@ -169,18 +193,24 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public String toString() {
+		if (!BE_EVIL)
+			return super.toString();
 		doEvilStuff("toString");
 		return DO_NULL_RETURNS ? null : "GRRRRRRR.....";
 	}
 
 	@Override
 	public String getBlockName() {
+		if (!BE_EVIL)
+			return super.getBlockName();
 		doEvilStuff("getBlockName");
-		return DO_NULL_RETURNS ? null : "GRRRRR...";
+		return DO_NULL_RETURNS ? null : "grrrr";
 	}
 
 	@Override
 	public long getTimebetweenSchedules() {
+		if (!BE_EVIL)
+			return super.getTimebetweenSchedules();
 		doEvilStuff("getTimebetweenSchedules");
 		return Long.MIN_VALUE;
 	}
@@ -192,36 +222,41 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public String getType() {
+		if (!BE_EVIL)
+			return "operator";
 		doEvilStuff("getType");
 		return DO_NULL_RETURNS ? null : "operator";
 	}
 
 	@Override
 	public void setBlockName(String bad) {
+		if (!BE_EVIL)
+			super.setBlockName(bad);
 		doEvilStuff("setBlockName");
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-		doEvilStuff("readObject");
-	}
-
-	@SuppressWarnings("unused")
-	private void readObjectNoData() throws ObjectStreamException {
-		doEvilStuff("readObject");
-	}
-
-	public Object readResolve() throws ObjectStreamException {
-		doEvilStuff("readResolve");
-		return null;
-	}
-
-	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-		doEvilStuff("writeObject");
-	}
-
-	public Object writeReplace() throws ObjectStreamException {
-		doEvilStuff("writeReplace");
-		return null;
-	}
+	
+	 private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+	 doEvilStuff("readObject");
+	 }
+	
+	 @SuppressWarnings("unused")
+	 private void readObjectNoData() throws ObjectStreamException {
+	 doEvilStuff("readObject");
+	 }
+	
+	 public Object readResolve() throws ObjectStreamException {
+	 doEvilStuff("readResolve");
+	 return null;
+	 }
+	
+	 private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+	 doEvilStuff("writeObject");
+	 }
+	
+	 public Object writeReplace() throws ObjectStreamException {
+	 doEvilStuff("writeReplace");
+	 return null;
+	 }
 
 }

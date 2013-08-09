@@ -49,12 +49,42 @@ public class BlockRunner implements Runnable {
 		return new BlockRunner(false, block, null);
 	}
 
+	/**
+	 * Returns the type of the given functionBlock. (Marking it for the security manager.
+	 * 
+	 * @param block
+	 *            the FunctionBlock to get the type from.
+	 * @return the type of the block
+	 * @throws UserSuppliedCodeException
+	 *             if the code produces any Exceptions.
+	 */
+	public static String getBlockType(FunctionBlock block) throws UserSuppliedCodeException {
+		String type;
+		try {
+			type = block.getType();
+			
+		} catch (Throwable t) {
+			throw new UserSuppliedCodeException(t);
+		}
+		if(type == null) {
+			throw new UserSuppliedCodeException("Blocktype must not be null!");
+		} else {
+			return type;
+		}
+
+	}
+
 	@Override
 	public void run() {
-		if (isInit) {
-			doInit();
-		} else {
-			doUpdate();
+		try {
+			if (isInit) {
+				doInit();
+			} else {
+				doUpdate();
+			}
+		} catch (UserSuppliedCodeException e) {
+			e.printStackTrace();
+			// ignoring. Don't kill the rest of the application.
 		}
 	}
 
@@ -64,7 +94,7 @@ public class BlockRunner implements Runnable {
 		this.associatedApp = associatedApp;
 	}
 
-	private void doInit() {
+	private void doInit() throws UserSuppliedCodeException {
 		try {
 			block.init();
 
@@ -79,14 +109,18 @@ public class BlockRunner implements Runnable {
 		} catch (InvalidFunctionBlockException e) {
 			LOGGER.warn("User supplied block {} initialization failed.", block.getID());
 			LOGGER.catching(e);
+		} catch (Throwable t) {
+			throw new UserSuppliedCodeException(t);
 		}
 	}
 
-	private void doUpdate() {
+	private void doUpdate() throws UserSuppliedCodeException {
 		try {
 			block.doUpdate();
 		} catch (AssignmentException e) {
 			LOGGER.catching(e);
+		} catch (Throwable t) {
+			throw new UserSuppliedCodeException(t);
 		}
 	}
 }

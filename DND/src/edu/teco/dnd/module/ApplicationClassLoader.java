@@ -39,6 +39,7 @@ public class ApplicationClassLoader extends ClassLoader {
 			throw new ClassNotFoundException("a part of the fully classified name \"" + name
 					+ "\" is not permitted by this classloader.");
 		}
+		System.getSecurityManager().checkPackageAccess(name);
 
 		byte[] clBytes = classBytes.get(name);
 		if (clBytes != null) {
@@ -62,6 +63,9 @@ public class ApplicationClassLoader extends ClassLoader {
 	}
 
 	public void appLoadClass(String name, byte[] classData) {
+		if(name == null || classData == null) {
+			throw new NullPointerException();
+		}
 
 		if (!classes.containsKey(name) && !classBytes.containsKey(name)) {
 			classBytes.put(name, classData);

@@ -107,15 +107,22 @@ public class ModuleApplicationManager {
 	 */
 	public boolean scheduleBlock(UUID appId, FunctionBlock block) {
 		isShuttingDown.readLock().lock();
+		String blockType;
 		try {
-			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(block.getType());
+			blockType = BlockRunner.getBlockType(block);
+		} catch (UserSuppliedCodeException e) {
+			e.printStackTrace();
+			return false; // not scheduling bad block.
+		}
+		try {
+			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 			if (blockAllowed == null) {
-				LOGGER.info("Block {} not allowed in App {}({})", block, runningApps.get(appId), appId);
+				LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
 				return false;
 			}
 
 			if (!blockAllowed.tryDecrease()) {
-				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", block.getType());
+				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", blockType);
 				return false;
 			}
 			scheduledToStart.add(block);
@@ -144,19 +151,27 @@ public class ModuleApplicationManager {
 	 * 
 	 * @param appId
 	 *            the app this is directed to.
-	 * @param func
+	 * @param block
 	 *            the block to start.
 	 * @return true iff starting was successful.
 	 */
-	public boolean startBlock(UUID appId, FunctionBlock func) {
-		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(func.getType());
+	public boolean startBlock(UUID appId, FunctionBlock block) {
+		String blockType;
+		try {
+			blockType = BlockRunner.getBlockType(block);
+		} catch (UserSuppliedCodeException e) {
+			e.printStackTrace();
+			return false; // not scheduling bad block.
+		}
+		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 		if (blockAllowed == null) {
-			LOGGER.info("Block {} not allowed in App {}({})", func, runningApps.get(appId), appId);
+			LOGGER.info("Block {} not allowed in App {}({})", block, runningApps.get(appId), appId);
+			// FIXME: block.toString is usersupplied. Do take proper precautions.
 			return false;
 		}
 
 		if (blockAllowed.tryDecrease()) {
-			LOGGER.info("Blockamount of {} exceeded. Not starting!", func.getType());
+			LOGGER.info("Blockamount of {} exceeded. Not starting!", blockType);
 			return false;
 		}
 
@@ -197,7 +212,22 @@ public class ModuleApplicationManager {
 		app.shutdown();
 		runningApps.remove(appId);
 		for (FunctionBlock block : blocksKilled) {
-			moduleConfig.getAllowedBlocks().get(block.getType()).increase();
+
+			String blockType;
+			try {
+				blockType = BlockRunner.getBlockType(block);
+			} catch (UserSuppliedCodeException e) {
+				e.printStackTrace();
+				blockType = "";
+				// FIXME: If block return a different value during start and shutdown, they can change the maximum
+				// amount of blocks allowed to run of the latter type.
+			}
+			BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(blockType);
+			if (holder != null) {
+				holder.increase();
+			} else {
+				LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
+			}
 		}
 	}
 
