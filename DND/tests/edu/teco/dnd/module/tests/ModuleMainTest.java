@@ -1,4 +1,4 @@
-package edu.teco.dnd.tests;
+package edu.teco.dnd.module.tests;
 
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -11,6 +11,7 @@ import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.tests.TestConfigReader;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.util.NetConnection;
 

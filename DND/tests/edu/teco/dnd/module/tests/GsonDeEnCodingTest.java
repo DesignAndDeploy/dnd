@@ -1,4 +1,4 @@
-package edu.teco.dnd.tests;
+package edu.teco.dnd.module.tests;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -22,6 +22,7 @@ import edu.teco.dnd.module.messages.BlockMessageDeserializerAdapter;
 import edu.teco.dnd.module.messages.BlockMessageSerializerAdapter;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.tests.TestConfigReader;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleAck;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;

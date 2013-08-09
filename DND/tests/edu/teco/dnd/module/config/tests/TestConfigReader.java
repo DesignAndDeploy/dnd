@@ -1,4 +1,4 @@
-package edu.teco.dnd.tests;
+package edu.teco.dnd.module.config.tests;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
