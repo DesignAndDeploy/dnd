@@ -505,7 +505,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	public Set<UUID> getConnectedModules() {
 		channelsLock.readLock().lock();
 		try {
-			return Collections.unmodifiableSet(clientChannels.keySet());
+			return new HashSet<UUID>(clientChannels.keySet());
 		} finally {
 			channelsLock.readLock().unlock();
 		}
