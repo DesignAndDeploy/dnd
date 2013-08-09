@@ -2,6 +2,9 @@ package edu.teco.dnd.module;
 
 import java.security.Permission;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * the security manager designed to limit assess rights of functionBlocks.
  * 
@@ -9,6 +12,8 @@ import java.security.Permission;
  * 
  */
 public class ApplicationSecurityManager extends SecurityManager {
+
+	private static final Logger LOGGER = LogManager.getLogger(ApplicationSecurityManager.class);
 
 	public ApplicationSecurityManager() {
 		super();
@@ -38,12 +43,18 @@ public class ApplicationSecurityManager extends SecurityManager {
 
 	@Override
 	public void checkPermission(Permission perm) {
+		LOGGER.entry(perm);
 		if (!isApplication()) {
+			LOGGER.exit("permission granted.");
 			return;
 		}
-		
+
+		LOGGER.warn("Permission: {}, denied for application.", perm);
+		LOGGER.exit("permission denied.");
 		throw new SecurityException();
 		// TODO: implement security here.
+		// file permissions require other methods to be overriden. (it probably is a good idea to handle ALL permissions
+		// by their other methods.)
 
 	}
 }
