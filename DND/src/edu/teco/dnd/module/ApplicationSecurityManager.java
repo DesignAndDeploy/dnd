@@ -2,6 +2,12 @@ package edu.teco.dnd.module;
 
 import java.security.Permission;
 
+/**
+ * the security manager designed to limit assess rights of functionBlocks.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ApplicationSecurityManager extends SecurityManager {
 
 	public ApplicationSecurityManager() {
@@ -21,12 +27,9 @@ public class ApplicationSecurityManager extends SecurityManager {
 		}
 
 		for (StackTraceElement ste : currentThread.getStackTrace()) {
-			// TODO: force this to go through a proper wrapper for easier discernibility.
-			// Application$3 (anonymous subclass) is nasty
-			// TODO: handle doUpdate() of blocks as well.
-			if (ste.getClassName().contains("edu.teco.dnd.module.Application$")) {
+			if (ste.getClassName().contains("edu.teco.dnd.module.BlockRunner")) {
 				// We are inside a FunctionBlocks doUpdate() or init()
-				// (== the runnable that was scheduled in Application.java, which is part of the stack.
+				// == the stack contains BlockRunner somewhere, which marks that we are in user code.
 				return true;
 			}
 		}
@@ -38,7 +41,8 @@ public class ApplicationSecurityManager extends SecurityManager {
 		if (!isApplication()) {
 			return;
 		}
-//		throw new SecurityException();
+		
+		throw new SecurityException();
 		// TODO: implement security here.
 
 	}

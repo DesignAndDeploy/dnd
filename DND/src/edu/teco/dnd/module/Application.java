@@ -14,11 +14,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -130,40 +127,12 @@ public class Application {
 	 */
 	public void startBlock(final FunctionBlock block) {
 		funcBlockById.put(block.getID(), block);
-		scheduledThreadPool.execute(new Runnable() {
 
-			@Override
-			public void run() {
-				try {
-					block.init();
+		Runnable initRunnable = BlockRunner.getBlockInitializer(block, Application.this);
 
-					for (Output<?> output : block.getOutputs().values()) {
-						for (ConnectionTarget ct : output.getConnectedTargets()) {
-							if (ct instanceof RemoteConnectionTarget) {
-								RemoteConnectionTarget rct = (RemoteConnectionTarget) ct;
-								rct.setApplication(Application.this);
-							}
-						}
-					}
-				} catch (InvalidFunctionBlockException e) {
-					LOGGER.warn("User supplied block {} initialization failed.", block.getID());
-					LOGGER.catching(e);
+		scheduledThreadPool.execute(initRunnable);
+		Runnable updater = BlockRunner.getBlockUpdater(block);
 
-				}
-			}
-		});
-		Runnable updater = new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					block.doUpdate();
-				} catch (AssignmentException e) {
-					LOGGER.catching(e);
-				}
-
-			}
-		};
 		long period = block.getTimebetweenSchedules();
 		try {
 			if (period < 0) {
@@ -203,18 +172,8 @@ public class Application {
 			throw LOGGER.throwing(new NonExistentInputException());
 		}
 		ct.setValue(value);
-		Runnable updater = new Runnable() {
+		Runnable updater = BlockRunner.getBlockUpdater(funcBlockById.get(funcBlockId));
 
-			@Override
-			public void run() {
-				try {
-					funcBlockById.get(funcBlockId).doUpdate();
-				} catch (AssignmentException e) {
-					LOGGER.catching(e);
-				}
-
-			}
-		};
 		try {
 			scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
 		} catch (RejectedExecutionException e) {
@@ -225,7 +184,6 @@ public class Application {
 	/**
 	 * called to indicate, that the application is being shut down. Quits the scheduling of it.
 	 * 
-	 * @return
 	 */
 	public void shutdown() {
 		scheduledThreadPool.shutdown();
