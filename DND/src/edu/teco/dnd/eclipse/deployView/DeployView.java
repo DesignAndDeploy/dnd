@@ -88,6 +88,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 	private Map<FunctionBlock, BlockTarget> mapBlockToTarget;
 
+	private Resource resource;
 	private DeployViewGraphics graphicsManager;
 
 	private boolean newConstraints;
@@ -501,6 +502,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 		selectedBlockModel.setBlockName(this.blockModelName.getText());
 		selectedItem.setText(0, blockModelName.getText());
+		
+		try {
+			resource.save(null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		newConstraints = true;
 	}
 
@@ -616,7 +625,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
 
 		URI uri = URI.createURI(input.getURI().toASCIIString());
-		Resource resource = new XMIResourceImpl(uri);
+		resource = new XMIResourceImpl(uri);
 		resource.load(null);
 		for (EObject object : resource.getContents()) {
 			if (object instanceof FunctionBlockModel) {
