@@ -119,7 +119,8 @@ public class ApplicationSecurityManager extends SecurityManager {
 		//Default deny.
 		LOGGER.warn("Permission: {}, denied for application.", perm);
 		LOGGER.exit("permission denied.");
-		throw new SecurityException();
+		//throw new SecurityException();
+		//FIXME: add exceptions for Output.sendValue();
 
 	}
 
