@@ -6,10 +6,15 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.features.impl.AbstractCreateFeature;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
+import org.eclipse.graphiti.ui.editor.DiagramEditorFactory;
+import org.eclipse.graphiti.ui.services.GraphitiUi;
 
 /**
  * This feature is used to create new FunctionBlocks.
@@ -32,7 +37,8 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 			final Class<? extends edu.teco.dnd.blocks.FunctionBlock> blockType) {
 		super(fp, blockType == null ? "null" : blockType.getSimpleName(),
 				Messages.DNDCreateBlockFeature_CreatesFunBlockOfTpe_Info
-						+ (blockType == null ? "null" : blockType.getSimpleName()));
+						+ (blockType == null ? "null" : blockType
+								.getSimpleName()));
 		if (blockType == null) {
 			throw new IllegalArgumentException("blockType must not be null");
 		}
@@ -40,6 +46,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 			throw new IllegalArgumentException("blockType must not be abstract");
 		}
 		this.blockType = blockType;
+
 	}
 
 	/**
@@ -63,10 +70,28 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 */
 	@Override
 	public final Object[] create(final ICreateContext context) {
-		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockType);
+		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE
+				.createFunctionBlockModel(blockType);
 		getDiagram().eResource().getContents().add(newBlock);
 
 		addGraphicalRepresentation(context, newBlock);
+
+		/**
+		 * Links the block to the diagram. Found this on the Internet, not
+		 * really sure what it does. Still not done with this part.
+		 */
+		Diagram diagram = getDiagram();
+		TransactionalEditingDomain domain = DiagramEditorFactory
+				.createResourceSetAndEditingDomain();
+		;
+		Assert.isNotNull(diagram.getDiagramTypeId());
+		String providerId = GraphitiUi.getExtensionManager()
+				.getDiagramTypeProviderId(diagram.getDiagramTypeId());
+		Assert.isNotNull(providerId);
+		domain.getCommandStack()
+				.execute(
+						new LinkCoreModelCommand(domain, diagram, newBlock,
+								providerId));
 
 		return new Object[] { newBlock };
 	}

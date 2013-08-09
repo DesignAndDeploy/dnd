@@ -22,3 +22,5 @@ Bundle-ClassPath: .,
  lib/log4j-api-2.0-beta8.jar,
  lib/log4j-core-2.0-beta8.jar
 Bundle-Activator: edu.teco.dnd.eclipse.Activator
+Import-Package: org.eclipse.emf.edit.domain,
+ org.eclipse.emf.transaction
