@@ -32,6 +32,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ViewModule.class);
 
+	private Composite parent;
 	private Button button;
 	private Label serverStatus;
 	private Table moduleTable;
@@ -75,13 +76,14 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		this.parent = parent;
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
-		parent.setLayout(layout);
+		this.parent.setLayout(layout);
 
-		createStartButton(parent);
-		createServerInfo(parent);
-		createModuleTable(parent);
+		createStartButton();
+		createServerInfo();
+		createModuleTable();
 	}
 
 	/**
@@ -90,7 +92,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 	 * @param parent
 	 *            Composite containing the button
 	 */
-	private void createStartButton(Composite parent) {
+	private void createStartButton() {
 		button = new Button(parent, SWT.NONE);
 		if (activator.isRunning()) {
 			button.setText("Stop Server");
@@ -120,7 +122,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 
 	}
 
-	private void createServerInfo(Composite parent) {
+	private void createServerInfo() {
 		GridData gridData = new GridData();
 		gridData.verticalAlignment = GridData.BEGINNING;
 		gridData.horizontalAlignment = GridData.FILL;
@@ -140,7 +142,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 	 * @param parent
 	 *            Composite containing the table
 	 */
-	private void createModuleTable(Composite parent) {
+	private void createModuleTable() {
 		GridData grid = new GridData();
 		grid.horizontalSpan = 2;
 		grid.verticalAlignment = GridData.FILL;
@@ -238,6 +240,11 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
+				
+				if (!map.containsKey(id)){
+					addID(id);
+				}
+				
 				TableItem item = map.get(id);
 				if (module.getName() != null){
 					item.setText(1, module.getName());
