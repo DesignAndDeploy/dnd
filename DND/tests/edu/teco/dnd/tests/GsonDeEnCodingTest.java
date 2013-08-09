@@ -45,7 +45,7 @@ import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassNak;
 import edu.teco.dnd.module.messages.values.AppBlockIdFoundMessage;
-import edu.teco.dnd.module.messages.values.BlockFoundMessage;
+import edu.teco.dnd.module.messages.values.BlockFoundResponse;
 import edu.teco.dnd.module.messages.values.ValueAck;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
@@ -266,8 +266,8 @@ public class GsonDeEnCodingTest implements Serializable {
 	@Test
 	public void BlockFoundMessageTest() {
 
-		msgAdapter.addMessageType(BlockFoundMessage.class);
-		testEnDeCoding(new BlockFoundMessage(TEST_APP_UUID, TEST_MODULE_UUID, TEST_FUNBLOCK_UUID));
+		msgAdapter.addMessageType(BlockFoundResponse.class);
+		testEnDeCoding(new BlockFoundResponse(TEST_APP_UUID, TEST_MODULE_UUID, TEST_FUNBLOCK_UUID));
 	}
 
 	@Test

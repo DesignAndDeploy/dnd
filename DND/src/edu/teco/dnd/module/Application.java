@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -17,8 +19,6 @@ import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.module.messages.values.ValueMessage;
-import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -32,7 +32,12 @@ public class Application {
 
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
-	private final Map<UUID/* funcBlockId */, UUID/* ModuleId */> moduleForFuncBlock;
+	
+	/**
+	 * A Map from FunctionBlock UUID to matching ValueSender. Not used for local FunctionBlocks.
+	 */
+	private final ConcurrentMap<UUID, ValueSender> valueSenders = new ConcurrentHashMap<UUID, ValueSender>();
+	
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
 	private final Map<UUID, FunctionBlock> funcBlockById;
@@ -51,8 +56,6 @@ public class Application {
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
 		this.classLoader = classloader;
-
-		this.moduleForFuncBlock = new HashMap<UUID, UUID>();
 		this.funcBlockById = new HashMap<UUID, FunctionBlock>();
 	}
 
@@ -78,79 +81,29 @@ public class Application {
 				LOGGER.trace("the given input {} does not exist on the local functionBlock {}", input, funcBlock);
 			}
 		} else {
-			Runnable resender = new Runnable() {
-				@Override
-				public void run() {
-					resendValue(funcBlock, input, value, SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION);
-				}
-			};
-
-			UUID modUid = moduleForFuncBlock.get(funcBlock);
-			if (modUid == null) { // location of funcBlock unknown.
-				for (UUID mod : connMan.getConnectedModules()) {
-					connMan.sendMessage(mod, new WhoHasBlockMessage(ownAppId, funcBlock));
-				}
-				scheduledThreadPool.schedule(resender, MODULE_LOCATION_REQUEST_DELAY, TimeUnit.SECONDS);
-			} else {
-				ValueMessage message = new ValueMessage(ownAppId, funcBlock, input, value);
-				connMan.sendMessage(modUid, message);
-			}
+			getValueSender(funcBlock).sendValue(input, value);
 		}
 	}
 
 	/**
-	 * We did not find the address in the list. So we send out a request for the location and schedule the next try in
-	 * MODULE_LOCATION_REQUEST_DELAY milliseconds. If necessary we repeat this procedure repetitions times.
+	 * Returns a ValueSender for the given target FunctionBlock. If no ValueSender for that FunctionBlock exists yet a new one is created.
+	 * When called with the same UUID it will always return the same ValueSender, even if called concurrently in different Threads.
 	 * 
-	 * @param funcBlock
-	 *            see sendValue
-	 * @param input
-	 *            see sendValue
-	 * @param value
-	 *            see sendValue
-	 * @param repetitions
-	 *            how often to repeat sending upon failure.
+	 * @param funcBlock the UUID of the FunctionBlock for which a ValueSender should be returned
+	 * @return the ValueSender for the given FunctionBlock
 	 */
-	private void resendValue(final UUID funcBlock, final String input, final Serializable value, final int repetitions) {
-		Runnable resender = new Runnable() {
-			@Override
-			public void run() {
-				resendValue(funcBlock, input, value, repetitions - 1);
-			}
-		};
-
-		UUID modUid = moduleForFuncBlock.get(funcBlock);
-		if (modUid == null) {
-			if (repetitions > 0) {
-				scheduledThreadPool.schedule(resender, MODULE_LOCATION_REQUEST_DELAY, TimeUnit.SECONDS);
-				LOGGER.info("funcblock {} not found, remaining sendtries: {}", funcBlock, repetitions);
-			} else {
-				LOGGER.info("funcblock {} not found, disregarding message {} , to input {}", funcBlock, value, input);
-				// TODO special treatment of queued messaged -> parameter/differing method for such.
-			}
-		} else {
-			ValueMessage message = new ValueMessage(ownAppId, funcBlock, input, value);
-			connMan.sendMessage(modUid, message);
-		}
-	}
-
-	/**
-	 * Called when an error message has been received indicating, that the given FuncBlock ModId mapping is not valid
-	 * anymore
-	 * 
-	 * @param funcBlock
-	 *            the functionBlock
-	 * @param moduleId
-	 *            the module ID
-	 */
-	public void invalidateBlockModulePair(UUID funcBlock, UUID moduleId) {
-		LOGGER.entry(funcBlock, moduleId);
-		synchronized (moduleForFuncBlock) {
-			UUID oldModuleMapping = moduleForFuncBlock.get(funcBlock);
-			if (oldModuleMapping == moduleId) {
-				moduleForFuncBlock.remove(funcBlock);
+	private ValueSender getValueSender(final UUID funcBlock) {
+		ValueSender valueSender = valueSenders.get(funcBlock);
+		if (valueSender == null) {
+			valueSender = new ValueSender(ownAppId, funcBlock, connMan);
+			// if between the get and this call another Thread put a ValueSender into the map, this call will return the ValueSender the other
+			// Thread put into the Map. We'll use that one instead of our new one so that only one ValueSender exists per target
+			ValueSender oldValueSender = valueSenders.putIfAbsent(funcBlock, valueSender);
+			if (oldValueSender != null) {
+				valueSender = oldValueSender;
 			}
 		}
+		return valueSender;
 	}
 
 	/**

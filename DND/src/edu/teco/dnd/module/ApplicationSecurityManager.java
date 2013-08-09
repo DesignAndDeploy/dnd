@@ -38,7 +38,7 @@ public class ApplicationSecurityManager extends SecurityManager {
 		if (!isApplication()) {
 			return;
 		}
-		throw new SecurityException();
+//		throw new SecurityException();
 		// TODO: implement security here.
 
 	}

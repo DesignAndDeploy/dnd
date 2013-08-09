@@ -46,7 +46,7 @@ import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassNak;
 import edu.teco.dnd.module.messages.values.AppBlockIdFoundMessage;
-import edu.teco.dnd.module.messages.values.BlockFoundMessage;
+import edu.teco.dnd.module.messages.values.BlockFoundResponse;
 import edu.teco.dnd.module.messages.values.ValueAck;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
@@ -185,7 +185,7 @@ public class ModuleMain {
 		connectionManager.addMessageType(WhoHasBlockMessage.class);
 		connectionManager.addMessageType(ValueNak.class);
 		connectionManager.addMessageType(ValueAck.class);
-		connectionManager.addMessageType(BlockFoundMessage.class);
+		connectionManager.addMessageType(BlockFoundResponse.class);
 		connectionManager.addMessageType(AppBlockIdFoundMessage.class);
 		connectionManager.addMessageType(LoadClassNak.class);
 		connectionManager.addMessageType(LoadClassMessage.class);
