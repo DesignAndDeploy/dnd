@@ -267,7 +267,7 @@ public class GsonDeEnCodingTest implements Serializable {
 	public void BlockFoundMessageTest() {
 
 		msgAdapter.addMessageType(BlockFoundResponse.class);
-		testEnDeCoding(new BlockFoundResponse(TEST_APP_UUID, TEST_MODULE_UUID, TEST_FUNBLOCK_UUID));
+		testEnDeCoding(new BlockFoundResponse(TEST_MODULE_UUID));
 	}
 
 	@Test
