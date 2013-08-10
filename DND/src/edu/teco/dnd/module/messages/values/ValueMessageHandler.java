@@ -17,7 +17,6 @@ public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 
 	}
 
-	//TODO register handlers for replies. or handle as response not as new message?.
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, ValueMessage message) {
 		Response returnMsg = null;

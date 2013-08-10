@@ -25,7 +25,6 @@ public class WhoHasFuncBlockHandler implements MessageHandler<WhoHasBlockMessage
 		LOGGER.entry(connMan, remoteUUID, message);
 		if (app.isExecuting(message.blockId)) {
 			return new BlockFoundResponse(ownModUuid);
-			// TODO register
 		} else {
 			LOGGER.trace("received who has msg for {}", message.blockId);
 			return null;

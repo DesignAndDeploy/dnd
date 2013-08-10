@@ -6,11 +6,10 @@ import edu.teco.dnd.network.messages.Response;
 
 public class ValueNak extends Response {
 	public enum ErrorType {
-		WRONG_MODULE, // TODO need a way to handle if not even the app is running on the module.
+		WRONG_MODULE,
 		INVALID_INPUT, OTHER;
 	}
 
-	// TODO when sending appValueMsg listen for this and similar response (check [...].value for similar things
 	public static String MESSAGE_TYPE = "value nak";
 	public final UUID blockId;
 	public final String input;

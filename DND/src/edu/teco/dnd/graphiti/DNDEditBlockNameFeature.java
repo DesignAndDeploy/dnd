@@ -119,7 +119,6 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(context
 				.getPictogramElement());
 		block.setBlockName(value);
-		//TODO: inform DeployView on change.
 		updatePictogramElement(pe);
 		LOGGER.exit();
 	}
