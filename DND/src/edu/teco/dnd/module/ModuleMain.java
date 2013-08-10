@@ -78,6 +78,11 @@ public class ModuleMain {
 	private static final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
 	private static final OioEventLoopGroup oioGroup = new OioEventLoopGroup();
 
+	/**
+	 * The default address used for multicast.
+	 */
+	public static final InetSocketAddress DEFAULT_MULTICAST_ADDRESS = new InetSocketAddress("225.0.0.1", 5000);
+
 	public static void main(final String[] args) {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 

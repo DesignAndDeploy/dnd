@@ -10,10 +10,14 @@ import io.netty.channel.socket.oio.OioDatagramChannel;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,11 +27,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import sun.net.InetAddressCachePolicy;
 
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.module.messages.BlockMessageSerializerAdapter;
@@ -40,6 +47,16 @@ import edu.teco.dnd.util.NetConnection;
 
 public class Activator extends AbstractUIPlugin {
 	private static final Logger LOGGER = LogManager.getLogger(Activator.class);
+	
+	/**
+	 * The default port to listen on for incoming connections.
+	 */
+	public static final int DEFAULT_LISTEN_PORT = 5000;
+	
+	/**
+	 * The default address used for multicast.
+	 */
+	public static final InetSocketAddress DEFAULT_MULTICAST_ADDRESS = ModuleMain.DEFAULT_MULTICAST_ADDRESS;
 	
 	private static Activator plugin;
 
@@ -149,22 +166,106 @@ public class Activator extends AbstractUIPlugin {
 			serverStateLock.writeLock().unlock();
 		}
 		beacon.addListener(connectionManager);
-		beacon.setAnnounceAddresses(announce);
+		List<InetSocketAddress> beaconAddresses;
+		if (announce.isEmpty()) {
+			beaconAddresses = new ArrayList<InetSocketAddress>();
+			if (listen.isEmpty()) {
+				try {
+					for (final InetAddress address : resolveAllAddresses(getAllLocalAddresses())) {
+						beaconAddresses.add(new InetSocketAddress(address, DEFAULT_LISTEN_PORT));
+					}
+				} catch (final SocketException e) {
+					LOGGER.catching(Level.WARN, e);
+				}
+			} else {
+				// TODO: will probably return non-optimal result if 0.0.0.0 is used in listen
+				for (final InetSocketAddress address : listen) {
+					for (final InetAddress addr : resolveAddress(address.getAddress())) {
+						beaconAddresses.add(new InetSocketAddress(addr, address.getPort()));
+					}
+				}
+			}
+		} else {
+			beaconAddresses = announce;
+		}
+		beacon.setAnnounceAddresses(beaconAddresses);
 	
 		final TCPConnectionManager conMan = connectionManager;
 		networkEventLoopGroup.execute(new Runnable() {
 			@Override
 			public void run() {
-				for (final InetSocketAddress address : listen) {
-					conMan.startListening(address);
+				if (listen.isEmpty()) {
+					conMan.startListening(new InetSocketAddress(DEFAULT_LISTEN_PORT));
+				} else {
+					for (final InetSocketAddress address : listen) {
+						conMan.startListening(address);
+					}	
 				}
-				for (final NetConnection netConnection : multicast) {
-					beacon.addAddress(netConnection.getInterface(), netConnection.getAddress());
+				
+				if (multicast.isEmpty()) {
+					try {
+						beacon.addAddress(DEFAULT_MULTICAST_ADDRESS);
+					} catch (final SocketException e) {
+						LOGGER.catching(Level.WARN, e);
+					}
+				} else {
+					for (final NetConnection netConnection : multicast) {
+						beacon.addAddress(netConnection.getInterface(), netConnection.getAddress());
+					}
 				}
 			}
 		});
 		
 		LOGGER.exit();
+	}
+	
+	private static Set<InetAddress> getAllLocalAddresses() throws SocketException {
+		final Set<InetAddress> localAddresses = new HashSet<InetAddress>();
+		final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+		while (interfaces.hasMoreElements()) {
+			final Enumeration<InetAddress> addresses = interfaces.nextElement().getInetAddresses();
+			while (addresses.hasMoreElements()) {
+				localAddresses.add(addresses.nextElement());
+			}
+		}
+		return localAddresses;
+	}
+
+	/**
+	 * Tries to get as many address out of the given ones. This includes DNS lookups and reverse DNS lookups.
+	 * 
+	 * @param addresses the addresses to start from
+	 * @return all addresses that describe any of the given ones
+	 */
+	private static Set<InetAddress> resolveAddress(InetAddress address) {
+		final Set<InetAddress> resolvedAddresses = new HashSet<InetAddress>();
+		final String hostname = address.getCanonicalHostName();
+		try {
+			resolvedAddresses.add(InetAddress.getByName(hostname));
+		} catch (final UnknownHostException e) {
+			LOGGER.catching(Level.DEBUG, e);
+		}
+		try {
+			for (final InetAddress addr : InetAddress.getAllByName(hostname)) {
+				resolvedAddresses.add(addr);
+			}
+		} catch (final UnknownHostException e) {
+			LOGGER.catching(Level.DEBUG, e);
+		}
+		try {
+			resolvedAddresses.add(InetAddress.getByName(address.getHostAddress()));
+		} catch (final UnknownHostException e) {
+			LOGGER.catching(Level.DEBUG, e);
+		}
+		return resolvedAddresses;
+	}
+	
+	private static Set<InetAddress> resolveAllAddresses(final Collection<InetAddress> addresses) {
+		final Set<InetAddress> resolvedAddresses = new HashSet<InetAddress>();
+		for (final InetAddress address : addresses) {
+			resolvedAddresses.addAll(resolveAddress(address));
+		}
+		return resolvedAddresses;
 	}
 
 	public void shutdownServer() {
@@ -239,9 +340,9 @@ public class Activator extends AbstractUIPlugin {
 
 	@Override
 	protected void initializeDefaultPreferences(IPreferenceStore store) {
-		store.setDefault("listen", "bli");
-		store.setDefault("multicast", "bla");
-		store.setDefault("announce", "blubb");
+		store.setDefault("listen", "");
+		store.setDefault("multicast", "");
+		store.setDefault("announce", "");
 	}
 	
 	public void addServerStateListener(final DNDServerStateListener listener) {
