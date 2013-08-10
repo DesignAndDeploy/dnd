@@ -68,16 +68,14 @@ public class Application {
 	 *            the value to be send.
 	 */
 	public void sendValue(final UUID funcBlock, final String input, final Serializable value) {
-		if(funcBlock == null || input == null || value == null) {
+		if (funcBlock == null || input == null || value == null) {
 			throw new NullPointerException();
 		}
+
 		// FIXME: do sanitizing.
 		// doublecheck arguments because this is the only function callable from userspace, that has enhanced
 		// privileges.
-		
-		
-		
-		
+
 		sanitizedSendValue(funcBlock, input, value);
 	}
 

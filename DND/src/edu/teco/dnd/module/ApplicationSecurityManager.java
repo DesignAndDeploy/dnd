@@ -14,7 +14,6 @@ import java.security.SecurityPermission;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.PropertyPermission;
-import java.util.HashSet;
 import java.util.logging.LoggingPermission;
 
 import javax.security.auth.AuthPermission;
@@ -72,12 +71,14 @@ public class ApplicationSecurityManager extends SecurityManager {
 			// Thread group is dead, which is strange in this context.
 		}
 
-		for (StackTraceElement ste : currentThread.getStackTrace()) {
+		StackTraceElement[] stackTrace = currentThread.getStackTrace();
+
+		for (int i = stackTrace.length - 1; i >= 0; i--) {
+			StackTraceElement ste = stackTrace[i];
 
 			for (String str : insecureClasses) {
 				if (ste.getClassName().contains(str)) {
-					// We are inside a FunctionBlocks doUpdate() or init()
-					// == the stack contains BlockRunner somewhere, which marks that we are in user code.
+					// stack shows we are inside code that is considered unsafe.
 					isPrivileged = false;
 					break;
 				}
@@ -87,9 +88,10 @@ public class ApplicationSecurityManager extends SecurityManager {
 					// Code assumed safe again;
 					isPrivileged = true;
 					break;
+					// FIXME: we really need a finer distinction than this.
 				}
 			}
-		} //Next ste;
+		} // Next ste;
 		return isPrivileged;
 	}
 
