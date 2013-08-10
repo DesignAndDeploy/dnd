@@ -29,12 +29,12 @@ public class Application {
 
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
-	
+
 	/**
 	 * A Map from FunctionBlock UUID to matching ValueSender. Not used for local FunctionBlocks.
 	 */
 	private final ConcurrentMap<UUID, ValueSender> valueSenders = new ConcurrentHashMap<UUID, ValueSender>();
-	
+
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
 	private final Map<UUID, FunctionBlock> funcBlockById;
@@ -59,15 +59,42 @@ public class Application {
 	/**
 	 * called from this app, when a value is supposed to be send to another block (potentially on another Module).
 	 * 
+	 * 
 	 * @param funcBlock
 	 *            the receiving functionBlock.
 	 * @param input
 	 *            the input on the given block to receive the message.
 	 * @param val
 	 *            the value to be send.
-	 * @return true iff setting was successful.
 	 */
 	public void sendValue(final UUID funcBlock, final String input, final Serializable value) {
+		if(funcBlock == null || input == null || value == null) {
+			throw new NullPointerException();
+		}
+		// FIXME: do sanitizing.
+		// doublecheck arguments because this is the only function callable from userspace, that has enhanced
+		// privileges.
+		
+		
+		
+		
+		sanitizedSendValue(funcBlock, input, value);
+	}
+
+	/**
+	 * Called by sendValue after the arguments have been properly sanitized to make sure there is no harmfull code in
+	 * them. Function is a way for userApplicationCode to be given advanced privileges. <br>
+	 * <b>Make sure to have doublecheck every Argument</b>
+	 * 
+	 * @param funcBlock
+	 * @see sendValue but sanitized
+	 * @param input
+	 * @see sendValue but sanitized
+	 * @param value
+	 * @see sendValue but sanitized
+	 */
+	private void sanitizedSendValue(final UUID funcBlock, final String input, final Serializable value) {
+
 		if (isExecuting(funcBlock)) { // block is local
 			try {
 				receiveValue(funcBlock, input, value);
@@ -83,18 +110,22 @@ public class Application {
 	}
 
 	/**
-	 * Returns a ValueSender for the given target FunctionBlock. If no ValueSender for that FunctionBlock exists yet a new one is created.
-	 * When called with the same UUID it will always return the same ValueSender, even if called concurrently in different Threads.
+	 * Returns a ValueSender for the given target FunctionBlock. If no ValueSender for that FunctionBlock exists yet a
+	 * new one is created. When called with the same UUID it will always return the same ValueSender, even if called
+	 * concurrently in different Threads.
 	 * 
-	 * @param funcBlock the UUID of the FunctionBlock for which a ValueSender should be returned
+	 * @param funcBlock
+	 *            the UUID of the FunctionBlock for which a ValueSender should be returned
 	 * @return the ValueSender for the given FunctionBlock
 	 */
 	private ValueSender getValueSender(final UUID funcBlock) {
 		ValueSender valueSender = valueSenders.get(funcBlock);
 		if (valueSender == null) {
 			valueSender = new ValueSender(ownAppId, funcBlock, connMan);
-			// if between the get and this call another Thread put a ValueSender into the map, this call will return the ValueSender the other
-			// Thread put into the Map. We'll use that one instead of our new one so that only one ValueSender exists per target
+			// if between the get and this call another Thread put a ValueSender into the map, this call will return the
+			// ValueSender the other
+			// Thread put into the Map. We'll use that one instead of our new one so that only one ValueSender exists
+			// per target
 			ValueSender oldValueSender = valueSenders.putIfAbsent(funcBlock, valueSender);
 			if (oldValueSender != null) {
 				valueSender = oldValueSender;

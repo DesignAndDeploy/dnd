@@ -26,9 +26,9 @@ import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.ReferenceIterator;
 
 /**
- * Provides functionality to send values to a remote FunctionBlock. This includes searching for the FunctionBlock using its UUID and buffering
- * values until the Module on which the FunctionBlock is running is found. Values are cached using SoftReferences so they may get garbage
- * collected before the Module is found.
+ * Provides functionality to send values to a remote FunctionBlock. This includes searching for the FunctionBlock using
+ * its UUID and buffering values until the Module on which the FunctionBlock is running is found. Values are cached
+ * using SoftReferences so they may get garbage collected before the Module is found.
  * 
  * @author Philipp Adolf
  */
@@ -38,64 +38,70 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ValueSender.class);
-	
+
 	/**
 	 * The UUID of the Application the block belongs to.
 	 */
 	private final UUID appId;
-	
+
 	/**
 	 * The UUID of the FunctionBlock this object sends values to.0
 	 */
 	private final UUID targetBlockID;
-	
+
 	/**
 	 * The ConnectionManager that will be used to send messages.
 	 */
 	private final ConnectionManager connectionManager;
-	
+
 	/**
 	 * Values that are queued to be send once the right Module is found.
 	 */
 	private final List<Reference<TargetedValue>> pendingValues = new LinkedList<Reference<TargetedValue>>();
-	
+
 	/**
 	 * The UUID of the Module that has the target FunctionBlock. null if unknown.
 	 */
 	private UUID moduleUUID = null;
-	
+
 	/**
 	 * Is set to true if queries have been sent out and we're still waiting for the Reponses.
 	 */
 	private boolean queriesPending = false;
-	
+
 	/**
 	 * Used to synchronize access to {@link #pendingValues}, {@link #moduleUUID} and {@link #queriesPending}.
 	 */
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
-	
+
 	/**
 	 * Initializes a new ValueSender.
 	 * 
-	 * @param appId the UUID of the Application
-	 * @param targetBlockID the UUID of the FunctionBlock this object should send values to
-	 * @param connectionManager the ConnectionManager that will be used to send messages
+	 * @param appId
+	 *            the UUID of the Application
+	 * @param targetBlockID
+	 *            the UUID of the FunctionBlock this object should send values to
+	 * @param connectionManager
+	 *            the ConnectionManager that will be used to send messages
 	 */
 	public ValueSender(final UUID appId, final UUID targetBlockID, final ConnectionManager connectionManager) {
 		this.appId = appId;
 		this.targetBlockID = targetBlockID;
 		this.connectionManager = connectionManager;
 	}
-	
+
 	/**
-	 * Sends a value to the FunctionBlock. If the Module the FunctionBlock is unknown the value is queued to be sent later.
+	 * Sends a value to the FunctionBlock. If the Module the FunctionBlock is unknown the value is queued to be sent
+	 * later.
 	 * 
-	 * @param targetInput the input of the target block the value is for
-	 * @param value the value to send
+	 * @param targetInput
+	 *            the input of the target block the value is for
+	 * @param value
+	 *            the value to send
 	 */
 	public void sendValue(final String targetInput, final Serializable value) {
 		LOGGER.entry(targetInput, value);
-		
+
 		UUID uuid = null;
 		lock.readLock().lock();
 		try {
@@ -103,7 +109,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		} finally {
 			lock.readLock().unlock();
 		}
-		
+
 		if (uuid == null) {
 			lock.writeLock().lock();
 			try {
@@ -120,7 +126,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 				lock.writeLock().unlock();
 			}
 		}
-		
+
 		// this part will only be reached if the Module UUID was not null in either one of the locked blocks above
 		sendValue0(uuid, targetInput, value);
 		LOGGER.exit();
@@ -129,18 +135,25 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	/**
 	 * Sends a ValueMessage to the given Module.
 	 * 
-	 * @param moduleUUID the UUID of the Module the message should be send to
-	 * @param targetInput the name of the input of the FunctionBlock the value is for
-	 * @param value the value to send
+	 * @param moduleUUID
+	 *            the UUID of the Module the message should be send to
+	 * @param targetInput
+	 *            the name of the input of the FunctionBlock the value is for
+	 * @param value
+	 *            the value to send
 	 */
 	private void sendValue0(final UUID moduleUUID, final String targetInput, final Serializable value) {
-		LOGGER.trace("sending value {} to {}:{}", value, moduleUUID, targetInput);
+		try {
+			LOGGER.trace("sending value {} to {}:{}", BlockRunner.getToString(value), moduleUUID, targetInput);
+		} catch (UserSuppliedCodeException e) {
+			// ignore.
+		}
 		connectionManager.sendMessage(moduleUUID, new ValueMessage(appId, targetBlockID, targetInput, value));
 	}
-	
+
 	/**
-	 * Sends queries to all connected Modules if the Module UUID for the Module that has the target FunctionBlock is unknown and no queries
-	 * are pending.
+	 * Sends queries to all connected Modules if the Module UUID for the Module that has the target FunctionBlock is
+	 * unknown and no queries are pending.
 	 */
 	private void queryUUID() {
 		LOGGER.entry();
@@ -153,7 +166,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		} finally {
 			lock.readLock().unlock();
 		}
-		
+
 		lock.writeLock().lock();
 		try {
 			if (moduleUUID != null || queriesPending) {
@@ -164,7 +177,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		} finally {
 			lock.writeLock().unlock();
 		}
-		
+
 		LOGGER.debug("no query for {} pending, starting", targetBlockID);
 
 		final Collection<UUID> modules = connectionManager.getConnectedModules();
@@ -172,17 +185,19 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		futureNotifier.addListener(this);
 		final WhoHasBlockResponseListener blockFoundResponseListener = new WhoHasBlockResponseListener(futureNotifier);
 		for (final UUID moduleUUID : modules) {
-			connectionManager.sendMessage(moduleUUID, new WhoHasBlockMessage(appId, targetBlockID)).addListener(blockFoundResponseListener);
+			connectionManager.sendMessage(moduleUUID, new WhoHasBlockMessage(appId, targetBlockID)).addListener(
+					blockFoundResponseListener);
 		}
-		
+
 		LOGGER.exit();
 	}
-	
+
 	/**
-	 * This is called once the {@link ModuleUUIDFutureNotifier} finishes. Either sets {@link #moduleUUID} and sends all pending values or
-	 * retries finding the Module UUID.
+	 * This is called once the {@link ModuleUUIDFutureNotifier} finishes. Either sets {@link #moduleUUID} and sends all
+	 * pending values or retries finding the Module UUID.
 	 * 
-	 * @param future the FutureNotifier that finished
+	 * @param future
+	 *            the FutureNotifier that finished
 	 */
 	@Override
 	public void operationComplete(final FutureNotifier<UUID> future) {
@@ -214,10 +229,10 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		}
 		pendingValues.clear();
 	}
-	
+
 	/**
-	 * Used to track the status of the queries that were sent out. Finishes when either a positive Response ({@link BlockFoundResponse}) was
-	 * received or all queries returned a negative result.
+	 * Used to track the status of the queries that were sent out. Finishes when either a positive Response (
+	 * {@link BlockFoundResponse}) was received or all queries returned a negative result.
 	 * 
 	 * @author Philipp Adolf
 	 */
@@ -226,11 +241,12 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		 * The number of queries that have not yet finished.
 		 */
 		private final AtomicInteger unfinishedQueries;
-		
+
 		/**
 		 * Initializes a new ModuleUUIDFutureNotifier.
 		 * 
- 		 * @param queries the number of queries sent out
+		 * @param queries
+		 *            the number of queries sent out
 		 */
 		public ModuleUUIDFutureNotifier(final int queries) {
 			this.unfinishedQueries = new AtomicInteger(queries);
@@ -238,20 +254,21 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 				setFailure(null);
 			}
 		}
-		
+
 		/**
-		 * This is called by {@link WhoHasBlockResponseListener} if a Module responded with a {@link BlockFoundResponse}. This marks
-		 * this FutureNotifier as completed successfully with the given moduleUUID.
+		 * This is called by {@link WhoHasBlockResponseListener} if a Module responded with a {@link BlockFoundResponse}
+		 * . This marks this FutureNotifier as completed successfully with the given moduleUUID.
 		 * 
-		 * @param moduleUUID the UUID of the Module containing the FunctionBlock
+		 * @param moduleUUID
+		 *            the UUID of the Module containing the FunctionBlock
 		 */
 		public void queryFinishedSuccessfully(final UUID moduleUUID) {
 			setSuccess(moduleUUID);
 		}
-		
+
 		/**
-		 * This is called by {@link WhoHasBlockResponseListener} if a query either couldn't be sent or a negative Response was received. If
-		 * all queries fail this FutureNotifier is also set to be failed.
+		 * This is called by {@link WhoHasBlockResponseListener} if a query either couldn't be sent or a negative
+		 * Response was received. If all queries fail this FutureNotifier is also set to be failed.
 		 */
 		public void queryFailed() {
 			if (unfinishedQueries.decrementAndGet() <= 0) {
@@ -259,9 +276,10 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 			}
 		}
 	}
-	
+
 	/**
-	 * This listener is used to react to the individual queries. It calls {@link ModuleUUIDFutureNotifier#queryFinishedSuccessfully(UUID)} and
+	 * This listener is used to react to the individual queries. It calls
+	 * {@link ModuleUUIDFutureNotifier#queryFinishedSuccessfully(UUID)} and
 	 * {@link ModuleUUIDFutureNotifier#queryFailed()} accordingly.
 	 * 
 	 * @author Philipp Adolf
@@ -271,21 +289,23 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		 * The ModuleUUIDFutureNotifier that should be informed about the result of the queries.
 		 */
 		private final ModuleUUIDFutureNotifier moduleUUIDFutureNotifier;
-		
+
 		/**
 		 * Initializes a new WhoHasBlockResponseListener.
 		 * 
-		 * @param moduleUUIDFutureNotifier the ModuleUUIDFutureNotifier that should be informed about the results of the queries
+		 * @param moduleUUIDFutureNotifier
+		 *            the ModuleUUIDFutureNotifier that should be informed about the results of the queries
 		 */
 		public WhoHasBlockResponseListener(final ModuleUUIDFutureNotifier moduleUUIDFutureNotifier) {
 			this.moduleUUIDFutureNotifier = moduleUUIDFutureNotifier;
 		}
-		
+
 		/**
-		 * Either calls {@link ModuleUUIDFutureNotifier#queryFinishedSuccessfully(UUID)} or {@link ModuleUUIDFutureNotifier#queryFailed()}
-		 * depending on the state of the future.
+		 * Either calls {@link ModuleUUIDFutureNotifier#queryFinishedSuccessfully(UUID)} or
+		 * {@link ModuleUUIDFutureNotifier#queryFailed()} depending on the state of the future.
 		 * 
-		 * @param future the FutureNotifier that finished
+		 * @param future
+		 *            the FutureNotifier that finished
 		 */
 		@Override
 		public void operationComplete(final FutureNotifier<Response> future) {

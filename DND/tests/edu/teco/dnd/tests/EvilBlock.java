@@ -105,7 +105,7 @@ public class EvilBlock extends FunctionBlock {
 		}
 
 		try {
-			System.err.println("About to ragequit badly in "+ positionMarker + ".");
+			System.err.println("About to ragequit badly in " + positionMarker + ".");
 			System.exit(666);
 		} catch (Exception e) {
 			System.err.println("Ragequitting viciously prevented");
@@ -235,28 +235,27 @@ public class EvilBlock extends FunctionBlock {
 		doEvilStuff("setBlockName");
 	}
 
-	
-	 private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-	 doEvilStuff("readObject");
-	 }
-	
-	 @SuppressWarnings("unused")
-	 private void readObjectNoData() throws ObjectStreamException {
-	 doEvilStuff("readObject");
-	 }
-	
-	 public Object readResolve() throws ObjectStreamException {
-	 doEvilStuff("readResolve");
-	 return null;
-	 }
-	
-	 private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-	 doEvilStuff("writeObject");
-	 }
-	
-	 public Object writeReplace() throws ObjectStreamException {
-	 doEvilStuff("writeReplace");
-	 return null;
-	 }
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		doEvilStuff("readObject");
+	}
+
+	@SuppressWarnings("unused")
+	private void readObjectNoData() throws ObjectStreamException {
+		doEvilStuff("readObject");
+	}
+
+	public Object readResolve() throws ObjectStreamException {
+		doEvilStuff("readResolve");
+		return null;
+	}
+
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		doEvilStuff("writeObject");
+	}
+
+	public Object writeReplace() throws ObjectStreamException {
+		doEvilStuff("writeReplace");
+		return null;
+	}
 
 }

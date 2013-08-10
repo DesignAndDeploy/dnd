@@ -3,6 +3,8 @@ package edu.teco.dnd.module.messages.values;
 import java.io.Serializable;
 import java.util.UUID;
 
+import edu.teco.dnd.module.BlockRunner;
+import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class ValueMessage extends ApplicationSpecificMessage {
@@ -30,7 +32,12 @@ public class ValueMessage extends ApplicationSpecificMessage {
 		int result = super.hashCode();
 		result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
 		result = prime * result + ((input == null) ? 0 : input.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		try {
+			result = prime * result + ((value == null) ? 0 : BlockRunner.getHashCode(value));
+		} catch (UserSuppliedCodeException e) {
+			e.printStackTrace();
+			result = prime * result + 0;
+		}
 		return result;
 	}
 
@@ -67,9 +74,15 @@ public class ValueMessage extends ApplicationSpecificMessage {
 			if (other.value != null) {
 				return false;
 			}
-		} else if (!value.equals(other.value)) {
-			return false;
-		}
+		} else
+			try {
+				if (!BlockRunner.getEquals(value, other.value)) {
+					return false;
+				}
+			} catch (UserSuppliedCodeException e) {
+				e.printStackTrace();
+				return false;
+			}
 		return true;
 	}
 
@@ -80,8 +93,14 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	 */
 	@Override
 	public String toString() {
-		return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + value + ", getApplicationID()="
-				+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
+		try {
+			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + BlockRunner.getToString(value) + ", getApplicationID()="
+					+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
+		} catch (UserSuppliedCodeException e) {
+			e.printStackTrace();
+			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + "ERROR" + ", getApplicationID()="
+			+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
+		}
 	}
 
 }

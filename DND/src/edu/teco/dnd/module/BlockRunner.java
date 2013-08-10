@@ -2,6 +2,7 @@ package edu.teco.dnd.module;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jdt.core.dom.ThrowStatement;
 
 import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.ConnectionTarget;
@@ -62,16 +63,66 @@ public class BlockRunner implements Runnable {
 		String type;
 		try {
 			type = block.getType();
-			
+
 		} catch (Throwable t) {
 			throw new UserSuppliedCodeException(t);
 		}
-		if(type == null) {
+		if (type == null) {
 			throw new UserSuppliedCodeException("Blocktype must not be null!");
 		} else {
 			return type;
 		}
 
+	}
+
+	public static String getToString(Object obj) throws UserSuppliedCodeException {
+		String toStr;
+		try {
+			toStr = obj.toString();
+		} catch (Throwable t) {
+			throw new UserSuppliedCodeException(t);
+		}
+		if (toStr == null) {
+			throw new UserSuppliedCodeException("Blocktype must not be null!");
+		} else {
+			return toStr;
+		}
+	}
+
+	public static int getHashCode(Object obj) throws UserSuppliedCodeException {
+		int hashCode;
+		try {
+			hashCode = obj.hashCode();
+		} catch (Throwable t) {
+			throw new UserSuppliedCodeException(t);
+		}
+		return hashCode;
+	}
+
+	/**
+	 * security wrapper for the equals method. Wraps the call which would usually be one.equals(two);
+	 * 
+	 * @param one
+	 *            first argument
+	 * @param two
+	 *            second argument to equals
+	 * @return the result of one.equals(two);
+	 * @throws UserSuppliedCodeException
+	 *             if there was an unexpected exception.
+	 * @throws NullPointerException
+	 *             if one ==null;
+	 */
+	public static boolean getEquals(Object one, Object two) throws UserSuppliedCodeException {
+		if (one == null) {
+			throw new NullPointerException();
+		}
+		boolean equal;
+		try {
+			equal = one.equals(two);
+		} catch (Throwable t) {
+			throw new UserSuppliedCodeException(t);
+		}
+		return equal;
 	}
 
 	@Override
@@ -123,4 +174,5 @@ public class BlockRunner implements Runnable {
 			throw new UserSuppliedCodeException(t);
 		}
 	}
+
 }

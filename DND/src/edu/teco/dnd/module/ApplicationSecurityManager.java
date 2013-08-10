@@ -11,7 +11,10 @@ import java.nio.file.LinkPermission;
 import java.security.BasicPermission;
 import java.security.Permission;
 import java.security.SecurityPermission;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.PropertyPermission;
+import java.util.HashSet;
 import java.util.logging.LoggingPermission;
 
 import javax.security.auth.AuthPermission;
@@ -31,16 +34,38 @@ public class ApplicationSecurityManager extends SecurityManager {
 
 	private static final Logger LOGGER = LogManager.getLogger(ApplicationSecurityManager.class);
 
+	/**
+	 * Classes after passing through which code is considered insecure. Class names can be partial (missing beginning
+	 * and/or end).
+	 */
+	private static final Collection<String> insecureClasses = new LinkedList<String>();
+
+	/**
+	 * Methods the code can call after which execution is considered privileged again.<br>
+	 * Syntax: <br>
+	 * String[0]=fully qualified classname ; <br>
+	 * String[1] = method name.
+	 * 
+	 */
+	private static final Collection<String[]> securedMethods = new LinkedList<String[]>();
+
+	static {
+		insecureClasses.add("edu.teco.dnd.module.BlockRunner");
+		securedMethods.add(new String[] { "edu.teco.dnd.module.Application", "sendValue" });
+	}
+
 	public ApplicationSecurityManager() {
 		super();
 	}
 
 	/**
-	 * check if we are being called from within a functionBlocks doUpdate() or init() methode.
+	 * check if we are being called from within privileged code (meaning not a functionBlocks init) or doUpdate(). if a
+	 * known secured function is called after that permissions are still granted.)
 	 * 
 	 * @return true if we are inside an application, and not within other context.
 	 */
-	private boolean isApplication() {
+	private boolean isPrivilegedCode() {
+		boolean isPrivileged = true;
 		Thread currentThread = Thread.currentThread();
 		if (currentThread == null) {
 			throw new SecurityException();
@@ -48,63 +73,74 @@ public class ApplicationSecurityManager extends SecurityManager {
 		}
 
 		for (StackTraceElement ste : currentThread.getStackTrace()) {
-			if (ste.getClassName().contains("edu.teco.dnd.module.BlockRunner")) {
-				// We are inside a FunctionBlocks doUpdate() or init()
-				// == the stack contains BlockRunner somewhere, which marks that we are in user code.
-				return true;
+
+			for (String str : insecureClasses) {
+				if (ste.getClassName().contains(str)) {
+					// We are inside a FunctionBlocks doUpdate() or init()
+					// == the stack contains BlockRunner somewhere, which marks that we are in user code.
+					isPrivileged = false;
+					break;
+				}
 			}
-		}
-		return false;
+			for (String[] str : securedMethods) {
+				if (ste.getClassName().equals(str[0]) && ste.getMethodName().equals(str[1])) {
+					// Code assumed safe again;
+					isPrivileged = true;
+					break;
+				}
+			}
+		} //Next ste;
+		return isPrivileged;
 	}
 
 	@Override
 	public void checkPermission(Permission perm) {
 		LOGGER.entry(perm);
-		if (!isApplication()) {
-			LOGGER.exit("permission granted.");
+		if (isPrivilegedCode()) {
+			LOGGER.trace("Allowing privileged code to do {}.", perm);
 			return;
 		}
-		LOGGER.trace("permission {} requested by app.", perm);
 
+		LOGGER.trace("permission {} requested by app.", perm);
+		boolean doAllow = false;
 		if (perm instanceof SocketPermission) {
 		} else if (perm instanceof FilePermission) {
 		} else if (perm instanceof BasicPermission) {
 			BasicPermission bPerm = (BasicPermission) perm;
 			if (bPerm instanceof AudioPermission) {
-				LOGGER.exit("permission granted.");
-				return; // Allowed
+				doAllow = true;
 			} else if (bPerm instanceof WebServicePermission) {
-				LOGGER.exit("permission granted.");
-				return; // Allowed
+				doAllow = true;
 			} else if (bPerm instanceof AWTPermission) {
 				if (bPerm.getName().equals("accessSystemTray")) {
-					return; // Allow
+					doAllow = true;
 				} else if (bPerm.getName().equals("fullScreenExclusive")) {
-					return; // Allow
+					doAllow = true;
 				} else if (bPerm.getName().equals("fullScreenExclusive")) {
-					return; // Allow
+					doAllow = true;
 				} else if (bPerm.getName().equals("setWindowAlwaysOnTop")) {
-					return; // Allow
+					doAllow = true;
 				} else if (bPerm.getName().equals("watchMousePointer")) {
-					return; // Allow
+					doAllow = true;
+				} else {
+					// Deny
 				}
-				//Deny
 			} else if (bPerm instanceof NetPermission) {
 				if (bPerm.getName().equals("getNetworkInformation")) {
-					return; // Allow
+					doAllow = true;
 				} else if (bPerm.getName().equals("getProxySelector")) {
-					return; // Allow
+					doAllow = true;
+				} else {
+					// Deny
 				}
-				//Deny
 			} else if (bPerm instanceof RuntimePermission) {
 				if (bPerm.getName().equals("getClassLoader")) {
-					return; // Allow
+					doAllow = true;
 				} else if (bPerm.getName().equals("getProtectionDomain")) {
-					return; // Allow
+					doAllow = true;
+				} else {
+					// Deny
 				}
-				//Deny
-				
-				//TODO rework with boolean doAllow = false;
 			} else if (bPerm instanceof AuthPermission) {
 			} else if (bPerm instanceof LinkPermission) {
 			} else if (bPerm instanceof LoggingPermission) {
@@ -116,12 +152,15 @@ public class ApplicationSecurityManager extends SecurityManager {
 			}
 		}
 
-		//Default deny.
-		LOGGER.warn("Permission: {}, denied for application.", perm);
-		LOGGER.exit("permission denied.");
-		//throw new SecurityException();
-		//FIXME: add exceptions for Output.sendValue();
-
+		if (doAllow) {
+			LOGGER.trace("Allowed permission {}.", perm);
+			LOGGER.exit("permission granted.");
+			return;
+		} else {
+			LOGGER.warn("Permission: {}, denied for application.", perm);
+			LOGGER.exit("permission denied.");
+			throw new SecurityException();
+		}
 	}
 
 	@Override
