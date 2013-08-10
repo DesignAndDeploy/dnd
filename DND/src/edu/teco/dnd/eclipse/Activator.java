@@ -88,6 +88,7 @@ public class Activator extends AbstractUIPlugin {
 		LOGGER.exit();
 	}
 	
+	// TODO: make this all nicer
 	public void startServer() {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
@@ -282,6 +283,7 @@ public class Activator extends AbstractUIPlugin {
 		}
 	}
 
+	// TODO: this seems kinda redundant. Also we do have the means to store stuff as JSON, that may be easier and cleaner
 	private List<InetSocketAddress> getListen() {
 		final String[] items = getPreferenceStore().getString("listen").split(" ");
 		final List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>(items.length);
