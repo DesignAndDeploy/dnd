@@ -9,20 +9,20 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
-import edu.teco.dnd.module.ModuleApplicationManager;
-import edu.teco.dnd.module.messages.BlockMessageDeserializerAdapter;
-import edu.teco.dnd.module.messages.BlockMessageSerializerAdapter;
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.tests.TestConfigReader;
+import edu.teco.dnd.module.messages.BlockMessageDeserializerAdapter;
+import edu.teco.dnd.module.messages.BlockMessageSerializerAdapter;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleAck;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
@@ -45,7 +45,6 @@ import edu.teco.dnd.module.messages.loadStartBlock.BlockNak;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassNak;
-import edu.teco.dnd.module.messages.values.AppBlockIdFoundMessage;
 import edu.teco.dnd.module.messages.values.BlockFoundResponse;
 import edu.teco.dnd.module.messages.values.ValueAck;
 import edu.teco.dnd.module.messages.values.ValueMessage;
@@ -257,12 +256,6 @@ public class GsonDeEnCodingTest implements Serializable {
 		testEnDeCoding(new LoadClassNak("ClassName", TEST_APP_UUID));
 	}
 
-	@Test
-	public void AppBlockIdFoundMessageTest() {
-
-		msgAdapter.addMessageType(AppBlockIdFoundMessage.class);
-		testEnDeCoding(new AppBlockIdFoundMessage(TEST_APP_UUID, TEST_MODULE_UUID, TEST_FUNBLOCK_UUID));
-	}
 
 	@Test
 	public void BlockFoundMessageTest() {
