@@ -44,6 +44,10 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	private Output<Boolean> isEvil;
 
+	public EvilBlock() {
+		this(UUID.randomUUID());
+	}
+
 	/**
 	 * Creates new EvilBlock.
 	 * 
@@ -53,18 +57,20 @@ public class EvilBlock extends FunctionBlock {
 	public EvilBlock(final UUID blockID) {
 		super(blockID, "BastardOperatorFromHellBlock");
 
-		if (DO_EVIL_ON_MODULE_ONLY && System.getSecurityManager() == null) {
-			BE_EVIL = false;
-		} else {
-			BE_EVIL = true;
+		if (!beEvil()) {
+			return;
 		}
 
 		doEvilStuff("constructor");
 
 	}
 
+	private boolean beEvil() {
+		return BE_EVIL && (DO_EVIL_ON_MODULE_ONLY && System.getSecurityManager() == null);
+	}
+
 	private void doEvilStuff(String positionMarker) {
-		if (!BE_EVIL)
+		if (!beEvil())
 			return;
 
 		System.err.println("In evil " + positionMarker + ".");
@@ -143,7 +149,7 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (!BE_EVIL)
+		if (!beEvil())
 			return super.equals(obj);
 
 		System.err.println("In evil EQUALS.");
@@ -179,7 +185,7 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public int hashCode() {
-		if (!BE_EVIL)
+		if (!beEvil())
 			return super.hashCode();
 		doEvilStuff("hashCode");
 		return Integer.MIN_VALUE;
@@ -193,7 +199,7 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public String toString() {
-		if (!BE_EVIL)
+		if (!beEvil())
 			return super.toString();
 		doEvilStuff("toString");
 		return DO_NULL_RETURNS ? null : "GRRRRRRR.....";
@@ -201,7 +207,7 @@ public class EvilBlock extends FunctionBlock {
 
 	@Override
 	public String getBlockName() {
-		if (!BE_EVIL)
+		if (!beEvil())
 			return super.getBlockName();
 		doEvilStuff("getBlockName");
 		return DO_NULL_RETURNS ? null : "grrrr";
@@ -209,7 +215,7 @@ public class EvilBlock extends FunctionBlock {
 
 	@Override
 	public long getTimebetweenSchedules() {
-		if (!BE_EVIL)
+		if (!beEvil())
 			return super.getTimebetweenSchedules();
 		doEvilStuff("getTimebetweenSchedules");
 		return Long.MIN_VALUE;
@@ -222,7 +228,7 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public String getType() {
-		if (!BE_EVIL)
+		if (!beEvil())
 			return "operator";
 		doEvilStuff("getType");
 		return DO_NULL_RETURNS ? null : "operator";
@@ -230,7 +236,7 @@ public class EvilBlock extends FunctionBlock {
 
 	@Override
 	public void setBlockName(String bad) {
-		if (!BE_EVIL)
+		if (!beEvil())
 			super.setBlockName(bad);
 		doEvilStuff("setBlockName");
 	}
