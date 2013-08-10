@@ -19,10 +19,4 @@ public class UserSuppliedCodeException extends Exception {
 	public UserSuppliedCodeException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
-	public UserSuppliedCodeException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
-
 }
