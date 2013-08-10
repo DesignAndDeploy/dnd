@@ -165,8 +165,10 @@ public class ModuleApplicationManager {
 		}
 		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 		if (blockAllowed == null) {
-			LOGGER.info("Block {} not allowed in App {}({})", block, runningApps.get(appId), appId);
-			// FIXME: block.toString is usersupplied. Do take proper precautions.
+			// do not log the block directly, as that would call block.toString which is untrusted code
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Block {} not allowed in App {}({})", block.getID(), runningApps.get(appId), appId);
+			}
 			return false;
 		}
 
