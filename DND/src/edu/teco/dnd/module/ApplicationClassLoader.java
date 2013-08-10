@@ -63,8 +63,11 @@ public class ApplicationClassLoader extends ClassLoader {
 	}
 
 	public void appLoadClass(String name, byte[] classData) {
-		if(name == null || classData == null) {
-			throw new NullPointerException();
+		if (name == null) {
+			throw new IllegalArgumentException("name must not be null");
+		}
+		if (classData == null) {
+			throw new IllegalArgumentException("classData must not be null");
 		}
 
 		if (!classes.containsKey(name) && !classBytes.containsKey(name)) {

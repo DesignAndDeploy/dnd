@@ -114,7 +114,7 @@ public class BlockRunner implements Runnable {
 	 */
 	public static boolean getEquals(Object one, Object two) throws UserSuppliedCodeException {
 		if (one == null) {
-			throw new NullPointerException();
+			throw new IllegalArgumentException("one must not be null");
 		}
 		boolean equal;
 		try {

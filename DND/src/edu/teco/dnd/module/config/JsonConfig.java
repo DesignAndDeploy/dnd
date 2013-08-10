@@ -67,7 +67,7 @@ public class JsonConfig extends ConfigReader {
 	public void setTo(JsonConfig oldConf) {
 		if (oldConf == null) {
 			LOGGER.warn("Invalid Config to set(config was null)");
-			throw new NullPointerException();
+			throw new IllegalArgumentException("oldConf must not be null");
 		}
 
 		this.name = oldConf.name;

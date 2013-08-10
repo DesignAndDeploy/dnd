@@ -68,9 +68,13 @@ public class Application {
 	 *            the value to be send.
 	 */
 	public void sendValue(final UUID funcBlock, final String input, final Serializable value) {
-		if (funcBlock == null || input == null || value == null) {
-			throw new NullPointerException();
+		if (funcBlock == null) {
+			throw new IllegalArgumentException("funcBlock must not be null");
 		}
+		if (input == null) {
+			throw new IllegalArgumentException("input must not be null");
+		}
+		// sending null is allowed, as some FunctionBlocks may make use of it
 
 		// FIXME: do sanitizing.
 		// doublecheck arguments because this is the only function callable from userspace, that has enhanced
