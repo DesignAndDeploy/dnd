@@ -132,4 +132,8 @@ public class FunctionBlockFactory {
 		final FunctionBlockClass blockClass = factory.getFunctionBlockClass("edu.teco.dnd.temperature.TemperatureSensorBlock");
 		System.out.println(blockClass.getOutputs());
 	}
+
+	public Repository getRepository() {
+		return repository;
+	}
 }

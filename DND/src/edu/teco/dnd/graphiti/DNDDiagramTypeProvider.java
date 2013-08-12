@@ -9,8 +9,9 @@ import org.eclipse.graphiti.tb.IToolBehaviorProvider;
 public class DNDDiagramTypeProvider extends AbstractDiagramTypeProvider {
 	/**
 	 * Sets the FeatureProvider to {@link DNDFeatureProvider}.
+	 * @throws ClassNotFoundException 
 	 */
-	public DNDDiagramTypeProvider() {
+	public DNDDiagramTypeProvider() throws ClassNotFoundException {
 		super();
 		setFeatureProvider(new DNDFeatureProvider(this));
 	}

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
 import edu.teco.dnd.blocks.FunctionBlockFactory;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
@@ -27,6 +28,7 @@ import edu.teco.dnd.temperature.TemperatureSensorBlock;
 import edu.teco.dnd.util.ClassScanner;
 import edu.teco.dnd.util.StringUtil;
 
+import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.Repository;
 import org.apache.bcel.util.SyntheticRepository;
 import org.apache.logging.log4j.Level;
@@ -152,22 +154,36 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * Used to initialize a Factory.
 	 */
-	@SuppressWarnings("unchecked")
 	private synchronized void initialiseFactory() {
 		if (!factoryInitialised) {
-			// TODO: register block types
+			final Set<File> paths = new HashSet<File>();
+			for (final IPath ipath : getProjectClassPath()) {
+				paths.add(ipath.toFile());
+			}
+			final ClassScanner scanner = new ClassScanner(blockFactory.getRepository());
+			for (final JavaClass cls : scanner.getClasses(paths)) {
+				final FunctionBlockClass blockClass;
+				try {
+					blockClass = blockFactory.getFunctionBlockClass(cls.getClassName());
+				} catch (final ClassNotFoundException e) {
+					continue;
+				} catch (final IllegalArgumentException e) {
+					continue;
+				}
+				createFeatureFactory.registerBlockType(blockClass);
+			}
 			factoryInitialised = true;
 		}
 	}
 
 	/**
-	 * Returns the ClassLoader.
+	 * Returns the FunctionBlockFactory.
 	 * 
-	 * @return class loader
+	 * @return the FunctionBlockFactory
 	 */
-	public final synchronized ClassLoader getClassLoader() {
+	public final synchronized FunctionBlockFactory getFunctionBlockFactory() {
 		initialiseFactory();
-		return ucl;
+		return blockFactory;
 	}
 
 	/**
@@ -255,18 +271,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		IDirectEditingFeature feature = null;
 		if (bo instanceof OptionModel) {
-			OptionModel option = (OptionModel) bo;
-			Class<? extends Serializable> type = null;
-			try {
-				type = (Class<? extends Serializable>) getClassLoader().loadClass(option.getType());
-			} catch (ClassNotFoundException e) {
-				LOGGER.catching(e);
-			}
-			if (type != null && type.isAssignableFrom(String.class)) {
-				feature = new DNDEditStringOptionFeature(this);
-			} else if (type != null && type.isAssignableFrom(Integer.class)) {
-				feature = new DNDEditIntegerOptionFeature(this);
-			}
+			feature = new DNDEditStringOptionFeature(this);
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 			if (TypePropertyUtil.isBlockNameText(ga)){
