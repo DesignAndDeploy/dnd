@@ -450,7 +450,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * 
 	 * @return Name of the FunctionBlock
 	 */
-	public String getBlockName() {
+	public final String getBlockName() {
 		return this.blockName;
 	}
 

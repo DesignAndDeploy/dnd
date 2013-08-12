@@ -205,13 +205,6 @@ public class EvilBlock extends FunctionBlock {
 		return DO_NULL_RETURNS ? null : "GRRRRRRR.....";
 	}
 
-	@Override
-	public String getBlockName() {
-		if (!beEvil())
-			return super.getBlockName();
-		doEvilStuff("getBlockName");
-		return DO_NULL_RETURNS ? null : "grrrr";
-	}
 
 	@Override
 	public long getTimebetweenSchedules() {
