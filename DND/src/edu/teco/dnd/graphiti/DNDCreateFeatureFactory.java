@@ -1,14 +1,13 @@
 package edu.teco.dnd.graphiti;
 
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
-
-import edu.teco.dnd.blocks.FunctionBlock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
+
+import edu.teco.dnd.blocks.FunctionBlockClass;
 
 /**
  * A factory for function block create features.
@@ -22,29 +21,28 @@ public final class DNDCreateFeatureFactory {
 	/**
 	 * Registered block types.
 	 */
-	private Set<Class<? extends FunctionBlock>> types = new HashSet<Class<? extends FunctionBlock>>();
+	private Set<FunctionBlockClass> blockClasses = new HashSet<FunctionBlockClass>();
 
 	/**
-	 * Returns a create feature for the given block type. If the block has not been registered it will
+	 * Returns a create feature for the given block class. If the block has not been registered it will
 	 * automatically add it to the list of known blocks.
 	 * 
 	 * @param fp
 	 *            the IFeatureProvider to use
-	 * @param type
-	 *            the type of the FunctionBlock. Must not be null or an abstract class.
+	 * @param blockClass
+	 *            the class of the FunctionBlock. Must not be null.
 	 * @return a create feature for the FunctionBlock
 	 */
-	public DNDCreateBlockFeature getCreateFeature(final IFeatureProvider fp,
-			final Class<? extends FunctionBlock> type) {
-		if (!types.contains(type) && (type == null || Modifier.isAbstract(type.getModifiers()))) {
-			LOGGER.warn("{} was passed to getCreateFeature", type);
+	public DNDCreateBlockFeature getCreateFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
+		if (blockClass == null) {
+			LOGGER.warn("{} was passed to getCreateFeature", blockClass);
 			throw new IllegalArgumentException("type is invalid");
 		}
-		if (LOGGER.isDebugEnabled() && !types.contains(type)) {
-			LOGGER.debug("adding type {}", type);
+		if (LOGGER.isDebugEnabled() && !blockClasses.contains(blockClass)) {
+			LOGGER.debug("adding type {}", blockClass);
 		}
-		types.add(type);
-		return new DNDCreateBlockFeature(fp, type);
+		blockClasses.add(blockClass);
+		return new DNDCreateBlockFeature(fp, blockClass);
 	}
 
 	/**
@@ -55,27 +53,27 @@ public final class DNDCreateFeatureFactory {
 	 * @return all create features
 	 */
 	public Set<DNDCreateBlockFeature> getCreateFeatures(final IFeatureProvider fp) {
-		Set<DNDCreateBlockFeature> features = new HashSet<DNDCreateBlockFeature>(types.size());
-		for (Class<? extends FunctionBlock> type : types) {
-			features.add(new DNDCreateBlockFeature(fp, type));
+		Set<DNDCreateBlockFeature> features = new HashSet<DNDCreateBlockFeature>(blockClasses.size());
+		for (final FunctionBlockClass blockClass : blockClasses) {
+			features.add(new DNDCreateBlockFeature(fp, blockClass));
 		}
 		return features;
 	}
 
 	/**
-	 * Registers a new block type.
+	 * Registers a new block class.
 	 * 
-	 * @param type
-	 *            the new block type. If null or abstract, nothing is done.
+	 * @param blockClass
+	 *            the new block class. If null or abstract, nothing is done.
 	 */
-	public void registerBlockType(final Class<? extends FunctionBlock> type) {
-		if (type == null || Modifier.isAbstract(type.getModifiers())) {
+	public void registerBlockType(final FunctionBlockClass blockClass) {
+		if (blockClass == null) {
 			LOGGER.warn("tried to register invalid type");
 			return;
 		}
-		if (LOGGER.isDebugEnabled() && !types.contains(type)) {
-			LOGGER.debug("adding type {}", type);
+		if (LOGGER.isDebugEnabled() && !blockClasses.contains(blockClass)) {
+			LOGGER.debug("adding type {}", blockClass);
 		}
-		types.add(type);
+		blockClasses.add(blockClass);
 	}
 }

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockFactory;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.OptionModel;
@@ -24,7 +25,11 @@ import edu.teco.dnd.temperature.TemperatureActorBlock;
 import edu.teco.dnd.temperature.TemperatureLogicBlock;
 import edu.teco.dnd.temperature.TemperatureSensorBlock;
 import edu.teco.dnd.util.ClassScanner;
+import edu.teco.dnd.util.StringUtil;
 
+import org.apache.bcel.util.Repository;
+import org.apache.bcel.util.SyntheticRepository;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
@@ -76,11 +81,11 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * Feature factory for block create features.
 	 */
 	private final DNDCreateFeatureFactory createFeatureFactory = new DNDCreateFeatureFactory();
-
+	
 	/**
-	 * an URLClassLoader.
+	 * Used to inspect FunctionBlocks.
 	 */
-	private URLClassLoader ucl = null;
+	private final FunctionBlockFactory blockFactory;
 
 	/**
 	 * Whether or not {@link #createFeatureFactory} was initialised.
@@ -92,11 +97,25 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * 
 	 * @param dtp
 	 *            the diagram type provider this feature provider belongs to
+	 * @throws ClassNotFoundException 
 	 */
-	public DNDFeatureProvider(final IDiagramTypeProvider dtp) {
+	public DNDFeatureProvider(final IDiagramTypeProvider dtp) throws ClassNotFoundException {
 		super(dtp);
 		LOGGER.info("DNDFeatureProvider created successfully");
+		blockFactory = new FunctionBlockFactory(StringUtil.joinIterable(getProjectClassPath(), ":"));
 		registerDefaultTypes();
+	}
+	
+	/**
+	 * Returns the class path for the Eclipse project this diagram is part of.
+	 * 
+	 * @return the class path for the enclosing Eclipse project
+	 */
+	private Set<IPath> getProjectClassPath() {
+		IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(
+				getDiagramTypeProvider().getDiagram()).toString()));
+		Set<URL> urls = new HashSet<URL>();
+		return EclipseUtil.getAbsoluteBinPaths(project);
 	}
 
 	/**
@@ -104,8 +123,19 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 */
 	@SuppressWarnings("unchecked")
 	private void registerDefaultTypes() {
+		final FunctionBlockFactory factory;
+		try {
+			factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
+		} catch (final ClassNotFoundException e) {
+			LOGGER.catching(Level.WARN, e);
+			return;
+		}
 		for (Class<?> type : DEFAULT_TYPES) {
-			createFeatureFactory.registerBlockType((Class<? extends FunctionBlock>) type);
+			try {
+				createFeatureFactory.registerBlockType(factory.getFunctionBlockClass(type));
+			} catch (final ClassNotFoundException e) {
+				LOGGER.catching(Level.WARN, e);
+			}
 		}
 	}
 
@@ -125,26 +155,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	@SuppressWarnings("unchecked")
 	private synchronized void initialiseFactory() {
 		if (!factoryInitialised) {
-			IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(
-					getDiagramTypeProvider().getDiagram()).toString()));
-			Set<URL> urls = new HashSet<URL>();
-			Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(project);
-			for (IPath path : paths) {
-				try {
-					urls.add(path.toFile().toURI().toURL());
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-			}
-			LOGGER.debug(urls);
-			ucl = new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader());
-			ClassScanner scanner = new ClassScanner(ucl, new FunctionBlockFilter());
-			for (IPath path : paths) {
-				File f = path.toFile();
-				for (Class<?> cls : scanner.getClasses(f)) {
-					createFeatureFactory.registerBlockType((Class<? extends FunctionBlock>) cls);
-				}
-			}
+			// TODO: register block types
 			factoryInitialised = true;
 		}
 	}

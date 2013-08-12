@@ -50,6 +50,10 @@ public class FunctionBlockFactory {
 	public FunctionBlockFactory(final String classPath) throws ClassNotFoundException {
 		this(new ClassPath(classPath));
 	}
+	
+	public FunctionBlockClass getFunctionBlockClass(final Class<?> cls) throws ClassNotFoundException {
+		return getFunctionBlockClass(cls.getCanonicalName());
+	}
 
 	public FunctionBlockClass getFunctionBlockClass(final String className) throws ClassNotFoundException {
 		FunctionBlockClass block = blocks.get(className);
