@@ -65,7 +65,7 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	 * Reads new temperature and sets it on output temperature.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (reader == null) {
 			return;
 		}

@@ -64,7 +64,7 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 * Compares temperature with a preset threshold to calculate the setting of the heating.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (roomTemperature == null) {
 			return;
 		}

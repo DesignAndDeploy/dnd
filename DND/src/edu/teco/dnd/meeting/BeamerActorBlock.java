@@ -38,7 +38,7 @@ public class BeamerActorBlock extends FunctionBlock {
 	 * Turns the beamer on or off.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (beamer == null) {
 			return;
 		}

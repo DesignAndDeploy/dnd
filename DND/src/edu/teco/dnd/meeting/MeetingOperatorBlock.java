@@ -52,7 +52,7 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	 * DisplayOperatingBlock can be informed thusly.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (lights == null) {
 			return;
 		}

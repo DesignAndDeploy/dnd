@@ -64,7 +64,7 @@ public class OutletSensorBlock extends FunctionBlock {
 	 * Checks use of the outlet.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (reader == null) {
 			return;
 		}

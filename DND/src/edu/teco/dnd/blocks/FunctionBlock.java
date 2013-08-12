@@ -20,7 +20,7 @@ public abstract class FunctionBlock implements Serializable {
 	/**
 	 * This method is called when a FunctionBlock is started on a module.
 	 */
-	protected abstract void init();
+	public abstract void init();
 	
-	protected abstract void update();
+	public abstract void update();
 }

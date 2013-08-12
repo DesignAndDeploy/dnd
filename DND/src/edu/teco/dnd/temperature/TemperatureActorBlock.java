@@ -61,7 +61,7 @@ public class TemperatureActorBlock extends FunctionBlock {
 	 * This method is used to turn the heating off or on, depending on the input.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (control == null || temperature == null) {
 			return;
 		}

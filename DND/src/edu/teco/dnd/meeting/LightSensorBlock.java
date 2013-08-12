@@ -65,7 +65,7 @@ public class LightSensorBlock extends FunctionBlock {
 	 * measures brightness.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (reader == null) {
 			return;
 		}

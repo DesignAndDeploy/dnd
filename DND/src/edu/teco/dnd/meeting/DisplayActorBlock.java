@@ -49,7 +49,7 @@ public class DisplayActorBlock extends FunctionBlock {
 	 * Puts the input string on a display.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (text == null) {
 			return;
 		}

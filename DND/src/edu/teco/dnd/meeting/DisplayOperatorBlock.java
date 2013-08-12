@@ -39,7 +39,7 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	 * "besetzt").
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (meeting == null) {
 			return;
 		}

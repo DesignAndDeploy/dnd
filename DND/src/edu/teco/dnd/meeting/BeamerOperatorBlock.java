@@ -44,7 +44,7 @@ public class BeamerOperatorBlock extends FunctionBlock {
 	 * true: beamer-power activate!
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (outlet == null || meeting == null) {
 			return;
 		}
