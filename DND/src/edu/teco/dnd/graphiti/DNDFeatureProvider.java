@@ -1,32 +1,10 @@
 package edu.teco.dnd.graphiti;
 
 import java.io.File;
-import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.FunctionBlockClass;
-import edu.teco.dnd.blocks.FunctionBlockFactory;
-import edu.teco.dnd.eclipse.EclipseUtil;
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.OptionModel;
-import edu.teco.dnd.meeting.BeamerActorBlock;
-import edu.teco.dnd.meeting.BeamerOperatorBlock;
-import edu.teco.dnd.meeting.DisplayActorBlock;
-import edu.teco.dnd.meeting.DisplayOperatorBlock;
-import edu.teco.dnd.meeting.LightSensorBlock;
-import edu.teco.dnd.meeting.MeetingOperatorBlock;
-import edu.teco.dnd.meeting.OutletActorBlock;
-import edu.teco.dnd.meeting.OutletSensorBlock;
-import edu.teco.dnd.temperature.TemperatureActorBlock;
-import edu.teco.dnd.temperature.TemperatureLogicBlock;
-import edu.teco.dnd.temperature.TemperatureSensorBlock;
-import edu.teco.dnd.util.ClassScanner;
-import edu.teco.dnd.util.StringUtil;
 
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.Repository;
@@ -58,10 +36,28 @@ import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.custom.ICustomFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.Connection;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
 
-import com.sun.swing.internal.plaf.synth.resources.synth;
+import edu.teco.dnd.blocks.FunctionBlockClass;
+import edu.teco.dnd.blocks.FunctionBlockFactory;
+import edu.teco.dnd.eclipse.EclipseUtil;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.meeting.BeamerActorBlock;
+import edu.teco.dnd.meeting.BeamerOperatorBlock;
+import edu.teco.dnd.meeting.DisplayActorBlock;
+import edu.teco.dnd.meeting.DisplayOperatorBlock;
+import edu.teco.dnd.meeting.LightSensorBlock;
+import edu.teco.dnd.meeting.MeetingOperatorBlock;
+import edu.teco.dnd.meeting.OutletActorBlock;
+import edu.teco.dnd.meeting.OutletSensorBlock;
+import edu.teco.dnd.temperature.TemperatureActorBlock;
+import edu.teco.dnd.temperature.TemperatureLogicBlock;
+import edu.teco.dnd.temperature.TemperatureSensorBlock;
+import edu.teco.dnd.util.ClassScanner;
+import edu.teco.dnd.util.StringUtil;
 
 /**
  * Provides the features that are used by the editor.
@@ -89,7 +85,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * Used to inspect FunctionBlocks.
 	 */
-	private final FunctionBlockFactory blockFactory;
+	private FunctionBlockFactory blockFactory;
 
 	/**
 	 * Whether or not {@link #createFeatureFactory} was initialised.
@@ -106,8 +102,6 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	public DNDFeatureProvider(final IDiagramTypeProvider dtp) throws ClassNotFoundException {
 		super(dtp);
 		LOGGER.info("DNDFeatureProvider created successfully");
-		blockFactory = new FunctionBlockFactory(StringUtil.joinIterable(getProjectClassPath(), ":"));
-		registerDefaultTypes();
 	}
 	
 	/**
@@ -116,8 +110,11 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * @return the class path for the enclosing Eclipse project
 	 */
 	private Set<IPath> getProjectClassPath() {
-		IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(
-				getDiagramTypeProvider().getDiagram()).toString()));
+		final Diagram diagram = getDiagramTypeProvider().getDiagram();
+		if (diagram == null) {
+			return Collections.emptySet();
+		}
+		IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(diagram).toString()));
 		Set<URL> urls = new HashSet<URL>();
 		return EclipseUtil.getAbsoluteBinPaths(project);
 	}
@@ -158,6 +155,13 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 */
 	private synchronized void initialiseFactory() {
 		if (!factoryInitialised) {
+			final Set<IPath> ipaths = getProjectClassPath();
+			try {
+				blockFactory = new FunctionBlockFactory(StringUtil.joinIterable(ipaths, ":"));
+			} catch (final ClassNotFoundException e) {
+				LOGGER.catching(e);
+			}
+			registerDefaultTypes();
 			final Set<File> paths = new HashSet<File>();
 			for (final IPath ipath : getProjectClassPath()) {
 				paths.add(ipath.toFile());
