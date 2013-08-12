@@ -277,7 +277,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		IDirectEditingFeature feature = null;
 		if (bo instanceof OptionModel) {
-			feature = new DNDEditStringOptionFeature(this);
+			feature = new DNDEditOptionFeature(this);
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 			if (TypePropertyUtil.isBlockNameText(ga)){

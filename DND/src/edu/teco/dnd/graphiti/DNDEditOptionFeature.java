@@ -12,11 +12,11 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 /**
  * Direct editing feature for {@link Option}s.
  */
-public class DNDEditIntegerOptionFeature extends AbstractDirectEditingFeature {
+public class DNDEditOptionFeature extends AbstractDirectEditingFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDEditIntegerOptionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(DNDEditOptionFeature.class);
 
 	/**
 	 * Passes the feature provider to the super constructor.
@@ -24,7 +24,7 @@ public class DNDEditIntegerOptionFeature extends AbstractDirectEditingFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDEditIntegerOptionFeature(final DNDFeatureProvider fp) {
+	public DNDEditOptionFeature(final DNDFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -41,16 +41,6 @@ public class DNDEditIntegerOptionFeature extends AbstractDirectEditingFeature {
 		PictogramElement pe = context.getPictogramElement();
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		if (!(bo instanceof OptionModel)) {
-			LOGGER.exit(false);
-			return false;
-		}
-		OptionModel option = (OptionModel) bo;
-		Class<?> type = null;
-		try {
-			type = ((DNDFeatureProvider) getFeatureProvider()).getClassLoader().loadClass(option.getType());
-		} catch (ClassNotFoundException e) {
-		}
-		if (type == null || !type.isAssignableFrom(Integer.class)) {
 			LOGGER.exit(false);
 			return false;
 		}
@@ -79,7 +69,7 @@ public class DNDEditIntegerOptionFeature extends AbstractDirectEditingFeature {
 	public String getInitialValue(final IDirectEditingContext context) {
 		LOGGER.entry(context);
 		OptionModel option = (OptionModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
-		String value = "" + option.getValue();
+		String value = (String) option.getValue();
 		LOGGER.exit(value);
 		return value;
 	}
@@ -95,11 +85,6 @@ public class DNDEditIntegerOptionFeature extends AbstractDirectEditingFeature {
 	 */
 	@Override
 	public String checkValueValid(final String value, final IDirectEditingContext context) {
-		try {
-			Integer.parseInt(value);
-		} catch (NumberFormatException e) {
-			return Messages.DNDEditIntegerOptionFeature_NotANumber_Info;
-		}
 		return null;
 	}
 
@@ -116,15 +101,7 @@ public class DNDEditIntegerOptionFeature extends AbstractDirectEditingFeature {
 		LOGGER.entry(value, context);
 		PictogramElement pe = context.getPictogramElement();
 		OptionModel option = (OptionModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
-		int intVal;
-		try {
-			intVal = Integer.parseInt(value);
-		} catch (NumberFormatException e) {
-			LOGGER.warn("not a number in setValue: {}", value);
-			LOGGER.exit();
-			return;
-		}
-		option.setValue(intVal);
+		option.setValue(value);
 		updatePictogramElement(pe);
 		LOGGER.exit();
 	}
