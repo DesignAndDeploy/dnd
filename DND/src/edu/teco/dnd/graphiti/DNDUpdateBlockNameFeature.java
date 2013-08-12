@@ -86,7 +86,15 @@ public class DNDUpdateBlockNameFeature extends AbstractUpdateFeature {
 		return true;
 	}
 	
-	public boolean update(final ICustomContext context){
+	/**
+	 * This update-method is called by the DNDCustomUpdateFeature. It offers an
+	 * alternative to the not-working update button, that should
+	 * appear in graphiti by default.
+	 * 
+	 * @param context Context offered by the DNDCustomUpdateFeature
+	 * @return if completed successfully.
+	 */
+	protected boolean update(final ICustomContext context){
 		LOGGER.entry(context);
 		PictogramElement pe = context.getInnerPictogramElement();
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);

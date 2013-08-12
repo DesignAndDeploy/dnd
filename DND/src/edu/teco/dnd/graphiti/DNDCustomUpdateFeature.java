@@ -1,21 +1,21 @@
 package edu.teco.dnd.graphiti;
 
-import java.util.ArrayList;
-
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
-import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
-import org.eclipse.graphiti.mm.algorithms.impl.RoundedRectangleImpl;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.mm.pictograms.impl.ContainerShapeImpl;
-import org.eclipse.graphiti.mm.pictograms.impl.PictogramLinkImpl;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
+/**
+ * This class is responsible for importing changes from the DeployView to the
+ * graphiti diagram editor. After reloading a diagram to graphiti, the user can manually
+ * update all edited names and positions to the values set in DeployView.
+ * 
+ * @author jung
+ * 
+ */
 public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 
 	IFeatureProvider featureProv;
@@ -48,7 +48,8 @@ public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 				PictogramElement pe = context.getInnerPictogramElement();
 				if (pe.getGraphicsAlgorithm() instanceof Text) {
 					Text text = (Text) pe.getGraphicsAlgorithm();
-					if (TypePropertyUtil.isBlockNameText(text) || TypePropertyUtil.isPositionText(text)){
+					if (TypePropertyUtil.isBlockNameText(text)
+							|| TypePropertyUtil.isPositionText(text)) {
 						ret = true;
 					}
 				}
