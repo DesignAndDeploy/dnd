@@ -896,7 +896,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 		blockModelName.addKeyListener(new KeyAdapter(){
 			public void keyReleased(KeyEvent e){
-				if (e.keyCode == 13){
+				if (e.keyCode == ENTER){
 					DeployView.this.saveConstraints();
 				}
 			}
@@ -911,7 +911,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		
 		places.addKeyListener(new KeyAdapter(){
 			public void keyReleased(KeyEvent e){
-				if (e.keyCode == 13){
+				if (e.keyCode == ENTER){
 					DeployView.this.saveConstraints();
 				}
 			}
