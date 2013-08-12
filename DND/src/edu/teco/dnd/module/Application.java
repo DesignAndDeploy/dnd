@@ -157,8 +157,8 @@ public class Application {
 	 *            the block to be started.
 	 * @return true iff block was successfully started.
 	 */
-	public void startBlock(final UUID blockUUID, final FunctionBlock block) {
-		funcBlockById.put(blockUUID, block);
+	public void startBlock(final FunctionBlock block) {
+		funcBlockById.put(block.getBlockUUID(), block);
 
 		Runnable initRunnable = BlockRunner.getBlockInitializer(block, Application.this);
 

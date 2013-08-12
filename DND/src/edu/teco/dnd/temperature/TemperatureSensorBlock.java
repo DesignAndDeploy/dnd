@@ -19,11 +19,13 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	 * 
 	 */
 	private static final long serialVersionUID = -1362359340515519805L;
+	
+	public static final String BLOCK_TYPE = "sensorTemperature";
 
 	/**
 	 * Time between updates.
 	 */
-	public static final long UPDATE_TIME = 1000L;
+	public static final long BLOCK_UPDATE_INTERVAL = 1000L;
 
 	/**
 	 * current temperature.

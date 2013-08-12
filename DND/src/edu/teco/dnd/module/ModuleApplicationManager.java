@@ -41,7 +41,7 @@ public class ModuleApplicationManager {
 	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
 	public final int maxAllowedThreadsPerApp;
 	private final ConnectionManager connMan;
-	private final Map<UUID, FunctionBlock> scheduledToStart = new HashMap<UUID, FunctionBlock>();
+	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
 
 	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
@@ -149,6 +149,7 @@ public class ModuleApplicationManager {
 				e.printStackTrace();
 				return false;
 			}
+			block.setBlockUUID(blockUUID);
 			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 			if (blockAllowed == null) {
 				LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
@@ -158,7 +159,7 @@ public class ModuleApplicationManager {
 				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", blockType);
 				return false;
 			}
-			scheduledToStart.put(blockUUID, block);
+			scheduledToStart.add(block);
 			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, runningApps.get(appId), appId);
 			return true;
 		} finally {
@@ -170,13 +171,13 @@ public class ModuleApplicationManager {
 		// TODO: add synchronization
 		// TODO: clear list of scheduled blocks
 		// TODO: only start the blocks that are scheduled for this application
-		for (Entry<UUID, FunctionBlock> block : scheduledToStart.entrySet()) {
+		for (FunctionBlock block : scheduledToStart) {
 			Application app = runningApps.get(appId);
 			if (app == null) {
 				LOGGER.warn("Tried to start non existing app: {}", appId);
 				throw new IllegalArgumentException("tried to start app that does not exist.");
 			} else {
-				runningApps.get(appId).startBlock(block.getKey(), block.getValue());
+				runningApps.get(appId).startBlock(block);
 			}
 		}
 	}

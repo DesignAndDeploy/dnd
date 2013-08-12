@@ -9,17 +9,28 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Attribute;
 import org.apache.bcel.classfile.ClassFormatException;
+import org.apache.bcel.classfile.Constant;
+import org.apache.bcel.classfile.ConstantInteger;
+import org.apache.bcel.classfile.ConstantLong;
+import org.apache.bcel.classfile.ConstantPool;
+import org.apache.bcel.classfile.ConstantString;
+import org.apache.bcel.classfile.ConstantUtf8;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Signature;
+import org.apache.bcel.classfile.Utility;
+import org.apache.bcel.generic.BasicType;
 import org.apache.bcel.generic.ObjectType;
 import org.apache.bcel.generic.ReferenceType;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.util.ClassPath;
 import org.apache.bcel.util.Repository;
 import org.apache.bcel.util.SyntheticRepository;
+
+import edu.teco.dnd.temperature.TemperatureSensorBlock;
 
 public class FunctionBlockFactory {
 	// TODO: BCEL is not thread safe, wrap this repository
@@ -77,11 +88,19 @@ public class FunctionBlockFactory {
 		final Map<String, JavaClass> inputs = new HashMap<String, JavaClass>();
 		final Map<String, JavaClass> outputs = new HashMap<String, JavaClass>();
 		final Set<String> options = new HashSet<String>();
+		String blockType = null;
+		Long updateInterval = null;
 		JavaClass currentCls = cls;
 		while (currentCls != null) {
 			for (final Field field : currentCls.getFields()) {
 				final Type type = field.getType();
 				if (type instanceof ObjectType) {
+					if (blockType == null && "BLOCK_TYPE".equals(field.getName())) {
+						final ConstantPool cp = field.getConstantPool();
+						ConstantString sc = ((ConstantString) cp.getConstant(field.getConstantValue().getConstantValueIndex()));
+						ConstantUtf8 c = (ConstantUtf8) cp.getConstant(sc.getStringIndex(), Constants.CONSTANT_Utf8);
+						blockType = Utility.convertString(((ConstantUtf8) c).getBytes());
+					}
 					for (final Attribute attribute : field.getAttributes()) {
 						if (attribute instanceof Signature) {
 							if (outputClass.getClassName().equals(((ObjectType) type).getClassName())) {
@@ -101,11 +120,19 @@ public class FunctionBlockFactory {
 							}
 						}
 					}
+				} else if (type instanceof BasicType) {
+					if (updateInterval == null && "BLOCK_UPDATE_INTERVAL".equals(field.getName())) {
+						System.out.println(field.getConstantValue());
+						final ConstantPool cp = field.getConstantPool();
+						ConstantLong c = (ConstantLong) cp.getConstant(field.getConstantValue().getConstantValueIndex());
+						updateInterval = c.getBytes();
+					}
 				}
 			}
 			currentCls = currentCls.getSuperClass();
 		}
-		return new FunctionBlockClass(cls, inputs, outputs, options);
+		System.out.println(updateInterval);
+		return new FunctionBlockClass(cls, blockType, updateInterval, inputs, outputs, options);
 	}
 
 	private static String getGenericClassName(final String signature) {
@@ -129,8 +156,7 @@ public class FunctionBlockFactory {
 
 	public static void main(final String[] args) throws ClassNotFoundException {
 		final FunctionBlockFactory factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
-		final FunctionBlockClass blockClass = factory.getFunctionBlockClass("edu.teco.dnd.temperature.TemperatureSensorBlock");
-		System.out.println(blockClass.getOutputs());
+		final FunctionBlockClass blockClass = factory.getFunctionBlockClass(TemperatureSensorBlock.class);
 	}
 
 	public Repository getRepository() {
