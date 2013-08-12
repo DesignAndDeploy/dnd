@@ -1,5 +1,6 @@
 package edu.teco.dnd.graphiti.model;
 
+import org.apache.bcel.util.Repository;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -76,5 +77,5 @@ public interface InputModel extends EObject {
 	 */
 	void setQueued(boolean value);
 
-	boolean isCompatible(ClassLoader cl, OutputModel output);
+	boolean isCompatible(Repository repository, OutputModel output);
 }

@@ -11,6 +11,8 @@ import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.ModelPackage;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.util.Repository;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 
@@ -463,19 +465,23 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	}
 
 	@Override
-	public boolean isCompatible(ClassLoader cl, OutputModel output) {
+	public boolean isCompatible(Repository repository, OutputModel output) {
 		if (output == null) {
 			return false;
 		}
-		Class<?> myType;
-		Class<?> otherType;
+		final JavaClass myType;
+		final JavaClass otherType;
 		try {
-			myType = cl.loadClass(getType());
-			otherType = cl.loadClass(output.getType());
+			myType = repository.loadClass(getType());
+			otherType = repository.loadClass(output.getType());
 		} catch (ClassNotFoundException e) {
 			return false;
 		}
-		return myType.isAssignableFrom(otherType);
+		try {
+			return otherType.instanceOf(myType);
+		} catch (final ClassNotFoundException e) {
+			return false;
+		}
 	}
 
 } //InputModelImpl

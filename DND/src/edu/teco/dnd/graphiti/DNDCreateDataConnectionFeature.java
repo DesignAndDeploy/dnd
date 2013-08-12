@@ -52,10 +52,10 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 		Object targetBo = getBusinessObjectForPictogramElement(targetAnchor);
 		if (sourceBo instanceof OutputModel && targetBo instanceof InputModel) {
 			return ((OutputModel) sourceBo).isCompatible(
-					((DNDFeatureProvider) getFeatureProvider()).getClassLoader(), (InputModel) targetBo);
+					((DNDFeatureProvider) getFeatureProvider()).getRepository(), (InputModel) targetBo);
 		} else if (sourceBo instanceof InputModel && targetBo instanceof OutputModel) {
 			return ((InputModel) sourceBo).isCompatible(
-					((DNDFeatureProvider) getFeatureProvider()).getClassLoader(), (OutputModel) targetBo);
+					((DNDFeatureProvider) getFeatureProvider()).getRepository(), (OutputModel) targetBo);
 		}
 		return false;
 	}

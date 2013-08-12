@@ -61,6 +61,8 @@ import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
 
+import com.sun.swing.internal.plaf.synth.resources.synth;
+
 /**
  * Provides the features that are used by the editor.
  */
@@ -184,6 +186,10 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	public final synchronized FunctionBlockFactory getFunctionBlockFactory() {
 		initialiseFactory();
 		return blockFactory;
+	}
+	
+	public final Repository getRepository() {
+		return blockFactory.getRepository();
 	}
 
 	/**
