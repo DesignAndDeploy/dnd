@@ -17,7 +17,6 @@ import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.palette.IPaletteCompartmentEntry;
-import org.eclipse.graphiti.palette.impl.AbstractPaletteToolEntry;
 import org.eclipse.graphiti.palette.impl.ConnectionCreationToolEntry;
 import org.eclipse.graphiti.palette.impl.ObjectCreationToolEntry;
 import org.eclipse.graphiti.palette.impl.PaletteCompartmentEntry;
@@ -150,12 +149,9 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 			IPictogramElementContext context) {
 		IContextButtonPadData data = super.getContextButtonPad(context);
 		PictogramElement pe = context.getPictogramElement();
-		// 1. set the generic context buttons
-
-		// note, that we do not add 'remove' (just as an example)
-
 		setGenericContextButtons(data, pe, CONTEXT_BUTTON_DELETE
 				| CONTEXT_BUTTON_UPDATE);
+		//TODO: Why doesn't the update button appear?
 		return data;
 
 	}
