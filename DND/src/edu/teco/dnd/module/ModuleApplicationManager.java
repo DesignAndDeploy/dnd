@@ -103,7 +103,7 @@ public class ModuleApplicationManager {
 
 	/**
 	 * Schedules a FunctionBlock to be started, when StartApp() is called.
-	 * 
+	 *
 	 * @param blockClass the class of the FunctionBlock
 	 * @param blockUUID the UUID of the FunctionBlock
 	 * @param options the options for the FunctionBlock

@@ -3,7 +3,7 @@ package edu.teco.dnd.module.messages.values;
 import java.io.Serializable;
 import java.util.UUID;
 
-import edu.teco.dnd.module.BlockRunner;
+import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
@@ -33,7 +33,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 		result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
 		result = prime * result + ((input == null) ? 0 : input.hashCode());
 		try {
-			result = prime * result + ((value == null) ? 0 : BlockRunner.getHashCode(value));
+			result = prime * result + ((value == null) ? 0 : UsercodeWrapper.getHashCode(value));
 		} catch (UserSuppliedCodeException e) {
 			e.printStackTrace();
 			result = prime * result + 0;
@@ -76,7 +76,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 			}
 		} else
 			try {
-				if (!BlockRunner.getEquals(value, other.value)) {
+				if (!UsercodeWrapper.getEquals(value, other.value)) {
 					return false;
 				}
 			} catch (UserSuppliedCodeException e) {
@@ -94,7 +94,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	@Override
 	public String toString() {
 		try {
-			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + BlockRunner.getToString(value) + ", getApplicationID()="
+			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + UsercodeWrapper.getToString(value) + ", getApplicationID()="
 					+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
 		} catch (UserSuppliedCodeException e) {
 			e.printStackTrace();

@@ -12,6 +12,7 @@ import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
 import org.eclipse.graphiti.features.ICreateFeature;
+import org.eclipse.graphiti.features.context.IPictogramElementContext;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
@@ -20,6 +21,7 @@ import org.eclipse.graphiti.palette.impl.ConnectionCreationToolEntry;
 import org.eclipse.graphiti.palette.impl.ObjectCreationToolEntry;
 import org.eclipse.graphiti.palette.impl.PaletteCompartmentEntry;
 import org.eclipse.graphiti.tb.DefaultToolBehaviorProvider;
+import org.eclipse.graphiti.tb.IContextButtonPadData;
 
 /**
  * Provides the palette and the selection border.
@@ -31,7 +33,8 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	 * @param diagramTypeProvider
 	 *            the diagram type this tool behavior provider belongs to
 	 */
-	public DNDToolBehaviorProvider(final DNDDiagramTypeProvider diagramTypeProvider) {
+	public DNDToolBehaviorProvider(
+			final DNDDiagramTypeProvider diagramTypeProvider) {
 		super(diagramTypeProvider);
 	}
 
@@ -43,14 +46,17 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	@Override
 	public IPaletteCompartmentEntry[] getPalette() {
 		List<IPaletteCompartmentEntry> palette = new ArrayList<IPaletteCompartmentEntry>();
-		PaletteCompartmentEntry connections = new PaletteCompartmentEntry("Connections", null);
+		PaletteCompartmentEntry connections = new PaletteCompartmentEntry(
+				"Connections", null);
 		palette.add(connections);
 		DNDCreateDataConnectionFeature dataConnectionFeature = new DNDCreateDataConnectionFeature(
 				(DNDFeatureProvider) getFeatureProvider());
 		ConnectionCreationToolEntry connectionCreationToolEntry = new ConnectionCreationToolEntry(
-				dataConnectionFeature.getName(), dataConnectionFeature.getDescription(), null, null);
+				dataConnectionFeature.getName(),
+				dataConnectionFeature.getDescription(), null, null);
 		connections.addToolEntry(connectionCreationToolEntry);
-		connectionCreationToolEntry.addCreateConnectionFeature(dataConnectionFeature);
+		connectionCreationToolEntry
+				.addCreateConnectionFeature(dataConnectionFeature);
 		Map<String, List<ICreateFeature>> categories = new HashMap<String, List<ICreateFeature>>();
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
 			String category = "Other";
@@ -65,17 +71,19 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		List<String> categoryList = new ArrayList<String>(categories.keySet());
 		Collections.sort(categoryList);
 		for (String category : categoryList) {
-			PaletteCompartmentEntry pce = new PaletteCompartmentEntry(category, null);
+			PaletteCompartmentEntry pce = new PaletteCompartmentEntry(category,
+					null);
 			List<ICreateFeature> cfs = categories.get(category);
 			Collections.sort(cfs, new Comparator<ICreateFeature>() {
 				@Override
-				public int compare(final ICreateFeature o1, final ICreateFeature o2) {
+				public int compare(final ICreateFeature o1,
+						final ICreateFeature o2) {
 					return o1.getName().compareTo(o2.getName());
 				}
 			});
 			for (ICreateFeature cf : cfs) {
-				pce.addToolEntry(new ObjectCreationToolEntry(cf.getName(), cf.getDescription(), null, null,
-						cf));
+				pce.addToolEntry(new ObjectCreationToolEntry(cf.getName(), cf
+						.getDescription(), null, null, cf));
 			}
 			palette.add(pce);
 		}
@@ -85,17 +93,25 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	@Override
 	public String getToolTip(final GraphicsAlgorithm ga) {
 		PictogramElement pe = ga.getPictogramElement();
-		Object bo = getFeatureProvider().getBusinessObjectForPictogramElement(pe);
+		Object bo = getFeatureProvider().getBusinessObjectForPictogramElement(
+				pe);
 		String name = null;
 		if (bo instanceof FunctionBlockModel) {
 			if (ga instanceof Text) {
-				name = ((Text) ga).getValue();
+				if (TypePropertyUtil.isBlockNameText(ga)) {
+					name = ((FunctionBlockModel) bo).getBlockName();
+				} else if (TypePropertyUtil.isPositionText(ga)) {
+					name = ((FunctionBlockModel) bo).getPosition();
+				} else {
+					name = ((Text) ga).getValue();
+				}
 			} else {
 				name = ((FunctionBlockModel) bo).getTypeName();
 			}
 		} else if (bo instanceof OutputModel) {
 			OutputModel output = (OutputModel) bo;
-			name = output.getName() + " (" + simplifyName(output.getType()) + ")";
+			name = output.getName() + " (" + simplifyName(output.getType())
+					+ ")";
 		} else if (bo instanceof InputModel) {
 			InputModel input = (InputModel) bo;
 			name = input.getName() + " (" + simplifyName(input.getType()) + ")";
@@ -121,5 +137,17 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 			return null;
 		}
 		return name.substring(name.lastIndexOf('.') + 1);
+	}
+
+	@Override
+	public IContextButtonPadData getContextButtonPad(
+			IPictogramElementContext context) {
+		IContextButtonPadData data = super.getContextButtonPad(context);
+		PictogramElement pe = context.getPictogramElement();
+		setGenericContextButtons(data, pe, CONTEXT_BUTTON_DELETE
+				| CONTEXT_BUTTON_UPDATE);
+		//TODO: Why doesn't the update button appear?
+		return data;
+
 	}
 }

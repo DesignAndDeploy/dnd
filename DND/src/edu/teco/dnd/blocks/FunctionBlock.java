@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * Base class function blocks. Subclasses have to implement {@link #init()} and
- * {@link #update()}.
+ * Base class function blocks. Subclasses have to implement {@link #init()} and {@link #update()}.
  * 
  * @see Input
  * @see Output

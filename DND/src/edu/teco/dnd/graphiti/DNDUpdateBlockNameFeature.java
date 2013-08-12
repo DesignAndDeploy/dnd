@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.IReason;
+import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.impl.AbstractUpdateFeature;
 import org.eclipse.graphiti.features.impl.Reason;
@@ -74,6 +75,28 @@ public class DNDUpdateBlockNameFeature extends AbstractUpdateFeature {
 	public boolean update(final IUpdateContext context) {
 		LOGGER.entry(context);
 		PictogramElement pe = context.getPictogramElement();
+		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
+		Text text = (Text) pe.getGraphicsAlgorithm();
+		String value = block.getBlockName();
+		if (value == null) {
+			value = "";
+		}
+		text.setValue(value);
+		LOGGER.exit(true);
+		return true;
+	}
+	
+	/**
+	 * This update-method is called by the DNDCustomUpdateFeature. It offers an
+	 * alternative to the not-working update button, that should
+	 * appear in graphiti by default.
+	 * 
+	 * @param context Context offered by the DNDCustomUpdateFeature
+	 * @return if completed successfully.
+	 */
+	protected boolean update(final ICustomContext context){
+		LOGGER.entry(context);
+		PictogramElement pe = context.getInnerPictogramElement();
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
 		Text text = (Text) pe.getGraphicsAlgorithm();
 		String value = block.getBlockName();

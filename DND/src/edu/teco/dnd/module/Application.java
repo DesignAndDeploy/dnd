@@ -14,7 +14,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.InvalidFunctionBlockException;
+import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -160,10 +163,19 @@ public class Application {
 	public void startBlock(final FunctionBlock block) {
 		funcBlockById.put(block.getBlockUUID(), block);
 
-		Runnable initRunnable = BlockRunner.getBlockInitializer(block, Application.this);
-
+		Runnable initRunnable = new Runnable() {
+			@Override
+			public void run() {
+				block.init();
+			}
+		};
+		Runnable updater = new Runnable() {
+			@Override
+			public void run() {
+				block.update();
+			}
+		};
 		scheduledThreadPool.execute(initRunnable);
-		Runnable updater = BlockRunner.getBlockUpdater(block);
 
 		// TODO: implement a way to specify interval for updates
 //		long period = block.getTimebetweenSchedules();
@@ -200,8 +212,18 @@ public class Application {
 			LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
 			throw LOGGER.throwing(new NonExistentFunctionblockException());
 		}
-		// TODO: set new value
-		Runnable updater = BlockRunner.getBlockUpdater(funcBlockById.get(funcBlockId));
+		// TODO: set value
+		
+		Runnable updater = new Runnable() {
+			@Override
+			public void run() {
+				FunctionBlock block = funcBlockById.get(funcBlockId);
+				if (block == null) {
+					LOGGER.warn("scheduled a block, that does not exist.");
+				}
+				block.update();
+			}
+		};
 
 		try {
 			scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);

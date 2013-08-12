@@ -144,7 +144,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	 */
 	private void sendValue0(final UUID moduleUUID, final String targetInput, final Serializable value) {
 		try {
-			LOGGER.trace("sending value {} to {}:{}", BlockRunner.getToString(value), moduleUUID, targetInput);
+			LOGGER.trace("sending value {} to {}:{}", UsercodeWrapper.getToString(value), moduleUUID, targetInput);
 		} catch (UserSuppliedCodeException e) {
 			// ignore.
 		}
