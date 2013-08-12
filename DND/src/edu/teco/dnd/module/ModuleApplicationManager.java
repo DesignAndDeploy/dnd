@@ -102,18 +102,25 @@ public class ModuleApplicationManager {
 	/**
 	 * Schedules a FunctionBlock to be started, when StartApp() is called.
 	 * 
-	 * @param block
+	 * @param insecureBlock
 	 *            the FunctionBlock
 	 */
-	public boolean scheduleBlock(UUID appId, FunctionBlock block) {
-		isShuttingDown.readLock().lock();
-		String blockType;
-		try {
-			blockType = BlockRunner.getBlockType(block);
-		} catch (UserSuppliedCodeException e) {
-			e.printStackTrace();
-			return false; // not scheduling bad block.
+	public boolean scheduleBlock(UUID appId, FunctionBlock insecureBlock) {
+		FunctionBlock block;
+		if (insecureBlock == null) {
+			LOGGER.warn("send block message with NULL block.");
+			return false;
 		}
+		try {
+			block = new FunctionBlockSecurityDecorator(insecureBlock);
+		} catch (UserSuppliedCodeException e) {
+			LOGGER.warn("Not scheduling block {} ({}), because of error in code.", insecureBlock.getBlockName(),
+					insecureBlock.getID());
+			return false;
+		}
+		isShuttingDown.readLock().lock();
+		String blockType = block.getType();
+
 		try {
 			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 			if (blockAllowed == null) {
@@ -157,12 +164,8 @@ public class ModuleApplicationManager {
 	 */
 	public boolean startBlock(UUID appId, FunctionBlock block) {
 		String blockType;
-		try {
-			blockType = BlockRunner.getBlockType(block);
-		} catch (UserSuppliedCodeException e) {
-			e.printStackTrace();
-			return false; // not scheduling bad block.
-		}
+		blockType = block.getType();
+
 		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 		if (blockAllowed == null) {
 			// do not log the block directly, as that would call block.toString which is untrusted code
@@ -215,16 +218,7 @@ public class ModuleApplicationManager {
 		runningApps.remove(appId);
 		for (FunctionBlock block : blocksKilled) {
 
-			String blockType;
-			try {
-				blockType = BlockRunner.getBlockType(block);
-			} catch (UserSuppliedCodeException e) {
-				e.printStackTrace();
-				blockType = "";
-				// FIXME: If block return a different value during start and shutdown, they can change the maximum
-				// amount of blocks allowed to run of the latter type.
-			}
-			BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(blockType);
+			BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(block.getType());
 			if (holder != null) {
 				holder.increase();
 			} else {

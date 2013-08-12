@@ -48,7 +48,8 @@ public class ApplicationSecurityManager extends SecurityManager {
 	private static final Collection<String[]> securedMethods = new LinkedList<String[]>();
 
 	static {
-		insecureClasses.add("edu.teco.dnd.module.BlockRunner");
+		insecureClasses.add("edu.teco.dnd.module.UsercodeWrapper");
+		insecureClasses.add("edu.teco.dnd.module.FunctionBlockSecurityDecorator");
 		securedMethods.add(new String[] { "edu.teco.dnd.module.Application", "sendValue" });
 	}
 

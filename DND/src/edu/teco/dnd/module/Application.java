@@ -14,8 +14,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.InvalidFunctionBlockException;
+import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -161,11 +164,38 @@ public class Application {
 	public void startBlock(final FunctionBlock block) {
 		funcBlockById.put(block.getID(), block);
 
-		Runnable initRunnable = BlockRunner.getBlockInitializer(block, Application.this);
+		Runnable initRunnable = new Runnable() {
+			@Override
+			public void run() {
+				block.init();
+				try {
+					for (Output<?> output : block.getOutputs().values()) {
+						for (ConnectionTarget ct : output.getConnectedTargets()) {
+							if (ct instanceof RemoteConnectionTarget) {
+								RemoteConnectionTarget rct = (RemoteConnectionTarget) ct;
+								rct.setApplication(Application.this);
+							}
+						}
+					}
+				} catch (InvalidFunctionBlockException e) {
+					LOGGER.warn("FunctionBlock {} initialization failed.", block.getID());
+					LOGGER.catching(e);
+				}
+
+			}
+		};
+		Runnable updater = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					block.doUpdate();
+				} catch (AssignmentException e) {
+					LOGGER.info("Can not assign field of functionBlock {}", block);
+				}
+			}
+		};
 
 		scheduledThreadPool.execute(initRunnable);
-		Runnable updater = BlockRunner.getBlockUpdater(block);
-
 		long period = block.getTimebetweenSchedules();
 		try {
 			if (period < 0) {
@@ -205,7 +235,20 @@ public class Application {
 			throw LOGGER.throwing(new NonExistentInputException());
 		}
 		ct.setValue(value);
-		Runnable updater = BlockRunner.getBlockUpdater(funcBlockById.get(funcBlockId));
+		Runnable updater = new Runnable() {
+			@Override
+			public void run() {
+				FunctionBlock block = funcBlockById.get(funcBlockId);
+				if (block == null) {
+					LOGGER.warn("scheduled a block, that does not exist.");
+				}
+				try {
+					block.doUpdate();
+				} catch (AssignmentException e) {
+					LOGGER.info("Can not assign field of functionBlock {}", block);
+				}
+			}
+		};
 
 		try {
 			scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);

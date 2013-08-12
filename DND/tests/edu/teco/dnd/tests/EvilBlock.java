@@ -17,6 +17,7 @@ import edu.teco.dnd.graphiti.BlockType;
  * This operating FunctionBlock is the pure evil!!!!
  * 
  */
+@SuppressWarnings("unused")
 @BlockType("EVIL")
 public class EvilBlock extends FunctionBlock {
 
@@ -25,6 +26,7 @@ public class EvilBlock extends FunctionBlock {
 	private static boolean DO_EVIL_ON_MODULE_ONLY = true;
 
 	private static boolean BE_EVIL = true;
+
 	private static boolean DO_EVIL_SYSOUT_SPAM = true;
 	private static boolean DO_NULL_RETURNS = true;
 
@@ -205,7 +207,6 @@ public class EvilBlock extends FunctionBlock {
 		return DO_NULL_RETURNS ? null : "GRRRRRRR.....";
 	}
 
-
 	@Override
 	public long getTimebetweenSchedules() {
 		if (!beEvil())
@@ -227,18 +228,10 @@ public class EvilBlock extends FunctionBlock {
 		return DO_NULL_RETURNS ? null : "operator";
 	}
 
-	@Override
-	public void setBlockName(String bad) {
-		if (!beEvil())
-			super.setBlockName(bad);
-		doEvilStuff("setBlockName");
-	}
-
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		doEvilStuff("readObject");
 	}
 
-	@SuppressWarnings("unused")
 	private void readObjectNoData() throws ObjectStreamException {
 		doEvilStuff("readObject");
 	}

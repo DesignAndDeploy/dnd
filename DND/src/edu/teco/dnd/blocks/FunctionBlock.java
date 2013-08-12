@@ -11,8 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Base class function blocks. Subclasses have to implement {@link #init()} and
- * {@link #update()}.
+ * Base class function blocks. Subclasses have to implement {@link #init()} and {@link #update()}.
  * 
  * @see Input
  * @see Output
@@ -31,15 +30,13 @@ public abstract class FunctionBlock implements Serializable {
 	private final UUID id;
 
 	/**
-	 * Stores all {@link ConnectionTarget}s used by this function block. Mapped
-	 * from their name.
+	 * Stores all {@link ConnectionTarget}s used by this function block. Mapped from their name.
 	 */
 	private final Map<String, ConnectionTarget> connectionTargets = new HashMap<String, ConnectionTarget>();
 
 	/**
-	 * Stores all {@link Output}s used by this function block. Mapped from their
-	 * name. Lazily initialized by {@link #getOutputs()} as the variables will
-	 * not have been initialized when the constructor is called.
+	 * Stores all {@link Output}s used by this function block. Mapped from their name. Lazily initialized by
+	 * {@link #getOutputs()} as the variables will not have been initialized when the constructor is called.
 	 */
 	private Map<String, Output<?>> outputs = null;
 
@@ -54,15 +51,14 @@ public abstract class FunctionBlock implements Serializable {
 	private String position = null;
 
 	/**
-	 * Name of the Function Block. This can be changed by the user to
-	 * differantiate between different instances of the same block class.
+	 * Name of the Function Block. This can be changed by the user to differantiate between different instances of the
+	 * same block class.
 	 */
 	private String blockName;
 
 	/**
-	 * Returns all inputs defined in the given class. If a subclass has an input
-	 * with the same name as a superclass the input of the subclass takes
-	 * precedence.
+	 * Returns all inputs defined in the given class. If a subclass has an input with the same name as a superclass the
+	 * input of the subclass takes precedence.
 	 * 
 	 * @param cls
 	 *            the class to inspect. Must not be null.
@@ -87,9 +83,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns a set containing all fields that are Outputs. If a subclass has
-	 * an output with the same name as a superclass the output of the subclass
-	 * takes precedence.
+	 * Returns a set containing all fields that are Outputs. If a subclass has an output with the same name as a
+	 * superclass the output of the subclass takes precedence.
 	 * 
 	 * @param cls
 	 *            the class to inspect. Must not be null.
@@ -103,8 +98,7 @@ public abstract class FunctionBlock implements Serializable {
 		Set<String> names = new HashSet<String>();
 		for (Class<?> c = cls; c != null; c = c.getSuperclass()) {
 			for (Field field : c.getDeclaredFields()) {
-				if (Output.class.isAssignableFrom(field.getType())
-						&& !names.contains(field.getName())) {
+				if (Output.class.isAssignableFrom(field.getType()) && !names.contains(field.getName())) {
 					outputs.add(field);
 					names.add(field.getName());
 				}
@@ -114,9 +108,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns a set containing all fields that are marked as Options. If a
-	 * subclass has an option with the same name as a superclass the option of
-	 * the subclass takes precedence.
+	 * Returns a set containing all fields that are marked as Options. If a subclass has an option with the same name as
+	 * a superclass the option of the subclass takes precedence.
 	 * 
 	 * @param cls
 	 *            the class to inspect. Must not be null.
@@ -131,8 +124,7 @@ public abstract class FunctionBlock implements Serializable {
 		for (Class<?> c = cls; c != null; c = c.getSuperclass()) {
 			for (Field field : c.getDeclaredFields()) {
 				Option optionAnnotation = field.getAnnotation(Option.class);
-				if (optionAnnotation != null
-						&& !names.contains(field.getName())) {
+				if (optionAnnotation != null && !names.contains(field.getName())) {
 					options.add(field);
 					names.add(field.getName());
 				}
@@ -142,8 +134,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Queries all {@link Input}s and {@link Option}s for the function block and
-	 * creates a timer as specified by a {@link Timed} annotation (if present).
+	 * Queries all {@link Input}s and {@link Option}s for the function block and creates a timer as specified by a
+	 * {@link Timed} annotation (if present).
 	 * 
 	 * @param id
 	 *            the ID of this FunctionBlock
@@ -175,8 +167,7 @@ public abstract class FunctionBlock implements Serializable {
 	/**
 	 * returns the timeinterval this block wishes to be scheduled at.
 	 * 
-	 * @return the timeinterval this block wishes to be scheduled at, a value
-	 *         less than 0 if no timer is desired.
+	 * @return the timeinterval this block wishes to be scheduled at, a value less than 0 if no timer is desired.
 	 */
 	public long getTimebetweenSchedules() {
 		Timed timed = getClass().getAnnotation(Timed.class);
@@ -195,16 +186,14 @@ public abstract class FunctionBlock implements Serializable {
 	public abstract String getType();
 
 	/**
-	 * Can be used to initialize data used by the function block. All
-	 * {@link Option}s will have been set and will not change afterwards. Will
-	 * be called before {@link #update()} is called.
+	 * Can be used to initialize data used by the function block. All {@link Option}s will have been set and will not
+	 * change afterwards. Will be called before {@link #update()} is called.
 	 */
 	public abstract void init();
 
 	/**
-	 * Returns all {@link ConnectionTarget}s used by this function block. The
-	 * key is the name of the input, the value is the matching
-	 * ConnnectionTarget.
+	 * Returns all {@link ConnectionTarget}s used by this function block. The key is the name of the input, the value is
+	 * the matching ConnnectionTarget.
 	 * 
 	 * @return a Map from input names to ConnectionTargets
 	 */
@@ -213,16 +202,15 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all {@link Output}s used by this function block. The key is the
-	 * name of the output, the value is the matching ConnectionTarget.
+	 * Returns all {@link Output}s used by this function block. The key is the name of the output, the value is the
+	 * matching ConnectionTarget.
 	 * 
 	 * @return a Map from output names to Outputs.
 	 * @throws InvalidFunctionBlockException
 	 *             if this FunctionBlock has ill defined Outputs
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public final synchronized Map<String, Output<?>> getOutputs()
-			throws InvalidFunctionBlockException {
+	public final synchronized Map<String, Output<?>> getOutputs() throws InvalidFunctionBlockException {
 		if (outputs == null) {
 			outputs = new HashMap<String, Output<?>>();
 			for (Field output : getOutputs(getClass())) {
@@ -231,31 +219,23 @@ public abstract class FunctionBlock implements Serializable {
 				try {
 					out = (Output<?>) output.get(this);
 				} catch (IllegalArgumentException e) {
-					throw new InvalidFunctionBlockException(
-							"Cannot get Output '" + output.getName() + "'", e);
+					throw new InvalidFunctionBlockException("Cannot get Output '" + output.getName() + "'", e);
 				} catch (IllegalAccessException e) {
-					throw new InvalidFunctionBlockException(
-							"Cannot get Output '" + output.getName() + "'", e);
+					throw new InvalidFunctionBlockException("Cannot get Output '" + output.getName() + "'", e);
 				}
 				if (out == null) {
 					out = new Output(output.getName());
 					try {
 						output.set(this, out);
 					} catch (IllegalArgumentException e) {
-						throw new InvalidFunctionBlockException(
-								"Cannot set Output '" + output.getName() + "'",
-								e);
+						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName() + "'", e);
 					} catch (IllegalAccessException e) {
-						throw new InvalidFunctionBlockException(
-								"Cannot set Output '" + output.getName() + "'",
-								e);
+						throw new InvalidFunctionBlockException("Cannot set Output '" + output.getName() + "'", e);
 					}
 				}
 				if (output.getGenericType() instanceof ParameterizedType
-						&& ((ParameterizedType) output.getGenericType())
-								.getActualTypeArguments().length == 1) {
-					out.setType((Class) ((ParameterizedType) output
-							.getGenericType()).getActualTypeArguments()[0]);
+						&& ((ParameterizedType) output.getGenericType()).getActualTypeArguments().length == 1) {
+					out.setType((Class) ((ParameterizedType) output.getGenericType()).getActualTypeArguments()[0]);
 				}
 				outputs.put(output.getName(), out);
 			}
@@ -264,8 +244,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all {@link Option}s used by this function block. The key is the
-	 * name of the option, the value is the type.
+	 * Returns all {@link Option}s used by this function block. The key is the name of the option, the value is the
+	 * type.
 	 * 
 	 * @return all Options used by this function block
 	 */
@@ -290,16 +270,13 @@ public abstract class FunctionBlock implements Serializable {
 	 * Sets the option with the given name to the given value.
 	 * 
 	 * @param name
-	 *            the name of the option to set. Must be in the Map returned by
-	 *            {@link #getOptions()}.
+	 *            the name of the option to set. Must be in the Map returned by {@link #getOptions()}.
 	 * @param value
-	 *            the value to set the option to. Must be assignable to the type
-	 *            of the option.
+	 *            the value to set the option to. Must be assignable to the type of the option.
 	 * @throws AssignmentException
 	 *             if setting the option fails
 	 */
-	public final void setOption(final String name, final Serializable value)
-			throws AssignmentException {
+	public final void setOption(final String name, final Serializable value) throws AssignmentException {
 		if (!options.contains(name)) {
 			throw new IllegalArgumentException("Invalid name");
 		}
@@ -314,19 +291,16 @@ public abstract class FunctionBlock implements Serializable {
 		if (field == null) {
 			throw new AssignmentException("unknown field");
 		}
-		if (value != null
-				&& !field.getType().isAssignableFrom(value.getClass())) {
+		if (value != null && !field.getType().isAssignableFrom(value.getClass())) {
 			throw new IllegalArgumentException("INvalid type");
 		}
 		field.setAccessible(true);
 		try {
 			field.set(this, value);
 		} catch (IllegalArgumentException e) {
-			throw new AssignmentException(
-					"Cannot assign option '" + name + "'", e);
+			throw new AssignmentException("Cannot assign option '" + name + "'", e);
 		} catch (IllegalAccessException e) {
-			throw new AssignmentException(
-					"Cannot assign option '" + name + "'", e);
+			throw new AssignmentException("Cannot assign option '" + name + "'", e);
 		}
 	}
 
@@ -334,14 +308,12 @@ public abstract class FunctionBlock implements Serializable {
 	 * Retrieves the value of an Option.
 	 * 
 	 * @param name
-	 *            the name of the option. Must be one of the names returned by
-	 *            {@link #getOptions()}.
+	 *            the name of the option. Must be one of the names returned by {@link #getOptions()}.
 	 * @return the value of the option
 	 * @throws RetrievementException
 	 *             if retrieving the value failed
 	 */
-	public final Serializable getOption(final String name)
-			throws RetrievementException {
+	public final Serializable getOption(final String name) throws RetrievementException {
 		if (!options.contains(name)) {
 			throw new IllegalArgumentException("Invalid name");
 		}
@@ -362,11 +334,9 @@ public abstract class FunctionBlock implements Serializable {
 		try {
 			result = (Serializable) field.get(this);
 		} catch (IllegalArgumentException e) {
-			throw new RetrievementException("Cannot get option '" + name + "'",
-					e);
+			throw new RetrievementException("Cannot get option '" + name + "'", e);
 		} catch (IllegalAccessException e) {
-			throw new RetrievementException("Cannot get option '" + name + "'",
-					e);
+			throw new RetrievementException("Cannot get option '" + name + "'", e);
 		}
 		return result;
 	}
@@ -381,9 +351,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns whether or not the block needs an update. This will also reset
-	 * the timer if it is the reason for the update. The default implementation
-	 * returns true if the timer wants to trigger an update or if any
+	 * Returns whether or not the block needs an update. This will also reset the timer if it is the reason for the
+	 * update. The default implementation returns true if the timer wants to trigger an update or if any
 	 * ConnectionTarget is dirty.
 	 * 
 	 * @return true if the block needs an update, false otherwise
@@ -400,14 +369,12 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Used by subclasses to implement the actual logic. Called by
-	 * {@link #doUpdate()}.
+	 * Used by subclasses to implement the actual logic. Called by {@link #doUpdate()}.
 	 */
 	protected abstract void update();
 
 	/**
-	 * Updates the block. This includes calling
-	 * {@link ConnectionTarget#update()} on all ConnectionTargets that say that
+	 * Updates the block. This includes calling {@link ConnectionTarget#update()} on all ConnectionTargets that say that
 	 * they are dirty and calling {@link #update()} afterwards.
 	 * 
 	 * @throws AssignmentException
@@ -425,8 +392,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the position this block wants to be at. This is a Java regex
-	 * specifier.
+	 * Returns the position this block wants to be at. This is a Java regex specifier.
 	 * 
 	 * @return the position this block wants to be at
 	 */
@@ -435,8 +401,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Sets the position this block wants to be at. This is a Java regex
-	 * specifier.
+	 * Sets the position this block wants to be at. This is a Java regex specifier.
 	 * 
 	 * @param position
 	 *            the position
@@ -460,7 +425,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @param blockName
 	 *            new Name for the FunctionBlock
 	 */
-	public void setBlockName(String blockName) {
+	public final void setBlockName(String blockName) {
 		this.blockName = blockName;
 	}
 
@@ -468,17 +433,12 @@ public abstract class FunctionBlock implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime
-				* result
-				+ ((connectionTargets == null) ? 0 : connectionTargets
-						.hashCode());
+		result = prime * result + ((connectionTargets == null) ? 0 : connectionTargets.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
-		result = prime * result
-				+ ((position == null) ? 0 : position.hashCode());
-		result = prime * result
-				+ ((blockName == null) ? 0 : blockName.hashCode());
+		result = prime * result + ((position == null) ? 0 : position.hashCode());
+		result = prime * result + ((blockName == null) ? 0 : blockName.hashCode());
 		return result;
 	}
 
@@ -531,4 +491,21 @@ public abstract class FunctionBlock implements Serializable {
 			return false;
 		return true;
 	}
+
+	/**
+	 * prevent overriding by rough code.
+	 */
+	@Override
+	protected final Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+
+	/**
+	 * prevent overriding by rough code.
+	 */
+	@Override
+	protected final void finalize() throws Throwable {
+		super.finalize();
+	}
+
 }
