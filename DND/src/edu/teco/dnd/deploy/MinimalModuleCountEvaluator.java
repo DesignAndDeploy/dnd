@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 
 /**
@@ -27,8 +27,7 @@ public class MinimalModuleCountEvaluator implements EvaluationStrategy {
 	}
 
 	@Override
-	public int upperBound(Distribution distribution,
-			Collection<FunctionBlock> blocks, Collection<Module> modules) {
+	public int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks, Collection<Module> modules) {
 		if (distribution.getMapping().isEmpty()) {
 			return Integer.MAX_VALUE;
 		}

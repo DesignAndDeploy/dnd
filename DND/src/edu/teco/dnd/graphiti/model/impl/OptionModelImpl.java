@@ -68,7 +68,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Serializable VALUE_EDEFAULT = null;
+	protected static final String VALUE_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getValue() <em>Value</em>}' attribute.
@@ -78,7 +78,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * @generated
 	 * @ordered
 	 */
-	protected Serializable value = VALUE_EDEFAULT;
+	protected String value = VALUE_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -145,7 +145,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Serializable getValue() {
+	public String getValue() {
 		return value;
 	}
 
@@ -154,7 +154,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setValue(Serializable newValue) {
+	public void setValue(String newValue) {
 		Serializable oldValue = value;
 		value = newValue;
 		if (eNotificationRequired())
@@ -299,7 +299,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 				setType((String)newValue);
 				return;
 			case ModelPackage.OPTION_MODEL__VALUE:
-				setValue((Serializable)newValue);
+				setValue((String)newValue);
 				return;
 			case ModelPackage.OPTION_MODEL__NAME:
 				setName((String)newValue);

@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
@@ -29,12 +29,12 @@ public class Distribution {
 	/**
 	 * Mapping from FunctionBlock to assigned BlockTarget.
 	 */
-	private final Map<FunctionBlock, BlockTarget> blocks;
+	private final Map<FunctionBlockModel, BlockTarget> blocks;
 	
 	/**
 	 * Mapping from BlockTarget to all assigned FunctionBlocks.
 	 */
-	private final Map<BlockTarget, Collection<FunctionBlock>> targets;
+	private final Map<BlockTarget, Collection<FunctionBlockModel>> targets;
 	
 	/**
 	 * Mapping from BlockTypeHolder to matching BlockTarget.
@@ -46,7 +46,7 @@ public class Distribution {
 	 * 
 	 * @return the mapping for the distribution
 	 */
-	public Map<FunctionBlock, BlockTarget> getMapping() {
+	public Map<FunctionBlockModel, BlockTarget> getMapping() {
 		return Collections.unmodifiableMap(blocks);
 	}
 	
@@ -54,8 +54,8 @@ public class Distribution {
 	 * Initializes a new, empty distribution.
 	 */
 	public Distribution() {
-		blocks = new HashMap<FunctionBlock, Distribution.BlockTarget>();
-		targets = new HashMap<Distribution.BlockTarget, Collection<FunctionBlock>>();
+		blocks = new HashMap<FunctionBlockModel, Distribution.BlockTarget>();
+		targets = new HashMap<Distribution.BlockTarget, Collection<FunctionBlockModel>>();
 		blockTargets = new HashMap<Entry<Module, BlockTypeHolder>, Distribution.BlockTarget>();
 	}
 	
@@ -66,8 +66,8 @@ public class Distribution {
 	 */
 	public Distribution(final Distribution old) {
 		this(
-			new HashMap<FunctionBlock, BlockTarget>(old.blocks),
-			new HashMap<BlockTarget, Collection<FunctionBlock>>(old.targets),
+			new HashMap<FunctionBlockModel, BlockTarget>(old.blocks),
+			new HashMap<BlockTarget, Collection<FunctionBlockModel>>(old.targets),
 			new HashMap<Entry<Module, BlockTypeHolder>, BlockTarget>(old.blockTargets)
 		);
 	}
@@ -79,8 +79,8 @@ public class Distribution {
 	 * @param targets the mapping of BlockTarget to assigned FunctionBlocks
 	 * @param blockTargets the mapping of BlockTypeHolder to BlockTarget
 	 */
-	private Distribution(final Map<FunctionBlock, BlockTarget> blocks,
-			final Map<BlockTarget, Collection<FunctionBlock>> targets,
+	private Distribution(final Map<FunctionBlockModel, BlockTarget> blocks,
+			final Map<BlockTarget, Collection<FunctionBlockModel>> targets,
 			final Map<Entry<Module, BlockTypeHolder>, BlockTarget> blockTargets) {
 		this.blocks = blocks;
 		this.targets = targets;
@@ -96,7 +96,7 @@ public class Distribution {
 	 * @return true if the block was added
 	 * @see #canAdd(FunctionBlock, Module, BlockTypeHolder)
 	 */
-	public boolean add(final FunctionBlock block, final Module module, final BlockTypeHolder typeHolder) {
+	public boolean add(final FunctionBlockModel block, final Module module, final BlockTypeHolder typeHolder) {
 		LOGGER.entry(block, module, typeHolder);
 		final BlockTarget blockTarget = getBlockTarget(module, typeHolder);
 		
@@ -113,7 +113,7 @@ public class Distribution {
 	 * @param typeHolder the typeHolder to check
 	 * @return true if the block can be added
 	 */
-	public boolean canAdd(final FunctionBlock block, final Module module, final BlockTypeHolder typeHolder) {
+	public boolean canAdd(final FunctionBlockModel block, final Module module, final BlockTypeHolder typeHolder) {
 		return getBlockTarget(module, typeHolder).canAdd(this, block);
 	}
 	
@@ -122,12 +122,12 @@ public class Distribution {
 	 * 
 	 * @param block the block the mapping should be removed for
 	 */
-	public void remove(final FunctionBlock block) {
+	public void remove(final FunctionBlockModel block) {
 		LOGGER.entry(block);
 		final BlockTarget blockTarget = this.blocks.remove(block);
 		LOGGER.trace("block target {}", blockTarget);
 		if (blockTarget != null) {
-			final Collection<FunctionBlock> t = targets.get(blockTarget);
+			final Collection<FunctionBlockModel> t = targets.get(blockTarget);
 			LOGGER.trace("t {}", t);
 			if (t != null) {
 				t.remove(block);
@@ -159,7 +159,7 @@ public class Distribution {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("Distribution[");
 		boolean first = true;
-		for (Entry<FunctionBlock, BlockTarget> entry : blocks.entrySet()) {
+		for (Entry<FunctionBlockModel, BlockTarget> entry : blocks.entrySet()) {
 			if (first) {
 				first = false;
 			} else {
@@ -229,7 +229,7 @@ public class Distribution {
 		public int getDistributionUsage(final Distribution distribution) {
 			LOGGER.entry(distribution);
 			if (holder.isLeave()) {
-				Collection<FunctionBlock> targetCollection = distribution.targets.get(this);
+				Collection<FunctionBlockModel> targetCollection = distribution.targets.get(this);
 				if (targetCollection == null) {
 					LOGGER.exit(0);
 					return 0;
@@ -296,7 +296,7 @@ public class Distribution {
 		 * @param block the {@link FunctionBlock} to check
 		 * @return true if the mapping is valid
 		 */
-		public boolean canAdd(final Distribution distribution, final FunctionBlock block) {
+		public boolean canAdd(final Distribution distribution, final FunctionBlockModel block) {
 			LOGGER.entry(distribution, block);
 			if (!holder.isLeave()) {
 				LOGGER.exit(false);
@@ -326,7 +326,7 @@ public class Distribution {
 		 * @return true if the mapping was added
 		 * @see #canAdd(Distribution, FunctionBlock)
 		 */
-		public boolean add(final Distribution distribution, final FunctionBlock block) {
+		public boolean add(final Distribution distribution, final FunctionBlockModel block) {
 			LOGGER.entry(block);
 			if (!canAdd(distribution, block)) {
 				LOGGER.exit(false);
@@ -334,9 +334,9 @@ public class Distribution {
 			}
 			
 			distribution.blocks.put(block, this);
-			Collection<FunctionBlock> targetCollection = distribution.targets.get(this);
+			Collection<FunctionBlockModel> targetCollection = distribution.targets.get(this);
 			if (targetCollection == null) {
-				targetCollection = new ArrayList<FunctionBlock>();
+				targetCollection = new ArrayList<FunctionBlockModel>();
 				distribution.targets.put(this, targetCollection);
 			}
 			targetCollection.add(block);

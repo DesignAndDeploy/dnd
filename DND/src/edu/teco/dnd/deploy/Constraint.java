@@ -1,6 +1,7 @@
 package edu.teco.dnd.deploy;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
@@ -19,5 +20,5 @@ public interface Constraint {
 	 * @param holder the holder to check
 	 * @return true if the block can be assigned, false otherwise
 	 */
-	boolean isAllowed(Distribution distribution, FunctionBlock block, Module module, BlockTypeHolder holder);
+	boolean isAllowed(Distribution distribution, FunctionBlockModel block, Module module, BlockTypeHolder holder);
 }
