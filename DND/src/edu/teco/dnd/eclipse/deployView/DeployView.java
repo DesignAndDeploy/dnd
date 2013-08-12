@@ -46,7 +46,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
-import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.deploy.Constraint;
 import edu.teco.dnd.deploy.Distribution;
@@ -92,10 +91,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 	private ArrayList<UUID> idList = new ArrayList<UUID>();
 
-	private Collection<FunctionBlockModel> functionBlockModels;
+	private Collection<FunctionBlockModel> functionBlocks;
 	private Map<TableItem, FunctionBlockModel> mapItemToBlockModel;
 
-	private Map<FunctionBlock, BlockTarget> mapBlockToTarget;
+	private Map<FunctionBlockModel, BlockTarget> mapBlockToTarget;
 
 	private Resource resource;
 	private DeployViewGraphics graphicsManager;
@@ -147,12 +146,12 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 		manager.addModuleManagerListener(this);
 		LOGGER.exit();
-		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
+		mapBlockToTarget = new HashMap<FunctionBlockModel, BlockTarget>();
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		functionBlockModels = new ArrayList<FunctionBlockModel>();
+		functionBlocks = new ArrayList<FunctionBlockModel>();
 		mapItemToBlockModel = new HashMap<TableItem, FunctionBlockModel>();
 
 		graphicsManager = new DeployViewGraphics(parent, activator);
@@ -211,7 +210,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		for (FunctionBlockModel model : newBlockModels) {
 			newIDs.put(model.getID(), model);
 		}
-		for (FunctionBlockModel model : functionBlockModels) {
+		for (FunctionBlockModel model : functionBlocks) {
 			oldIDs.put(model.getID(), model);
 		}
 
@@ -231,7 +230,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			}
 		}
 
-		for (FunctionBlockModel oldModel : functionBlockModels) {
+		for (FunctionBlockModel oldModel : functionBlocks) {
 			if (newIDs.containsKey(oldModel.getID())) {
 				FunctionBlockModel newModel = newIDs.get(oldModel.getID());
 				replaceBlock(oldModel, newModel);
@@ -245,7 +244,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				addBlock(newModel);
 			}
 		}
-		functionBlockModels = newBlockModels;
+		functionBlocks = newBlockModels;
 	}
 
 	/**
@@ -323,7 +322,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 */
 	private void create() {
 		Collection<Module> moduleCollection = getModuleCollection();
-		if (functionBlockModels.isEmpty()) {
+		if (functionBlocks.isEmpty()) {
 			warn("No blockModels to distribute");
 			return;
 		}
@@ -332,32 +331,20 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			return;
 		}
 
-		final ClassLoader classLoader = new URLClassLoader(classPath, DeployView.class.getClassLoader());
-		Map<FunctionBlock, FunctionBlockModel> blocksToModels = new HashMap<FunctionBlock, FunctionBlockModel>();
-		for (FunctionBlockModel model : functionBlockModels) {
-			try {
-				blocksToModels.put(model.createBlock(classLoader), model);
-			} catch (InvalidFunctionBlockException e) {
-				e.printStackTrace();
-			}
-		}
-
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
 		constraints
 				.add(new UserConstraints(moduleConstraints, placeConstraints));
 
 		DistributionGenerator generator = new DistributionGenerator(
 				new MinimalModuleCountEvaluator(), constraints);
-		Distribution dist = generator.getDistribution(blocksToModels.keySet(),
-				moduleCollection);
+		Distribution dist = generator.getDistribution(functionBlocks, moduleCollection);
 
 		if (dist == null) {
 			warn("No valid deployment exists");
 		} else {
 			mapBlockToTarget = dist.getMapping();
-			for (FunctionBlock block : mapBlockToTarget.keySet()) {
-				FunctionBlockModel blockModel = blocksToModels.get(block);
-				TableItem item = getItem(blockModel);
+			for (FunctionBlockModel block : mapBlockToTarget.keySet()) {
+				TableItem item = getItem(block);
 				final String name = mapBlockToTarget.get(block).getModule()
 						.getName();
 				item.setText(3, name == null ? "" : name);
@@ -578,7 +565,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 */
 	private void loadBlockModels(IEditorInput input) {
 		// set to empty Collection to prevent NPE in case loading fails
-		functionBlockModels = new ArrayList<FunctionBlockModel>();
+		functionBlocks = new ArrayList<FunctionBlockModel>();
 		if (input instanceof FileEditorInput) {
 			final IProject project = EclipseUtil.getWorkspaceProject(((FileEditorInput) input).getPath());
 			if (project != null) {
@@ -588,7 +575,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			}
 			
 			try {
-				functionBlockModels = loadInput((FileEditorInput) input);
+				functionBlocks = loadInput((FileEditorInput) input);
 			} catch (IOException e) {
 				LOGGER.catching(e);
 			}
@@ -596,7 +583,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			LOGGER.error("Input is not a FileEditorInput {}", input);
 		}
 		mapItemToBlockModel.clear();
-		for (FunctionBlockModel blockModel : functionBlockModels) {
+		for (FunctionBlockModel blockModel : functionBlocks) {
 			addBlock(blockModel);
 		}
 	}
@@ -702,7 +689,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever a possibly created deployment gets invalid.
 	 */
 	private void resetDeployment() {
-		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
+		mapBlockToTarget = new HashMap<FunctionBlockModel, BlockTarget>();
 		deployButton.setEnabled(false);
 		for (TableItem item : deployment.getItems()) {
 			item.setText(3, "");
