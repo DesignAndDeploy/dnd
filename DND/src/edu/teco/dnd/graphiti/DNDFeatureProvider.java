@@ -282,7 +282,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 
 	@Override
 	public final ICustomFeature[] getCustomFeatures(final ICustomContext context) {
-		return new ICustomFeature[] { new DNDDebugFeature(this) };
+		return new ICustomFeature[] { new DNDDebugFeature(this), new DNDCustomUpdateFeature(this) };
 	}
 
 	@Override
