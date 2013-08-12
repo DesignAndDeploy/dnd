@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 
 import edu.teco.dnd.blocks.AssignmentException;
-import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
@@ -48,31 +47,6 @@ public class BlockRunner implements Runnable {
 	 */
 	public static Runnable getBlockUpdater(FunctionBlock block) {
 		return new BlockRunner(false, block, null);
-	}
-
-	/**
-	 * Returns the type of the given functionBlock. (Marking it for the security manager.
-	 * 
-	 * @param block
-	 *            the FunctionBlock to get the type from.
-	 * @return the type of the block
-	 * @throws UserSuppliedCodeException
-	 *             if the code produces any Exceptions.
-	 */
-	public static String getBlockType(FunctionBlock block) throws UserSuppliedCodeException {
-		String type;
-		try {
-			type = block.getType();
-
-		} catch (Throwable t) {
-			throw new UserSuppliedCodeException(t);
-		}
-		if (type == null) {
-			throw new UserSuppliedCodeException("Blocktype must not be null!");
-		} else {
-			return type;
-		}
-
 	}
 
 	public static String getToString(Object obj) throws UserSuppliedCodeException {
@@ -148,18 +122,6 @@ public class BlockRunner implements Runnable {
 	private void doInit() throws UserSuppliedCodeException {
 		try {
 			block.init();
-
-			for (Output<?> output : block.getOutputs().values()) {
-				for (ConnectionTarget ct : output.getConnectedTargets()) {
-					if (ct instanceof RemoteConnectionTarget) {
-						RemoteConnectionTarget rct = (RemoteConnectionTarget) ct;
-						rct.setApplication(associatedApp);
-					}
-				}
-			}
-		} catch (InvalidFunctionBlockException e) {
-			LOGGER.warn("User supplied block {} initialization failed.", block.getID());
-			LOGGER.catching(e);
 		} catch (Throwable t) {
 			throw new UserSuppliedCodeException(t);
 		}
@@ -167,9 +129,8 @@ public class BlockRunner implements Runnable {
 
 	private void doUpdate() throws UserSuppliedCodeException {
 		try {
-			block.doUpdate();
-		} catch (AssignmentException e) {
-			LOGGER.catching(e);
+			// TODO: update inputs if this will be needed
+			block.update();
 		} catch (Throwable t) {
 			throw new UserSuppliedCodeException(t);
 		}

@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.ConnectionTarget;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.network.ConnectionManager;
 
@@ -158,15 +157,17 @@ public class Application {
 	 *            the block to be started.
 	 * @return true iff block was successfully started.
 	 */
-	public void startBlock(final FunctionBlock block) {
-		funcBlockById.put(block.getID(), block);
+	public void startBlock(final UUID blockUUID, final FunctionBlock block) {
+		funcBlockById.put(blockUUID, block);
 
 		Runnable initRunnable = BlockRunner.getBlockInitializer(block, Application.this);
 
 		scheduledThreadPool.execute(initRunnable);
 		Runnable updater = BlockRunner.getBlockUpdater(block);
 
-		long period = block.getTimebetweenSchedules();
+		// TODO: implement a way to specify interval for updates
+//		long period = block.getTimebetweenSchedules();
+		long period = Integer.MIN_VALUE;
 		try {
 			if (period < 0) {
 				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
@@ -199,12 +200,7 @@ public class Application {
 			LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
 			throw LOGGER.throwing(new NonExistentFunctionblockException());
 		}
-		ConnectionTarget ct = funcBlockById.get(funcBlockId).getConnectionTargets().get(input);
-		if (ct == null) {
-			LOGGER.warn("specified input does not exist: {} on {}", input, funcBlockId);
-			throw LOGGER.throwing(new NonExistentInputException());
-		}
-		ct.setValue(value);
+		// TODO: set new value
 		Runnable updater = BlockRunner.getBlockUpdater(funcBlockById.get(funcBlockId));
 
 		try {

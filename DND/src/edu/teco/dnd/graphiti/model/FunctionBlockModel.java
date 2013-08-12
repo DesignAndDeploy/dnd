@@ -5,10 +5,6 @@ import java.util.UUID;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.module.RemoteConnectionTarget;
-
 /**
  * @model
  */

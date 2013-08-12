@@ -6,19 +6,11 @@
  */
 package edu.teco.dnd.graphiti.model.impl;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.util.Repository;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
@@ -29,19 +21,12 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
-import edu.teco.dnd.blocks.AssignmentException;
-import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.FunctionBlockClass;
-import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.blocks.RetrievementException;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.ModelPackage;
 import edu.teco.dnd.graphiti.model.OptionModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
-import edu.teco.dnd.module.RemoteConnectionTarget;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object '<em><b>Function Block Model</b></em>'. <!--
