@@ -7,6 +7,7 @@
 package edu.teco.dnd.graphiti.model.impl;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
 
 import edu.teco.dnd.graphiti.model.*;
 
@@ -123,7 +124,7 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 		return functionBlockModel;
 	}
 
-	public FunctionBlockModel createFunctionBlockModel(Class<? extends FunctionBlock> cls) {
+	public FunctionBlockModel createFunctionBlockModel(final FunctionBlockClass cls) {
 		FunctionBlockModelImpl functionBlockModel = new FunctionBlockModelImpl(cls);
 		return functionBlockModel;
 	}

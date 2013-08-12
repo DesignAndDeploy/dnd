@@ -3,6 +3,7 @@
 package edu.teco.dnd.graphiti.model;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
 
 import org.eclipse.emf.ecore.EFactory;
 
@@ -29,7 +30,7 @@ public interface ModelFactory extends EFactory {
 	 */
 	FunctionBlockModel createFunctionBlockModel();
 
-	FunctionBlockModel createFunctionBlockModel(Class<? extends FunctionBlock> cls);
+	FunctionBlockModel createFunctionBlockModel(FunctionBlockClass cls);
 
 	/**
 	 * Returns a new object of class '<em>Input Model</em>'.
