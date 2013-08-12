@@ -1,7 +1,5 @@
 package edu.teco.dnd.meeting;
 
-import java.util.UUID;
-
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Option;
@@ -22,45 +20,23 @@ public class OutletActorBlock extends FunctionBlock {
 	/**
 	 * tells BeamerActorBlock to turn on (true) or switch off (false) the beamer.
 	 */
-	@Input(newOnly = true)
-	private Boolean beamer;
+	private Input<Boolean> beamer;
 
 	/**
 	 * URL of the Outlet of the beamer. Default is already set; doesn't contain ID.
 	 */
-	@Option
-	private String url = "http://cumulus.teco.edu:5000/plugwise/";
+	private Option url;
+	// TODO: set default "http://cumulus.teco.edu:5000/plugwise/"
 
 	/**
 	 * ID of the outlet to control.
 	 */
-	@Option
-	private String outletID;
+	private Option outletID;
 
 	/**
 	 * OutletControl to control the outlet of the beamer.
 	 */
 	private OutletControl outletControl;
-
-	/**
-	 * Creates new BeamerActorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new BeamerActorBlock
-	 */
-	public OutletActorBlock(final UUID blockID) {
-		super(blockID, "OutletActorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "actorBeamer";
-	}
 
 	/**
 	 * Initializes BeamerActorBlock.
@@ -70,8 +46,8 @@ public class OutletActorBlock extends FunctionBlock {
 		if (url == null || outletID == null) {
 			return;
 		}
-		url = url.concat(outletID);
-		this.outletControl = new OutletControl(url);
+		String fullURL = url.getValue() + outletID.getValue();
+		this.outletControl = new OutletControl(fullURL);
 	}
 
 	/**
@@ -82,12 +58,19 @@ public class OutletActorBlock extends FunctionBlock {
 		if (beamer == null || outletControl == null) {
 			return;
 		}
-		if (beamer) {
-			outletControl.activateOutlet();
-		} else {
-			outletControl.deactivateOutlet();
+		Boolean beamerState = null;
+		while (beamer.hasMoreValues()) {
+			Boolean state = beamer.popValue();
+			if (state != null) {
+				beamerState = state;
+			}
 		}
-
+		if (beamerState != null) {
+			if (beamerState) {
+				outletControl.activateOutlet();
+			} else {
+				outletControl.deactivateOutlet();
+			}
+		}
 	}
-
 }

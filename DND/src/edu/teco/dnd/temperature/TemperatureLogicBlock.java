@@ -1,7 +1,5 @@
 package edu.teco.dnd.temperature;
 
-import java.util.UUID;
-
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Option;
@@ -23,21 +21,22 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	/**
 	 * Temperature sensed by a TemperatureSensor.
 	 */
-	@Input
-	private Integer roomTemperature;
+	private Input<Integer> roomTemperature;
 
 	/**
 	 * Value to compare the temperature to. If temperature is lower than threshold, activate heating. If it's
 	 * bigger, deactivate heating
 	 */
-	@Option
-	private Integer threshold;
+	private Option threshold;
+	
+	private int _threshold;
 
 	/**
 	 * Temperature the user wants the heater to have. - set by user
 	 */
-	@Option
-	private Integer temperature;
+	private Option temperature;
+	
+	private int _temperature;
 
 	/**
 	 * The temperature the heater shall achieve. - sent to heater
@@ -45,31 +44,20 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	private Output<Integer> heaterTemperature;
 
 	/**
-	 * Creates new TemperatureLogicBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new TemperatureLogicBlock
-	 */
-	public TemperatureLogicBlock(final UUID blockID) {
-		super(blockID, "TemperatureLogicBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "operator";
-	}
-
-	/**
 	 * Initializes TemperatureLogicBlock.
 	 */
 	@Override
 	public void init() {
-
+		try {
+			_threshold = Integer.parseInt(threshold.getValue());
+		} catch (NumberFormatException e) {
+			_threshold = Integer.MIN_VALUE;
+		}
+		try {
+			_temperature = Integer.parseInt(temperature.getValue());
+		} catch (NumberFormatException e) {
+			_temperature = Integer.MIN_VALUE;
+		}
 	}
 
 	/**
@@ -77,13 +65,22 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 */
 	@Override
 	protected void update() {
-		if (roomTemperature == null || threshold == null || temperature == null) {
+		if (roomTemperature == null) {
 			return;
 		}
-		if (roomTemperature > threshold + 1) {
-			heaterTemperature.setValue(0);
-		} else if (roomTemperature < threshold) {
-			heaterTemperature.setValue(temperature);
+		Integer roomTemp = null;
+		while (roomTemperature.hasMoreValues()) {
+			Integer t = roomTemperature.popValue();
+			if (t != null) {
+				roomTemp = t;
+			}
+		}
+		if (roomTemp != null) {
+			if (roomTemp > _threshold + 1) {
+				heaterTemperature.setValue(0);
+			} else if (roomTemp < _threshold) {
+				heaterTemperature.setValue(_temperature);
+			}
 		}
 	}
 

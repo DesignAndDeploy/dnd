@@ -1,7 +1,5 @@
 package edu.teco.dnd.meeting;
 
-import java.util.UUID;
-
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
@@ -22,39 +20,17 @@ public class BeamerOperatorBlock extends FunctionBlock {
 	/**
 	 * The measured energy at the outlet.
 	 */
-	@Input
-	private Integer outlet;
+	private Input<Integer> outlet;
 
 	/**
 	 * tells whether there is a meeting (true) or not (false).
 	 */
-	@Input
-	private Boolean meeting;
+	private Input<Boolean> meeting;
 
 	/**
 	 * used to tell BeamerActorBlock to turn on (true) or switch off (false) the beamer.
 	 */
 	private Output<Boolean> beamer;
-
-	/**
-	 * Creates new BeamerOperatorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new BeamerOperatorBlock
-	 */
-	public BeamerOperatorBlock(final UUID blockID) {
-		super(blockID, "BeamerOperatorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "operator";
-	}
 
 	/**
 	 * Initializes BeamerOperatorBlock.
@@ -72,7 +48,12 @@ public class BeamerOperatorBlock extends FunctionBlock {
 		if (outlet == null || meeting == null) {
 			return;
 		}
-		beamer.setValue(outlet > 0 && meeting);
+		Integer outletValue = outlet.popValue();
+		Boolean meetingState = meeting.popValue();
+		if (outletValue == null || meetingState == null) {
+			return;
+		}
+		beamer.setValue(outletValue > 0 && meetingState);
 	}
 
 	/* (non-Javadoc)

@@ -3,15 +3,14 @@ package edu.teco.dnd.meeting;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.UUID;
-
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.graphiti.BlockType;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.Input;
+import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This FunctionBlock is used to put a String on a display.
@@ -37,28 +36,7 @@ public class DisplayActorBlock extends FunctionBlock {
 	/**
 	 * Text to show on display.
 	 */
-	@Input
-	private String text;
-
-	/**
-	 * Creates new DisplayActorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new DisplayActorBlock
-	 */
-	public DisplayActorBlock(final UUID blockID) {
-		super(blockID, "DisplayActorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "actorDisplay";
-	}
+	private Input<String> text;
 
 	/**
 	 * Initializes DisplayActorBlock.
@@ -72,12 +50,12 @@ public class DisplayActorBlock extends FunctionBlock {
 	 */
 	@Override
 	protected void update() {
-		if (text == null || LOGGER == null) {
+		if (text == null) {
 			return;
 		}
 		try {
 			PrintWriter printWriter = new PrintWriter(new FileOutputStream(FILENAME));
-			printWriter.println(text);
+			printWriter.println(text.popValue());
 			printWriter.close();
 		} catch (FileNotFoundException e) {
 			LOGGER.catching(Level.WARN, e);

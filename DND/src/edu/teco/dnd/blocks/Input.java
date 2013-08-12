@@ -6,4 +6,8 @@ public class Input<T extends Serializable> {
 	public T popValue() {
 		return null;
 	}
+	
+	public boolean hasMoreValues() {
+		return false;
+	}
 }

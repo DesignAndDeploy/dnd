@@ -1,12 +1,10 @@
 package edu.teco.dnd.meeting;
 
 import java.net.MalformedURLException;
-import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.blocks.Timed;
 import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.OutletReader;
 import edu.teco.dnd.uPart.SensorException;
@@ -15,9 +13,7 @@ import edu.teco.dnd.uPart.SensorException;
  * This {@link FunctionBlock} is used to detect the use of an outlet.
  */
 @BlockType("Meeting")
-@Timed(OutletSensorBlock.UPDATE_TIME)
 public class OutletSensorBlock extends FunctionBlock {
-
 	/**
 	 * 
 	 */
@@ -36,39 +32,18 @@ public class OutletSensorBlock extends FunctionBlock {
 	/**
 	 * URL of the Outlet. Default is already set; doesn't contain ID.
 	 */
-	@Option
-	private String url = "http://cumulus.teco.edu:51525/sensor/entity/";
+	private Option url;
+	// TODO: set default "http://cumulus.teco.edu:51525/sensor/entity/"
 
 	/**
 	 * ID of the outlet.
 	 */
-	@Option
-	private String outletID;
+	private Option outletID;
 
 	/**
 	 * Reads from the outlet.
 	 */
 	private OutletReader reader;
-
-	/**
-	 * Creates new OutletSensorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new OutletSensorBlock
-	 */
-	public OutletSensorBlock(final UUID blockID) {
-		super(blockID, "OutletSensorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "sensorOutlet";
-	}
 
 	/**
 	 * Initializes OutletSensorBlock.
@@ -78,9 +53,9 @@ public class OutletSensorBlock extends FunctionBlock {
 		if (url == null || outletID == null) {
 			return;
 		}
-		url = url.concat(outletID);
+		String fullURL = url.getValue() + outletID.getValue();
 		try {
-			reader = new OutletReader(url);
+			reader = new OutletReader(fullURL);
 		} catch (MalformedURLException e) {
 		}
 	}

@@ -1,7 +1,5 @@
 package edu.teco.dnd.meeting;
 
-import java.util.UUID;
-
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.graphiti.BlockType;
@@ -21,33 +19,12 @@ public class BeamerActorBlock extends FunctionBlock {
 	/**
 	 * tells BeamerActorBlock to turn on (true) or switch off (false) the beamer.
 	 */
-	@Input(newOnly = true)
-	private Boolean beamer;
+	private Input<Boolean> beamer;
 
 	/**
 	 * BeamerControl to control the beamer.
 	 */
 	private BeamerControl control;
-
-	/**
-	 * Creates new BeamerActorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new BeamerActorBlock
-	 */
-	public BeamerActorBlock(final UUID blockID) {
-		super(blockID, "BeamerActorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "actorBeamer";
-	}
 
 	/**
 	 * Initializes BeamerActorBlock.
@@ -65,12 +42,21 @@ public class BeamerActorBlock extends FunctionBlock {
 		if (beamer == null) {
 			return;
 		}
-		if (beamer) {
-			control.activateBeamer();
-		} else {
-			control.deactivateBeamer();
+		
+		// only act on most recent value
+		Boolean beamerState = null;
+		while (beamer.hasMoreValues()) {
+			Boolean state = beamer.popValue();
+			if (state != null) {
+				beamerState = state;
+			}
 		}
-
+		if (beamerState != null) {
+			if (beamerState) {
+				control.activateBeamer();
+			} else {
+				control.deactivateBeamer();
+			}
+		}
 	}
-
 }

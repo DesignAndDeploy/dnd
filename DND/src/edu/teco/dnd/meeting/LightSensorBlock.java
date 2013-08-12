@@ -1,12 +1,10 @@
 package edu.teco.dnd.meeting;
 
 import java.net.MalformedURLException;
-import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.blocks.Timed;
 import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.SensorException;
 import edu.teco.dnd.uPart.UPartReader;
@@ -16,9 +14,7 @@ import edu.teco.dnd.uPart.UPartReader;
  * 
  */
 @BlockType("Meeting")
-@Timed(LightSensorBlock.UPDATE_TIME)
 public class LightSensorBlock extends FunctionBlock {
-
 	/**
 	 * 
 	 */
@@ -37,39 +33,18 @@ public class LightSensorBlock extends FunctionBlock {
 	/**
 	 * URL of the UPart. Default is already set; doesn't contain ID.
 	 */
-	@Option
-	private String url = "http://cumulus.teco.edu:51525/sensor/entity/";
+	private Option url;
+	// TODO: set default "http://cumulus.teco.edu:51525/sensor/entity/"
 
 	/**
 	 * ID of the UPart.
 	 */
-	@Option
-	private String uPartID;
+	private Option uPartID;
 
 	/**
 	 * Reads from the UPart.
 	 */
 	private UPartReader reader;
-
-	/**
-	 * Creates new LightSensorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new LightSensorBlock
-	 */
-	public LightSensorBlock(final UUID blockID) {
-		super(blockID, "LightSensorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "sensorLight";
-	}
 
 	/**
 	 * Initializes LightSensorBlock.
@@ -79,9 +54,9 @@ public class LightSensorBlock extends FunctionBlock {
 		if (url == null || uPartID == null) {
 			return;
 		}
-		url = url.concat(uPartID);
+		String fullURL = url.getValue() + uPartID.getValue();
 		try {
-			reader = new UPartReader(url);
+			reader = new UPartReader(fullURL);
 		} catch (MalformedURLException e) {
 		}
 	}
