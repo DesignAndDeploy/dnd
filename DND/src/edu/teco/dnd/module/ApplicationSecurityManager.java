@@ -7,7 +7,6 @@ import java.lang.management.ManagementPermission;
 import java.lang.reflect.ReflectPermission;
 import java.net.NetPermission;
 import java.net.SocketPermission;
-import java.nio.file.LinkPermission;
 import java.security.BasicPermission;
 import java.security.Permission;
 import java.security.SecurityPermission;
@@ -144,7 +143,6 @@ public class ApplicationSecurityManager extends SecurityManager {
 					// Deny
 				}
 			} else if (bPerm instanceof AuthPermission) {
-			} else if (bPerm instanceof LinkPermission) {
 			} else if (bPerm instanceof LoggingPermission) {
 			} else if (bPerm instanceof ManagementPermission) {
 			} else if (bPerm instanceof PropertyPermission) {
