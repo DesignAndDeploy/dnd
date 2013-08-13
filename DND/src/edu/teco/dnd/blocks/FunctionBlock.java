@@ -115,7 +115,7 @@ public abstract class FunctionBlock implements Serializable {
 	 *            the class to inspect. Must not be null.
 	 * @return all options defined in the class
 	 */
-	public static Set<Field> getOptions(final Class<? extends FunctionBlock> cls) {
+	private static Set<Field> getOptions(final Class<? extends FunctionBlock> cls) {
 		if (cls == null) {
 			throw new IllegalArgumentException("cls must not be null");
 		}
@@ -169,7 +169,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * 
 	 * @return the timeinterval this block wishes to be scheduled at, a value less than 0 if no timer is desired.
 	 */
-	public long getTimebetweenSchedules() {
+	public final long getTimebetweenSchedules() {
 		Timed timed = getClass().getAnnotation(Timed.class);
 		if (timed != null && timed.value() > 0) {
 			return timed.value();
