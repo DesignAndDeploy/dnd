@@ -18,13 +18,13 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//FunctionBlockModel/iD"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//FunctionBlockModel/position"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//FunctionBlockModel/blockName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//FunctionBlockModel/blockClass"/>
     </genClasses>
     <genClasses ecoreClass="model.ecore#//InputModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//InputModel/name"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference model.ecore#//InputModel/functionBlock"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference model.ecore#//InputModel/output"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//InputModel/type"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//InputModel/queued"/>
     </genClasses>
     <genClasses ecoreClass="model.ecore#//OptionModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute model.ecore#//OptionModel/type"/>

@@ -82,6 +82,16 @@ public interface FunctionBlockModel extends EObject {
 	 * @generated
 	 */
 	void setBlockName(String value);
+	
+	/**
+	 * @model
+	 */
+	String getBlockClass();
+	
+	/**
+	 * @generated
+	 */
+	void setBlockClass(String value);
 
 	/**
 	 * Whether or not this FunctionBlock is a sensor. A FunctionBlock is a sensor if it has no inputs and at

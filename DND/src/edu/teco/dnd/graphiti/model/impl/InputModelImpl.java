@@ -35,7 +35,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.InputModelImpl#getFunctionBlock <em>Function Block</em>}</li>
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.InputModelImpl#getOutput <em>Output</em>}</li>
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.InputModelImpl#getType <em>Type</em>}</li>
- *   <li>{@link edu.teco.dnd.graphiti.model.impl.InputModelImpl#isQueued <em>Queued</em>}</li>
  * </ul>
  * </p>
  *
@@ -91,26 +90,6 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * @ordered
 	 */
 	protected String type = TYPE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #isQueued() <em>Queued</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isQueued()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final boolean QUEUED_EDEFAULT = false;
-
-	/**
-	 * The cached value of the '{@link #isQueued() <em>Queued</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #isQueued()
-	 * @generated
-	 * @ordered
-	 */
-	protected boolean queued = QUEUED_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -279,27 +258,6 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean isQueued() {
-		return queued;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setQueued(boolean newQueued) {
-		boolean oldQueued = queued;
-		queued = newQueued;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.INPUT_MODEL__QUEUED, oldQueued, queued));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -362,8 +320,6 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 				return basicGetOutput();
 			case ModelPackage.INPUT_MODEL__TYPE:
 				return getType();
-			case ModelPackage.INPUT_MODEL__QUEUED:
-				return isQueued();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -387,9 +343,6 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 				return;
 			case ModelPackage.INPUT_MODEL__TYPE:
 				setType((String)newValue);
-				return;
-			case ModelPackage.INPUT_MODEL__QUEUED:
-				setQueued((Boolean)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -415,9 +368,6 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 			case ModelPackage.INPUT_MODEL__TYPE:
 				setType(TYPE_EDEFAULT);
 				return;
-			case ModelPackage.INPUT_MODEL__QUEUED:
-				setQueued(QUEUED_EDEFAULT);
-				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -438,8 +388,6 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 				return output != null;
 			case ModelPackage.INPUT_MODEL__TYPE:
 				return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
-			case ModelPackage.INPUT_MODEL__QUEUED:
-				return queued != QUEUED_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -458,8 +406,6 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 		result.append(name);
 		result.append(", type: ");
 		result.append(type);
-		result.append(", queued: ");
-		result.append(queued);
 		result.append(')');
 		return result.toString();
 	}

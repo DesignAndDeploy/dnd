@@ -41,6 +41,7 @@ import edu.teco.dnd.graphiti.model.OutputModel;
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getID <em>ID</em>}</li>
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getPosition <em>Position</em>}</li>
  *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getBlockName <em>Block Name</em>}</li>
+ *   <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getBlockClass <em>Block Class</em>}</li>
  * </ul>
  * </p>
  *
@@ -156,6 +157,26 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	protected String blockName = BLOCK_NAME_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getBlockClass() <em>Block Class</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBlockClass()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String BLOCK_CLASS_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getBlockClass() <em>Block Class</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBlockClass()
+	 * @generated
+	 * @ordered
+	 */
+	protected String blockClass = BLOCK_CLASS_EDEFAULT;
+
+	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
@@ -168,13 +189,12 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		setID(UUID.randomUUID());
 		if (cls != null) {
 			setBlockName(cls.getSimpleClassName());
-			setType(cls.getClassName());
+			setBlockClass(cls.getClassName());
+			setType(cls.getBlockType());
 			for (final Entry<String, JavaClass> input : cls.getInputs().entrySet()) {
 				final InputModel inputModel = ModelFactoryImpl.eINSTANCE.createInputModel();
 				inputModel.setFunctionBlock(this);
 				inputModel.setName(input.getKey());
-				// TODO: remove queued attribute
-				inputModel.setQueued(false);
 				inputModel.setType(input.getValue().getClassName());
 			}
 			for (final Entry<String, JavaClass> output : cls.getOutputs().entrySet()) {
@@ -187,7 +207,6 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 				final OptionModel optionModel = ModelFactoryImpl.eINSTANCE.createOptionModel();
 				optionModel.setFunctionBlock(this);
 				optionModel.setName(option);
-				// TODO: remove type attribute
 				optionModel.setType("java.lang.String");
 			}
 		}
@@ -315,6 +334,27 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getBlockClass() {
+		return blockClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setBlockClass(String newBlockClass) {
+		String oldBlockClass = blockClass;
+		blockClass = newBlockClass;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS, oldBlockClass, blockClass));
+	}
+
+	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
@@ -370,6 +410,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 				return getPosition();
 			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 				return getBlockName();
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+				return getBlockClass();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -406,6 +448,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 				setBlockName((String)newValue);
 				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+				setBlockClass((String)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -438,6 +483,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 				setBlockName(BLOCK_NAME_EDEFAULT);
 				return;
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+				setBlockClass(BLOCK_CLASS_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -463,6 +511,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 				return POSITION_EDEFAULT == null ? position != null : !POSITION_EDEFAULT.equals(position);
 			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 				return BLOCK_NAME_EDEFAULT == null ? blockName != null : !BLOCK_NAME_EDEFAULT.equals(blockName);
+			case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+				return BLOCK_CLASS_EDEFAULT == null ? blockClass != null : !BLOCK_CLASS_EDEFAULT.equals(blockClass);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -484,6 +534,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		result.append(position);
 		result.append(", blockName: ");
 		result.append(blockName);
+		result.append(", blockClass: ");
+		result.append(blockClass);
 		result.append(')');
 		return result.toString();
 	}

@@ -155,7 +155,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * @generated
 	 */
 	public void setValue(String newValue) {
-		Serializable oldValue = value;
+		String oldValue = value;
 		value = newValue;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.OPTION_MODEL__VALUE, oldValue, value));
