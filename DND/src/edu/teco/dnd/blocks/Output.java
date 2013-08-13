@@ -54,8 +54,8 @@ public class Output<T extends Serializable> implements Serializable {
 	}
 
 	/**
-	 * Adds a {@link ConnectionTarget} to the list of connected targets. The connected Output of the target is
-	 * set automatically.
+	 * Adds a {@link ConnectionTarget} to the list of connected targets. The connected Output of the target is set
+	 * automatically.
 	 * 
 	 * @param target
 	 *            the new target
@@ -68,8 +68,8 @@ public class Output<T extends Serializable> implements Serializable {
 	}
 
 	/**
-	 * Removes a {@link ConnectionTarget} from the list of connected targets. The connected Output of the
-	 * target is set to null if it has been connected to this Output.
+	 * Removes a {@link ConnectionTarget} from the list of connected targets. The connected Output of the target is set
+	 * to null if it has been connected to this Output.
 	 * 
 	 * @param target
 	 *            the target to remove
@@ -132,7 +132,9 @@ public class Output<T extends Serializable> implements Serializable {
 		return this.type == null || ct.getType().isAssignableFrom(this.type);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -145,7 +147,9 @@ public class Output<T extends Serializable> implements Serializable {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
