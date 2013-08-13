@@ -112,6 +112,7 @@ public class ModuleMain {
 
 		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig, connectionManager);
 		registerHandlerAdapter(moduleConfig, connectionManager, appMan);
+		System.out.println("Module is up and running.");
 
 	}
 

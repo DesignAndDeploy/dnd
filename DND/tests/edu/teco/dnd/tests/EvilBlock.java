@@ -1,6 +1,7 @@
 package edu.teco.dnd.tests;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -23,12 +24,13 @@ public class EvilBlock extends FunctionBlock {
 
 	// getType = operator
 
-	private static boolean DO_EVIL_ON_MODULE_ONLY = true;
+	private static final boolean Do_DUMP_STACK = true;
+	private static final boolean DO_EVIL_ON_MODULE_ONLY = true;
 
-	private static boolean BE_EVIL = true;
+	private static final boolean BE_EVIL = true;
 
-	private static boolean DO_EVIL_SYSOUT_SPAM = true;
-	private static boolean DO_NULL_RETURNS = true;
+	private static final boolean DO_EVIL_SYSOUT_SPAM = true;
+	private static final boolean DO_NULL_RETURNS = false;
 
 	/**
 	 * 
@@ -59,59 +61,59 @@ public class EvilBlock extends FunctionBlock {
 	public EvilBlock(final UUID blockID) {
 		super(blockID, "BastardOperatorFromHellBlock");
 
-		if (!beEvil()) {
-			return;
-		}
-
 		doEvilStuff("constructor");
 
 	}
 
 	private boolean beEvil() {
-		return BE_EVIL && (DO_EVIL_ON_MODULE_ONLY && System.getSecurityManager() == null);
+		boolean beingEvil = BE_EVIL && !(DO_EVIL_ON_MODULE_ONLY && System.getSecurityManager() == null);
+		System.err.println("" + (beingEvil ? "" : "Not ") + "being evil!!");
+		return beingEvil;
+
 	}
 
 	private void doEvilStuff(String positionMarker) {
+		if (Do_DUMP_STACK) {
+			Thread.dumpStack();
+		}
 		if (!beEvil())
 			return;
 
 		System.err.println("In evil " + positionMarker + ".");
 
-		Field f = null;
+		Field f[] = null;
 		Set<String> vars = new HashSet<String>();
 		vars.add("id");
 		vars.add("connectionTargets");
 		vars.add("outputs");
 		vars.add("options");
 		vars.add("blockName");
-		for (String name : vars) {
-			try {
-				f = FunctionBlock.class.getDeclaredField("outputs");
-			} catch (NoSuchFieldException e) {
-				System.err.println("Evil Programmer messed up badly! (On " + name + ".)");
-				e.printStackTrace();
-				continue;
-			} catch (SecurityException e) {
-				System.err.println("evil on " + name + " prevented.");
-				continue;
+
+		try {
+			f = FunctionBlock.class.getDeclaredFields();
+			for (Field field : f) {
+				if (vars.contains(field.getName())) {
+					try {
+						field.setAccessible(true);
+					} catch (SecurityException e) {
+						continue;
+					}
+					try {
+						field.set(this, null);
+					} catch (IllegalArgumentException e) {
+						System.err.println("Evil Programmer messed up badly! (On " + field + ".)");
+						e.printStackTrace();
+						continue;
+					} catch (IllegalAccessException e) {
+						continue;
+					}
+					System.err.println("Successfully set variable " + field.getName() + " to (evil) NULL");
+				}
 
 			}
-			try {
-				f.setAccessible(true);
-			} catch (SecurityException e) {
-				continue;
-			}
-			try {
-				f.set(super.getClass(), null);
-			} catch (IllegalArgumentException e) {
-				System.err.println("Evil Programmer messed up badly! (On " + name + ".)");
-				e.printStackTrace();
-				continue;
-			} catch (IllegalAccessException e) {
-				continue;
-			}
+		} catch (SecurityException e) {
+			System.err.println("evil variable tinkering prevented.");
 		}
-
 		try {
 			System.err.println("About to ragequit badly in " + positionMarker + ".");
 			System.exit(666);
@@ -119,11 +121,18 @@ public class EvilBlock extends FunctionBlock {
 			System.err.println("Ragequitting viciously prevented");
 		}
 		// throw new Error();
-
+		// if (isEvil != null) { // Only after init completed.
+		// try {
+		//
 		// for (;;) {
 		// if (DO_EVIL_SYSOUT_SPAM)
 		// System.err.println("" + positionMarker + ": Spammm EVVVIIIILLL!!!!");
 		// isEvil.setValue(true);
+		// }
+		//
+		// } finally {
+		// System.err.println("was kicked out of for-loop?");
+		// }
 		// }
 	}
 
@@ -151,6 +160,9 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public boolean equals(Object obj) {
+		if (Do_DUMP_STACK) {
+			Thread.dumpStack();
+		}
 		if (!beEvil())
 			return super.equals(obj);
 
@@ -187,9 +199,9 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public int hashCode() {
+		doEvilStuff("hashCode");
 		if (!beEvil())
 			return super.hashCode();
-		doEvilStuff("hashCode");
 		return Integer.MIN_VALUE;
 
 	}
@@ -201,18 +213,11 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public String toString() {
+		doEvilStuff("toString");
 		if (!beEvil())
 			return super.toString();
-		doEvilStuff("toString");
-		return DO_NULL_RETURNS ? null : "GRRRRRRR.....";
-	}
 
-	@Override
-	public long getTimebetweenSchedules() {
-		if (!beEvil())
-			return super.getTimebetweenSchedules();
-		doEvilStuff("getTimebetweenSchedules");
-		return Long.MIN_VALUE;
+		return DO_NULL_RETURNS ? null : "GRRRRRRR.....";
 	}
 
 	/**
@@ -222,14 +227,18 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public String getType() {
+		doEvilStuff("getType");
 		if (!beEvil())
 			return "operator";
-		doEvilStuff("getType");
 		return DO_NULL_RETURNS ? null : "operator";
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		doEvilStuff("readObject");
+		if (DO_NULL_RETURNS && beEvil()) {
+		} else {
+			in.defaultReadObject();
+		}
 	}
 
 	private void readObjectNoData() throws ObjectStreamException {
@@ -238,16 +247,28 @@ public class EvilBlock extends FunctionBlock {
 
 	public Object readResolve() throws ObjectStreamException {
 		doEvilStuff("readResolve");
-		return null;
+		if (DO_NULL_RETURNS && beEvil()) {
+			return null;
+		} else {
+			return this;
+		}
 	}
 
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		doEvilStuff("writeObject");
+		if (DO_NULL_RETURNS && beEvil()) {
+		} else {
+			out.defaultWriteObject();
+		}
 	}
 
 	public Object writeReplace() throws ObjectStreamException {
 		doEvilStuff("writeReplace");
-		return null;
+		if (DO_NULL_RETURNS && beEvil()) {
+			return null;
+		} else {
+			return this;
+		}
 	}
 
 }
