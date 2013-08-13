@@ -19,12 +19,13 @@ public class MapUtil {
 	 */
 	private MapUtil() {
 	}
-	
+
 	/**
-	 * Inverts a map. This creates a new Map that maps from value to key in regards to the old map.
-	 * Uses a Set for value as multiple keys can have the same value in the original map.
+	 * Inverts a map. This creates a new Map that maps from value to key in regards to the old map. Uses a Set for value
+	 * as multiple keys can have the same value in the original map.
 	 * 
-	 * @param map the Map to invert
+	 * @param map
+	 *            the Map to invert
 	 * @return an inverted version of the Map
 	 */
 	public static <A, B> Map<B, Set<A>> invertMap(final Map<A, B> map) {
@@ -42,15 +43,18 @@ public class MapUtil {
 	}
 
 	/**
-	 * Generates a transitive Mapping. That is, given a Map from type A to Collection<B> and a Map from B to Collection<C> it creates
-	 * a Map from A to Collection<C> where the value contains all elements of all values from the second Map where the key is in the value
-	 * of the first Map for A.
+	 * Generates a transitive Mapping. That is, given a Map from type A to Collection<B> and a Map from B to
+	 * Collection<C> it creates a Map from A to Collection<C> where the value contains all elements of all values from
+	 * the second Map where the key is in the value of the first Map for A.
 	 * 
-	 * @param mapA the first Map
-	 * @param mapB the second Map
+	 * @param mapA
+	 *            the first Map
+	 * @param mapB
+	 *            the second Map
 	 * @return a Map from the key of mapA to the values of mapB
 	 */
-	public static <A, B, C> Map<A, Collection<C>> transitiveMapCollection(Map<A, Collection<B>> mapA, Map<B, Collection<C>> mapB) {
+	public static <A, B, C> Map<A, Collection<C>> transitiveMapCollection(Map<A, Collection<B>> mapA,
+			Map<B, Collection<C>> mapB) {
 		final Map<A, Collection<C>> result = new HashMap<A, Collection<C>>(mapA.size());
 		for (final Entry<A, Collection<B>> entry : mapA.entrySet()) {
 			final A key = entry.getKey();
@@ -72,8 +76,10 @@ public class MapUtil {
 	/**
 	 * The same as {@link #transitiveMapCollection(Map, Map)}, but with Sets instead of Collections.
 	 * 
-	 * @param mapA the first Map
-	 * @param mapB the second Map
+	 * @param mapA
+	 *            the first Map
+	 * @param mapB
+	 *            the second Map
 	 * @return a Map from the key of mapA to the values of mapB
 	 */
 	public static <A, B, C> Map<A, Set<C>> transitiveMapSet(Map<A, Set<B>> mapA, Map<B, Set<C>> mapB) {

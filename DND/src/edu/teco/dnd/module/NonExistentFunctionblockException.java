@@ -2,7 +2,7 @@ package edu.teco.dnd.module;
 
 /**
  * thrown if an accessed FunctionBlock does not exist on the Module it was accessed on.
- *
+ * 
  */
 public class NonExistentFunctionblockException extends Exception {
 
@@ -47,4 +47,3 @@ public class NonExistentFunctionblockException extends Exception {
 		super();
 	}
 }
-

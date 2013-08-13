@@ -11,8 +11,7 @@ import org.eclipse.swt.widgets.Text;
 public class TextPort extends TextCheck {
 
 	/**
-	 * Biggest valid Port number. Change if only system and user ports should be
-	 * used.
+	 * Biggest valid Port number. Change if only system and user ports should be used.
 	 * 
 	 * System Ports: 0-1023
 	 * 
@@ -23,8 +22,7 @@ public class TextPort extends TextCheck {
 	public static final int maxPortNumber = 65535;
 
 	/**
-	 * Creates a new PortText that can be used to check the content of the Text
-	 * Field
+	 * Creates a new PortText that can be used to check the content of the Text Field
 	 * 
 	 * @param text
 	 *            Text Field to be checked later

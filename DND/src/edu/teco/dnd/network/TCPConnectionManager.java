@@ -102,12 +102,12 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * Holds all channels that are created but did not complete the handshake.
 	 */
 	private final Collection<Channel> unconnectedChannels = new ArrayList<Channel>();
-	
+
 	/**
 	 * Contains all client channels with an established connection.
 	 */
 	private final Map<UUID, Channel> clientChannels = new HashMap<UUID, Channel>();
-	
+
 	/**
 	 * Clients we sent a ConnectionEstablishedMessage to and waiting for their reply.
 	 */
@@ -123,12 +123,12 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * {@link #unconnectedChannels} and {@link #shutdown}.
 	 */
 	private final ReadWriteLock channelsLock = new ReentrantReadWriteLock();
-	
+
 	/**
 	 * Used to signal that a channel has been closed.
 	 */
 	private final Condition shutdownCondition = channelsLock.writeLock().newCondition();
-	
+
 	/**
 	 * Future that is done when this TCPConnectionManager has been shut down.
 	 */
@@ -137,9 +137,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	/**
 	 * Handlers for given application IDs and Message classes.
 	 */
-	private final Map<Entry<UUID, Class<? extends Message>>, Entry<MessageHandler<? extends Message>, Executor>>
-		handlers = new HashMap<Map.Entry<UUID, Class<? extends Message>>,
-			Map.Entry<MessageHandler<? extends Message>, Executor>>();
+	private final Map<Entry<UUID, Class<? extends Message>>, Entry<MessageHandler<? extends Message>, Executor>> handlers =
+			new HashMap<Map.Entry<UUID, Class<? extends Message>>, Map.Entry<MessageHandler<? extends Message>, Executor>>();
 
 	/**
 	 * Lock for reading/writing to {@link #handlers}.
@@ -155,7 +154,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * Used to synchronize {@link #listeners}.
 	 */
 	private final ReadWriteLock listenersLock = new ReentrantReadWriteLock();
-	
+
 	/**
 	 * The GsonCodec that is used.
 	 */
@@ -180,7 +179,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * The UUID of the module this TCPConnectionManager is running on.
 	 */
 	private final UUID localUUID;
-	
+
 	/**
 	 * Used to manage pending Responses.
 	 */
@@ -216,17 +215,17 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		this.messageAdapter.addMessageType(ConnectionClosedMessage.class);
 		this.messageAdapter.addMessageType(DefaultResponse.class);
 
-		final TCPConnectionChannelInitializer channelInitializer = new TCPConnectionChannelInitializer(Message.class,
-				prettyPrint, applicationExecutor,
-				new TCPClientConnectionHandler(new HelloMessage(uuid, DEFAULT_MAX_FRAME_LENGTH)));
+		final TCPConnectionChannelInitializer channelInitializer =
+				new TCPConnectionChannelInitializer(Message.class, prettyPrint, applicationExecutor,
+						new TCPClientConnectionHandler(new HelloMessage(uuid, DEFAULT_MAX_FRAME_LENGTH)));
 		gsonCodec = channelInitializer.getGsonCodec();
 		gsonCodec.registerTypeAdapter(Message.class, messageAdapter);
 
-		this.serverFactory = new TCPServerChannelFactory(serverChannelFactory, networkEventLoopGroup,
-				channelInitializer);
+		this.serverFactory =
+				new TCPServerChannelFactory(serverChannelFactory, networkEventLoopGroup, channelInitializer);
 
-		this.clientFactory = new TCPClientChannelFactory(clientChannelFactory, networkEventLoopGroup,
-				channelInitializer);
+		this.clientFactory =
+				new TCPClientChannelFactory(clientChannelFactory, networkEventLoopGroup, channelInitializer);
 
 		this.handlers.put(
 				new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(APPID_DEFAULT, HelloMessage.class),
@@ -244,8 +243,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	/**
-	 * Creates a new TCPConnectionManager that does not use pretty printing for
-	 * JSON.
+	 * Creates a new TCPConnectionManager that does not use pretty printing for JSON.
 	 * 
 	 * @param networkEventLoopGroup
 	 *            the EventLoopGroup to use for server channels
@@ -266,8 +264,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	/**
-	 * Adds a type of Message. If either the class or the type name are already
-	 * in use, nothing is done.
+	 * Adds a type of Message. If either the class or the type name are already in use, nothing is done.
 	 * 
 	 * @param cls
 	 *            the class to add
@@ -279,9 +276,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	/**
-	 * Adds a type of Message. The attribute named {@value #TYPE_ATTRIBUTE_NAME}
-	 * is used to determine the type name. If either the class or the type name
-	 * are already in use, nothing is done.
+	 * Adds a type of Message. The attribute named {@value #TYPE_ATTRIBUTE_NAME} is used to determine the type name. If
+	 * either the class or the type name are already in use, nothing is done.
 	 * 
 	 * @param cls
 	 *            the class to add
@@ -437,19 +433,22 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			} else {
 				final FutureNotifier<Response> responseNotifier =
 						responseHandler.getResponseFutureNotifier(message.getUUID());
-				channel.writeAndFlush(message).addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
-					@Override
-					public void operationComplete(io.netty.util.concurrent.Future<Void> future) throws Exception {
-						if (!future.isSuccess()) {
-							responseHandler.setFailed(message.getUUID(), future.cause());
-						}
-					}
-				});
+				channel.writeAndFlush(message).addListener(
+						new GenericFutureListener<io.netty.util.concurrent.Future<Void>>() {
+							@Override
+							public void operationComplete(io.netty.util.concurrent.Future<Void> future)
+									throws Exception {
+								if (!future.isSuccess()) {
+									responseHandler.setFailed(message.getUUID(), future.cause());
+								}
+							}
+						});
 				LOGGER.exit(responseNotifier);
 				return responseNotifier;
 			}
 		} else {
-			final FinishedFutureNotifier<Response> futureNotifer = new FinishedFutureNotifier<Response>(new IllegalArgumentException());
+			final FinishedFutureNotifier<Response> futureNotifer =
+					new FinishedFutureNotifier<Response>(new IllegalArgumentException());
 			LOGGER.exit(futureNotifer);
 			return futureNotifer;
 		}
@@ -490,12 +489,14 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	public <T extends Message> void addHandler(final Class<? extends T> msgType, final MessageHandler<? super T> handler) {
 		addHandler(APPID_DEFAULT, msgType, handler, null);
 	}
-	
+
 	/**
 	 * Registers a type adapter for use in the communication.
 	 * 
-	 * @param type the type to register an adapter for
-	 * @param adapter the adapter to register
+	 * @param type
+	 *            the type to register an adapter for
+	 * @param adapter
+	 *            the adapter to register
 	 */
 	public void registerTypeAdapter(final Type type, final Object adapter) {
 		gsonCodec.registerTypeAdapter(type, adapter);
@@ -517,22 +518,22 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		 * Added to channel pipeline.
 		 */
 		private final ChannelHandler lengthFieldPrepender = new LengthFieldPrepender(2);
-		
+
 		/**
 		 * Added to channel pipeline.
 		 */
 		private final ChannelHandler stringEncoder = new StringEncoder(CHARSET);
-		
+
 		/**
 		 * Added to channel pipeline.
 		 */
 		private final ChannelHandler stringDecoder = new StringDecoder(CHARSET);
-		
+
 		/**
 		 * Added to channel pipeline.
 		 */
 		private final GsonCodec gsonCodec;
-		
+
 		/**
 		 * The maximum frame length for the channels.
 		 */
@@ -552,8 +553,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		 * Initializes a new TCPConnectionChannelInitializer.
 		 * 
 		 * @param executorGroup
-		 *            the EventExecutorGroup that should be used for application
-		 *            code
+		 *            the EventExecutorGroup that should be used for application code
 		 * @param handler
 		 *            the application level handler for new channels
 		 * @param maxFrameLength
@@ -568,7 +568,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			this.gsonCodec = new GsonCodec(type, prettyPrinting);
 			LOGGER.exit();
 		}
-		
+
 		/**
 		 * Returns the GsonCodec that is used.
 		 * 
@@ -579,18 +579,18 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		}
 
 		/**
-		 * Initializes a new TCPConnectionChannelInitializer. Will use
-		 * {@value #DEFAULT_MAX_FRAME_LENGTH} as maximum frame length.
+		 * Initializes a new TCPConnectionChannelInitializer. Will use {@value #DEFAULT_MAX_FRAME_LENGTH} as maximum
+		 * frame length.
 		 * 
 		 * @param executor
-		 *            the EventExecutorGroup that should be used for application
-		 *            code
+		 *            the EventExecutorGroup that should be used for application code
 		 * @param firstMessage
 		 *            a message to send after a connection has been established
 		 * @param handler
 		 *            the application level handler for new channels
 		 */
-		TCPConnectionChannelInitializer(final Type type, final boolean prettyPrinting, final EventExecutorGroup executor, final ChannelHandler handler) {
+		TCPConnectionChannelInitializer(final Type type, final boolean prettyPrinting,
+				final EventExecutorGroup executor, final ChannelHandler handler) {
 			this(type, prettyPrinting, executor, handler, DEFAULT_MAX_FRAME_LENGTH);
 		}
 
@@ -602,25 +602,21 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 						channel.remoteAddress());
 			}
 			channel.pipeline().addLast(lengthFieldPrepender)
-					.addLast(new LengthFieldBasedFrameDecoder(maxFrameLength, 0, 2, 0, 2))
-					.addLast(stringEncoder)
-					.addLast(stringDecoder)
-					.addLast(gsonCodec)
-					.addLast(executor, handler);
+					.addLast(new LengthFieldBasedFrameDecoder(maxFrameLength, 0, 2, 0, 2)).addLast(stringEncoder)
+					.addLast(stringDecoder).addLast(gsonCodec).addLast(executor, handler);
 			LOGGER.exit();
 		}
 	}
 
 	/**
 	 * Dispatches messages to the handlers.
-	 *
+	 * 
 	 * @author Philipp Adolf
 	 */
 	@Sharable
 	private class TCPClientConnectionHandler extends SimpleChannelInboundHandler<Message> {
 		/**
-		 * The message to send after the connection has been established. Use
-		 * null to disable.
+		 * The message to send after the connection has been established. Use null to disable.
 		 */
 		private final Message firstMessage;
 
@@ -659,11 +655,12 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 						appID = APPID_DEFAULT;
 					}
 				}
-				Entry<MessageHandler<? extends Message>, Executor> handler = handlers
-						.get(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appID, msg.getClass()));
+				Entry<MessageHandler<? extends Message>, Executor> handler =
+						handlers.get(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(appID, msg.getClass()));
 				if (handler == null) {
-					handler = handlers.get(
-							new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(APPID_DEFAULT, msg.getClass()));
+					handler =
+							handlers.get(new AbstractMap.SimpleEntry<UUID, Class<? extends Message>>(APPID_DEFAULT, msg
+									.getClass()));
 				}
 				if (handler != null) {
 					final MessageHandler<? extends Message> messageHandler = handler.getKey();
@@ -697,8 +694,9 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			if (messageHandler instanceof TCPMessageHandler<?>) {
 				response = ((TCPMessageHandler<Message>) messageHandler).handleMessage(ctx, msg);
 			} else {
-				response = ((MessageHandler<Message>) messageHandler).handleMessage(TCPConnectionManager.this,
-						remoteUUID, msg);
+				response =
+						((MessageHandler<Message>) messageHandler).handleMessage(TCPConnectionManager.this, remoteUUID,
+								msg);
 			}
 			if (response == null) {
 				response = new DefaultResponse();
@@ -725,7 +723,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			LOGGER.exit();
 			ThreadContext.clear();
 		}
-		
+
 		@Override
 		public void channelInactive(final ChannelHandlerContext ctx) {
 			final UUID remoteUUID = ctx.attr(REMOTE_UUID_KEY).get();
@@ -766,8 +764,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 
 	private class HelloMessageHandler extends AbstractTCPMessageHandler<HelloMessage> {
 		@Override
-		public Response handleMessage(ChannelHandlerContext ctx,
-				HelloMessage msg) {
+		public Response handleMessage(ChannelHandlerContext ctx, HelloMessage msg) {
 			LOGGER.entry(ctx, msg);
 			if (ctx.attr(REMOTE_UUID_KEY).get() != null) {
 				if (LOGGER.isWarnEnabled()) {
@@ -839,8 +836,8 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				if (establish) {
 					notifyEstablished(remoteUUID);
 				} else {
-					LOGGER.warn("got {}, my UUID ({}) is lower than remote UUID ({}), but channel is not waiting",
-							msg, localUUID, remoteUUID);
+					LOGGER.warn("got {}, my UUID ({}) is lower than remote UUID ({}), but channel is not waiting", msg,
+							localUUID, remoteUUID);
 				}
 			} else {
 				channelsLock.writeLock().lock();
@@ -938,7 +935,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			listenersLock.readLock().unlock();
 		}
 	}
-	
+
 	@Override
 	public void shutdown() {
 		LOGGER.entry();
@@ -968,7 +965,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		}
 		LOGGER.exit();
 	}
-	
+
 	@Override
 	public boolean isShuttingDown() {
 		LOGGER.entry();
@@ -980,11 +977,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			channelsLock.readLock().unlock();
 		}
 	}
-	
+
 	public Future<Void> getShutdownFuture() {
 		return shutdownFuture;
 	}
-	
+
 	private class ShutdownFuture implements Future<Void> {
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
@@ -1036,6 +1033,6 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			}
 			return true;
 		}
-		
+
 	}
 }

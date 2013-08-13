@@ -47,17 +47,17 @@ import edu.teco.dnd.util.NetConnection;
 
 public class Activator extends AbstractUIPlugin {
 	private static final Logger LOGGER = LogManager.getLogger(Activator.class);
-	
+
 	/**
 	 * The default port to listen on for incoming connections.
 	 */
 	public static final int DEFAULT_LISTEN_PORT = 5000;
-	
+
 	/**
 	 * The default address used for multicast.
 	 */
 	public static final InetSocketAddress DEFAULT_MULTICAST_ADDRESS = ModuleMain.DEFAULT_MULTICAST_ADDRESS;
-	
+
 	private static Activator plugin;
 
 	private UUID uuid;
@@ -65,37 +65,36 @@ public class Activator extends AbstractUIPlugin {
 	private ConnectionManager connectionManager;
 
 	private UDPMulticastBeacon beacon;
-	
+
 	private final List<EventExecutorGroup> eventExecutorGroups = new ArrayList<EventExecutorGroup>();
-	
+
 	private final Set<DNDServerStateListener> serverStateListener = new HashSet<DNDServerStateListener>();
-	
+
 	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
-	
+
 	private ModuleManager moduleManager;
-	
+
 	static {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 	}
 
-	
 	public static Activator getDefault() {
 		return plugin;
 	}
-	
+
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		LOGGER.entry(context);
 		super.start(context);
 		plugin = this;
-		
+
 		uuid = UUID.randomUUID();
-		
+
 		moduleManager = new ModuleManager();
-		
+
 		LOGGER.exit();
 	}
-	
+
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		LOGGER.entry();
@@ -104,7 +103,7 @@ public class Activator extends AbstractUIPlugin {
 
 		LOGGER.exit();
 	}
-	
+
 	// TODO: make this all nicer
 	public void startServer() {
 		LOGGER.entry();
@@ -117,13 +116,13 @@ public class Activator extends AbstractUIPlugin {
 		} finally {
 			serverStateLock.readLock().unlock();
 		}
-		
+
 		TCPConnectionManager connectionManager = null;
 		EventLoopGroup networkEventLoopGroup = null;
 		final List<InetSocketAddress> listen = getListen();
 		final List<InetSocketAddress> announce = getAnnounce();
 		final List<NetConnection> multicast = getMulticast();
-			
+
 		serverStateLock.writeLock().lock();
 		try {
 			if (this.connectionManager != null) {
@@ -135,29 +134,30 @@ public class Activator extends AbstractUIPlugin {
 			OioEventLoopGroup oioEventLoopGroup = new OioEventLoopGroup();
 			eventExecutorGroups.add(networkEventLoopGroup);
 			eventExecutorGroups.add(oioEventLoopGroup);
-		
-			connectionManager = new TCPConnectionManager(networkEventLoopGroup,
-					networkEventLoopGroup, new ChannelFactory<NioServerSocketChannel>() {
-						@Override
-						public NioServerSocketChannel newChannel() {
-							return new NioServerSocketChannel();
-						}
-					}, new ChannelFactory<NioSocketChannel>() {
-						@Override
-						public NioSocketChannel newChannel() {
-							return new NioSocketChannel();
-						}
-					}, uuid);
+
+			connectionManager =
+					new TCPConnectionManager(networkEventLoopGroup, networkEventLoopGroup,
+							new ChannelFactory<NioServerSocketChannel>() {
+								@Override
+								public NioServerSocketChannel newChannel() {
+									return new NioServerSocketChannel();
+								}
+							}, new ChannelFactory<NioSocketChannel>() {
+								@Override
+								public NioSocketChannel newChannel() {
+									return new NioSocketChannel();
+								}
+							}, uuid);
 			ModuleMain.globalRegisterMessageAdapterType(connectionManager);
 			this.connectionManager = connectionManager;
-		
+
 			beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
 				@Override
 				public OioDatagramChannel newChannel() {
 					return new OioDatagramChannel();
 				}
 			}, oioEventLoopGroup, networkEventLoopGroup, uuid);
-			
+
 			for (final DNDServerStateListener listener : serverStateListener) {
 				listener.serverStarted(connectionManager, beacon);
 			}
@@ -188,7 +188,7 @@ public class Activator extends AbstractUIPlugin {
 			beaconAddresses = announce;
 		}
 		beacon.setAnnounceAddresses(beaconAddresses);
-	
+
 		final TCPConnectionManager conMan = connectionManager;
 		networkEventLoopGroup.execute(new Runnable() {
 			@Override
@@ -198,9 +198,9 @@ public class Activator extends AbstractUIPlugin {
 				} else {
 					for (final InetSocketAddress address : listen) {
 						conMan.startListening(address);
-					}	
+					}
 				}
-				
+
 				if (multicast.isEmpty()) {
 					try {
 						beacon.addAddress(DEFAULT_MULTICAST_ADDRESS);
@@ -214,10 +214,10 @@ public class Activator extends AbstractUIPlugin {
 				}
 			}
 		});
-		
+
 		LOGGER.exit();
 	}
-	
+
 	private static Set<InetAddress> getAllLocalAddresses() throws SocketException {
 		final Set<InetAddress> localAddresses = new HashSet<InetAddress>();
 		final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -233,7 +233,8 @@ public class Activator extends AbstractUIPlugin {
 	/**
 	 * Tries to get as many address out of the given ones. This includes DNS lookups and reverse DNS lookups.
 	 * 
-	 * @param addresses the addresses to start from
+	 * @param addresses
+	 *            the addresses to start from
 	 * @return all addresses that describe any of the given ones
 	 */
 	private static Set<InetAddress> resolveAddress(InetAddress address) {
@@ -261,7 +262,7 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return resolvedAddresses;
 	}
-	
+
 	private static Set<InetAddress> resolveAllAddresses(final Collection<InetAddress> addresses) {
 		final Set<InetAddress> resolvedAddresses = new HashSet<InetAddress>();
 		for (final InetAddress address : addresses) {
@@ -281,7 +282,7 @@ public class Activator extends AbstractUIPlugin {
 		} finally {
 			serverStateLock.readLock().unlock();
 		}
-		
+
 		serverStateLock.writeLock().lock();
 		try {
 			if (connectionManager == null) {
@@ -303,12 +304,12 @@ public class Activator extends AbstractUIPlugin {
 					}
 				}
 			}
-			
+
 			@Override
 			public void run() {
 				await(connectionManager.getShutdownFuture());
 				await(beacon.getShutdownFuture());
-				
+
 				serverStateLock.writeLock().lock();
 				try {
 					connectionManager = null;
@@ -335,7 +336,7 @@ public class Activator extends AbstractUIPlugin {
 	public ModuleManager getModuleManager() {
 		return moduleManager;
 	}
-	
+
 	public UDPMulticastBeacon getMulticastBeacon() {
 		return beacon;
 	}
@@ -346,7 +347,7 @@ public class Activator extends AbstractUIPlugin {
 		store.setDefault("multicast", "");
 		store.setDefault("announce", "");
 	}
-	
+
 	public void addServerStateListener(final DNDServerStateListener listener) {
 		serverStateLock.writeLock().lock();
 		try {
@@ -360,7 +361,7 @@ public class Activator extends AbstractUIPlugin {
 			serverStateLock.writeLock().unlock();
 		}
 	}
-	
+
 	public void removeServerStateListener(final DNDServerStateListener listener) {
 		serverStateLock.writeLock().lock();
 		try {
@@ -369,7 +370,7 @@ public class Activator extends AbstractUIPlugin {
 			serverStateLock.writeLock().unlock();
 		}
 	}
-	
+
 	public boolean isRunning() {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
@@ -386,7 +387,8 @@ public class Activator extends AbstractUIPlugin {
 		}
 	}
 
-	// TODO: this seems kinda redundant. Also we do have the means to store stuff as JSON, that may be easier and cleaner
+	// TODO: this seems kinda redundant. Also we do have the means to store stuff as JSON, that may be easier and
+	// cleaner
 	private List<InetSocketAddress> getListen() {
 		final String[] items = getPreferenceStore().getString("listen").split(" ");
 		final List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>(items.length);

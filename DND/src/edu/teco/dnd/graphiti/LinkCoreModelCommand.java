@@ -8,15 +8,13 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.ui.services.GraphitiUi;
 
-
 public class LinkCoreModelCommand extends RecordingCommand {
 
 	private Diagram diagram;
 	private EObject coreModel;
 	private String providerId;
 
-	public LinkCoreModelCommand(TransactionalEditingDomain domain,
-			Diagram diagram, EObject coreModel, String providerId) {
+	public LinkCoreModelCommand(TransactionalEditingDomain domain, Diagram diagram, EObject coreModel, String providerId) {
 		super(domain);
 		this.diagram = diagram;
 		this.coreModel = coreModel;
@@ -25,8 +23,7 @@ public class LinkCoreModelCommand extends RecordingCommand {
 
 	@Override
 	protected void doExecute() {
-		IDiagramTypeProvider dtp = GraphitiUi.getExtensionManager()
-				.createDiagramTypeProvider(diagram, providerId);
+		IDiagramTypeProvider dtp = GraphitiUi.getExtensionManager().createDiagramTypeProvider(diagram, providerId);
 		IFeatureProvider featureProvider = dtp.getFeatureProvider();
 		featureProvider.link(diagram, coreModel);
 	}

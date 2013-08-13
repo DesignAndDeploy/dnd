@@ -1,6 +1,5 @@
 package edu.teco.dnd.util;
 
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -40,15 +39,13 @@ public class Base64Adapter implements JsonSerializer<byte[]>, JsonDeserializer<b
 			LOGGER.exit();
 			throw new JsonParseException("not a String primitive");
 		}
-		
+
 		try {
 			return Base64.decode(obj.getAsString());
 		} catch (IOException e) {
 			throw new JsonParseException("can not parse base64 byte[]");
 		}
-		
-		
-		
+
 	}
 
 	@Override

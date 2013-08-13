@@ -6,16 +6,14 @@ import java.net.SocketException;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * This class can be used to check if a Text Field contains a valid network
- * interface.
+ * This class can be used to check if a Text Field contains a valid network interface.
  * 
  * @author jung
  * 
  */
 public class TextNetwork extends TextCheck {
 	/**
-	 * Creates a new NetworkText that can be used to check the content of the
-	 * Text Field
+	 * Creates a new NetworkText that can be used to check the content of the Text Field
 	 * 
 	 * @param text
 	 *            Text Field to be checked later

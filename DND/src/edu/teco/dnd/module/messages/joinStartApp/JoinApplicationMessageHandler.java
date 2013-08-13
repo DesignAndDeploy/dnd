@@ -20,7 +20,7 @@ public class JoinApplicationMessageHandler implements MessageHandler<JoinApplica
 		try {
 			appManager.joinApplication(message.appId, remoteUUID, message.name);
 		} catch (Exception e) {
-			return  new JoinApplicationNak(message.name, message.appId);
+			return new JoinApplicationNak(message.name, message.appId);
 		}
 		return new JoinApplicationAck(message.name, message.appId);
 	}

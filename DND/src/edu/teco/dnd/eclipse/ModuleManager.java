@@ -19,32 +19,31 @@ import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
 
 /**
- * This class coordinates a List of currently running modules. It provides the
- * views and editors with information to display to the user.
+ * This class coordinates a List of currently running modules. It provides the views and editors with information to
+ * display to the user.
  * 
  * @author jung
  * 
  */
-public class ModuleManager implements ConnectionListener,
-DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
-	private Map<UUID,Module> map;
-	
+public class ModuleManager implements ConnectionListener, DNDServerStateListener,
+		FutureListener<FutureNotifier<Module>> {
+	private Map<UUID, Module> map;
+
 	private final Set<ModuleManagerListener> moduleManagerListener = new HashSet<ModuleManagerListener>();
 	private final ReadWriteLock moduleLock = new ReentrantReadWriteLock();
-	
+
 	private Activator activator;
 	private ConnectionManager connectionManager;
 	private ModuleQuery query;
-	
-	public ModuleManager(){
-		map = new HashMap<UUID,Module>();
-		
+
+	public ModuleManager() {
+		map = new HashMap<UUID, Module>();
+
 		activator = Activator.getDefault();
 		activator.addServerStateListener(this);
 	}
-	
-	
-	public void addModuleManagerListener(final ModuleManagerListener listener){
+
+	public void addModuleManagerListener(final ModuleManagerListener listener) {
 		moduleLock.writeLock().lock();
 		try {
 			moduleManagerListener.add(listener);
@@ -57,16 +56,15 @@ DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
 			moduleLock.writeLock().unlock();
 		}
 	}
-	
-	public void removeModuleManagerListener(final ModuleManagerListener listener){
+
+	public void removeModuleManagerListener(final ModuleManagerListener listener) {
 		moduleLock.writeLock().lock();
 		moduleManagerListener.remove(listener);
 		moduleLock.writeLock().unlock();
 	}
-	
+
 	@Override
-	public void serverStarted(ConnectionManager externConnectionManager,
-			UDPMulticastBeacon beacon) {
+	public void serverStarted(ConnectionManager externConnectionManager, UDPMulticastBeacon beacon) {
 		connectionManager = externConnectionManager;
 		query = new ModuleQuery(connectionManager);
 		for (UUID id : new ArrayList<UUID>(map.keySet())) {
@@ -79,7 +77,7 @@ DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
 			map.put(id, null);
 			query.getModuleInfo(id).addListener(this);
 		}
-		//TODO: Synchronisieren
+		// TODO: Synchronisieren
 		for (final ModuleManagerListener listener : moduleManagerListener) {
 			listener.serverOnline(map);
 		}
@@ -100,7 +98,7 @@ DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
 	public void connectionEstablished(UUID uuid) {
 		map.put(uuid, null);
 		query.getModuleInfo(uuid).addListener(this);
-		
+
 		for (final ModuleManagerListener listener : moduleManagerListener) {
 			listener.moduleOnline(uuid);
 		}
@@ -113,10 +111,9 @@ DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
 			listener.moduleOffline(uuid);
 		}
 	}
-	
+
 	@Override
-	public void operationComplete(FutureNotifier<Module> future)
-			throws Exception {
+	public void operationComplete(FutureNotifier<Module> future) throws Exception {
 		if (future.isSuccess()) {
 			Module module = future.getNow();
 			UUID id = module.getUUID();
@@ -126,12 +123,11 @@ DNDServerStateListener,FutureListener<FutureNotifier<Module>> {
 				listener.moduleResolved(id, module);
 			}
 		}
-		
+
 	}
-	
-	public Map<UUID, Module> getMap(){
+
+	public Map<UUID, Module> getMap() {
 		return map;
 	}
-	
-	
+
 }

@@ -13,9 +13,11 @@ public interface OptionModel extends EObject {
 	String getName();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getName <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Name</em>' attribute.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getName <em>Name</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @param value
+	 *            the new value of the '<em>Name</em>' attribute.
 	 * @see #getName()
 	 * @generated
 	 */
@@ -27,10 +29,11 @@ public interface OptionModel extends EObject {
 	String getType();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getType <em>Type</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Type</em>' attribute.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getType <em>Type</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @param value
+	 *            the new value of the '<em>Type</em>' attribute.
 	 * @see #getType()
 	 * @generated
 	 */
@@ -42,9 +45,11 @@ public interface OptionModel extends EObject {
 	String getValue();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getValue <em>Value</em>}' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Value</em>' attribute.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getValue <em>Value</em>}' attribute. <!--
+	 * begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @param value
+	 *            the new value of the '<em>Value</em>' attribute.
 	 * @see #getValue()
 	 * @generated
 	 */
@@ -56,9 +61,11 @@ public interface OptionModel extends EObject {
 	FunctionBlockModel getFunctionBlock();
 
 	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getFunctionBlock <em>Function Block</em>}' container reference.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Function Block</em>' container reference.
+	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getFunctionBlock <em>Function Block</em>}'
+	 * container reference. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @param value
+	 *            the new value of the '<em>Function Block</em>' container reference.
 	 * @see #getFunctionBlock()
 	 * @generated
 	 */

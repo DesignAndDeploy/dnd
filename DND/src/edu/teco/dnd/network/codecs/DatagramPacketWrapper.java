@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * A class that wraps ByteBufs into a DatagramPacket.
- *
+ * 
  * @author Philipp Adolf
  */
 @Sharable
@@ -24,12 +24,12 @@ public class DatagramPacketWrapper extends MessageToMessageCodec<DatagramPacket,
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(DatagramPacketWrapper.class);
-	
+
 	/**
 	 * The AttributeKey for the target address. The address must be attached to the context of this ChannelHandler.
 	 */
-	public static final AttributeKey<InetSocketAddress> TARGET_ADDRESS =
-			new AttributeKey<InetSocketAddress>("targetAddress");
+	public static final AttributeKey<InetSocketAddress> TARGET_ADDRESS = new AttributeKey<InetSocketAddress>(
+			"targetAddress");
 
 	@Override
 	protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {

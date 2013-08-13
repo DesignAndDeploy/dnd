@@ -18,7 +18,7 @@ public class Preferences extends FieldEditorPreferencePage implements IWorkbench
 
 	@Override
 	protected void createFieldEditors() {
-		
+
 	}
 
 }

@@ -112,38 +112,38 @@ public class GsonDeEnCodingTest implements Serializable {
 		msgAdapter.addMessageType(RequestApplicationListMessage.class);
 		testEnDeCoding(new RequestApplicationListMessage());
 	}
-	
+
 	@Test
 	public void ShutdownModuleMessageTest() {
 		msgAdapter.addMessageType(ShutdownModuleMessage.class);
 		testEnDeCoding(new ShutdownModuleMessage());
 	}
-	
+
 	@Test
 	public void ShutdownModuleNakTest() {
 		msgAdapter.addMessageType(ShutdownModuleNak.class);
 		testEnDeCoding(new ShutdownModuleNak());
 	}
-	
+
 	@Test
 	public void ShutdownModuleAckTest() {
 		msgAdapter.addMessageType(ShutdownModuleAck.class);
 		testEnDeCoding(new ShutdownModuleAck());
 	}
-	
+
 	@Test
 	public void MissingApplicationNakTest() {
 		msgAdapter.addMessageType(MissingApplicationNak.class);
 		testEnDeCoding(new MissingApplicationNak(TEST_APP_UUID));
 	}
 
-
 	@Test
 	public void ModuleInfoMessageTest() {
 		msgAdapter.addMessageType(ModuleInfoMessage.class);
 		try {
 			final ConfigReader configReader = TestConfigReader.getPredefinedReader();
-			testEnDeCoding(new ModuleInfoMessage(new Module(configReader.getUuid(), configReader.getName(), configReader.getBlockRoot())));
+			testEnDeCoding(new ModuleInfoMessage(new Module(configReader.getUuid(), configReader.getName(),
+					configReader.getBlockRoot())));
 		} catch (SocketException e) {
 			e.printStackTrace();
 			throw new Error(e);
@@ -255,7 +255,6 @@ public class GsonDeEnCodingTest implements Serializable {
 		msgAdapter.addMessageType(LoadClassNak.class);
 		testEnDeCoding(new LoadClassNak("ClassName", TEST_APP_UUID));
 	}
-
 
 	@Test
 	public void BlockFoundMessageTest() {

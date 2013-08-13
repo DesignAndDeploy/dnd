@@ -10,10 +10,11 @@ import org.eclipse.graphiti.tb.IToolBehaviorProvider;
  */
 public class DNDDiagramTypeProvider extends AbstractDiagramTypeProvider {
 	private static final Logger LOGGER = LogManager.getLogger(DNDDiagramTypeProvider.class);
-	
+
 	/**
 	 * Sets the FeatureProvider to {@link DNDFeatureProvider}.
-	 * @throws ClassNotFoundException 
+	 * 
+	 * @throws ClassNotFoundException
 	 */
 	public DNDDiagramTypeProvider() {
 		super();

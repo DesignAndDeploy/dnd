@@ -9,7 +9,7 @@ public class ModuleInfoMessage extends Response {
 
 	public static String MESSAGE_TYPE = "module info";
 	public final Module module;
-	
+
 	public ModuleInfoMessage(final UUID sourceUUID, final UUID uuid, final Module module) {
 		super(sourceUUID, uuid);
 		this.module = module;
@@ -23,7 +23,9 @@ public class ModuleInfoMessage extends Response {
 		return this.module;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -34,7 +36,9 @@ public class ModuleInfoMessage extends Response {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -59,7 +63,9 @@ public class ModuleInfoMessage extends Response {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -67,6 +73,5 @@ public class ModuleInfoMessage extends Response {
 		return "ModuleInfoMessage [module=" + module + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
 				+ getUUID() + "]";
 	}
-	
-	
+
 }

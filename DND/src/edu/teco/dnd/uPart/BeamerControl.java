@@ -48,8 +48,7 @@ public class BeamerControl {
 			URL url = new URL("http://epsonbeamer.teco.edu/cgi-bin/webconf.exe?page=1");
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestProperty("Referer", "http://" + ipaddress.getHostAddress()
-					+ "/cgi-bin/webconf.exe?page=1");
+			conn.setRequestProperty("Referer", "http://" + ipaddress.getHostAddress() + "/cgi-bin/webconf.exe?page=1");
 			conn.setRequestMethod("GET");
 
 			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -76,8 +75,7 @@ public class BeamerControl {
 			URL url = new URL("http://epsonbeamer.teco.edu/cgi-bin/sender.exe?KEY=3B");
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestProperty("Referer", "http://" + ipaddress.getHostAddress()
-					+ "/cgi-bin/webconf.exe?page=1");
+			conn.setRequestProperty("Referer", "http://" + ipaddress.getHostAddress() + "/cgi-bin/webconf.exe?page=1");
 			conn.setRequestMethod("GET");
 
 			InputStreamReader rd = new InputStreamReader(conn.getInputStream());

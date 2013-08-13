@@ -24,8 +24,8 @@ public final class DNDCreateFeatureFactory {
 	private Set<FunctionBlockClass> blockClasses = new HashSet<FunctionBlockClass>();
 
 	/**
-	 * Returns a create feature for the given block class. If the block has not been registered it will
-	 * automatically add it to the list of known blocks.
+	 * Returns a create feature for the given block class. If the block has not been registered it will automatically
+	 * add it to the list of known blocks.
 	 * 
 	 * @param fp
 	 *            the IFeatureProvider to use

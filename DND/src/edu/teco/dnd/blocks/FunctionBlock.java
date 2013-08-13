@@ -20,22 +20,24 @@ public abstract class FunctionBlock implements Serializable {
 	 * Used for serialization.
 	 */
 	private static final long serialVersionUID = 7444744469990667015L;
-	
+
 	/**
 	 * The UUID of this block. Can't be changed once set.
 	 */
 	private UUID blockUUID = null;
-	
+
 	private Map<String, Output<? extends Serializable>> outputs = null;
-	
-	// FIXME: should probably be run in the Constructor so that the block can't execute code beforehand. What about (static) code blocks?
+
+	// FIXME: should probably be run in the Constructor so that the block can't execute code beforehand. What about
+	// (static) code blocks?
 	public synchronized final void doInit(final UUID blockUUID) throws IllegalArgumentException, IllegalAccessException {
 		if (this.blockUUID != null) {
 			return;
 		}
-		
+
 		this.blockUUID = blockUUID;
-		final Map<String, Output<? extends Serializable>> outputs = new HashMap<String, Output<? extends Serializable>>();
+		final Map<String, Output<? extends Serializable>> outputs =
+				new HashMap<String, Output<? extends Serializable>>();
 		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
 			for (final Field field : c.getFields()) {
 				if (Output.class.isAssignableFrom(field.getType()) && !outputs.containsKey(field.getName())) {
@@ -57,11 +59,11 @@ public abstract class FunctionBlock implements Serializable {
 	public final synchronized UUID getBlockUUID() {
 		return this.blockUUID;
 	}
-	
+
 	public final synchronized Map<String, Output<? extends Serializable>> getOutputs() {
 		return this.outputs;
 	}
-	
+
 	// FIXME: FunctionBlocks can still change the value with reflection. Get the value in doInit and keep it
 	public final String getBlockType() {
 		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
@@ -92,7 +94,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * This method is called when a FunctionBlock is started on a module.
 	 */
 	public abstract void init();
-	
+
 	/**
 	 * This method is called when either the inputs have new values or the timer has run out.
 	 */
@@ -103,8 +105,7 @@ public abstract class FunctionBlock implements Serializable {
 		final UUID blockUUID = getBlockUUID();
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((blockUUID == null) ? 0 : blockUUID.hashCode());
+		result = prime * result + ((blockUUID == null) ? 0 : blockUUID.hashCode());
 		return result;
 	}
 
@@ -126,7 +127,7 @@ public abstract class FunctionBlock implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public final String toString() {
 		return "FunctionBlock[class=" + getClass() + ",blockUUID=" + getBlockType() + "]";

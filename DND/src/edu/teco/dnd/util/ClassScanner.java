@@ -61,7 +61,8 @@ public class ClassScanner {
 	/**
 	 * Initializes a new scanner.
 	 * 
-	 * @param repository the Repository to use for loading classes. Must not be null
+	 * @param repository
+	 *            the Repository to use for loading classes. Must not be null
 	 * @param filter
 	 *            the filter to use. Must not be null.
 	 */
@@ -75,7 +76,7 @@ public class ClassScanner {
 		this.repository = repository;
 		this.filter = filter;
 	}
-	
+
 	public ClassScanner(final Collection<File> paths, final ClassFilter filter) {
 		if (paths == null) {
 			throw new IllegalArgumentException("paths must not be null");
@@ -83,16 +84,16 @@ public class ClassScanner {
 		if (filter == null) {
 			throw new IllegalArgumentException("filter must not be null");
 		}
-		
+
 		final ClassPath classPath = new ClassPath(StringUtil.joinIterable(new HashSet<File>(paths), ":"));
 		this.repository = SyntheticRepository.getInstance(classPath);
 		this.filter = filter;
 	}
-	
+
 	public ClassScanner(final Repository repository) {
 		this(repository, new NullFilter());
 	}
-	
+
 	public ClassScanner(final Collection<File> paths) {
 		this(paths, new NullFilter());
 	}
@@ -126,7 +127,7 @@ public class ClassScanner {
 		}
 		return classes;
 	}
-	
+
 	public Set<JavaClass> getClasses(final Iterable<File> files) {
 		Set<JavaClass> classes = new HashSet<JavaClass>();
 		for (File f : files) {
@@ -136,8 +137,8 @@ public class ClassScanner {
 	}
 
 	/**
-	 * Scans the given directory or JAR file (the latter is not yet implemented). Uses the given ClassLoader
-	 * or the ClassLoader this class was loaded with if null is passed.
+	 * Scans the given directory or JAR file (the latter is not yet implemented). Uses the given ClassLoader or the
+	 * ClassLoader this class was loaded with if null is passed.
 	 * 
 	 * @param f
 	 *            the directory or JAR file to scan

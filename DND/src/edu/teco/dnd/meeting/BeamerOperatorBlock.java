@@ -40,8 +40,8 @@ public class BeamerOperatorBlock extends FunctionBlock {
 	}
 
 	/**
-	 * Checks whether there is a meeting and if the outlet is used to control a BeamerActorBlock. If both is
-	 * true: beamer-power activate!
+	 * Checks whether there is a meeting and if the outlet is used to control a BeamerActorBlock. If both is true:
+	 * beamer-power activate!
 	 */
 	@Override
 	public void update() {

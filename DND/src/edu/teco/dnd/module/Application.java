@@ -182,7 +182,7 @@ public class Application {
 		scheduledThreadPool.execute(initRunnable);
 
 		// TODO: implement a way to specify interval for updates
-//		long period = block.getTimebetweenSchedules();
+		// long period = block.getTimebetweenSchedules();
 		long period = Integer.MIN_VALUE;
 		try {
 			if (period < 0) {
@@ -217,7 +217,7 @@ public class Application {
 			throw LOGGER.throwing(new NonExistentFunctionblockException());
 		}
 		// TODO: set value
-		
+
 		Runnable updater = new Runnable() {
 			@Override
 			public void run() {
@@ -273,14 +273,14 @@ public class Application {
 	public boolean isExecuting(UUID blockId) {
 		return funcBlockById.containsKey(blockId);
 	}
-	
+
 	class ApplicationOutputTarget implements OutputTarget<Serializable> {
 		private final Set<ValueDestination> destinations;
-		
+
 		public ApplicationOutputTarget(final Collection<ValueDestination> destinations) {
 			this.destinations = new HashSet<ValueDestination>(destinations);
 		}
-		
+
 		@Override
 		public void setValue(Serializable value) {
 			for (final ValueDestination destination : destinations) {

@@ -78,4 +78,3 @@ public class ApplicationClassLoader extends ClassLoader {
 	}
 
 }
-

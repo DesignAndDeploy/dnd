@@ -30,7 +30,9 @@ public class JoinApplicationMessage extends Message {
 		appId = null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -42,7 +44,9 @@ public class JoinApplicationMessage extends Message {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -74,14 +78,14 @@ public class JoinApplicationMessage extends Message {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "JoinApplicationMessage [appId=" + appId + ", name=" + name + ", getUUID()=" + getUUID() + "]";
 	}
-	
-	
-	
+
 }

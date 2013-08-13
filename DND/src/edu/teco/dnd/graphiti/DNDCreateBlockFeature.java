@@ -36,8 +36,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	public DNDCreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
 		super(fp, blockClass == null ? "null" : blockClass.getSimpleClassName(),
 				Messages.DNDCreateBlockFeature_CreatesFunBlockOfTpe_Info
-						+ (blockClass == null ? "null" : blockClass
-								.getSimpleClassName()));
+						+ (blockClass == null ? "null" : blockClass.getSimpleClassName()));
 		if (blockClass == null) {
 			throw new IllegalArgumentException("blockClass must not be null");
 		}
@@ -65,28 +64,22 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 */
 	@Override
 	public final Object[] create(final ICreateContext context) {
-		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE
-				.createFunctionBlockModel(blockClass);
+		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockClass);
 		getDiagram().eResource().getContents().add(newBlock);
 
 		addGraphicalRepresentation(context, newBlock);
 
 		/**
-		 * Links the block to the diagram. Found this on the Internet, not
-		 * really sure what it does. Still not done with this part.
+		 * Links the block to the diagram. Found this on the Internet, not really sure what it does. Still not done with
+		 * this part.
 		 */
 		Diagram diagram = getDiagram();
-		TransactionalEditingDomain domain = DiagramEditorFactory
-				.createResourceSetAndEditingDomain();
+		TransactionalEditingDomain domain = DiagramEditorFactory.createResourceSetAndEditingDomain();
 		;
 		Assert.isNotNull(diagram.getDiagramTypeId());
-		String providerId = GraphitiUi.getExtensionManager()
-				.getDiagramTypeProviderId(diagram.getDiagramTypeId());
+		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId(diagram.getDiagramTypeId());
 		Assert.isNotNull(providerId);
-		domain.getCommandStack()
-				.execute(
-						new LinkCoreModelCommand(domain, diagram, newBlock,
-								providerId));
+		domain.getCommandStack().execute(new LinkCoreModelCommand(domain, diagram, newBlock, providerId));
 
 		return new Object[] { newBlock };
 	}

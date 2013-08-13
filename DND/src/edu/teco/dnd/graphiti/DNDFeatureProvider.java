@@ -71,17 +71,16 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * Default FunctionBlocks.
 	 */
-	private static final Class<?>[] DEFAULT_TYPES = new Class<?>[] { OutletActorBlock.class,
-			BeamerOperatorBlock.class, DisplayActorBlock.class, DisplayOperatorBlock.class,
-			LightSensorBlock.class, MeetingOperatorBlock.class, OutletSensorBlock.class,
-			TemperatureActorBlock.class, TemperatureLogicBlock.class, TemperatureSensorBlock.class,
-			BeamerActorBlock.class };
+	private static final Class<?>[] DEFAULT_TYPES = new Class<?>[] { OutletActorBlock.class, BeamerOperatorBlock.class,
+			DisplayActorBlock.class, DisplayOperatorBlock.class, LightSensorBlock.class, MeetingOperatorBlock.class,
+			OutletSensorBlock.class, TemperatureActorBlock.class, TemperatureLogicBlock.class,
+			TemperatureSensorBlock.class, BeamerActorBlock.class };
 
 	/**
 	 * Feature factory for block create features.
 	 */
 	private final DNDCreateFeatureFactory createFeatureFactory = new DNDCreateFeatureFactory();
-	
+
 	/**
 	 * Used to inspect FunctionBlocks.
 	 */
@@ -97,13 +96,13 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * 
 	 * @param dtp
 	 *            the diagram type provider this feature provider belongs to
-	 * @throws ClassNotFoundException 
+	 * @throws ClassNotFoundException
 	 */
 	public DNDFeatureProvider(final IDiagramTypeProvider dtp) throws ClassNotFoundException {
 		super(dtp);
 		LOGGER.info("DNDFeatureProvider created successfully");
 	}
-	
+
 	/**
 	 * Returns the class path for the Eclipse project this diagram is part of.
 	 * 
@@ -191,7 +190,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		initialiseFactory();
 		return blockFactory;
 	}
-	
+
 	public final Repository getRepository() {
 		return blockFactory.getRepository();
 	}
@@ -248,8 +247,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 			if (TypePropertyUtil.isPositionText(ga)) {
 				return new DNDUpdatePositionFeature(this);
-			}
-			else if (TypePropertyUtil.isBlockNameText(ga)){
+			} else if (TypePropertyUtil.isBlockNameText(ga)) {
 				return new DNDUpdateBlockNameFeature(this);
 			}
 		}
@@ -284,10 +282,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			feature = new DNDEditOptionFeature(this);
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
-			if (TypePropertyUtil.isBlockNameText(ga)){
+			if (TypePropertyUtil.isBlockNameText(ga)) {
 				feature = new DNDEditBlockNameFeature(this);
-			}
-			else if (TypePropertyUtil.isPositionText(ga)){
+			} else if (TypePropertyUtil.isPositionText(ga)) {
 				feature = new DNDEditPositionFeature(this);
 			}
 		}

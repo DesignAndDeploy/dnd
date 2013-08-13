@@ -7,9 +7,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Class to be inherited by Text wrappers so their content can be checked for
- * validity before accessing it. Subclasses should override the check() method
- * check if the entry of their Text Field matches the required format. CheckText
+ * Class to be inherited by Text wrappers so their content can be checked for validity before accessing it. Subclasses
+ * should override the check() method check if the entry of their Text Field matches the required format. CheckText
  * itself can be used to wrap Text fields that don't require checking.
  * 
  * @author jung
@@ -51,23 +50,19 @@ public class TextCheck {
 	}
 
 	/**
-	 * Checks if the string entered in the text field matches the format this
-	 * Text field is supposed to contain. The default implementation in
-	 * CheckText returns true by default, subclasses should implement their own
-	 * algorithm to check if the text in their TextFields matches a given
-	 * format.
+	 * Checks if the string entered in the text field matches the format this Text field is supposed to contain. The
+	 * default implementation in CheckText returns true by default, subclasses should implement their own algorithm to
+	 * check if the text in their TextFields matches a given format.
 	 * 
-	 * @return true if string matches valid format, false if string has wrong
-	 *         format
+	 * @return true if string matches valid format, false if string has wrong format
 	 */
 	public boolean check() {
 		return true;
 	}
 
 	/**
-	 * Can be used to present a warning in case check() returned "false". This
-	 * opens a simple window with a warning message, that may be clicked away by
-	 * the user.
+	 * Can be used to present a warning in case check() returned "false". This opens a simple window with a warning
+	 * message, that may be clicked away by the user.
 	 */
 	public void warn() {
 		Display display = Display.getCurrent();

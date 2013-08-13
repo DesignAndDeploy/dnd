@@ -32,9 +32,9 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	 * Threshold to decide whether the light is bright enough to have a meeting or if it is to dark.
 	 */
 	private Option threshold;
-	
+
 	private int _threshold;
-	
+
 	/**
 	 * Initializes MeetingOperatorBlock.
 	 */

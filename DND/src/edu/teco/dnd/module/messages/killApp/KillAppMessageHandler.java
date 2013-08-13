@@ -21,7 +21,7 @@ public class KillAppMessageHandler implements MessageHandler<KillAppMessage> {
 			appManager.stopApplication(message.getApplicationID());
 		} catch (Exception e) {
 			return new KillAppNak(message.getApplicationID());
-			
+
 		}
 		return new KillAppAck(message.getApplicationID());
 	}

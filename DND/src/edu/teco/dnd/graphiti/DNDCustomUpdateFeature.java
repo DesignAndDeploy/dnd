@@ -9,9 +9,8 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
 /**
- * This class is responsible for importing changes from the DeployView to the
- * graphiti diagram editor. After reloading a diagram to graphiti, the user can manually
- * update all edited names and positions to the values set in DeployView.
+ * This class is responsible for importing changes from the DeployView to the graphiti diagram editor. After reloading a
+ * diagram to graphiti, the user can manually update all edited names and positions to the values set in DeployView.
  * 
  * @author jung
  * 
@@ -48,8 +47,7 @@ public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 				PictogramElement pe = context.getInnerPictogramElement();
 				if (pe.getGraphicsAlgorithm() instanceof Text) {
 					Text text = (Text) pe.getGraphicsAlgorithm();
-					if (TypePropertyUtil.isBlockNameText(text)
-							|| TypePropertyUtil.isPositionText(text)) {
+					if (TypePropertyUtil.isBlockNameText(text) || TypePropertyUtil.isPositionText(text)) {
 						ret = true;
 					}
 				}
@@ -70,16 +68,12 @@ public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 				PictogramElement pe = context.getInnerPictogramElement();
 				if (pe.getGraphicsAlgorithm() instanceof Text) {
 					Text text = (Text) pe.getGraphicsAlgorithm();
-					if (TypePropertyUtil.isBlockNameText(text)
-							&& newName != null) {
-						DNDUpdateBlockNameFeature updateBlockName = new DNDUpdateBlockNameFeature(
-								featureProv);
+					if (TypePropertyUtil.isBlockNameText(text) && newName != null) {
+						DNDUpdateBlockNameFeature updateBlockName = new DNDUpdateBlockNameFeature(featureProv);
 						updateBlockName.update(context);
 						this.hasDoneChanges = true;
-					} else if (TypePropertyUtil.isPositionText(text)
-							&& newPosition != null) {
-						DNDUpdatePositionFeature updatePosition = new DNDUpdatePositionFeature(
-								featureProv);
+					} else if (TypePropertyUtil.isPositionText(text) && newPosition != null) {
+						DNDUpdatePositionFeature updatePosition = new DNDUpdatePositionFeature(featureProv);
 						updatePosition.update(context);
 						this.hasDoneChanges = true;
 					}

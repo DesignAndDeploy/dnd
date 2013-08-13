@@ -11,7 +11,8 @@ public interface BeaconListener {
 	/**
 	 * This method is called if a beacon was found.
 	 * 
-	 * @param beacon the beacon that was found
+	 * @param beacon
+	 *            the beacon that was found
 	 */
 	public void beaconFound(final BeaconMessage beacon);
 }

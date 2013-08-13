@@ -39,12 +39,13 @@ public class FunctionBlockFactory {
 	private final JavaClass functionBlockClass;
 
 	private final JavaClass outputClass;
-	
+
 	private final JavaClass inputClass;
-	
+
 	private final JavaClass optionClass;
 
-	private final ConcurrentMap<String, FunctionBlockClass> blocks = new ConcurrentHashMap<String, FunctionBlockClass>();
+	private final ConcurrentMap<String, FunctionBlockClass> blocks =
+			new ConcurrentHashMap<String, FunctionBlockClass>();
 
 	public FunctionBlockFactory(final Repository repository) throws ClassNotFoundException {
 		this.repository = repository;
@@ -61,7 +62,7 @@ public class FunctionBlockFactory {
 	public FunctionBlockFactory(final String classPath) throws ClassNotFoundException {
 		this(new ClassPath(classPath));
 	}
-	
+
 	public FunctionBlockClass getFunctionBlockClass(final Class<?> cls) throws ClassNotFoundException {
 		return getFunctionBlockClass(cls.getCanonicalName());
 	}
@@ -97,7 +98,8 @@ public class FunctionBlockFactory {
 				if (type instanceof ObjectType) {
 					if (blockType == null && "BLOCK_TYPE".equals(field.getName())) {
 						final ConstantPool cp = field.getConstantPool();
-						ConstantString sc = ((ConstantString) cp.getConstant(field.getConstantValue().getConstantValueIndex()));
+						ConstantString sc =
+								((ConstantString) cp.getConstant(field.getConstantValue().getConstantValueIndex()));
 						ConstantUtf8 c = (ConstantUtf8) cp.getConstant(sc.getStringIndex(), Constants.CONSTANT_Utf8);
 						blockType = Utility.convertString(((ConstantUtf8) c).getBytes());
 					}
@@ -112,7 +114,8 @@ public class FunctionBlockFactory {
 				} else if (type instanceof BasicType) {
 					if (updateInterval == null && "BLOCK_UPDATE_INTERVAL".equals(field.getName())) {
 						final ConstantPool cp = field.getConstantPool();
-						ConstantLong c = (ConstantLong) cp.getConstant(field.getConstantValue().getConstantValueIndex());
+						ConstantLong c =
+								(ConstantLong) cp.getConstant(field.getConstantValue().getConstantValueIndex());
 						updateInterval = c.getBytes();
 					}
 				}
@@ -121,7 +124,7 @@ public class FunctionBlockFactory {
 		}
 		return new FunctionBlockClass(cls, blockType, updateInterval, inputs, outputs, options);
 	}
-	
+
 	private JavaClass getGenericAttribute(final Field field) throws ClassNotFoundException {
 		for (final Attribute attribute : field.getAttributes()) {
 			if (attribute instanceof Signature) {

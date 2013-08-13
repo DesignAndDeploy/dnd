@@ -7,7 +7,7 @@ import java.util.Queue;
 
 /**
  * Does a depth first walk over a BlockTypeHolder.
- *
+ * 
  * @author Philipp Adolf
  */
 public class BlockTypeHolderIterator implements Iterator<BlockTypeHolder>, Iterable<BlockTypeHolder> {
@@ -15,11 +15,12 @@ public class BlockTypeHolderIterator implements Iterator<BlockTypeHolder>, Itera
 	 * Queue for BlockTypeHolders that have not yet been visited.
 	 */
 	private final Queue<BlockTypeHolder> holders = new LinkedList<BlockTypeHolder>();
-	
+
 	/**
 	 * Creates a new iterator with a given root.
 	 * 
-	 * @param root the root BlockTypeHolder
+	 * @param root
+	 *            the root BlockTypeHolder
 	 */
 	public BlockTypeHolderIterator(final BlockTypeHolder root) {
 		holders.add(root);

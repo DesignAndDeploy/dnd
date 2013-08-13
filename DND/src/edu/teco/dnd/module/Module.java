@@ -70,7 +70,9 @@ public class Module {
 		return location;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -84,7 +86,9 @@ public class Module {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -129,7 +133,7 @@ public class Module {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Module[uuid=" + uuid + ",name=" + name + ",location=" + location + "]";

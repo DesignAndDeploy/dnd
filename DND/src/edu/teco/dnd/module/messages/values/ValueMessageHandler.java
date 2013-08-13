@@ -23,13 +23,18 @@ public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 		try {
 			associatedApp.receiveValue(message.blockId, message.input, message.value);
 		} catch (NonExistentFunctionblockException e) {
-			returnMsg = new ValueNak(message.getApplicationID(), ValueNak.ErrorType.WRONG_MODULE, message.blockId, message.input);
+			returnMsg =
+					new ValueNak(message.getApplicationID(), ValueNak.ErrorType.WRONG_MODULE, message.blockId,
+							message.input);
 		} catch (NonExistentInputException e) {
-			returnMsg =  new ValueNak(message.getApplicationID(), ValueNak.ErrorType.INVALID_INPUT, message.blockId, message.input);
+			returnMsg =
+					new ValueNak(message.getApplicationID(), ValueNak.ErrorType.INVALID_INPUT, message.blockId,
+							message.input);
 		} catch (Exception e) {
-			returnMsg = new ValueNak(message.getApplicationID(), ValueNak.ErrorType.OTHER, message.blockId, message.input);
+			returnMsg =
+					new ValueNak(message.getApplicationID(), ValueNak.ErrorType.OTHER, message.blockId, message.input);
 		}
-		
+
 		if (returnMsg == null) {
 			returnMsg = new ValueAck(message.getApplicationID());
 		}

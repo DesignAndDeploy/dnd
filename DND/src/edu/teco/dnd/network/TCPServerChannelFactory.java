@@ -26,13 +26,13 @@ class TCPServerChannelFactory {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(TCPServerChannelFactory.class);
-	
+
 	private final ChannelFactory<? extends ServerSocketChannel> parentFactory;
-	
+
 	private final EventLoopGroup eventLoopGroup;
-	
+
 	private final ChannelHandler childHandler;
-	
+
 	TCPServerChannelFactory(final ChannelFactory<? extends ServerSocketChannel> parentFactory,
 			final EventLoopGroup eventLoopGroup, final ChannelHandler childHandler) {
 		LOGGER.entry(parentFactory, eventLoopGroup);
@@ -45,9 +45,9 @@ class TCPServerChannelFactory {
 	public ChannelFuture bind(final InetSocketAddress address) {
 		LOGGER.entry(address);
 		final ServerSocketChannel channel = parentFactory.newChannel();
-		
+
 		channel.pipeline().addLast(new TCPServerAcceptor());
-		
+
 		final ChannelPromise regPromise = channel.newPromise();
 		LOGGER.debug("registering channel {} with promise {}", channel, regPromise);
 		eventLoopGroup.register(channel, regPromise);
@@ -61,7 +61,7 @@ class TCPServerChannelFactory {
 			LOGGER.exit(regPromise);
 			return regPromise;
 		}
-		
+
 		final ChannelPromise promise = channel.newPromise();
 		if (regPromise.isDone()) {
 			LOGGER.debug("doing bind now");
@@ -75,10 +75,10 @@ class TCPServerChannelFactory {
 				}
 			});
 		}
-		
+
 		return promise;
 	}
-	
+
 	private void doBind(final ChannelFuture regFuture, final ServerSocketChannel channel,
 			final InetSocketAddress address, final ChannelPromise promise) {
 		channel.eventLoop().execute(new Runnable() {
@@ -92,7 +92,7 @@ class TCPServerChannelFactory {
 			}
 		});
 	}
-	
+
 	private class TCPServerAcceptor extends SimpleChannelInboundHandler<Channel> {
 		@Override
 		public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
@@ -116,9 +116,9 @@ class TCPServerChannelFactory {
 		protected void channelRead0(ChannelHandlerContext ctx, Channel msg) throws Exception {
 			ThreadContext.put("serverAddress", ctx.channel().localAddress().toString());
 			LOGGER.entry(ctx);
-			
+
 			msg.pipeline().addLast(childHandler);
-			
+
 			try {
 				eventLoopGroup.register(msg);
 			} catch (final Throwable t) {

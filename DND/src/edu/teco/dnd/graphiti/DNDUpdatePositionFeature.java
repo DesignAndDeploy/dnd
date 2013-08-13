@@ -15,8 +15,7 @@ import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
 /**
- * This class is used to update options if they are changed in the underlying
- * model.
+ * This class is used to update options if they are changed in the underlying model.
  * 
  * @author philipp
  */
@@ -24,8 +23,7 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager
-			.getLogger(DNDUpdatePositionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(DNDUpdatePositionFeature.class);
 
 	/**
 	 * Initializes a new DNDUpdateOptionFeature.
@@ -43,8 +41,7 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 		PictogramElement pe = context.getPictogramElement();
 		GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 		Object bo = getBusinessObjectForPictogramElement(pe);
-		if (TypePropertyUtil.isPositionText(ga)
-				&& bo instanceof FunctionBlockModel) {
+		if (TypePropertyUtil.isPositionText(ga) && bo instanceof FunctionBlockModel) {
 			LOGGER.exit(true);
 			return true;
 		}
@@ -89,11 +86,11 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 	}
 
 	/**
-	 * This update-method is called by the DNDCustomUpdateFeature. It offers an
-	 * alternative to the not-working update button, that should
-	 * appear in graphiti by default.
+	 * This update-method is called by the DNDCustomUpdateFeature. It offers an alternative to the not-working update
+	 * button, that should appear in graphiti by default.
 	 * 
-	 * @param context Context offered by the DNDCustomUpdateFeature
+	 * @param context
+	 *            Context offered by the DNDCustomUpdateFeature
 	 * @return if completed successfully.
 	 */
 	protected boolean update(final ICustomContext context) {

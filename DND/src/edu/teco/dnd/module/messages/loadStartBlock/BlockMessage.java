@@ -15,14 +15,15 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	public static final String MESSAGE_TYPE = "block";
 
 	public final String blockClass;
-	
+
 	public final UUID blockUUID;
-	
+
 	public final Map<String, String> options;
-	
+
 	public final Map<String, Collection<ValueDestination>> outputs;
 
-	public BlockMessage(UUID uuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options, Map<String, Collection<ValueDestination>> outputs) {
+	public BlockMessage(UUID uuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
+			Map<String, Collection<ValueDestination>> outputs) {
 		super(uuid, appId);
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
@@ -36,7 +37,8 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		}
 	}
 
-	public BlockMessage(UUID appId, String blockClass, UUID blockUUID, Map<String, String> options, Map<String, Collection<ValueDestination>> outputs) {
+	public BlockMessage(UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
+			Map<String, Collection<ValueDestination>> outputs) {
 		super(appId);
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
@@ -54,10 +56,8 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result
-				+ ((blockClass == null) ? 0 : blockClass.hashCode());
-		result = prime * result
-				+ ((blockUUID == null) ? 0 : blockUUID.hashCode());
+		result = prime * result + ((blockClass == null) ? 0 : blockClass.hashCode());
+		result = prime * result + ((blockUUID == null) ? 0 : blockUUID.hashCode());
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		return result;
 	}
@@ -91,7 +91,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 
 	@Override
 	public String toString() {
-		return "BlockMessage[uuid=" + getUUID() + ",blockClass=" + blockClass + ", blockUUID="
-				+ blockUUID + ", options=" + options + "]";
+		return "BlockMessage[uuid=" + getUUID() + ",blockClass=" + blockClass + ", blockUUID=" + blockUUID
+				+ ", options=" + options + "]";
 	}
 }

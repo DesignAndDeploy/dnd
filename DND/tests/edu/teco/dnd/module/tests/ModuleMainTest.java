@@ -51,7 +51,8 @@ public class ModuleMainTest {
 			InetSocketAddress[] announce = new InetSocketAddress[1];
 			announce[0] = new InetSocketAddress("localhost", 8888);
 			NetConnection[] multicast = new NetConnection[1];
-			multicast[0] = new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getByName("lo"));
+			multicast[0] =
+					new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getByName("lo"));
 
 			Set<BlockTypeHolder> secondLevelChild = new HashSet<BlockTypeHolder>();
 			secondLevelChild.add(new BlockTypeHolder("child1TYPE", 2));
@@ -80,7 +81,8 @@ public class ModuleMainTest {
 			announce[0] = new InetSocketAddress("localhost", 8889);
 
 			NetConnection[] multicast = new NetConnection[1];
-			multicast[0] = new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getByName("lo"));
+			multicast[0] =
+					new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getByName("lo"));
 
 			Set<BlockTypeHolder> secondLevelChild = new HashSet<BlockTypeHolder>();
 			secondLevelChild.add(new BlockTypeHolder("child1TYPE", 2));

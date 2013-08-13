@@ -12,23 +12,24 @@ public abstract class Message {
 	 * The UUID of this Message.
 	 */
 	private final UUID uuid;
-	
+
 	/**
 	 * Initializes a new Message with a given UUID.
 	 * 
-	 * @param uuid the UUID to use for this Message
+	 * @param uuid
+	 *            the UUID to use for this Message
 	 */
 	public Message(final UUID uuid) {
 		this.uuid = uuid;
 	}
-	
+
 	/**
 	 * Initializes a new Message with a random UUID.
 	 */
 	public Message() {
 		this.uuid = UUID.randomUUID();
 	}
-	
+
 	/**
 	 * Returns the UUID of the Message.
 	 * 
@@ -38,7 +39,9 @@ public abstract class Message {
 		return this.uuid;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -49,7 +52,9 @@ public abstract class Message {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -74,14 +79,14 @@ public abstract class Message {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "Message [uuid=" + uuid + "]";
 	}
-	
-	
-	
+
 }

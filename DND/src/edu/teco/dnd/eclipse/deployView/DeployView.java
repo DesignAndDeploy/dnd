@@ -67,11 +67,9 @@ import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.StringUtil;
 
 /**
- * This class gives the user access to all functionality needed to deploy an
- * application. The user can load an existing data flow graph, rename its
- * function blocks and constrain them to specific modules and / or places. The
- * user can also create a distribution and deploy the function blocks on the
- * modules.
+ * This class gives the user access to all functionality needed to deploy an application. The user can load an existing
+ * data flow graph, rename its function blocks and constrain them to specific modules and / or places. The user can also
+ * create a distribution and deploy the function blocks on the modules.
  * 
  */
 public class DeployView extends EditorPart implements ModuleManagerListener {
@@ -80,7 +78,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
-	
+
 	/**
 	 * Key code for the 'enter' key.
 	 */
@@ -121,7 +119,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private FunctionBlockModel selectedBlockModel;
 	private Map<FunctionBlockModel, UUID> moduleConstraints = new HashMap<FunctionBlockModel, UUID>();
 	private Map<FunctionBlockModel, String> placeConstraints = new HashMap<FunctionBlockModel, String>();
-	
+
 	private URL[] classPath = new URL[0];
 
 	@Override
@@ -130,8 +128,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	@Override
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		LOGGER.entry(site, input);
 		setSite(site);
 		setInput(input);
@@ -140,9 +137,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		manager = activator.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
-			LOGGER.trace(
-					"Display.getCurrent() returned null, using Display.getDefault(): {}",
-					display);
+			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
 		}
 		manager.addModuleManagerListener(this);
 		LOGGER.exit();
@@ -248,8 +243,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Adds representation of a functionBlockModel that has just been added to
-	 * the functionBlockModels list.
+	 * Adds representation of a functionBlockModel that has just been added to the functionBlockModels list.
 	 * 
 	 * @param model
 	 *            FunctionBlockModel to add.
@@ -272,17 +266,15 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Replaces a FunctionBlockModel another FunctionBlockModel. This method
-	 * does NOT add the newBlock to the functionBlockModels list but takes care
-	 * of everything else - representation and constraints.
+	 * Replaces a FunctionBlockModel another FunctionBlockModel. This method does NOT add the newBlock to the
+	 * functionBlockModels list but takes care of everything else - representation and constraints.
 	 * 
 	 * @param oldBlock
 	 *            old Block
 	 * @param newBlock
 	 *            new Block.
 	 */
-	private void replaceBlock(FunctionBlockModel oldBlock,
-			FunctionBlockModel newBlock) {
+	private void replaceBlock(FunctionBlockModel oldBlock, FunctionBlockModel newBlock) {
 		TableItem item = getItem(oldBlock);
 		UUID module = moduleConstraints.get(oldBlock);
 		moduleConstraints.remove(oldBlock);
@@ -332,11 +324,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
-		constraints
-				.add(new UserConstraints(moduleConstraints, placeConstraints));
+		constraints.add(new UserConstraints(moduleConstraints, placeConstraints));
 
-		DistributionGenerator generator = new DistributionGenerator(
-				new MinimalModuleCountEvaluator(), constraints);
+		DistributionGenerator generator = new DistributionGenerator(new MinimalModuleCountEvaluator(), constraints);
 		Distribution dist = generator.getDistribution(functionBlocks, moduleCollection);
 
 		if (dist == null) {
@@ -345,11 +335,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			mapBlockToTarget = dist.getMapping();
 			for (FunctionBlockModel block : mapBlockToTarget.keySet()) {
 				TableItem item = getItem(block);
-				final String name = mapBlockToTarget.get(block).getModule()
-						.getName();
+				final String name = mapBlockToTarget.get(block).getModule().getName();
 				item.setText(3, name == null ? "" : name);
-				final String location = mapBlockToTarget.get(block).getModule()
-						.getLocation();
+				final String location = mapBlockToTarget.get(block).getModule().getLocation();
 				item.setText(4, location == null ? "" : location);
 				deployButton.setEnabled(true);
 				newConstraints = false;
@@ -372,20 +360,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				return;
 			}
 		}
-		
-		final Dependencies dependencies = new Dependencies(
-				StringUtil.joinArray(classPath, ":"),
-				Arrays.asList(
-						Pattern.compile("java\\..*"),
-						Pattern.compile("edu\\.teco\\.dnd\\..*"),
-						Pattern.compile("com\\.google\\.gson\\..*"),
-						Pattern.compile("org\\.apache\\.bcel\\..*"),
-						Pattern.compile("io\\.netty\\..*"),
-						Pattern.compile("org\\.apache\\.logging\\.log4j")
-				)
-			);
-		final Deploy deploy = new Deploy(Activator.getDefault().getConnectionManager(), mapBlockToTarget, appName.getText(), dependencies);
-		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes or to run code at that point
+
+		final Dependencies dependencies =
+				new Dependencies(StringUtil.joinArray(classPath, ":"), Arrays.asList(Pattern.compile("java\\..*"),
+						Pattern.compile("edu\\.teco\\.dnd\\..*"), Pattern.compile("com\\.google\\.gson\\..*"),
+						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"),
+						Pattern.compile("org\\.apache\\.logging\\.log4j")));
+		final Deploy deploy =
+				new Deploy(Activator.getDefault().getConnectionManager(), mapBlockToTarget, appName.getText(),
+						dependencies);
+		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes
+		// or to run code at that point
 		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
 			@Override
 			public void operationComplete(FutureNotifier<? super Void> future) {
@@ -399,33 +384,27 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 			@Override
 			public void moduleJoined(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} joined Application {}", moduleUUID,
-						appId);
+				LOGGER.debug("Module {} joined Application {}", moduleUUID, appId);
 			}
 
 			@Override
 			public void moduleLoadedClasses(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} loaded all classes for Application {}",
-						moduleUUID, appId);
+				LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, appId);
 			}
 
 			@Override
 			public void moduleLoadedBlocks(UUID appId, UUID moduleUUID) {
-				LOGGER.debug(
-						"Module {} loaded all FunctionBlocks for Application {}",
-						moduleUUID, appId);
+				LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
 			}
 
 			@Override
 			public void moduleStarted(final UUID appId, final UUID moduleUUID) {
-				LOGGER.debug("Module {} started the Application {}",
-						moduleUUID, appId);
+				LOGGER.debug("Module {} started the Application {}", moduleUUID, appId);
 			}
 
 			@Override
 			public void deployFailed(UUID appId, Throwable cause) {
-				LOGGER.debug("deploying Application {} failed: {}", appId,
-						cause);
+				LOGGER.debug("deploying Application {} failed: {}", appId, cause);
 			}
 		});
 		deploy.deploy();
@@ -433,11 +412,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Invoked whenever a Function BlockModel from the deploymentTable is
-	 * selected.
+	 * Invoked whenever a Function BlockModel from the deploymentTable is selected.
 	 */
 	protected void blockModelSelected() {
-		if (!idList.isEmpty()){
+		if (!idList.isEmpty()) {
 			moduleCombo.setEnabled(true);
 		}
 		places.setEnabled(true);
@@ -453,8 +431,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			} else {
 				places.setText("");
 			}
-			selectedIndex = idList.indexOf(moduleConstraints
-					.get(selectedBlockModel)) + 1;
+			selectedIndex = idList.indexOf(moduleConstraints.get(selectedBlockModel)) + 1;
 			moduleCombo.select(selectedIndex);
 		}
 	}
@@ -500,14 +477,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 		selectedBlockModel.setBlockName(this.blockModelName.getText());
 		selectedItem.setText(0, blockModelName.getText());
-		
+
 		try {
 			resource.save(null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		newConstraints = true;
 	}
 
@@ -557,8 +534,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Loads the FunctinoBlockModels of a data flow graph and displays them in
-	 * the deployment table.
+	 * Loads the FunctinoBlockModels of a data flow graph and displays them in the deployment table.
 	 * 
 	 * @param input
 	 *            the input of the editor
@@ -573,7 +549,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			} else {
 				classPath = new URL[0];
 			}
-			
+
 			try {
 				functionBlocks = loadInput((FileEditorInput) input);
 			} catch (IOException e) {
@@ -605,19 +581,16 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Loads the given data flow graph. The file given in the editor input must
-	 * be a valid graph. Its function block models are loaded into a list and
-	 * returned.
+	 * Loads the given data flow graph. The file given in the editor input must be a valid graph. Its function block
+	 * models are loaded into a list and returned.
 	 * 
 	 * @param input
 	 *            the input of the editor
-	 * @return a collection of FunctionBlockModels that were defined in the
-	 *         model
+	 * @return a collection of FunctionBlockModels that were defined in the model
 	 * @throws IOException
 	 *             if reading fails
 	 */
-	private Collection<FunctionBlockModel> loadInput(final FileEditorInput input)
-			throws IOException {
+	private Collection<FunctionBlockModel> loadInput(final FileEditorInput input) throws IOException {
 		LOGGER.entry(input);
 		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
 		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
@@ -650,9 +623,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Returns a Collection of currently running modules that are already
-	 * resolved. Does not contain modules that haven't been resolved from their
-	 * UUID yet.
+	 * Returns a Collection of currently running modules that are already resolved. Does not contain modules that
+	 * haven't been resolved from their UUID yet.
 	 * 
 	 * @return collection of currently running modules to deploy on.
 	 */
@@ -786,8 +758,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				text = text.concat(id.toString());
 				moduleCombo.setItem(comboIndex, text);
 				if (moduleConstraints.containsValue(id)) {
-					for (FunctionBlockModel blockModel : moduleConstraints
-							.keySet()) {
+					for (FunctionBlockModel blockModel : moduleConstraints.keySet()) {
 						getItem(blockModel).setText(1, text);
 					}
 				}
@@ -831,8 +802,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				updateModulesButton.setEnabled(false);
 				createButton.setEnabled(false);
 				resetDeployment();
-				moduleCombo
-						.setToolTipText(DeployViewTexts.SELECTMODULEOFFLINE_TOOLTIP);
+				moduleCombo.setToolTipText(DeployViewTexts.SELECTMODULEOFFLINE_TOOLTIP);
 				synchronized (DeployView.this) {
 					while (!idList.isEmpty()) {
 						removeID(idList.get(0)); // TODO: Unschön, aber geht
@@ -881,24 +851,24 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			}
 		});
 
-		blockModelName.addKeyListener(new KeyAdapter(){
-			public void keyReleased(KeyEvent e){
-				if (e.keyCode == ENTER){
+		blockModelName.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == ENTER) {
 					DeployView.this.saveConstraints();
 				}
 			}
 		});
-		
+
 		moduleCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.moduleSelected();
 			}
 		});
-		
-		places.addKeyListener(new KeyAdapter(){
-			public void keyReleased(KeyEvent e){
-				if (e.keyCode == ENTER){
+
+		places.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == ENTER) {
 					DeployView.this.saveConstraints();
 				}
 			}

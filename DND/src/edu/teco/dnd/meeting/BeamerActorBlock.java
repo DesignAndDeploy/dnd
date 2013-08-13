@@ -42,7 +42,7 @@ public class BeamerActorBlock extends FunctionBlock {
 		if (beamer == null) {
 			return;
 		}
-		
+
 		// only act on most recent value
 		Boolean beamerState = null;
 		while (beamer.hasMoreValues()) {

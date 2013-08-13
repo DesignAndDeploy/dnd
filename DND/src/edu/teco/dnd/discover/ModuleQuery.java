@@ -13,25 +13,25 @@ import edu.teco.dnd.util.FutureNotifier;
 
 public class ModuleQuery {
 	private final ConnectionManager connectionManager;
-	
+
 	public ModuleQuery(final ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 	}
-	
+
 	public ModuleInfoFutureNotifier getModuleInfo(final UUID moduleUUID) {
 		final ModuleInfoFutureNotifier notifier = new ModuleInfoFutureNotifier(moduleUUID);
 		connectionManager.sendMessage(moduleUUID, new RequestModuleInfoMessage()).addListener(notifier);
 		return notifier;
 	}
-	
-	public static class ModuleInfoFutureNotifier
-			extends DefaultFutureNotifier<Module> implements FutureListener<FutureNotifier<Response>> {
+
+	public static class ModuleInfoFutureNotifier extends DefaultFutureNotifier<Module> implements
+			FutureListener<FutureNotifier<Response>> {
 		private final UUID moduleUUID;
-		
+
 		public ModuleInfoFutureNotifier(final UUID moduleUUID) {
 			this.moduleUUID = moduleUUID;
 		}
-		
+
 		public UUID getModuleUUID() {
 			return this.moduleUUID;
 		}

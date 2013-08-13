@@ -35,8 +35,7 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	}
 
 	/**
-	 * Checks if there is a meeting and accordingly sets the text to be shown on the display ("frei" oder
-	 * "besetzt").
+	 * Checks if there is a meeting and accordingly sets the text to be shown on the display ("frei" oder "besetzt").
 	 */
 	@Override
 	public void update() {

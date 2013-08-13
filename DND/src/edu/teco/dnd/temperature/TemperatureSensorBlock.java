@@ -19,7 +19,7 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	 * 
 	 */
 	private static final long serialVersionUID = -1362359340515519805L;
-	
+
 	public static final String BLOCK_TYPE = "sensorTemperature";
 
 	/**

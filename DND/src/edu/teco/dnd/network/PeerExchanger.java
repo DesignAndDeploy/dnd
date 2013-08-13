@@ -25,26 +25,26 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(PeerExchanger.class);
-	
+
 	private final Map<UUID, Set<InetSocketAddress>> modules = new HashMap<UUID, Set<InetSocketAddress>>();
-	
+
 	private final AtomicReference<PeerMessage> peerMessage = new AtomicReference<PeerMessage>(new PeerMessage());
-	
+
 	private final ReadWriteLock modulesLock = new ReentrantReadWriteLock();
-	
+
 	private final TCPConnectionManager connectionManager;
-	
+
 	public PeerExchanger(final TCPConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 		this.connectionManager.addConnectionListener(this);
 		this.connectionManager.addHandler(PeerMessage.class, this);
 	}
-	
+
 	public boolean addModule(final UUID uuid, final Collection<? extends InetSocketAddress> addresses) {
 		if (addresses == null || addresses.isEmpty()) {
 			return false;
 		}
-		
+
 		boolean changed = false;
 		modulesLock.writeLock().lock();
 		try {
@@ -57,7 +57,7 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 		}
 		return changed;
 	}
-	
+
 	public boolean addModules(final Map<UUID, ? extends Collection<? extends InetSocketAddress>> modules) {
 		boolean changed = false;
 		modulesLock.writeLock().lock();
@@ -73,7 +73,7 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 		}
 		return changed;
 	}
-	
+
 	private boolean putAddress(final UUID uuid, final Collection<? extends InetSocketAddress> addresses) {
 		Set<InetSocketAddress> oldSet = modules.get(uuid);
 		if (oldSet == null) {
@@ -85,14 +85,15 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 
 	@Override
 	public void connectionEstablished(final UUID uuid) {
-		connectionManager.sendMessage(uuid, peerMessage.get()).addListener(new FutureListener<FutureNotifier<? super Response>>() {
-			@Override
-			public void operationComplete(final FutureNotifier<? super Response> future) throws Exception {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("{}: {} {}", future, future.getNow(), future.cause());
-				}
-			}
-		});
+		connectionManager.sendMessage(uuid, peerMessage.get()).addListener(
+				new FutureListener<FutureNotifier<? super Response>>() {
+					@Override
+					public void operationComplete(final FutureNotifier<? super Response> future) throws Exception {
+						if (LOGGER.isDebugEnabled()) {
+							LOGGER.debug("{}: {} {}", future, future.getNow(), future.cause());
+						}
+					}
+				});
 	}
 
 	@Override

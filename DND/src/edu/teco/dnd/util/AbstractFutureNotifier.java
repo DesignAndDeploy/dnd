@@ -6,34 +6,34 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Implements {@link FutureNotifier#get()} and {@link FutureNotifier#get(long, TimeUnit)}.
- *
+ * 
  * @author Philipp Adolf
  */
 public abstract class AbstractFutureNotifier<V> implements FutureNotifier<V> {
 	@Override
 	public V get() throws InterruptedException, ExecutionException {
 		await();
-		
+
 		final Throwable cause = cause();
 		if (cause != null) {
 			throw new ExecutionException(cause);
 		}
-		
+
 		return getNow();
 	}
-	
+
 	@Override
-	public V get(final long timeout, final TimeUnit unit)
-			throws InterruptedException, TimeoutException, ExecutionException {
+	public V get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException,
+			ExecutionException {
 		if (await(timeout, unit)) {
 			final Throwable cause = cause();
 			if (cause != null) {
 				throw new ExecutionException(cause);
 			}
-			
+
 			return getNow();
 		}
-		
+
 		throw new TimeoutException();
 	}
 }

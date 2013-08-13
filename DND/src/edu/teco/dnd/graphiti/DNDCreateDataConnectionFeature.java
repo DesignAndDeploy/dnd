@@ -31,7 +31,8 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 	 *            the feature provider
 	 */
 	public DNDCreateDataConnectionFeature(final DNDFeatureProvider fp) {
-		super(fp, Messages.DNDCreateDataConnectionFeature_CreatConnection_Short_Info, Messages.DNDCreateDataConnectionFeature_CreateConnection_Long_Info);
+		super(fp, Messages.DNDCreateDataConnectionFeature_CreatConnection_Short_Info,
+				Messages.DNDCreateDataConnectionFeature_CreateConnection_Long_Info);
 	}
 
 	/**
@@ -51,11 +52,11 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 		Object sourceBo = getBusinessObjectForPictogramElement(sourceAnchor);
 		Object targetBo = getBusinessObjectForPictogramElement(targetAnchor);
 		if (sourceBo instanceof OutputModel && targetBo instanceof InputModel) {
-			return ((OutputModel) sourceBo).isCompatible(
-					((DNDFeatureProvider) getFeatureProvider()).getRepository(), (InputModel) targetBo);
+			return ((OutputModel) sourceBo).isCompatible(((DNDFeatureProvider) getFeatureProvider()).getRepository(),
+					(InputModel) targetBo);
 		} else if (sourceBo instanceof InputModel && targetBo instanceof OutputModel) {
-			return ((InputModel) sourceBo).isCompatible(
-					((DNDFeatureProvider) getFeatureProvider()).getRepository(), (OutputModel) targetBo);
+			return ((InputModel) sourceBo).isCompatible(((DNDFeatureProvider) getFeatureProvider()).getRepository(),
+					(OutputModel) targetBo);
 		}
 		return false;
 	}

@@ -8,7 +8,6 @@ import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
 
 public class MissingApplicationHandler implements MessageHandler<Message> {
-	
 
 	@Override
 	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, Message message) {

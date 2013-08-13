@@ -17,11 +17,10 @@ import com.google.gson.JsonSerializer;
 
 /**
  * A Gson adapter that handles InetSocketAddresses.
- *
+ * 
  * @author Philipp Adolf
  */
-public class InetSocketAddressAdapter implements JsonSerializer<InetSocketAddress>,
-	JsonDeserializer<InetSocketAddress> {
+public class InetSocketAddressAdapter implements JsonSerializer<InetSocketAddress>, JsonDeserializer<InetSocketAddress> {
 	/**
 	 * The logger for this class.
 	 */

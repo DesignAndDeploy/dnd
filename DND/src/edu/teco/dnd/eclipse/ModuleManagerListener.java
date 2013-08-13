@@ -6,9 +6,8 @@ import java.util.UUID;
 import edu.teco.dnd.module.Module;
 
 /**
- * Provides information on running Modules (UUIDs and Module objects) and on
- * Server State. In general: All information needed by the views and editors,
- * can be extended if additional information needed.
+ * Provides information on running Modules (UUIDs and Module objects) and on Server State. In general: All information
+ * needed by the views and editors, can be extended if additional information needed.
  * 
  * @author jung
  * 
@@ -42,8 +41,7 @@ public interface ModuleManagerListener {
 	void moduleResolved(UUID id, Module module);
 
 	/**
-	 * Informs that server is Online and provides HashMap of Modules that are
-	 * already running.
+	 * Informs that server is Online and provides HashMap of Modules that are already running.
 	 * 
 	 * @return
 	 */

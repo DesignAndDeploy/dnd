@@ -10,7 +10,7 @@ import edu.teco.dnd.module.Module;
 
 /**
  * An EvaluationStrategy that rates higher the higher the number of used modules is.
- *
+ * 
  * @author Philipp Adolf
  */
 public class MaximalModuleCountEvaluator implements EvaluationStrategy {

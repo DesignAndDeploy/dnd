@@ -109,12 +109,16 @@ public class ModuleApplicationManager {
 
 	/**
 	 * Schedules a FunctionBlock to be started, when StartApp() is called.
-	 *
-	 * @param blockClass the class of the FunctionBlock
-	 * @param blockUUID the UUID of the FunctionBlock
-	 * @param options the options for the FunctionBlock
+	 * 
+	 * @param blockClass
+	 *            the class of the FunctionBlock
+	 * @param blockUUID
+	 *            the UUID of the FunctionBlock
+	 * @param options
+	 *            the options for the FunctionBlock
 	 */
-	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID, final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs) {
+	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID,
+			final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs) {
 		isShuttingDown.readLock().lock();
 		try {
 			final Application application = runningApps.get(appId);
@@ -219,22 +223,24 @@ public class ModuleApplicationManager {
 	 *            the block to start.
 	 * @return true iff starting was successful.
 	 */
-	public boolean startBlock(UUID appId, final String blockClass, final UUID blockUUID, final Map<String, String> options) {
+	public boolean startBlock(UUID appId, final String blockClass, final UUID blockUUID,
+			final Map<String, String> options) {
 		String blockType = "";
 		// TODO: implement block types
 		// TODO: maybe merge some code with scheduleBlock, there seems to be a lot of redundancy
-//		try {
-//			blockType = BlockRunner.getBlockType(block);
-//		} catch (UserSuppliedCodeException e) {
-//			e.printStackTrace();
-//			return false; // not scheduling bad block.
-//		}
+		// try {
+		// blockType = BlockRunner.getBlockType(block);
+		// } catch (UserSuppliedCodeException e) {
+		// e.printStackTrace();
+		// return false; // not scheduling bad block.
+		// }
 		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 		if (blockAllowed == null) {
 			// do not log the block directly, as that would call block.toString which is untrusted code
 			if (LOGGER.isInfoEnabled()) {
-				// TODO: FunctionBlocks no longer store their own id. Add them back to the class or store them somewhere else
-//				LOGGER.info("Block {} not allowed in App {}({})", block.getID(), runningApps.get(appId), appId);
+				// TODO: FunctionBlocks no longer store their own id. Add them back to the class or store them somewhere
+				// else
+				// LOGGER.info("Block {} not allowed in App {}({})", block.getID(), runningApps.get(appId), appId);
 				LOGGER.info("Block {} not allowed in App {}({})", blockUUID, runningApps.get(appId), appId);
 			}
 			return false;
@@ -284,14 +290,14 @@ public class ModuleApplicationManager {
 		for (FunctionBlock block : blocksKilled) {
 			String blockType = "";
 			// TODO: implement block types
-//			try {
-//				blockType = BlockRunner.getBlockType(block);
-//			} catch (UserSuppliedCodeException e) {
-//				e.printStackTrace();
-//				blockType = "";
-//				// FIXME: If block return a different value during start and shutdown, they can change the maximum
-//				// amount of blocks allowed to run of the latter type.
-//			}
+			// try {
+			// blockType = BlockRunner.getBlockType(block);
+			// } catch (UserSuppliedCodeException e) {
+			// e.printStackTrace();
+			// blockType = "";
+			// // FIXME: If block return a different value during start and shutdown, they can change the maximum
+			// // amount of blocks allowed to run of the latter type.
+			// }
 			BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(blockType);
 			if (holder != null) {
 				holder.increase();

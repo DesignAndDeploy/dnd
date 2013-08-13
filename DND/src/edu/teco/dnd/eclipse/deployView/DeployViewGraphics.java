@@ -14,10 +14,8 @@ import org.eclipse.swt.widgets.Text;
 import edu.teco.dnd.eclipse.Activator;
 
 /**
- * This class is responsible for creating the graphical representations of the
- * buttons, tables, text fields and so on. It only provides the widgets to be
- * used by the View, not the functionality the user experiences while using
- * them.
+ * This class is responsible for creating the graphical representations of the buttons, tables, text fields and so on.
+ * It only provides the widgets to be used by the View, not the functionality the user experiences while using them.
  * 
  * @author jung
  * 
@@ -26,37 +24,37 @@ public class DeployViewGraphics {
 
 	private Activator activator;
 	private Composite parent;
-	
+
 	/**
 	 * Horizontal space between cells.
 	 */
 	public static final int HORIZONTAL_SPACE = 20;
-	
+
 	/**
 	 * Vertical space between cells.
 	 */
 	public static final int VERTICAL_SPACE = 7;
-	
-	public DeployViewGraphics(Composite parent, Activator activator){
+
+	public DeployViewGraphics(Composite parent, Activator activator) {
 		this.activator = activator;
 		this.parent = parent;
 	}
 
-	protected void initializeParent(){
+	protected void initializeParent() {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 4;
 		layout.horizontalSpacing = HORIZONTAL_SPACE;
 		layout.verticalSpacing = VERTICAL_SPACE;
 		parent.setLayout(layout);
 	}
-	
-	protected Label createAppNameLabel(){
+
+	protected Label createAppNameLabel() {
 		Label appName = new Label(parent, SWT.NONE);
 		appName.setText("Loading application...");
 		appName.pack();
 		return appName;
 	}
-	
+
 	protected Button createServerButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
@@ -108,13 +106,12 @@ public class DeployViewGraphics {
 		TableColumn column4 = new TableColumn(deployment, SWT.NONE);
 		column4.setText("Deployed at:");
 		column4.setToolTipText(DeployViewTexts.COLUMN4_TOOLTIP);
-		
+
 		deployment.getColumn(0).pack();
 		deployment.getColumn(1).pack();
 		deployment.getColumn(2).pack();
 		deployment.getColumn(3).pack();
 		deployment.getColumn(4).pack();
-
 
 		return deployment;
 	}
@@ -125,8 +122,7 @@ public class DeployViewGraphics {
 		Button updateModulesButton = new Button(parent, SWT.NONE);
 		updateModulesButton.setLayoutData(data);
 		updateModulesButton.setText("Update Modules");
-		updateModulesButton
-				.setToolTipText(DeployViewTexts.UPDATEMODULES_TOOLTIP);
+		updateModulesButton.setToolTipText(DeployViewTexts.UPDATEMODULES_TOOLTIP);
 		updateModulesButton.pack();
 		return updateModulesButton;
 	}
@@ -223,8 +219,7 @@ public class DeployViewGraphics {
 
 		Button deployButton = new Button(parent, SWT.NONE);
 		deployButton.setText("Deploy");
-		deployButton
-				.setToolTipText(DeployViewTexts.DEPLOY_TOOLTIP);
+		deployButton.setToolTipText(DeployViewTexts.DEPLOY_TOOLTIP);
 		deployButton.setLayoutData(data);
 		return deployButton;
 	}
