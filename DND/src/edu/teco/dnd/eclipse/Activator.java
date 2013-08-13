@@ -17,6 +17,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -236,6 +237,9 @@ public class Activator extends AbstractUIPlugin {
 	 * @return all addresses that describe any of the given ones
 	 */
 	private static Set<InetAddress> resolveAddress(InetAddress address) {
+		if (address == null) {
+			return Collections.emptySet();
+		}
 		final Set<InetAddress> resolvedAddresses = new HashSet<InetAddress>();
 		final String hostname = address.getCanonicalHostName();
 		try {
