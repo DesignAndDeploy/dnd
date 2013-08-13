@@ -27,7 +27,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @param blockID the UUID of this block
 	 * @return true if the block UUID was set, false otherwise
 	 */
-	public synchronized boolean setBlockUUID(final UUID blockID) {
+	public final synchronized boolean setBlockUUID(final UUID blockID) {
 		if (this.blockUUID != null) {
 			return false;
 		}
@@ -40,7 +40,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * 
 	 * @return the UUID of this block or null if it hasn't been set yet
 	 */
-	public synchronized UUID getBlockUUID() {
+	public final synchronized UUID getBlockUUID() {
 		return this.blockUUID;
 	}
 
