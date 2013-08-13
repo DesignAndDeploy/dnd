@@ -101,24 +101,13 @@ public class FunctionBlockFactory {
 						ConstantUtf8 c = (ConstantUtf8) cp.getConstant(sc.getStringIndex(), Constants.CONSTANT_Utf8);
 						blockType = Utility.convertString(((ConstantUtf8) c).getBytes());
 					}
-					for (final Attribute attribute : field.getAttributes()) {
-						if (attribute instanceof Signature) {
-							if (outputClass.getClassName().equals(((ObjectType) type).getClassName())) {
-								if (!inputs.containsKey(field.getName())) {
-									final JavaClass outputType = repository.loadClass(getGenericClassName(((Signature) attribute).getSignature()));
-									outputs.put(field.getName(), outputType);
-								}
-							} else if (inputClass.getClassName().equals(((ObjectType) type).getClassName())) {
-								if (!outputs.containsKey(field.getName())) {
-									final JavaClass inputType = repository.loadClass(getGenericClassName(((Signature) attribute).getSignature()));
-									inputs.put(field.getName(), inputType);
-								}
-							} else if (optionClass.getClassName().equals(((ObjectType) type).getClassName())) {
-								if (!options.contains(field.getName())) {
-									options.add(field.getName());
-								}
-							}
-						}
+					final String typeClassName = ((ObjectType) type).getClassName();
+					if (!inputs.containsKey(field.getName()) && outputClass.getClassName().equals(typeClassName)) {
+						outputs.put(field.getName(), getGenericAttribute(field));
+					} else if (!outputs.containsKey(field.getName()) && inputClass.getClassName().equals(typeClassName)) {
+						inputs.put(field.getName(), getGenericAttribute(field));
+					} else if (optionClass.getClassName().equals(typeClassName)) {
+						options.add(field.getName());
 					}
 				} else if (type instanceof BasicType) {
 					if (updateInterval == null && "BLOCK_UPDATE_INTERVAL".equals(field.getName())) {
@@ -133,6 +122,15 @@ public class FunctionBlockFactory {
 		}
 		System.out.println(updateInterval);
 		return new FunctionBlockClass(cls, blockType, updateInterval, inputs, outputs, options);
+	}
+	
+	private JavaClass getGenericAttribute(final Field field) throws ClassNotFoundException {
+		for (final Attribute attribute : field.getAttributes()) {
+			if (attribute instanceof Signature) {
+				return repository.loadClass(getGenericClassName(((Signature) attribute).getSignature()));
+			}
+		}
+		return null;
 	}
 
 	private static String getGenericClassName(final String signature) {
@@ -154,6 +152,7 @@ public class FunctionBlockFactory {
 		return false;
 	}
 
+	// FIXME: remove once no longer needed for testing
 	public static void main(final String[] args) throws ClassNotFoundException {
 		final FunctionBlockFactory factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
 		final FunctionBlockClass blockClass = factory.getFunctionBlockClass(TemperatureSensorBlock.class);
