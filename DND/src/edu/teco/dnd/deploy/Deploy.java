@@ -474,6 +474,7 @@ public class Deploy {
 		final UUID moduleUUID = module.getUUID();
 		final Collection<FutureNotifier<? extends Response>> futureNotifiers = new ArrayList<FutureNotifier<? extends Response>>();
 		for (final FunctionBlockModel block : moduleMap.get(module)) {
+			LOGGER.debug("sending block {}", block);
 			futureNotifiers.add(sendBlock(moduleUUID, block));
 		}
 		return new JoinedFutureNotifier<Response>(futureNotifiers);

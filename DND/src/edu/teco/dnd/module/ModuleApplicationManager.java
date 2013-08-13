@@ -3,12 +3,15 @@ package edu.teco.dnd.module;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -41,10 +44,10 @@ public class ModuleApplicationManager {
 
 	public UUID localeModuleId;
 	public ConfigReader moduleConfig;
-	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
+	private Map<UUID, Application> runningApps = Collections.synchronizedMap(new HashMap<UUID, Application>());
 	public final int maxAllowedThreadsPerApp;
 	private final ConnectionManager connMan;
-	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
+	private final Set<FunctionBlock> scheduledToStart = Collections.synchronizedSet(new HashSet<FunctionBlock>());
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
 
 	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
@@ -114,14 +117,6 @@ public class ModuleApplicationManager {
 	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID, final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs) {
 		isShuttingDown.readLock().lock();
 		try {
-			String blockType = "";
-			// TODO: implement block types
-//			try {
-//				blockType = BlockRunner.getBlockType(block);
-//			} catch (UserSuppliedCodeException e) {
-//				e.printStackTrace();
-//				return false; // not scheduling bad block.
-//			}
 			final Application application = runningApps.get(appId);
 			Class<?> cls;
 			try {
@@ -161,6 +156,13 @@ public class ModuleApplicationManager {
 				e.printStackTrace();
 				return false;
 			}
+			String blockType = "";
+			try {
+				blockType = block.getBlockType();
+			} catch (Throwable e) {
+				e.printStackTrace();
+				return false; // not scheduling bad block.
+			}
 			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 			if (blockAllowed == null) {
 				LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
@@ -170,8 +172,12 @@ public class ModuleApplicationManager {
 				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", blockType);
 				return false;
 			}
+			LOGGER.info("foo");
 			final Map<String, Output<? extends Serializable>> blockOutputs = block.getOutputs();
+			System.out.println(blockOutputs);
 			for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
+				System.out.println(output.getKey());
+				System.out.println(output.getValue());
 				final Output<? extends Serializable> out = blockOutputs.get(output.getKey());
 				if (out == null) {
 					if (LOGGER.isWarnEnabled()) {
