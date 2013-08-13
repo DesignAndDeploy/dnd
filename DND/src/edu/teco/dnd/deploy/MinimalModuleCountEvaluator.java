@@ -10,7 +10,7 @@ import edu.teco.dnd.module.Module;
 
 /**
  * An EvaluationStrategy that rates higher the lower the number of used modules is.
- *
+ * 
  * @author Philipp Adolf
  */
 public class MinimalModuleCountEvaluator implements EvaluationStrategy {
@@ -27,8 +27,7 @@ public class MinimalModuleCountEvaluator implements EvaluationStrategy {
 	}
 
 	@Override
-	public int upperBound(Distribution distribution,
-			Collection<FunctionBlock> blocks, Collection<Module> modules) {
+	public int upperBound(Distribution distribution, Collection<FunctionBlock> blocks, Collection<Module> modules) {
 		if (distribution.getMapping().isEmpty()) {
 			return Integer.MAX_VALUE;
 		}

@@ -153,7 +153,7 @@ public class Base64 {
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 218 - 230
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 231 - 243
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9 // Decimal 244 - 255
-	};
+			};
 
 	/* ******** U R L S A F E B A S E 6 4 A L P H A B E T ******** */
 
@@ -209,7 +209,7 @@ public class Base64 {
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 218 - 230
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 231 - 243
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9 // Decimal 244 - 255
-	};
+			};
 
 	/* ******** O R D E R E D B A S E 6 4 A L P H A B E T ******** */
 
@@ -264,7 +264,7 @@ public class Base64 {
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 218 - 230
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 231 - 243
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9 // Decimal 244 - 255
-	};
+			};
 
 	/* ******** D E T E R M I N E W H I C H A L H A B E T ******** */
 
@@ -366,9 +366,10 @@ public class Base64 {
 		// significant bytes passed in the array.
 		// We have to shift left 24 in order to flush out the 1's that appear
 		// when Java treats a value as negative that is cast from a byte to an int.
-		int inBuff = (numSigBytes > 0 ? ((source[srcOffset] << 24) >>> 8) : 0)
-				| (numSigBytes > 1 ? ((source[srcOffset + 1] << 24) >>> 16) : 0)
-				| (numSigBytes > 2 ? ((source[srcOffset + 2] << 24) >>> 24) : 0);
+		int inBuff =
+				(numSigBytes > 0 ? ((source[srcOffset] << 24) >>> 8) : 0)
+						| (numSigBytes > 1 ? ((source[srcOffset + 1] << 24) >>> 16) : 0)
+						| (numSigBytes > 2 ? ((source[srcOffset + 2] << 24) >>> 24) : 0);
 
 		switch (numSigBytes) {
 		case 3:
@@ -935,8 +936,8 @@ public class Base64 {
 			// Two ways to do the same thing. Don't know which way I like best.
 			// int outBuff = ( ( DECODABET[ source[ srcOffset ] ] << 24 ) >>> 6 )
 			// | ( ( DECODABET[ source[ srcOffset + 1] ] << 24 ) >>> 12 );
-			int outBuff = ((DECODABET[source[srcOffset]] & 0xFF) << 18)
-					| ((DECODABET[source[srcOffset + 1]] & 0xFF) << 12);
+			int outBuff =
+					((DECODABET[source[srcOffset]] & 0xFF) << 18) | ((DECODABET[source[srcOffset + 1]] & 0xFF) << 12);
 
 			destination[destOffset] = (byte) (outBuff >>> 16);
 			return 1;
@@ -948,9 +949,9 @@ public class Base64 {
 			// int outBuff = ( ( DECODABET[ source[ srcOffset ] ] << 24 ) >>> 6 )
 			// | ( ( DECODABET[ source[ srcOffset + 1 ] ] << 24 ) >>> 12 )
 			// | ( ( DECODABET[ source[ srcOffset + 2 ] ] << 24 ) >>> 18 );
-			int outBuff = ((DECODABET[source[srcOffset]] & 0xFF) << 18)
-					| ((DECODABET[source[srcOffset + 1]] & 0xFF) << 12)
-					| ((DECODABET[source[srcOffset + 2]] & 0xFF) << 6);
+			int outBuff =
+					((DECODABET[source[srcOffset]] & 0xFF) << 18) | ((DECODABET[source[srcOffset + 1]] & 0xFF) << 12)
+							| ((DECODABET[source[srcOffset + 2]] & 0xFF) << 6);
 
 			destination[destOffset] = (byte) (outBuff >>> 16);
 			destination[destOffset + 1] = (byte) (outBuff >>> 8);
@@ -964,9 +965,10 @@ public class Base64 {
 			// | ( ( DECODABET[ source[ srcOffset + 1 ] ] << 24 ) >>> 12 )
 			// | ( ( DECODABET[ source[ srcOffset + 2 ] ] << 24 ) >>> 18 )
 			// | ( ( DECODABET[ source[ srcOffset + 3 ] ] << 24 ) >>> 24 );
-			int outBuff = ((DECODABET[source[srcOffset]] & 0xFF) << 18)
-					| ((DECODABET[source[srcOffset + 1]] & 0xFF) << 12)
-					| ((DECODABET[source[srcOffset + 2]] & 0xFF) << 6) | ((DECODABET[source[srcOffset + 3]] & 0xFF));
+			int outBuff =
+					((DECODABET[source[srcOffset]] & 0xFF) << 18) | ((DECODABET[source[srcOffset + 1]] & 0xFF) << 12)
+							| ((DECODABET[source[srcOffset + 2]] & 0xFF) << 6)
+							| ((DECODABET[source[srcOffset + 3]] & 0xFF));
 
 			destination[destOffset] = (byte) (outBuff >> 16);
 			destination[destOffset + 1] = (byte) (outBuff >> 8);
@@ -1120,7 +1122,7 @@ public class Base64 {
 		catch (java.io.UnsupportedEncodingException uee) {
 			bytes = s.getBytes();
 		} // end catch
-		// </change>
+			// </change>
 
 		// Decode
 		bytes = decode(bytes, 0, bytes.length, options);
@@ -1381,8 +1383,9 @@ public class Base64 {
 			buffer = new byte[(int) file.length()];
 
 			// Open a stream
-			bis = new Base64.InputStream(new java.io.BufferedInputStream(new java.io.FileInputStream(file)),
-					Base64.DECODE);
+			bis =
+					new Base64.InputStream(new java.io.BufferedInputStream(new java.io.FileInputStream(file)),
+							Base64.DECODE);
 
 			// Read until done
 			while ((numBytes = bis.read(buffer, length, 4096)) >= 0) {
@@ -1436,8 +1439,9 @@ public class Base64 {
 			int numBytes = 0;
 
 			// Open a stream
-			bis = new Base64.InputStream(new java.io.BufferedInputStream(new java.io.FileInputStream(file)),
-					Base64.ENCODE);
+			bis =
+					new Base64.InputStream(new java.io.BufferedInputStream(new java.io.FileInputStream(file)),
+							Base64.ENCODE);
 
 			// Read until done
 			while ((numBytes = bis.read(buffer, length, 4096)) >= 0) {

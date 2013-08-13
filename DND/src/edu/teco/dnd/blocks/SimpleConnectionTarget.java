@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 
 /**
- * Class receiving information from an output. Opposed to {@link QueuedConnectionTarget} it does not store
- * received input and as thus only the current state of the output upon calling the methods can be received.
+ * Class receiving information from an output. Opposed to {@link QueuedConnectionTarget} it does not store received
+ * input and as thus only the current state of the output upon calling the methods can be received.
  */
 public class SimpleConnectionTarget extends ConnectionTarget {
 	/**

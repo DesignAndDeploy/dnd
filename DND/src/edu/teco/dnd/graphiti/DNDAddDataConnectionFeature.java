@@ -69,8 +69,7 @@ public class DNDAddDataConnectionFeature extends AbstractAddFeature {
 		IPeCreateService peCreateService = Graphiti.getPeCreateService();
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Connecting {} and {}",
-					getBusinessObjectForPictogramElement(addConContext.getSourceAnchor()),
+			LOGGER.debug("Connecting {} and {}", getBusinessObjectForPictogramElement(addConContext.getSourceAnchor()),
 					getBusinessObjectForPictogramElement(addConContext.getTargetAnchor()));
 		}
 

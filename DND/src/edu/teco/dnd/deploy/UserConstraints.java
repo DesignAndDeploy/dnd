@@ -10,20 +10,20 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
-public class UserConstraints implements Constraint{
+public class UserConstraints implements Constraint {
 
 	private Map<FunctionBlock, UUID> moduleConstraints = new HashMap<FunctionBlock, UUID>();
 	private Map<FunctionBlock, String> placeConstraints = new HashMap<FunctionBlock, String>();
-	
-	public UserConstraints(Map<FunctionBlockModel, UUID> modules, Map<FunctionBlockModel, String> place){
-		for (FunctionBlockModel model : modules.keySet()){
+
+	public UserConstraints(Map<FunctionBlockModel, UUID> modules, Map<FunctionBlockModel, String> place) {
+		for (FunctionBlockModel model : modules.keySet()) {
 			try {
 				moduleConstraints.put(model.createBlock(), modules.get(model));
 			} catch (InvalidFunctionBlockException e) {
 				e.printStackTrace();
 			}
 		}
-		for (FunctionBlockModel model: place.keySet()){
+		for (FunctionBlockModel model : place.keySet()) {
 			try {
 				placeConstraints.put(model.createBlock(), place.get(model));
 			} catch (InvalidFunctionBlockException e) {
@@ -31,26 +31,24 @@ public class UserConstraints implements Constraint{
 			}
 		}
 	}
-	
-	
-	@Override
-	public boolean isAllowed(Distribution distribution, FunctionBlock block,
-			Module module, BlockTypeHolder holder) {
 
-		if (moduleConstraints.containsKey(block)){
+	@Override
+	public boolean isAllowed(Distribution distribution, FunctionBlock block, Module module, BlockTypeHolder holder) {
+
+		if (moduleConstraints.containsKey(block)) {
 			UUID id = module.getUUID();
-			if (!moduleConstraints.get(block).equals(id)){
+			if (!moduleConstraints.get(block).equals(id)) {
 				return false;
 			}
 		}
-		
-		if (placeConstraints.containsKey(block)){
+
+		if (placeConstraints.containsKey(block)) {
 			String place = module.getLocation();
-			if(!placeConstraints.get(block).equals(place)){
+			if (!placeConstraints.get(block).equals(place)) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 

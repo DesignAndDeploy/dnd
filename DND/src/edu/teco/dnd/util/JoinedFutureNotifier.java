@@ -7,29 +7,33 @@ import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Combines multiple FutureNotifiers. If all FutureNotifiers succeed this will succeed as well. If at least one fails this
- * will also be set to be a failure and the cause will be set to the cause of the failed FutureNotifier. If multiple FutureNotifiers
- * fail the cause is set to one of the causes of the failed FutureNotifiers without any guarantee as to which one.
+ * Combines multiple FutureNotifiers. If all FutureNotifiers succeed this will succeed as well. If at least one fails
+ * this will also be set to be a failure and the cause will be set to the cause of the failed FutureNotifier. If
+ * multiple FutureNotifiers fail the cause is set to one of the causes of the failed FutureNotifiers without any
+ * guarantee as to which one.
  * 
  * @author Philipp Adolf
- *
- * @param <T> the type of the result of the FutureNotifiers that should be joined
+ * 
+ * @param <T>
+ *            the type of the result of the FutureNotifiers that should be joined
  */
-public class JoinedFutureNotifier<T> extends DefaultFutureNotifier<Collection<T>> implements FutureListener<FutureNotifier<T>>{
+public class JoinedFutureNotifier<T> extends DefaultFutureNotifier<Collection<T>> implements
+		FutureListener<FutureNotifier<T>> {
 	/**
 	 * The FutureNotifiers that are combined.
 	 */
 	private final Collection<FutureNotifier<? extends T>> futures;
-	
+
 	/**
 	 * The number of FutureNotifiers that have not yet finished. Only relevant in the success case.
 	 */
 	private final AtomicInteger unfinished;
-	
+
 	/**
 	 * Initializes a new JoinedFutureNotifier.
 	 * 
-	 * @param futures the FutureNotifiers that should be joined
+	 * @param futures
+	 *            the FutureNotifiers that should be joined
 	 */
 	public JoinedFutureNotifier(final Collection<FutureNotifier<? extends T>> futures) {
 		this.futures = Collections.unmodifiableSet(new HashSet<FutureNotifier<? extends T>>(futures));

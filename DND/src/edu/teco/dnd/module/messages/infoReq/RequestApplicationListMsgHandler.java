@@ -12,20 +12,20 @@ import edu.teco.dnd.network.messages.Response;
 
 /**
  * Handles {@link RequestApplicationListMessage} by sending an {@link ApplicationListResponse}.
- *
+ * 
  * @author Philipp Adolf
  */
 public class RequestApplicationListMsgHandler implements MessageHandler<RequestApplicationListMessage> {
 	private final UUID moduleUUID;
 	private final ModuleApplicationManager applicationManager;
-	
+
 	public RequestApplicationListMsgHandler(final UUID moduleUUID, final ModuleApplicationManager applicationManager) {
 		this.moduleUUID = moduleUUID;
 		this.applicationManager = applicationManager;
 	}
-	
+
 	@Override
-	public Response handleMessage(final ConnectionManager connectionManager, final  UUID remoteUUID,
+	public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
 			final RequestApplicationListMessage message) {
 		final Map<UUID, String> applications = new HashMap<UUID, String>();
 		for (final Application application : applicationManager.getRunningApps().values()) {

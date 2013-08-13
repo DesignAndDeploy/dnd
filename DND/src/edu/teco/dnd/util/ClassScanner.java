@@ -120,8 +120,8 @@ public class ClassScanner {
 	}
 
 	/**
-	 * Scans the given directory or JAR file (the latter is not yet implemented). Uses the given ClassLoader
-	 * or the ClassLoader this class was loaded with if null is passed.
+	 * Scans the given directory or JAR file (the latter is not yet implemented). Uses the given ClassLoader or the
+	 * ClassLoader this class was loaded with if null is passed.
 	 * 
 	 * @param f
 	 *            the directory or JAR file to scan

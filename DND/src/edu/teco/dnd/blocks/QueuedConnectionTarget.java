@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * Class receiving information from an output. Opposed to {@link SimpleConnectionTarget} it stores received
- * input and as thus the information is not lost, if not immediatly requested.
+ * Class receiving information from an output. Opposed to {@link SimpleConnectionTarget} it stores received input and as
+ * thus the information is not lost, if not immediatly requested.
  */
 public class QueuedConnectionTarget extends ConnectionTarget {
 	/**

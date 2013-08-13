@@ -44,7 +44,7 @@ public class JsonConfig extends ConfigReader {
 			public boolean shouldSkipField(final FieldAttributes f) {
 				return BlockTypeHolder.class.equals(f.getDeclaringClass()) && "amountLeft".equals(f.getName());
 			}
-			
+
 			@Override
 			public boolean shouldSkipClass(final Class<?> clazz) {
 				return false;

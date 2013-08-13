@@ -53,7 +53,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 */
 	@Override
 	public String toString() {
-		return "BlockMessage[block=" + block + ", getApplicationID()="
-				+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
+		return "BlockMessage[block=" + block + ", getApplicationID()=" + getApplicationID() + ", getUUID()="
+				+ getUUID() + "]";
 	}
 }

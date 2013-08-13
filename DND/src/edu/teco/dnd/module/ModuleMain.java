@@ -136,18 +136,19 @@ public class ModuleMain {
 
 		// TODO: name threads (app threads are already named)
 
-		final TCPConnectionManager connectionManager = new TCPConnectionManager(networkEventLoopGroup,
-				networkEventLoopGroup, new ChannelFactory<NioServerSocketChannel>() {
-					@Override
-					public NioServerSocketChannel newChannel() {
-						return new NioServerSocketChannel();
-					}
-				}, new ChannelFactory<NioSocketChannel>() {
-					@Override
-					public NioSocketChannel newChannel() {
-						return new NioSocketChannel();
-					}
-				}, moduleConfig.getUuid());
+		final TCPConnectionManager connectionManager =
+				new TCPConnectionManager(networkEventLoopGroup, networkEventLoopGroup,
+						new ChannelFactory<NioServerSocketChannel>() {
+							@Override
+							public NioServerSocketChannel newChannel() {
+								return new NioServerSocketChannel();
+							}
+						}, new ChannelFactory<NioSocketChannel>() {
+							@Override
+							public NioSocketChannel newChannel() {
+								return new NioSocketChannel();
+							}
+						}, moduleConfig.getUuid());
 		for (final InetSocketAddress address : moduleConfig.getListen()) {
 			connectionManager.startListening(address);
 		}

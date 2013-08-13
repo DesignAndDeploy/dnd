@@ -66,11 +66,10 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * Default FunctionBlocks.
 	 */
-	private static final Class<?>[] DEFAULT_TYPES = new Class<?>[] { OutletActorBlock.class,
-			BeamerOperatorBlock.class, DisplayActorBlock.class, DisplayOperatorBlock.class,
-			LightSensorBlock.class, MeetingOperatorBlock.class, OutletSensorBlock.class,
-			TemperatureActorBlock.class, TemperatureLogicBlock.class, TemperatureSensorBlock.class,
-			BeamerActorBlock.class };
+	private static final Class<?>[] DEFAULT_TYPES = new Class<?>[] { OutletActorBlock.class, BeamerOperatorBlock.class,
+			DisplayActorBlock.class, DisplayOperatorBlock.class, LightSensorBlock.class, MeetingOperatorBlock.class,
+			OutletSensorBlock.class, TemperatureActorBlock.class, TemperatureLogicBlock.class,
+			TemperatureSensorBlock.class, BeamerActorBlock.class };
 
 	/**
 	 * Feature factory for block create features.
@@ -125,8 +124,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	@SuppressWarnings("unchecked")
 	private synchronized void initialiseFactory() {
 		if (!factoryInitialised) {
-			IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(
-					getDiagramTypeProvider().getDiagram()).toString()));
+			IProject project =
+					EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(
+							getDiagramTypeProvider().getDiagram()).toString()));
 			Set<URL> urls = new HashSet<URL>();
 			Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(project);
 			for (IPath path : paths) {
@@ -211,8 +211,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 			if (TypePropertyUtil.isPositionText(ga)) {
 				return new DNDUpdatePositionFeature(this);
-			}
-			else if (TypePropertyUtil.isBlockNameText(ga)){
+			} else if (TypePropertyUtil.isBlockNameText(ga)) {
 				return new DNDUpdateBlockNameFeature(this);
 			}
 		}
@@ -258,10 +257,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			}
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
-			if (TypePropertyUtil.isBlockNameText(ga)){
+			if (TypePropertyUtil.isBlockNameText(ga)) {
 				feature = new DNDEditBlockNameFeature(this);
-			}
-			else if (TypePropertyUtil.isPositionText(ga)){
+			} else if (TypePropertyUtil.isPositionText(ga)) {
 				feature = new DNDEditPositionFeature(this);
 			}
 		}

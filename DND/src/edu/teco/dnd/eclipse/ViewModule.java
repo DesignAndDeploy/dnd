@@ -61,9 +61,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		manager = activator.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
-			LOGGER.trace(
-					"Display.getCurrent() returned null, using Display.getDefault(): {}",
-					display);
+			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
 		}
 		manager.addModuleManagerListener(this);
 		LOGGER.exit();
@@ -107,12 +105,10 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 					@Override
 					public void run() {
 						if (ViewModule.this.activator.isRunning()) {
-							ViewModule.this.serverStatus
-									.setText("Stopping server…");
+							ViewModule.this.serverStatus.setText("Stopping server…");
 							ViewModule.this.activator.shutdownServer();
 						} else {
-							ViewModule.this.serverStatus
-									.setText("Starting server…");
+							ViewModule.this.serverStatus.setText("Starting server…");
 							ViewModule.this.activator.startServer();
 						}
 					}
@@ -240,16 +236,16 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				
-				if (!map.containsKey(id)){
+
+				if (!map.containsKey(id)) {
 					addID(id);
 				}
-				
+
 				TableItem item = map.get(id);
-				if (module.getName() != null){
+				if (module.getName() != null) {
 					item.setText(1, module.getName());
 				}
-				if (module.getLocation() != null){
+				if (module.getLocation() != null) {
 					item.setText(2, module.getLocation());
 				}
 			}

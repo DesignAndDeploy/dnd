@@ -11,7 +11,7 @@ import io.netty.util.internal.logging.InternalLogger;
 
 public class Log4j2Logger implements InternalLogger {
 	public static final Map<InternalLogLevel, Level> INTERNAL_TO_LOG4J2_LEVEL;
-	
+
 	static {
 		INTERNAL_TO_LOG4J2_LEVEL = new HashMap<InternalLogLevel, Level>();
 		INTERNAL_TO_LOG4J2_LEVEL.put(InternalLogLevel.TRACE, Level.TRACE);
@@ -20,9 +20,9 @@ public class Log4j2Logger implements InternalLogger {
 		INTERNAL_TO_LOG4J2_LEVEL.put(InternalLogLevel.WARN, Level.WARN);
 		INTERNAL_TO_LOG4J2_LEVEL.put(InternalLogLevel.ERROR, Level.ERROR);
 	}
-	
+
 	private final Logger logger;
-	
+
 	public Log4j2Logger(final Logger logger) {
 		this.logger = logger;
 	}
@@ -181,7 +181,7 @@ public class Log4j2Logger implements InternalLogger {
 	public void error(final String msg, final Throwable t) {
 		logger.error(msg, t);
 	}
-	
+
 	@Override
 	public boolean isEnabled(final InternalLogLevel level) {
 		return logger.isEnabled(INTERNAL_TO_LOG4J2_LEVEL.get(level));

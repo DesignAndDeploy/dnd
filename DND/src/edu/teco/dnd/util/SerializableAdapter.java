@@ -16,7 +16,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
-
 /**
  * A GSON adapter, that translates byte-arrays into base64 encoded text.
  * 

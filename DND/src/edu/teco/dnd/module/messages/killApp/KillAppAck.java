@@ -6,29 +6,31 @@ import edu.teco.dnd.network.messages.Response;
 
 /**
  * send when a new Application is supposed to be started.
- *
+ * 
  */
 public class KillAppAck extends Response {
-	
-	
+
 	public static String MESSAGE_TYPE = "kill ack";
-	
+
 	public UUID appId;
-	
+
 	public KillAppAck(UUID appId) {
 		this.appId = appId;
 	}
-	
+
 	public KillAppAck(KillAppMessage msg) {
 		this.appId = msg.getApplicationID();
 	}
-	
-	@SuppressWarnings("unused")/*for gson*/
+
+	@SuppressWarnings("unused")
+	/* for gson */
 	private KillAppAck() {
 		appId = null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -39,7 +41,9 @@ public class KillAppAck extends Response {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -64,14 +68,14 @@ public class KillAppAck extends Response {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "KillAppAck [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()=" + getUUID() + "]";
 	}
-	
-	
-	
+
 }

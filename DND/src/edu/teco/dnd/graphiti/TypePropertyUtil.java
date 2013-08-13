@@ -5,8 +5,7 @@ import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.services.Graphiti;
 
 /**
- * This class manages the properties added to several property containers in the
- * graphiti gui.
+ * This class manages the properties added to several property containers in the graphiti gui.
  * 
  * @author jung
  * 
@@ -37,8 +36,7 @@ public class TypePropertyUtil {
 	 */
 	public static final boolean setBlockNameText(PropertyContainer pc) {
 		if (pc instanceof Text) {
-			Graphiti.getPeService().setPropertyValue(pc, TEXT_KEY,
-					TEXT_VALUE_BLOCKNAME);
+			Graphiti.getPeService().setPropertyValue(pc, TEXT_KEY, TEXT_VALUE_BLOCKNAME);
 			return true;
 		}
 		return false;
@@ -53,37 +51,32 @@ public class TypePropertyUtil {
 	 */
 	public static final boolean setPositionText(PropertyContainer pc) {
 		if (pc instanceof Text) {
-			Graphiti.getPeService().setPropertyValue(pc, TEXT_KEY,
-					TEXT_VALUE_POSITION);
+			Graphiti.getPeService().setPropertyValue(pc, TEXT_KEY, TEXT_VALUE_POSITION);
 			return true;
 		}
 		return false;
 	}
 
 	/**
-	 * Returns true if the given PropertyContainer was registered as a blockName
-	 * text field.
+	 * Returns true if the given PropertyContainer was registered as a blockName text field.
 	 * 
 	 * @param pc
 	 *            PropertyContainer to test
 	 * @return true if pc is a blockName text field
 	 */
 	public static boolean isBlockNameText(PropertyContainer pc) {
-		return TEXT_VALUE_BLOCKNAME.equals(Graphiti.getPeService()
-				.getPropertyValue(pc, TEXT_KEY));
+		return TEXT_VALUE_BLOCKNAME.equals(Graphiti.getPeService().getPropertyValue(pc, TEXT_KEY));
 	}
 
 	/**
-	 * Returns true if the given PropertyContainer was registered as a position
-	 * text field.
+	 * Returns true if the given PropertyContainer was registered as a position text field.
 	 * 
 	 * @param pc
 	 *            PropertyContainer to test
 	 * @return true if pc is a position text field
 	 */
 	public static boolean isPositionText(PropertyContainer pc) {
-		return TEXT_VALUE_POSITION.equals(Graphiti.getPeService()
-				.getPropertyValue(pc, TEXT_KEY));
+		return TEXT_VALUE_POSITION.equals(Graphiti.getPeService().getPropertyValue(pc, TEXT_KEY));
 	}
 
 }

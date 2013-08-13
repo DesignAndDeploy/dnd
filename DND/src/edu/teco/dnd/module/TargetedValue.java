@@ -12,23 +12,25 @@ public class TargetedValue {
 	 * The name of the Input the value should be send to.
 	 */
 	private final String inputName;
-	
+
 	/**
 	 * The value to be send.
 	 */
 	private final Serializable value;
-	
+
 	/**
 	 * Initializes a new TargetedValue.
 	 * 
-	 * @param inputName the name of the Input the value should be send to
-	 * @param value the value that should be send
+	 * @param inputName
+	 *            the name of the Input the value should be send to
+	 * @param value
+	 *            the value that should be send
 	 */
 	public TargetedValue(final String inputName, final Serializable value) {
 		this.inputName = inputName;
 		this.value = value;
 	}
-	
+
 	/**
 	 * Returns the name of the Input the value should be send to.
 	 * 
@@ -37,7 +39,7 @@ public class TargetedValue {
 	public String getInputName() {
 		return this.inputName;
 	}
-	
+
 	/**
 	 * Returns the value that should be send.
 	 * 

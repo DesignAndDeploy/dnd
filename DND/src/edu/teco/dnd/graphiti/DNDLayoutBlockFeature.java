@@ -91,8 +91,7 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 
 		ContainerShape containerShape = (ContainerShape) context.getPictogramElement();
 		GraphicsAlgorithm containerGa = containerShape.getGraphicsAlgorithm();
-		FunctionBlockModel functionBlock = (FunctionBlockModel) containerShape.getLink().getBusinessObjects()
-				.get(0);
+		FunctionBlockModel functionBlock = (FunctionBlockModel) containerShape.getLink().getBusinessObjects().get(0);
 
 		LOGGER.debug("layouting {} with ga {} of block {}", containerShape, containerGa, functionBlock);
 
@@ -100,10 +99,11 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 		int minWidth = MINIMUM_WIDTH;
 		if (text != null) {
 			LOGGER.trace("found name: {}", text);
-			minWidth = Math.max(minWidth,
-					GraphitiUi.getUiLayoutService().calculateTextSize(text.getValue(), text.getFont())
-							.getWidth()
-							+ NAME_EXTRA_SPACE);
+			minWidth =
+					Math.max(minWidth,
+							GraphitiUi.getUiLayoutService().calculateTextSize(text.getValue(), text.getFont())
+									.getWidth()
+									+ NAME_EXTRA_SPACE);
 		}
 		LOGGER.trace("minimum width is {}", minWidth);
 		if (containerGa.getWidth() < minWidth) {
@@ -114,10 +114,11 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 			changed = true;
 		}
 
-		int minHeight = DNDAddBlockFeature.CONNECTION_OFFSET
-				+ (Math.max(functionBlock.getInputs().size(), functionBlock.getOutputs().size()) + functionBlock
-						.getOptions().size())
-				* (DNDAddBlockFeature.CONNECTION_SIZE + DNDAddBlockFeature.CONNECTION_SPACE);
+		int minHeight =
+				DNDAddBlockFeature.CONNECTION_OFFSET
+						+ (Math.max(functionBlock.getInputs().size(), functionBlock.getOutputs().size()) + functionBlock
+								.getOptions().size())
+						* (DNDAddBlockFeature.CONNECTION_SIZE + DNDAddBlockFeature.CONNECTION_SPACE);
 		LOGGER.trace("minimum height is {}");
 		if (containerGa.getHeight() < minHeight) {
 			if (LOGGER.isDebugEnabled()) {
@@ -144,26 +145,24 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 			} else if (ga instanceof Text) {
 				switch (((Text) ga).getHorizontalAlignment()) {
 				case ALIGNMENT_LEFT:
-					if (DNDAddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(
-							ga, DNDAddBlockFeature.CONNECTION_KEY))) {
+					if (DNDAddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(ga,
+							DNDAddBlockFeature.CONNECTION_KEY))) {
 						if (LOGGER.isTraceEnabled()) {
-							LOGGER.trace("{} set to half width {}", ga, width / 2
-									- DNDAddBlockFeature.CONNECTION_SIZE - 2
-									* DNDAddBlockFeature.CONNECTION_EXTRA);
+							LOGGER.trace("{} set to half width {}", ga, width / 2 - DNDAddBlockFeature.CONNECTION_SIZE
+									- 2 * DNDAddBlockFeature.CONNECTION_EXTRA);
 						}
 						gaService.setWidth(ga, width / 2 - DNDAddBlockFeature.CONNECTION_SIZE - 3
 								* DNDAddBlockFeature.CONNECTION_EXTRA);
 					} else {
 						if (LOGGER.isTraceEnabled()) {
-							LOGGER.trace("{} set to half width {}", ga, width / 2 - 3
-									* DNDAddBlockFeature.OPTION_EXTRA);
+							LOGGER.trace("{} set to half width {}", ga, width / 2 - 3 * DNDAddBlockFeature.OPTION_EXTRA);
 						}
 						gaService.setWidth(ga, width / 2 - 2 * DNDAddBlockFeature.OPTION_EXTRA);
 					}
 					break;
 				case ALIGNMENT_RIGHT:
-					if (DNDAddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(
-							ga, DNDAddBlockFeature.CONNECTION_KEY))) {
+					if (DNDAddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(ga,
+							DNDAddBlockFeature.CONNECTION_KEY))) {
 						if (LOGGER.isTraceEnabled()) {
 							LOGGER.trace("{} set to half width {} and moved to {}", ga,
 									2 * DNDAddBlockFeature.OPTION_EXTRA, 2 * DNDAddBlockFeature.OPTION_EXTRA);
@@ -201,9 +200,8 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 				FixPointAnchor fixPointAnchor = (FixPointAnchor) anchor;
 				Point location = fixPointAnchor.getLocation();
 				if (location.getX() != width - DNDAddBlockFeature.CONNECTION_SIZE / 2) {
-					fixPointAnchor.setLocation(gaService.createPoint(width
-							- DNDAddBlockFeature.CONNECTION_SIZE / 2 - DNDAddBlockFeature.CONNECTION_EXTRA,
-							location.getY()));
+					fixPointAnchor.setLocation(gaService.createPoint(width - DNDAddBlockFeature.CONNECTION_SIZE / 2
+							- DNDAddBlockFeature.CONNECTION_EXTRA, location.getY()));
 					changed = true;
 				}
 			}

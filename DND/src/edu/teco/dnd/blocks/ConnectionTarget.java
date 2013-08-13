@@ -77,8 +77,8 @@ public abstract class ConnectionTarget implements Serializable {
 	}
 
 	/**
-	 * Tells the ConnectionTarget that the value of the connected Output has changed. This should only be
-	 * called by the connected Output.
+	 * Tells the ConnectionTarget that the value of the connected Output has changed. This should only be called by the
+	 * connected Output.
 	 * 
 	 * @param value
 	 *            the new value of the connected Output
@@ -100,7 +100,9 @@ public abstract class ConnectionTarget implements Serializable {
 	 */
 	public abstract void update() throws AssignmentException;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -111,7 +113,9 @@ public abstract class ConnectionTarget implements Serializable {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

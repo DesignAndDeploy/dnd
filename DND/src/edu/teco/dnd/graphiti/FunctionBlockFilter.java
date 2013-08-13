@@ -13,7 +13,6 @@ import edu.teco.dnd.util.ClassFilter;
 public class FunctionBlockFilter implements ClassFilter {
 	@Override
 	public boolean acceptClass(final Class<?> cls) {
-		return cls != null && !Modifier.isAbstract(cls.getModifiers())
-				&& FunctionBlock.class.isAssignableFrom(cls);
+		return cls != null && !Modifier.isAbstract(cls.getModifiers()) && FunctionBlock.class.isAssignableFrom(cls);
 	}
 }

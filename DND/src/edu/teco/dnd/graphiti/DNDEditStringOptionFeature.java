@@ -46,8 +46,7 @@ public class DNDEditStringOptionFeature extends AbstractDirectEditingFeature {
 		}
 		Class<?> type = null;
 		try {
-			type = ((DNDFeatureProvider) getFeatureProvider()).getClassLoader().loadClass(
-					((OptionModel) bo).getType());
+			type = ((DNDFeatureProvider) getFeatureProvider()).getClassLoader().loadClass(((OptionModel) bo).getType());
 		} catch (ClassNotFoundException e) {
 		}
 		if (type == null || !type.isAssignableFrom(String.class)) {

@@ -7,8 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An Option of a {@link FunctionBlock} can be set before the FunctionBlock is deployed. It will not change
- * while the FunctionBlock is running.
+ * An Option of a {@link FunctionBlock} can be set before the FunctionBlock is deployed. It will not change while the
+ * FunctionBlock is running.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

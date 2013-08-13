@@ -5,8 +5,7 @@ import java.net.UnknownHostException;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * This class can be used to check if a Text Field contains a valid internet
- * address.
+ * This class can be used to check if a Text Field contains a valid internet address.
  * 
  * @author jung
  * 
@@ -14,8 +13,7 @@ import org.eclipse.swt.widgets.Text;
 public class TextAddress extends TextCheck {
 
 	/**
-	 * Creates a new AddressText that can be used to check the content of the
-	 * Text Field
+	 * Creates a new AddressText that can be used to check the content of the Text Field
 	 * 
 	 * @param text
 	 *            Text Field to be checked later

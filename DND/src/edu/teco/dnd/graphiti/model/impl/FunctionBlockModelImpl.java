@@ -1,7 +1,6 @@
 /**
- * <copyright>
- * </copyright>
- *
+ * <copyright> </copyright>
+ * 
  * $Id$
  */
 package edu.teco.dnd.graphiti.model.impl;
@@ -303,8 +302,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 */
 	public EList<InputModel> getInputs() {
 		if (inputs == null) {
-			inputs = new EObjectContainmentWithInverseEList<InputModel>(InputModel.class, this,
-					ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS, ModelPackage.INPUT_MODEL__FUNCTION_BLOCK);
+			inputs =
+					new EObjectContainmentWithInverseEList<InputModel>(InputModel.class, this,
+							ModelPackage.FUNCTION_BLOCK_MODEL__INPUTS, ModelPackage.INPUT_MODEL__FUNCTION_BLOCK);
 		}
 		return inputs;
 	}
@@ -316,8 +316,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 */
 	public EList<OutputModel> getOutputs() {
 		if (outputs == null) {
-			outputs = new EObjectContainmentWithInverseEList<OutputModel>(OutputModel.class, this,
-					ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS, ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK);
+			outputs =
+					new EObjectContainmentWithInverseEList<OutputModel>(OutputModel.class, this,
+							ModelPackage.FUNCTION_BLOCK_MODEL__OUTPUTS, ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK);
 		}
 		return outputs;
 	}
@@ -329,8 +330,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 */
 	public EList<OptionModel> getOptions() {
 		if (options == null) {
-			options = new EObjectContainmentWithInverseEList<OptionModel>(OptionModel.class, this,
-					ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS, ModelPackage.OPTION_MODEL__FUNCTION_BLOCK);
+			options =
+					new EObjectContainmentWithInverseEList<OptionModel>(OptionModel.class, this,
+							ModelPackage.FUNCTION_BLOCK_MODEL__OPTIONS, ModelPackage.OPTION_MODEL__FUNCTION_BLOCK);
 		}
 		return options;
 	}

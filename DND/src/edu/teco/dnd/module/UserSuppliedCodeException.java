@@ -5,8 +5,8 @@ public class UserSuppliedCodeException extends Exception {
 	private static final long serialVersionUID = -851321417787303985L;
 
 	public UserSuppliedCodeException() {
-			super();
-			}
+		super();
+	}
 
 	public UserSuppliedCodeException(String message) {
 		super(message);

@@ -18,20 +18,20 @@ import edu.teco.dnd.util.FutureNotifier;
 
 public class ApplicationQuery {
 	private final ConnectionManager connectionManager;
-	
+
 	private final RequestApplicationListMessage request;
-	
+
 	public ApplicationQuery(final ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 		this.request = new RequestApplicationListMessage();
 	}
-	
+
 	public ModuleApplicationListFutureNotifier getApplicationList(final UUID module) {
 		final ModuleApplicationListFutureNotifier notifier = new ModuleApplicationListFutureNotifier(module);
 		connectionManager.sendMessage(module, request).addListener(notifier);
 		return notifier;
 	}
-	
+
 	public ApplicationListFutureNotifier getApplicationList() {
 		final Collection<UUID> modules = connectionManager.getConnectedModules();
 		final ApplicationListFutureNotifier notifier = new ApplicationListFutureNotifier(modules.size());
@@ -40,19 +40,19 @@ public class ApplicationQuery {
 		}
 		return notifier;
 	}
-	
-	public static class ModuleApplicationListFutureNotifier extends DefaultFutureNotifier<Map<UUID, String>>
-			implements FutureListener<FutureNotifier<Response>> {
+
+	public static class ModuleApplicationListFutureNotifier extends DefaultFutureNotifier<Map<UUID, String>> implements
+			FutureListener<FutureNotifier<Response>> {
 		private final UUID moduleUUID;
-		
+
 		public ModuleApplicationListFutureNotifier(final UUID moduleUUID) {
 			this.moduleUUID = moduleUUID;
 		}
-		
+
 		public UUID getModuleUUID() {
 			return this.moduleUUID;
 		}
-		
+
 		@Override
 		public void operationComplete(FutureNotifier<Response> future) {
 			if (future.isSuccess()) {
@@ -67,21 +67,21 @@ public class ApplicationQuery {
 			}
 		}
 	}
-	
+
 	public static class ApplicationListFutureNotifier extends DefaultFutureNotifier<Map<UUID, Map<UUID, String>>>
 			implements FutureListener<FutureNotifier<Response>> {
 		private final AtomicInteger waiting;
-		
+
 		private final ConcurrentMap<UUID, Map<UUID, String>> applications;
-		
+
 		public ApplicationListFutureNotifier(final int waiting) {
 			if (waiting == 0) {
 				this.waiting = null;
 				this.applications = null;
-				setSuccess(new HashMap<UUID, Map<UUID,String>>());
+				setSuccess(new HashMap<UUID, Map<UUID, String>>());
 			} else {
 				this.waiting = new AtomicInteger(waiting);
-				this.applications = new ConcurrentHashMap<UUID, Map<UUID,String>>();
+				this.applications = new ConcurrentHashMap<UUID, Map<UUID, String>>();
 			}
 		}
 
@@ -91,8 +91,8 @@ public class ApplicationQuery {
 				final Response response = future.getNow();
 				if (response instanceof ApplicationListResponse) {
 					final ApplicationListResponse applicationListResponse = (ApplicationListResponse) response;
-					applications.put(applicationListResponse.getModuleUUID(),
-							applicationListResponse.getApplications());
+					applications
+							.put(applicationListResponse.getModuleUUID(), applicationListResponse.getApplications());
 				}
 			}
 			if (waiting.decrementAndGet() <= 0) {

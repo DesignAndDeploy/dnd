@@ -12,7 +12,7 @@ import edu.teco.dnd.blocks.ConnectionTarget;
 public class RemoteConnectionTarget extends ConnectionTarget {
 	private static final long serialVersionUID = -4588323454242345616L;
 	private static final Logger LOGGER = LogManager.getLogger(RemoteConnectionTarget.class);
-	
+
 	private Application app;
 	private final UUID targetFunctionBlock;
 	private final String targetInput;
@@ -39,10 +39,11 @@ public class RemoteConnectionTarget extends ConnectionTarget {
 		if (app != null) {
 			app.sendValue(targetFunctionBlock, targetInput, value);
 		} else {
-			throw LOGGER.throwing(new IllegalStateException("associated application not set before trying to send a value."));
+			throw LOGGER.throwing(new IllegalStateException(
+					"associated application not set before trying to send a value."));
 		}
 	}
-	
+
 	public void setApplication(Application app) {
 		this.app = app;
 	}

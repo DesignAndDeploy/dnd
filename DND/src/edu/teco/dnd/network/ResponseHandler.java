@@ -9,19 +9,21 @@ import edu.teco.dnd.util.DefaultFutureNotifier;
 
 /**
  * Manages pending Futures for {@link Response}s.
- *
+ * 
  * @author Philipp Adolf
  */
 public class ResponseHandler {
 	/**
 	 * Stores all pending Futures.
 	 */
-	private final ConcurrentMap<UUID, ResponseFutureNotifier> futures = new ConcurrentHashMap<UUID, ResponseFutureNotifier>();
-	
+	private final ConcurrentMap<UUID, ResponseFutureNotifier> futures =
+			new ConcurrentHashMap<UUID, ResponseFutureNotifier>();
+
 	/**
 	 * Returns the Future for the given Message UUID if one has already been created or creates a new one.
 	 * 
-	 * @param uuid the UUID of the Message
+	 * @param uuid
+	 *            the UUID of the Message
 	 * @return the FutureNotifier for the given Message
 	 */
 	public ResponseFutureNotifier getResponseFutureNotifier(final UUID uuid) {
@@ -33,11 +35,12 @@ public class ResponseHandler {
 			return oldNotifier;
 		}
 	}
-	
+
 	/**
 	 * Handles a response by marking the matching Future as successful.
 	 * 
-	 * @param response the Response that should be handled
+	 * @param response
+	 *            the Response that should be handled
 	 */
 	public void handleResponse(final Response response) {
 		final ResponseFutureNotifier notifier = futures.remove(response.getSourceUUID());
@@ -45,7 +48,7 @@ public class ResponseHandler {
 			notifier.setSuccess(response);
 		}
 	}
-	
+
 	public void setFailed(UUID uuid, Throwable cause) {
 		final ResponseFutureNotifier notifier = futures.remove(uuid);
 		if (notifier != null) {
@@ -55,7 +58,7 @@ public class ResponseHandler {
 
 	/**
 	 * A FutureNotifier used to handle Responses.
-	 *
+	 * 
 	 * @author Philipp Adolf
 	 */
 	public static class ResponseFutureNotifier extends DefaultFutureNotifier<Response> {
@@ -63,7 +66,7 @@ public class ResponseHandler {
 		protected boolean setSuccess(final Response response) {
 			return super.setSuccess(response);
 		}
-		
+
 		@Override
 		protected boolean setFailure(final Throwable cause) {
 			return super.setFailure(cause);

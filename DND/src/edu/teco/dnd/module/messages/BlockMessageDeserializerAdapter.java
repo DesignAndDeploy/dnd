@@ -48,8 +48,9 @@ public class BlockMessageDeserializerAdapter implements JsonDeserializer<BlockMe
 		msgUuid = context.deserialize(jObject.get("uuid"), UUID.class);
 		ClassLoader loader = appMan.getAppClassLoader(appId);
 		try {
-			block = (FunctionBlock) UsercodeWrapper.base64DecodeToObject(jObject.get("block").getAsString(),
-					Base64.NO_OPTIONS, loader);
+			block =
+					(FunctionBlock) UsercodeWrapper.base64DecodeToObject(jObject.get("block").getAsString(),
+							Base64.NO_OPTIONS, loader);
 		} catch (IOException e) {
 			throw new JsonParseException("can not parse base64 serializable");
 		} catch (ClassNotFoundException e) {

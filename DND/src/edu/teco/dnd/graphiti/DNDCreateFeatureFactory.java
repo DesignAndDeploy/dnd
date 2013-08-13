@@ -25,8 +25,8 @@ public final class DNDCreateFeatureFactory {
 	private Set<Class<? extends FunctionBlock>> types = new HashSet<Class<? extends FunctionBlock>>();
 
 	/**
-	 * Returns a create feature for the given block type. If the block has not been registered it will
-	 * automatically add it to the list of known blocks.
+	 * Returns a create feature for the given block type. If the block has not been registered it will automatically add
+	 * it to the list of known blocks.
 	 * 
 	 * @param fp
 	 *            the IFeatureProvider to use
@@ -34,8 +34,7 @@ public final class DNDCreateFeatureFactory {
 	 *            the type of the FunctionBlock. Must not be null or an abstract class.
 	 * @return a create feature for the FunctionBlock
 	 */
-	public DNDCreateBlockFeature getCreateFeature(final IFeatureProvider fp,
-			final Class<? extends FunctionBlock> type) {
+	public DNDCreateBlockFeature getCreateFeature(final IFeatureProvider fp, final Class<? extends FunctionBlock> type) {
 		if (!types.contains(type) && (type == null || Modifier.isAbstract(type.getModifiers()))) {
 			LOGGER.warn("{} was passed to getCreateFeature", type);
 			throw new IllegalArgumentException("type is invalid");

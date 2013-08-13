@@ -14,7 +14,8 @@ import edu.teco.dnd.module.config.BlockTypeHolder;
 
 public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMessage> {
 	@Override
-	public ModuleInfoMessage deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+	public ModuleInfoMessage deserialize(final JsonElement json, final Type typeOfT,
+			final JsonDeserializationContext context) throws JsonParseException {
 		if (!json.isJsonObject()) {
 			throw new JsonParseException("is not an object");
 		}
@@ -28,7 +29,7 @@ public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMess
 		setParents(module.getHolder());
 		return new ModuleInfoMessage(sourceUUID, uuid, module);
 	}
-	
+
 	private static void setParents(final BlockTypeHolder blockTypeHolder) {
 		if (!blockTypeHolder.isLeave()) {
 			for (final BlockTypeHolder child : blockTypeHolder.getChildren()) {

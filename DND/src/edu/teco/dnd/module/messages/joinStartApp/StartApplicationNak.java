@@ -31,7 +31,9 @@ public class StartApplicationNak extends Response {
 		appId = null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -42,7 +44,9 @@ public class StartApplicationNak extends Response {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -67,14 +71,15 @@ public class StartApplicationNak extends Response {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "JoinApplicationNak [appId=" + appId + ", getSourceUUID()=" + getSourceUUID()
-				+ ", getUUID()=" + getUUID() + "]";
+		return "JoinApplicationNak [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+				+ getUUID() + "]";
 	}
-	
-	
+
 }

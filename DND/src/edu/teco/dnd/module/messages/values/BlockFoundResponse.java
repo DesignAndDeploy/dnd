@@ -13,7 +13,7 @@ public class BlockFoundResponse extends Response {
 	public BlockFoundResponse(UUID moduleId) {
 		this.moduleId = moduleId;
 	}
-	
+
 	public UUID getModuleUUID() {
 		return moduleId;
 	}
@@ -22,8 +22,7 @@ public class BlockFoundResponse extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result
-				+ ((moduleId == null) ? 0 : moduleId.hashCode());
+		result = prime * result + ((moduleId == null) ? 0 : moduleId.hashCode());
 		return result;
 	}
 
@@ -51,7 +50,8 @@ public class BlockFoundResponse extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "BlockFoundMessage[moduleId=" + moduleId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()=" + getUUID() + "]";
+		return "BlockFoundMessage[moduleId=" + moduleId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+				+ getUUID() + "]";
 	}
 
 }

@@ -3,8 +3,8 @@ package edu.teco.dnd.blocks;
 import java.io.Serializable;
 
 /**
- * A decorator for ConnectionTarget that discards new values if they are equal to the last value that was set.
- * null is discarded if the last value set was null, for non null values equals is called.
+ * A decorator for ConnectionTarget that discards new values if they are equal to the last value that was set. null is
+ * discarded if the last value set was null, for non null values equals is called.
  * 
  * @author philipp
  */

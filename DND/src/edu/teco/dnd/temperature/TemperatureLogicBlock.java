@@ -19,7 +19,7 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 * 
 	 */
 	private static final long serialVersionUID = -2352500913660771287L;
-	
+
 	/**
 	 * Temperature sensed by a TemperatureSensor.
 	 */
@@ -27,8 +27,8 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	private Integer roomTemperature;
 
 	/**
-	 * Value to compare the temperature to. If temperature is lower than threshold, activate heating. If it's
-	 * bigger, deactivate heating
+	 * Value to compare the temperature to. If temperature is lower than threshold, activate heating. If it's bigger,
+	 * deactivate heating
 	 */
 	@Option
 	private Integer threshold;

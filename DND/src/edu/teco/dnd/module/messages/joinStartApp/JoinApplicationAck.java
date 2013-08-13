@@ -34,7 +34,9 @@ public class JoinApplicationAck extends Response {
 		appId = null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -46,7 +48,9 @@ public class JoinApplicationAck extends Response {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -78,7 +82,9 @@ public class JoinApplicationAck extends Response {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -86,6 +92,5 @@ public class JoinApplicationAck extends Response {
 		return "JoinApplicationAck [appId=" + appId + ", name=" + name + ", getSourceUUID()=" + getSourceUUID()
 				+ ", getUUID()=" + getUUID() + "]";
 	}
-	
-	
+
 }

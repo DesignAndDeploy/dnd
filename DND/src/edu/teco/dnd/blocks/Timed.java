@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to specify an interval at which a {@link FunctionBlock} should be updated regardless of changes to the
- * inputs.
+ * Used to specify an interval at which a {@link FunctionBlock} should be updated regardless of changes to the inputs.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

@@ -4,7 +4,7 @@ import java.util.UUID;
 
 /**
  * A Message that is specific to an application running on the module.
- *
+ * 
  * @author Philipp Adolf
  */
 public abstract class ApplicationSpecificMessage extends Message {
@@ -12,28 +12,31 @@ public abstract class ApplicationSpecificMessage extends Message {
 	 * The UUID of the Application this Message is intended for.
 	 */
 	private final UUID applicationUUID;
-	
+
 	/**
 	 * Initializes a new ApplicationSpecificMessage with a given Message UUID and an Application UUID.
 	 * 
-	 * @param uuid the Message UUID
-	 * @param applicationUUID the Application UUID
+	 * @param uuid
+	 *            the Message UUID
+	 * @param applicationUUID
+	 *            the Application UUID
 	 */
 	public ApplicationSpecificMessage(final UUID uuid, final UUID applicationUUID) {
 		super(uuid);
 		this.applicationUUID = applicationUUID;
 	}
-	
+
 	/**
 	 * Initializes a new ApplicationSpecificMessage with a given Application UUID.
 	 * 
-	 * @param applicationUUID the Application UUID
+	 * @param applicationUUID
+	 *            the Application UUID
 	 */
 	public ApplicationSpecificMessage(final UUID applicationUUID) {
 		super();
 		this.applicationUUID = applicationUUID;
 	}
-	
+
 	/**
 	 * Returns the ID of the application this message should be delivered to
 	 * 
@@ -43,7 +46,9 @@ public abstract class ApplicationSpecificMessage extends Message {
 		return applicationUUID;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -54,7 +59,9 @@ public abstract class ApplicationSpecificMessage extends Message {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -79,14 +86,14 @@ public abstract class ApplicationSpecificMessage extends Message {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "ApplicationSpecificMessage [applicationUUID=" + applicationUUID + ", getUUID()=" + getUUID() + "]";
 	}
-	
-	
-	
+
 }

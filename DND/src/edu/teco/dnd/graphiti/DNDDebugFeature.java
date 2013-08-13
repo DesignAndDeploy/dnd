@@ -90,9 +90,9 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	private void logConnection(final Connection connection) {
 		OutputModel output = (OutputModel) getBusinessObjectForPictogramElement(connection.getStart());
 		InputModel input = (InputModel) getBusinessObjectForPictogramElement(connection.getEnd());
-		LOGGER.debug("Connecting {}({}):{} to {}({}):{}", output.getFunctionBlock().getID(), output
-				.getFunctionBlock().getType(), output.getName(), input.getFunctionBlock().getID(), input
-				.getFunctionBlock().getType(), input.getName());
+		LOGGER.debug("Connecting {}({}):{} to {}({}):{}", output.getFunctionBlock().getID(), output.getFunctionBlock()
+				.getType(), output.getName(), input.getFunctionBlock().getID(), input.getFunctionBlock().getType(),
+				input.getName());
 	}
 
 	/**
@@ -123,7 +123,6 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	 *            the Input to inspect
 	 */
 	private void logInput(final InputModel input) {
-		LOGGER.debug("Input {} of {} of type {}", input.getName(), input.getFunctionBlock().getType(),
-				input.getType());
+		LOGGER.debug("Input {} of {} of type {}", input.getName(), input.getFunctionBlock().getType(), input.getType());
 	}
 }

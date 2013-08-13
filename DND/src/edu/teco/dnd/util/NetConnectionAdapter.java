@@ -17,8 +17,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-
-
 /**
  * A Gson adapter for {@link NetConnection}.
  * 
@@ -29,19 +27,19 @@ public class NetConnectionAdapter implements JsonSerializer<NetConnection>, Json
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(NetConnectionAdapter.class);
-	
+
 	@Override
 	public NetConnection deserialize(final JsonElement json, final Type typeOfT,
 			final JsonDeserializationContext context) throws JsonParseException {
 		LOGGER.entry(json, typeOfT, context);
-		
+
 		if (!json.isJsonObject()) {
 			LOGGER.exit();
 			throw new JsonParseException("not a JSON object");
 		}
-		
+
 		final InetSocketAddress address = context.deserialize(json, InetSocketAddress.class);
-		
+
 		NetworkInterface interf = null;
 		final JsonElement interfaceElement = json.getAsJsonObject().get("interface");
 		if (interfaceElement != null) {
@@ -58,15 +56,14 @@ public class NetConnectionAdapter implements JsonSerializer<NetConnection>, Json
 				throw new JsonParseException("could not get interface", e);
 			}
 		}
-		
+
 		final NetConnection netConnection = new NetConnection(address, interf);
 		LOGGER.exit(netConnection);
 		return netConnection;
 	}
 
 	@Override
-	public JsonElement serialize(final NetConnection src, final Type typeOfSrc,
-			final JsonSerializationContext context) {
+	public JsonElement serialize(final NetConnection src, final Type typeOfSrc, final JsonSerializationContext context) {
 		LOGGER.entry(src, typeOfSrc, context);
 		final JsonObject jsonObject = (JsonObject) context.serialize(src.getAddress(), InetSocketAddress.class);
 		final NetworkInterface interf = src.getInterface();

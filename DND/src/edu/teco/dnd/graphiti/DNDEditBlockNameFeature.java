@@ -78,8 +78,8 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 	@Override
 	public String getInitialValue(final IDirectEditingContext context) {
 		LOGGER.entry(context);
-		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(context
-				.getPictogramElement());
+		FunctionBlockModel block =
+				(FunctionBlockModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
 		String value = block.getBlockName();
 		LOGGER.exit(value);
 		return value;
@@ -116,8 +116,8 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 	public void setValue(final String value, final IDirectEditingContext context) {
 		LOGGER.entry(value, context);
 		PictogramElement pe = context.getPictogramElement();
-		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(context
-				.getPictogramElement());
+		FunctionBlockModel block =
+				(FunctionBlockModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
 		block.setBlockName(value);
 		updatePictogramElement(pe);
 		LOGGER.exit();

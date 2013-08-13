@@ -6,8 +6,7 @@ import edu.teco.dnd.network.messages.Response;
 
 public class ValueNak extends Response {
 	public enum ErrorType {
-		WRONG_MODULE,
-		INVALID_INPUT, OTHER;
+		WRONG_MODULE, INVALID_INPUT, OTHER;
 	}
 
 	public static String MESSAGE_TYPE = "value nak";

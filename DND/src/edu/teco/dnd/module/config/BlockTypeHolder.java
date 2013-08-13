@@ -18,8 +18,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class BlockTypeHolder {
 
-	private static final Logger LOGGER = LogManager
-			.getLogger(BlockTypeHolder.class);
+	private static final Logger LOGGER = LogManager.getLogger(BlockTypeHolder.class);
 
 	public final String type;
 	/** allowed blocks of this type, <0 means infinity. */
@@ -46,8 +45,7 @@ public class BlockTypeHolder {
 	public BlockTypeHolder(Set<BlockTypeHolder> childblocks, int amount) {
 		// non leave node
 		this.type = null;
-		this.children = (childblocks == null) ? new HashSet<BlockTypeHolder>()
-				: childblocks;
+		this.children = (childblocks == null) ? new HashSet<BlockTypeHolder>() : childblocks;
 		this.amountAllowed = amount;
 		this.amountLeft = amount;
 	}
@@ -66,8 +64,7 @@ public class BlockTypeHolder {
 
 	public void addChild(Collection<BlockTypeHolder> children) {
 		if (type != null)
-			throw new IllegalStateException(
-					"Node has type and is not a leave node.");
+			throw new IllegalStateException("Node has type and is not a leave node.");
 		if (children == null)
 			children = new HashSet<BlockTypeHolder>();
 		this.children.addAll(children);
@@ -101,20 +98,18 @@ public class BlockTypeHolder {
 		this.amountLeft = amountLeft;
 	}
 
-	public String getType(){
+	public String getType() {
 		return this.type;
 	}
-	
+
 	/**
-	 * Recursively tries to decrease the values of amountLeft up to the
-	 * parent-node. Returns true if every node had at least one allowed left (or
-	 * was negative), if at any point 0 allowed are encountered reverses the
-	 * whole process and returns false. <br>
-	 * Process is atomic. If two different blocks mutually excluding each other
-	 * are requested exactly one will succeed however which one is not
-	 * deterministic.<br>
-	 * (tl;dr: try decrease amount of allowed blocks up to parent node. If
-	 * amount=0 --> reverse everything and return false; else true)
+	 * Recursively tries to decrease the values of amountLeft up to the parent-node. Returns true if every node had at
+	 * least one allowed left (or was negative), if at any point 0 allowed are encountered reverses the whole process
+	 * and returns false. <br>
+	 * Process is atomic. If two different blocks mutually excluding each other are requested exactly one will succeed
+	 * however which one is not deterministic.<br>
+	 * (tl;dr: try decrease amount of allowed blocks up to parent node. If amount=0 --> reverse everything and return
+	 * false; else true)
 	 * 
 	 * @return true iff the action is possible false otherwise. see above!
 	 */
@@ -144,44 +139,42 @@ public class BlockTypeHolder {
 	}
 
 	/**
-	 * Returns a Map that tells which types of function blocks can run on this
-	 * module and how many. Works if this BlockTypeHolder is the parent of all
-	 * BlockTypeHolders for this module. If not: incomplete.
+	 * Returns a Map that tells which types of function blocks can run on this module and how many. Works if this
+	 * BlockTypeHolder is the parent of all BlockTypeHolders for this module. If not: incomplete.
 	 * 
-	 * @return Map from Types to amount of available slots for function blocks
-	 *         of this type
+	 * @return Map from Types to amount of available slots for function blocks of this type
 	 */
 	public HashMap<String, Integer> getTypes() {
 		HashMap<String, Integer> types = new HashMap<String, Integer>();
 		mapType(types);
 		return types;
 	}
-	
-	private HashMap<String, Integer> mapType(HashMap<String, Integer> map){
-		if (type != null && amountLeft > 0){
-			if (map.containsKey(type)){
+
+	private HashMap<String, Integer> mapType(HashMap<String, Integer> map) {
+		if (type != null && amountLeft > 0) {
+			if (map.containsKey(type)) {
 				int sum = map.get(type);
 				sum += amountLeft;
 				map.remove(type);
 				map.put(type, sum);
-			}
-			else{
+			} else {
 				map.put(type, amountLeft);
 			}
-		}
-		else if (children != null){
-			for (BlockTypeHolder child : children){
+		} else if (children != null) {
+			for (BlockTypeHolder child : children) {
 				map = child.mapType(map);
 			}
 		}
 		return map;
 	}
-	
+
 	public boolean isLeave() {
 		return type != null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -194,7 +187,9 @@ public class BlockTypeHolder {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

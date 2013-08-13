@@ -6,12 +6,10 @@ import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.swt.widgets.Composite;
 
 /**
- * List for Preferences, later used for several network preferences. The List of
- * preferences to be administrated by this class is given to the constructor as
- * a CheckText list containing Text fields. The user can enter values in these
- * Text fields and submit them via the interface provided by this class. Plus,
- * PrefList checks if the values entered by the user are valid and match their
- * assigned formats.
+ * List for Preferences, later used for several network preferences. The List of preferences to be administrated by this
+ * class is given to the constructor as a CheckText list containing Text fields. The user can enter values in these Text
+ * fields and submit them via the interface provided by this class. Plus, PrefList checks if the values entered by the
+ * user are valid and match their assigned formats.
  * 
  * @author jung
  * 
@@ -30,11 +28,9 @@ public class PrefList extends ListEditor {
 	 * @param parent
 	 *            Composite this PrefList is positioned in
 	 * @param textList
-	 *            CheckText List containing Text fields containing values for
-	 *            the PrefList
+	 *            CheckText List containing Text fields containing values for the PrefList
 	 */
-	public PrefList(String name, String labelText, Composite parent,
-			List<TextCheck> textList) {
+	public PrefList(String name, String labelText, Composite parent, List<TextCheck> textList) {
 		super(name, labelText, parent);
 		this.parent = parent;
 		this.textList = textList;
@@ -75,11 +71,10 @@ public class PrefList extends ListEditor {
 	}
 
 	/**
-	 * Standard functionality: Enable / Disable Up and Down depending on
-	 * selectionIndex
+	 * Standard functionality: Enable / Disable Up and Down depending on selectionIndex
 	 * 
-	 * Added functionality: show selected row in text fields above. Allows user
-	 * to edit preferences that have been set before.
+	 * Added functionality: show selected row in text fields above. Allows user to edit preferences that have been set
+	 * before.
 	 */
 	@Override
 	protected void selectionChanged() {

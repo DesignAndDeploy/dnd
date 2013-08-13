@@ -23,25 +23,28 @@ public class UDPMulticastChannelFactory {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(UDPMulticastChannelFactory.class);
-	
+
 	/**
 	 * The parent factory.
 	 */
 	private final ChannelFactory<? extends DatagramChannel> parentFactory;
-	
+
 	private final EventLoopGroup eventLoopGroup;
-	
+
 	/**
 	 * The ChannelHandler for new channels.
 	 */
 	private final ChannelHandler handler;
-	
+
 	/**
 	 * Initializes a new UDPMulticastChannelFactory.
 	 * 
-	 * @param parentFactory the parent factory
-	 * @param eventLoopGroup the EventLoopGroup to use
-	 * @param handler the ChannelHandler for new channels
+	 * @param parentFactory
+	 *            the parent factory
+	 * @param eventLoopGroup
+	 *            the EventLoopGroup to use
+	 * @param handler
+	 *            the ChannelHandler for new channels
 	 */
 	public UDPMulticastChannelFactory(final ChannelFactory<? extends DatagramChannel> parentFactory,
 			final EventLoopGroup eventLoopGroup, final ChannelHandler handler) {
@@ -51,12 +54,14 @@ public class UDPMulticastChannelFactory {
 		this.handler = handler;
 		LOGGER.exit();
 	}
-	
+
 	/**
 	 * Binds to a multicast address on a given interface.
 	 * 
-	 * @param interf the interface to use
-	 * @param address a multicast address. Must be resolved.
+	 * @param interf
+	 *            the interface to use
+	 * @param address
+	 *            a multicast address. Must be resolved.
 	 */
 	@SuppressWarnings("unchecked")
 	public ChannelFuture bind(final NetworkInterface interf, final InetSocketAddress address,
@@ -65,15 +70,15 @@ public class UDPMulticastChannelFactory {
 		if (!address.getAddress().isMulticastAddress()) {
 			throw new IllegalArgumentException("address is not a multicast address");
 		}
-		
+
 		final DatagramChannel channel = parentFactory.newChannel();
-		
+
 		for (final Entry<AttributeKey<?>, Object> attr : attrs.entrySet()) {
 			channel.attr((AttributeKey<Object>) attr.getKey()).set(attr.getValue());
 		}
-		
+
 		channel.pipeline().addLast(handler);
-		
+
 		final ChannelPromise regPromise = channel.newPromise();
 		LOGGER.debug("registering channel {} with promise {}", channel, regPromise);
 		eventLoopGroup.register(channel, regPromise);
@@ -86,7 +91,7 @@ public class UDPMulticastChannelFactory {
 			}
 			return regPromise;
 		}
-		
+
 		final ChannelPromise bindPromise = channel.newPromise();
 		final ChannelPromise joinPromise = channel.newPromise();
 		if (regPromise.isDone()) {
@@ -101,11 +106,11 @@ public class UDPMulticastChannelFactory {
 				}
 			});
 		}
-		
+
 		LOGGER.exit(joinPromise);
 		return joinPromise;
 	}
-	
+
 	private void doBind(final ChannelFuture regFuture, final DatagramChannel channel, final NetworkInterface interf,
 			final InetSocketAddress address, final ChannelPromise bindPromise, final ChannelPromise joinPromise) {
 		channel.eventLoop().execute(new Runnable() {
@@ -136,7 +141,7 @@ public class UDPMulticastChannelFactory {
 			}
 		});
 	}
-	
+
 	private void doJoin(final ChannelFuture bindFuture, final DatagramChannel channel, final NetworkInterface interf,
 			final InetSocketAddress address, final ChannelPromise promise) {
 		channel.eventLoop().execute(new Runnable() {

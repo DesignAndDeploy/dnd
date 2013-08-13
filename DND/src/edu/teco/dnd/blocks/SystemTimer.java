@@ -34,8 +34,8 @@ public class SystemTimer implements Timer {
 	}
 
 	/**
-	 * If at least {@code interval} seconds have passed, a new tick is generated and the timer is reset.
-	 * Otherwise, nothing happens.
+	 * If at least {@code interval} seconds have passed, a new tick is generated and the timer is reset. Otherwise,
+	 * nothing happens.
 	 * 
 	 * @return true if an update is needed, false otherwise
 	 */

@@ -18,13 +18,13 @@ class TCPClientChannelFactory {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(TCPClientChannelFactory.class);
-	
+
 	private final ChannelFactory<? extends Channel> parentFactory;
-	
+
 	private final EventLoopGroup eventLoopGroup;
-	
+
 	private final ChannelHandler handler;
-	
+
 	TCPClientChannelFactory(final ChannelFactory<? extends Channel> parentFactory, final EventLoopGroup eventLoopGroup,
 			final ChannelHandler handler) {
 		LOGGER.entry(parentFactory);
@@ -33,13 +33,13 @@ class TCPClientChannelFactory {
 		this.handler = handler;
 		LOGGER.exit();
 	}
-	
+
 	public ChannelFuture connect(final InetSocketAddress address) {
 		LOGGER.entry(address);
 		final Channel channel = parentFactory.newChannel();
-		
+
 		channel.pipeline().addLast(handler);
-		
+
 		final ChannelPromise regPromise = channel.newPromise();
 		LOGGER.debug("registering channel {} with promise {}", channel, regPromise);
 		eventLoopGroup.register(channel, regPromise);
@@ -52,7 +52,7 @@ class TCPClientChannelFactory {
 			}
 			return regPromise;
 		}
-		
+
 		final ChannelPromise promise = channel.newPromise();
 		if (regPromise.isDone()) {
 			LOGGER.debug("doing connect now");
@@ -66,13 +66,13 @@ class TCPClientChannelFactory {
 				}
 			});
 		}
-		
+
 		LOGGER.exit();
 		return promise;
 	}
-	
-	private void doConnect(final ChannelFuture regFuture, final Channel channel,
-			final InetSocketAddress address, final ChannelPromise promise) {
+
+	private void doConnect(final ChannelFuture regFuture, final Channel channel, final InetSocketAddress address,
+			final ChannelPromise promise) {
 		channel.eventLoop().execute(new Runnable() {
 			@Override
 			public void run() {

@@ -94,12 +94,13 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	@Override
 	public String toString() {
 		try {
-			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + UsercodeWrapper.getToString(value) + ", getApplicationID()="
-					+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
+			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value="
+					+ UsercodeWrapper.getToString(value) + ", getApplicationID()=" + getApplicationID()
+					+ ", getUUID()=" + getUUID() + "]";
 		} catch (UserSuppliedCodeException e) {
 			e.printStackTrace();
-			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + "ERROR" + ", getApplicationID()="
-			+ getApplicationID() + ", getUUID()=" + getUUID() + "]";
+			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + "ERROR"
+					+ ", getApplicationID()=" + getApplicationID() + ", getUUID()=" + getUUID() + "]";
 		}
 	}
 

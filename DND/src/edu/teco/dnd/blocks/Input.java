@@ -14,8 +14,8 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Input {
 	/**
-	 * If set to true all values will be passed to the FunctionBlock. If set to false values will be discarded
-	 * if newer ones arrive before the block is updated.
+	 * If set to true all values will be passed to the FunctionBlock. If set to false values will be discarded if newer
+	 * ones arrive before the block is updated.
 	 */
 	boolean value() default false;
 
