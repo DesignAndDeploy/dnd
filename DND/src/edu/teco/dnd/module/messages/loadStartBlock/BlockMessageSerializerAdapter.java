@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.loadStartBlock;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -13,7 +13,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
 import edu.teco.dnd.util.Base64;
 
 public class BlockMessageSerializerAdapter implements JsonSerializer<BlockMessage> {
@@ -28,10 +27,11 @@ public class BlockMessageSerializerAdapter implements JsonSerializer<BlockMessag
 		final JsonObject jsonObject = new JsonObject();
 		jsonObject.add("appId", context.serialize(src.getApplicationID()));
 		jsonObject.add("uuid", context.serialize(src.getUUID()));
+		jsonObject.add("scheduleToId", context.serialize(src.scheduleToId));
 		try {
 			jsonObject.add("block", new JsonPrimitive(Base64.encodeObject(src.block)));
 		} catch (IOException e) {
-			throw new JsonParseException("Can not base64 value of valueMessage.");
+			throw new JsonParseException("Can not base64 block of blockMessage.");
 		}
 
 		LOGGER.exit(jsonObject);

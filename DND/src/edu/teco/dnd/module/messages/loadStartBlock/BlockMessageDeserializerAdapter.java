@@ -1,4 +1,4 @@
-package edu.teco.dnd.module.messages;
+package edu.teco.dnd.module.messages.loadStartBlock;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -17,7 +17,6 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.module.UsercodeWrapper;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
 import edu.teco.dnd.util.Base64;
 
 public class BlockMessageDeserializerAdapter implements JsonDeserializer<BlockMessage> {
@@ -35,6 +34,7 @@ public class BlockMessageDeserializerAdapter implements JsonDeserializer<BlockMe
 	public BlockMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
 		UUID appId;
 		UUID msgUuid;
+		int scheduleToId;
 		FunctionBlock block;
 
 		LOGGER.entry(json, typeOfT, context);
@@ -46,6 +46,7 @@ public class BlockMessageDeserializerAdapter implements JsonDeserializer<BlockMe
 
 		appId = context.deserialize(jObject.get("appId"), UUID.class);
 		msgUuid = context.deserialize(jObject.get("uuid"), UUID.class);
+		scheduleToId = context.deserialize(jObject.get("scheduleToId"), int.class);
 		ClassLoader loader = appMan.getAppClassLoader(appId);
 		try {
 			block =
@@ -59,6 +60,6 @@ public class BlockMessageDeserializerAdapter implements JsonDeserializer<BlockMe
 			throw new JsonParseException("Can not decode base64 serializable (overriden decoder?)");
 		}
 
-		return new BlockMessage(msgUuid, appId, block);
+		return new BlockMessage(msgUuid, appId, block, scheduleToId);
 	}
 }
