@@ -189,7 +189,7 @@ public class JsonConfig extends ConfigReader {
 	public boolean getAllowNIO() {
 		return allowNIO;
 	}
-	
+
 	@Override
 	public int getAnnounceInterval() {
 		return announceInterval;

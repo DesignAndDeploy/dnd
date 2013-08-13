@@ -37,7 +37,8 @@ public class ApplicationListResponse extends Response {
 	 * @param applicationNames
 	 *            the UUIDs of the running Applications mapped to their names
 	 */
-	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames, Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks) {
+	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames,
+			Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks) {
 		this.moduleUUID = moduleUUID;
 		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
 		this.applicationBlocks = Collections.unmodifiableMap(new HashMap<UUID, Map<UUID, FunctionBlock>>());
@@ -70,13 +71,13 @@ public class ApplicationListResponse extends Response {
 	public Map<UUID, String> getApplicationNames() {
 		return this.applicationNames;
 	}
-	
+
 	/**
 	 * Returns the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
 	 * 
 	 * @return the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
 	 */
-	public  Map<UUID, Map<UUID, FunctionBlock>> getApplicationBlocks() {
+	public Map<UUID, Map<UUID, FunctionBlock>> getApplicationBlocks() {
 		return this.applicationBlocks;
 	}
 

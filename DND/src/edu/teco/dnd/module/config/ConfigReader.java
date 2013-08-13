@@ -55,12 +55,13 @@ public abstract class ConfigReader {
 	 *         tree. See getAllowedBlocks() for a Map version.
 	 */
 	public abstract BlockTypeHolder getBlockRoot();
+
 	/**
-	 * @return a set of blocks allowed to run and their amounts (encoded in BlockType). Key is the <i>internal id number</i> of the
-	 *         block.
+	 * @return a set of blocks allowed to run and their amounts (encoded in BlockType). Key is the <i>internal id
+	 *         number</i> of the block.
 	 */
 	public abstract Map<Integer, BlockTypeHolder> getAllowedBlocksById();
 
-	public abstract int getAnnounceInterval(); 
+	public abstract int getAnnounceInterval();
 
 }
