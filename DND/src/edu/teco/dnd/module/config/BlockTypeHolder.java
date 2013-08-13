@@ -103,9 +103,6 @@ public class BlockTypeHolder {
 		return this.type;
 	}
 
-<<<<<<< HEAD
-	/**
-=======
 	/**
 	 * @return the idNumber
 	 */
@@ -125,7 +122,6 @@ public class BlockTypeHolder {
 	}
 
 	/**
->>>>>>> work on #22 #15 #9 #8 #
 	 * Recursively tries to decrease the values of amountLeft up to the parent-node. Returns true if every node had at
 	 * least one allowed left (or was negative), if at any point 0 allowed are encountered reverses the whole process
 	 * and returns false. <br>
