@@ -41,6 +41,7 @@ public class ModuleApplicationManager {
 	private final ConnectionManager connMan;
 	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
+	private final Map<UUID, Integer> spotOccupiedByBlock = new HashMap<UUID, Integer>();
 
 	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
 		this.localeModuleId = moduleConfig.getUuid();
@@ -105,7 +106,7 @@ public class ModuleApplicationManager {
 	 * @param insecureBlock
 	 *            the FunctionBlock
 	 */
-	public boolean scheduleBlock(UUID appId, FunctionBlock insecureBlock) {
+	public boolean scheduleBlock(UUID appId, FunctionBlock insecureBlock, int scheduleToId) {
 		FunctionBlock block;
 		if (insecureBlock == null) {
 			LOGGER.warn("send block message with NULL block.");
@@ -122,16 +123,31 @@ public class ModuleApplicationManager {
 		String blockType = block.getType();
 
 		try {
-			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
-			if (blockAllowed == null) {
-				LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
-				return false;
+			BlockTypeHolder blockAllowed;
+			if (scheduleToId < 0) {
+				blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
+			} else {
+				blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
 			}
 
-			if (!blockAllowed.tryDecrease()) {
-				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", blockType);
+			if (blockAllowed == null) {
+				if (scheduleToId < 0) {
+					LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
+				} else {
+					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, runningApps.get(appId), appId);
+				}
 				return false;
 			}
+			if (!blockAllowed.type.equals(blockType)) {
+				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId, blockAllowed.type,
+						blockType);
+				return false;
+			}
+			if (!blockAllowed.tryDecrease()) {
+				LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
+				return false;
+			}
+			spotOccupiedByBlock.put(block.getID(), blockAllowed.getIdNumber());
 			scheduledToStart.add(block);
 			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, runningApps.get(appId), appId);
 			return true;
@@ -218,12 +234,14 @@ public class ModuleApplicationManager {
 		runningApps.remove(appId);
 		for (FunctionBlock block : blocksKilled) {
 
-			BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(block.getType());
+			// BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(block.getType());
+			BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(block.getID()));
 			if (holder != null) {
 				holder.increase();
 			} else {
 				LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
 			}
+			spotOccupiedByBlock.remove(block.getID());
 		}
 	}
 

@@ -286,6 +286,10 @@ public class Application {
 		return scheduledThreadPool;
 	}
 
+	public Map<UUID, FunctionBlock> getFuncBlockById() {
+		return new HashMap<UUID, FunctionBlock>(funcBlockById);
+	}
+
 	/**
 	 * @param blockId
 	 *            the blockId to check for.

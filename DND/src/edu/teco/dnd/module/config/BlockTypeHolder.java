@@ -25,6 +25,7 @@ public class BlockTypeHolder {
 	@SerializedName("amount")
 	private int amountAllowed = -1;
 	private int amountLeft = -1;
+	private int idNumber = -1;
 	/** null if none */
 	private Set<BlockTypeHolder> children = null;
 
@@ -102,7 +103,29 @@ public class BlockTypeHolder {
 		return this.type;
 	}
 
+<<<<<<< HEAD
 	/**
+=======
+	/**
+	 * @return the idNumber
+	 */
+	public int getIdNumber() {
+		return idNumber;
+	}
+
+	/**
+	 * @param idNumber
+	 *            the idNumber to set >= 0
+	 */
+	public void setIdNumber(int idNumber) {
+		if (idNumber < 0) {
+			throw new IllegalArgumentException();
+		}
+		this.idNumber = idNumber;
+	}
+
+	/**
+>>>>>>> work on #22 #15 #9 #8 #
 	 * Recursively tries to decrease the values of amountLeft up to the parent-node. Returns true if every node had at
 	 * least one allowed left (or was negative), if at any point 0 allowed are encountered reverses the whole process
 	 * and returns false. <br>

@@ -28,10 +28,12 @@ public class TestConfigReader extends ConfigReader {
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
 	private BlockTypeHolder allowedBlocks; // the rootBlock
+	private int currentBlockId = 0;
 
 	private static transient final Logger LOGGER = LogManager.getLogger(TestConfigReader.class);
 
 	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
+	private transient Map<Integer, BlockTypeHolder> blockIdQuickaccess = new HashMap<Integer, BlockTypeHolder>();
 
 	public TestConfigReader(String name, UUID moduleUuid, int maxAppthreads, boolean allowNIO,
 			InetSocketAddress[] listen, InetSocketAddress[] announce, NetConnection[] multicast,
@@ -87,6 +89,9 @@ public class TestConfigReader extends ConfigReader {
 
 	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess,
 			final BlockTypeHolder currentBlock) {
+		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
+		currentBlock.setIdNumber(++currentBlockId);
+		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children == null) {
 			blockQuickaccess.put(currentBlock.type, currentBlock);
@@ -147,6 +152,16 @@ public class TestConfigReader extends ConfigReader {
 	@Override
 	public boolean getAllowNIO() {
 		return allowNIO;
+	}
+
+	@Override
+	public Map<Integer, BlockTypeHolder> getAllowedBlocksById() {
+		return blockIdQuickaccess;
+	}
+
+	@Override
+	public int getAnnounceInterval() {
+		return 2;
 	}
 
 }

@@ -60,7 +60,7 @@ public class ApplicationQuery {
 				if (response == null || !(response instanceof ApplicationListResponse)) {
 					setFailure(new IllegalArgumentException("did not get an ApplicationListResponse"));
 				} else {
-					setSuccess(((ApplicationListResponse) response).getApplications());
+					setSuccess(((ApplicationListResponse) response).getApplicationNames());
 				}
 			} else {
 				setFailure(future.cause());
@@ -91,8 +91,8 @@ public class ApplicationQuery {
 				final Response response = future.getNow();
 				if (response instanceof ApplicationListResponse) {
 					final ApplicationListResponse applicationListResponse = (ApplicationListResponse) response;
-					applications
-							.put(applicationListResponse.getModuleUUID(), applicationListResponse.getApplications());
+					applications.put(applicationListResponse.getModuleUUID(),
+							applicationListResponse.getApplicationNames());
 				}
 			}
 			if (waiting.decrementAndGet() <= 0) {

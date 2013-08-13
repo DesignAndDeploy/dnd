@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -19,7 +20,11 @@ public class ApplicationListResponse extends Response {
 	/**
 	 * The UUIDs of all running applications mapped to their names.
 	 */
-	private final Map<UUID, String> applications;
+	private final Map<UUID, String> applicationNames;
+	/**
+	 * The UUIDs of all running applications mapped to their running Map<BlockUUID,FunctionBlock>.
+	 */
+	private final Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks;
 
 	/**
 	 * The UUID of the module this Response was generated on.
@@ -29,12 +34,13 @@ public class ApplicationListResponse extends Response {
 	/**
 	 * Creates a new ApplicationListResponse.
 	 * 
-	 * @param applications
+	 * @param applicationNames
 	 *            the UUIDs of the running Applications mapped to their names
 	 */
-	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applications) {
+	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames, Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks) {
 		this.moduleUUID = moduleUUID;
-		this.applications = Collections.unmodifiableMap(new HashMap<UUID, String>(applications));
+		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
+		this.applicationBlocks = Collections.unmodifiableMap(new HashMap<UUID, Map<UUID, FunctionBlock>>());
 	}
 
 	/**
@@ -43,7 +49,8 @@ public class ApplicationListResponse extends Response {
 	@SuppressWarnings("unused")
 	private ApplicationListResponse() {
 		this.moduleUUID = null;
-		this.applications = null;
+		this.applicationNames = null;
+		this.applicationBlocks = null;
 	}
 
 	/**
@@ -60,8 +67,17 @@ public class ApplicationListResponse extends Response {
 	 * 
 	 * @return the UUIDs of all running Applications mapped to their name
 	 */
-	public Map<UUID, String> getApplications() {
-		return this.applications;
+	public Map<UUID, String> getApplicationNames() {
+		return this.applicationNames;
+	}
+	
+	/**
+	 * Returns the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
+	 * 
+	 * @return the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
+	 */
+	public  Map<UUID, Map<UUID, FunctionBlock>> getApplicationBlocks() {
+		return this.applicationBlocks;
 	}
 
 	/*
@@ -73,7 +89,7 @@ public class ApplicationListResponse extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((applications == null) ? 0 : applications.hashCode());
+		result = prime * result + ((applicationNames == null) ? 0 : applicationNames.hashCode());
 		result = prime * result + ((moduleUUID == null) ? 0 : moduleUUID.hashCode());
 		return result;
 	}
@@ -95,11 +111,11 @@ public class ApplicationListResponse extends Response {
 			return false;
 		}
 		ApplicationListResponse other = (ApplicationListResponse) obj;
-		if (applications == null) {
-			if (other.applications != null) {
+		if (applicationNames == null) {
+			if (other.applicationNames != null) {
 				return false;
 			}
-		} else if (!applications.equals(other.applications)) {
+		} else if (!applicationNames.equals(other.applicationNames)) {
 			return false;
 		}
 		if (moduleUUID == null) {
@@ -119,7 +135,7 @@ public class ApplicationListResponse extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "ApplicationListResponse [applications=" + applications + ", moduleUUID=" + moduleUUID
+		return "ApplicationListResponse [applications=" + applicationNames + ", moduleUUID=" + moduleUUID
 				+ ", getSourceUUID()=" + getSourceUUID() + "]";
 	}
 
