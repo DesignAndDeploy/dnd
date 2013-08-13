@@ -1,6 +1,10 @@
 package edu.teco.dnd.blocks;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -21,20 +25,28 @@ public abstract class FunctionBlock implements Serializable {
 	 */
 	private UUID blockUUID = null;
 	
-	/**
-	 * Sets the block UUID if none has been set. Does not change the UUID once it has been set.
-	 * 
-	 * @param blockID the UUID of this block
-	 * @return true if the block UUID was set, false otherwise
-	 */
-	public final synchronized boolean setBlockUUID(final UUID blockID) {
-		if (this.blockUUID != null) {
-			return false;
-		}
-		this.blockUUID = blockID;
-		return true;
-	}
+	private Map<String, Output<? extends Serializable>> outputs = null;
 	
+	public synchronized final void doInit(final UUID blockUUID) throws IllegalArgumentException, IllegalAccessException {
+		if (this.blockUUID != null) {
+			return;
+		}
+		
+		this.blockUUID = blockUUID;
+		final Map<String, Output<? extends Serializable>> outputs = new HashMap<String, Output<? extends Serializable>>();
+		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
+			for (final Field field : c.getFields()) {
+				if (Output.class.isAssignableFrom(field.getType()) && !outputs.containsKey(field.getName())) {
+					final Output<?> output = new Output<Serializable>();
+					field.setAccessible(true);
+					field.set(this, output);
+					outputs.put(field.getName(), output);
+				}
+			}
+		}
+		this.outputs = Collections.unmodifiableMap(outputs);
+	}
+
 	/**
 	 * Returns the UUID of this block.
 	 * 
@@ -42,6 +54,10 @@ public abstract class FunctionBlock implements Serializable {
 	 */
 	public final synchronized UUID getBlockUUID() {
 		return this.blockUUID;
+	}
+	
+	public final synchronized Map<String, Output<? extends Serializable>> getOutputs() {
+		return this.outputs;
 	}
 
 	/**

@@ -1,33 +1,53 @@
 package edu.teco.dnd.module.messages.loadStartBlock;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class BlockMessage extends ApplicationSpecificMessage {
 
-	public static String MESSAGE_TYPE = "block";
+	public static final String MESSAGE_TYPE = "block";
 
-	public String blockClass;
+	public final String blockClass;
 	
-	public UUID blockUUID;
+	public final UUID blockUUID;
 	
-	public Map<String, String> options;
+	public final Map<String, String> options;
+	
+	public final Map<String, Collection<ValueDestination>> outputs;
 
-	public BlockMessage(UUID uuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options) {
+	public BlockMessage(UUID uuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options, Map<String, Collection<ValueDestination>> outputs) {
 		super(uuid, appId);
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
+		this.outputs = new HashMap<String, Collection<ValueDestination>>();
+		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
+			final Collection<ValueDestination> destinations = output.getValue();
+			if (destinations != null) {
+				this.outputs.put(output.getKey(), new HashSet<ValueDestination>(destinations));
+			}
+		}
 	}
 
-	public BlockMessage(UUID appId, String blockClass, UUID blockUUID, Map<String, String> options) {
+	public BlockMessage(UUID appId, String blockClass, UUID blockUUID, Map<String, String> options, Map<String, Collection<ValueDestination>> outputs) {
 		super(appId);
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
+		this.outputs = new HashMap<String, Collection<ValueDestination>>();
+		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
+			final Collection<ValueDestination> destinations = output.getValue();
+			if (destinations != null) {
+				this.outputs.put(output.getKey(), new HashSet<ValueDestination>(destinations));
+			}
+		}
 	}
 
 	@Override

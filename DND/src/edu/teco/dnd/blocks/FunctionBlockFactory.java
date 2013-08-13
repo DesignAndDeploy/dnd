@@ -102,16 +102,15 @@ public class FunctionBlockFactory {
 						blockType = Utility.convertString(((ConstantUtf8) c).getBytes());
 					}
 					final String typeClassName = ((ObjectType) type).getClassName();
-					if (!inputs.containsKey(field.getName()) && outputClass.getClassName().equals(typeClassName)) {
+					if (!outputs.containsKey(field.getName()) && outputClass.getClassName().equals(typeClassName)) {
 						outputs.put(field.getName(), getGenericAttribute(field));
-					} else if (!outputs.containsKey(field.getName()) && inputClass.getClassName().equals(typeClassName)) {
+					} else if (!inputs.containsKey(field.getName()) && inputClass.getClassName().equals(typeClassName)) {
 						inputs.put(field.getName(), getGenericAttribute(field));
 					} else if (optionClass.getClassName().equals(typeClassName)) {
 						options.add(field.getName());
 					}
 				} else if (type instanceof BasicType) {
 					if (updateInterval == null && "BLOCK_UPDATE_INTERVAL".equals(field.getName())) {
-						System.out.println(field.getConstantValue());
 						final ConstantPool cp = field.getConstantPool();
 						ConstantLong c = (ConstantLong) cp.getConstant(field.getConstantValue().getConstantValueIndex());
 						updateInterval = c.getBytes();
@@ -120,7 +119,6 @@ public class FunctionBlockFactory {
 			}
 			currentCls = currentCls.getSuperClass();
 		}
-		System.out.println(updateInterval);
 		return new FunctionBlockClass(cls, blockType, updateInterval, inputs, outputs, options);
 	}
 	

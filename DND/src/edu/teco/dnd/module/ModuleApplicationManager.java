@@ -1,5 +1,6 @@
 package edu.teco.dnd.module;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,6 +18,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.Output;
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
@@ -108,7 +111,7 @@ public class ModuleApplicationManager {
 	 * @param blockUUID the UUID of the FunctionBlock
 	 * @param options the options for the FunctionBlock
 	 */
-	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID, final Map<String, String> options) {
+	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID, final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs) {
 		isShuttingDown.readLock().lock();
 		try {
 			String blockType = "";
@@ -149,7 +152,15 @@ public class ModuleApplicationManager {
 				e.printStackTrace();
 				return false;
 			}
-			block.setBlockUUID(blockUUID);
+			try {
+				block.doInit(blockUUID);
+			} catch (final IllegalArgumentException e) {
+				e.printStackTrace();
+				return false;
+			} catch (final IllegalAccessException e) {
+				e.printStackTrace();
+				return false;
+			}
 			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
 			if (blockAllowed == null) {
 				LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
@@ -159,8 +170,19 @@ public class ModuleApplicationManager {
 				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", blockType);
 				return false;
 			}
+			final Map<String, Output<? extends Serializable>> blockOutputs = block.getOutputs();
+			for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
+				final Output<? extends Serializable> out = blockOutputs.get(output.getKey());
+				if (out == null) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("did not find Output {}", output.getKey());
+					}
+					continue;
+				}
+				out.setTarget(application.new ApplicationOutputTarget(output.getValue()));
+			}
 			scheduledToStart.add(block);
-			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, runningApps.get(appId), appId);
+			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, application, appId);
 			return true;
 		} finally {
 			isShuttingDown.readLock().unlock();

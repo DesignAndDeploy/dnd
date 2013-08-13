@@ -3,7 +3,9 @@ package edu.teco.dnd.module;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,6 +20,8 @@ import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
+import edu.teco.dnd.blocks.OutputTarget;
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -268,5 +272,20 @@ public class Application {
 	 */
 	public boolean isExecuting(UUID blockId) {
 		return funcBlockById.containsKey(blockId);
+	}
+	
+	class ApplicationOutputTarget implements OutputTarget<Serializable> {
+		private final Set<ValueDestination> destinations;
+		
+		public ApplicationOutputTarget(final Collection<ValueDestination> destinations) {
+			this.destinations = new HashSet<ValueDestination>(destinations);
+		}
+		
+		@Override
+		public void setValue(Serializable value) {
+			for (final ValueDestination destination : destinations) {
+				sendValue(destination.getBlock(), destination.getInput(), value);
+			}
+		}
 	}
 }

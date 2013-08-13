@@ -18,9 +18,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
@@ -304,7 +307,7 @@ public class Deploy {
 	private Map<FunctionBlockModel, Set<ClassFile>> getNeededFiles() {
 		final Map<FunctionBlockModel, Set<ClassFile>> neededFiles = new HashMap<FunctionBlockModel, Set<ClassFile>>();
 		for (final FunctionBlockModel block : distribution.keySet()) {
-			neededFiles.put(block, new HashSet<ClassFile>(dependencies.getDependencies(block.getClass().getName())));
+			neededFiles.put(block, new HashSet<ClassFile>(dependencies.getDependencies(block.getBlockClass())));
 		}
 		return neededFiles;
 	}
@@ -488,7 +491,17 @@ public class Deploy {
 		for (final OptionModel option : block.getOptions()) {
 			options.put(option.getName(), option.getValue());
 		}
-		final BlockMessage blockMsg = new BlockMessage(appId, block.getType(), block.getID(), options);
+		final Map<String, Collection<ValueDestination>> outputs = new HashMap<String, Collection<ValueDestination>>();
+		for (final OutputModel output : block.getOutputs()) {
+			final Collection<ValueDestination> destinations = new ArrayList<ValueDestination>();
+			for (final InputModel input : output.getInputs()) {
+				destinations.add(new ValueDestination(input.getFunctionBlock().getID(), input.getName()));
+			}
+			if (!destinations.isEmpty()) {
+				outputs.put(output.getName(), destinations);
+			}
+		}
+		final BlockMessage blockMsg = new BlockMessage(appId, block.getBlockClass(), block.getID(), options, outputs);
 		return connectionManager.sendMessage(moduleUUID, blockMsg);
 	}
 

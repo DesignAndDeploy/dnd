@@ -15,8 +15,8 @@ public class FunctionBlockSecurityDecorator extends FunctionBlock {
 
 	private final FunctionBlock block;
 
-	public FunctionBlockSecurityDecorator(FunctionBlock block) throws UserSuppliedCodeException, NullPointerException {
-		setBlockUUID(block.getBlockUUID());
+	public FunctionBlockSecurityDecorator(FunctionBlock block) throws UserSuppliedCodeException, NullPointerException, IllegalArgumentException, IllegalAccessException {
+		doInit(block.getBlockUUID());
 		this.block = block;
 	}
 
