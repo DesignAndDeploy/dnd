@@ -33,10 +33,12 @@ public class ApplicationSecurityManager extends SecurityManager {
 	private static final Logger LOGGER = LogManager.getLogger(ApplicationSecurityManager.class);
 
 	/**
-	 * Classes after passing through which code is considered insecure. Class names can be partial (missing beginning
-	 * and/or end).
+	 * Classes/Methods after passing through which code is considered insecure. Class/Method names can be partial
+	 * (missing beginning and/or end). specifying an array with only 1 element, means the whole class. Syntax: <br>
+	 * String[0]=classname ; <br>
+	 * String[1] = method name.(optional)
 	 */
-	private static final Collection<String> insecureClasses = new LinkedList<String>();
+	private static final Collection<String[]> insecureMethods = new LinkedList<String[]>();
 
 	/**
 	 * Methods the code can call after which execution is considered privileged again.<br>
@@ -48,9 +50,21 @@ public class ApplicationSecurityManager extends SecurityManager {
 	private static final Collection<String[]> securedMethods = new LinkedList<String[]>();
 
 	static {
-		insecureClasses.add("edu.teco.dnd.module.UsercodeWrapper");
-		insecureClasses.add("edu.teco.dnd.module.FunctionBlockSecurityDecorator");
+		insecureMethods.add(new String[] { "edu.teco.dnd.module.UsercodeWrapper" });
+		insecureMethods.add(new String[] { "edu.teco.dnd.module.FunctionBlockSecurityDecorator" });
+		insecureMethods.add(new String[] { "java.io.ObjectStreamClass", "invokeReadObject" });
+		insecureMethods.add(new String[] { "java.io.ObjectStreamClass", "invokeReadResolve" });
+
 		securedMethods.add(new String[] { "edu.teco.dnd.module.Application", "sendValue" });
+		// sending need special privileges.
+		securedMethods.add(new String[] { "java.lang.ClassLoader", "loadClass" });
+		// Default class loader needs FilePrivileges (not sure whether safe).
+		securedMethods.add(new String[] { "edu.teco.dnd.blocks.FunctionBlock", "getInputs" });
+		securedMethods.add(new String[] { "edu.teco.dnd.blocks.FunctionBlock", "getOptions" });
+		securedMethods.add(new String[] { "edu.teco.dnd.blocks.FunctionBlock", "getTimebetweenSchedules" });
+
+		securedMethods.add(new String[] { "edu.teco.dnd.util.Base64$1", "<init>" });
+		securedMethods.add(new String[] { "java.io.ObjectInputStream", "readObject" });
 	}
 
 	public ApplicationSecurityManager() {
@@ -64,6 +78,7 @@ public class ApplicationSecurityManager extends SecurityManager {
 	 * @return true if we are inside an application, and not within other context.
 	 */
 	private boolean isPrivilegedCode() {
+		String[] reasonForGrant = null;
 		boolean isPrivileged = true;
 		Thread currentThread = Thread.currentThread();
 		if (currentThread == null) {
@@ -75,23 +90,30 @@ public class ApplicationSecurityManager extends SecurityManager {
 
 		for (int i = stackTrace.length - 1; i >= 0; i--) {
 			StackTraceElement ste = stackTrace[i];
-
-			for (String str : insecureClasses) {
-				if (ste.getClassName().contains(str)) {
-					// stack shows we are inside code that is considered unsafe.
-					isPrivileged = false;
-					break;
+			for (String[] str : insecureMethods) {
+				if (ste.getClassName().contains(str[0])) {
+					if (str.length == 1 || ste.getMethodName().contains(str[1])) {
+						// stack shows we are inside code that is considered unsafe.
+						isPrivileged = false;
+						break;
+					}
 				}
 			}
 			for (String[] str : securedMethods) {
 				if (ste.getClassName().equals(str[0]) && ste.getMethodName().equals(str[1])) {
 					// Code assumed safe again;
-					isPrivileged = true;
+					if (!isPrivileged) {
+						isPrivileged = true;
+						reasonForGrant = str;
+					}
 					break;
 					// FIXME: we really need a finer distinction than this.
 				}
 			}
 		} // Next ste;
+		if (isPrivileged && reasonForGrant != null) {
+			System.out.println("granting privileges because of " + reasonForGrant[0] + "." + reasonForGrant[1]);
+		}
 		return isPrivileged;
 	}
 
@@ -140,6 +162,12 @@ public class ApplicationSecurityManager extends SecurityManager {
 					doAllow = true;
 				} else if (bPerm.getName().equals("getProtectionDomain")) {
 					doAllow = true;
+				} else if (bPerm.getName().equals("accessDeclaredMembers")) {
+					StackTraceElement trace = Thread.currentThread().getStackTrace()[15];
+					if (trace.getClass().equals("edu.teco.dnd.util.Base64$1")
+							&& trace.getMethodName().equals("readObject")) {
+						doAllow = true;
+					}
 				} else {
 					// Deny
 				}

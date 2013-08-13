@@ -15,6 +15,8 @@ import com.google.gson.JsonParseException;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.UserSuppliedCodeException;
+import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
 import edu.teco.dnd.util.Base64;
 
@@ -46,12 +48,14 @@ public class BlockMessageDeserializerAdapter implements JsonDeserializer<BlockMe
 		msgUuid = context.deserialize(jObject.get("uuid"), UUID.class);
 		ClassLoader loader = appMan.getAppClassLoader(appId);
 		try {
-			block = (FunctionBlock) Base64
-					.decodeToObject(jObject.get("block").getAsString(), Base64.NO_OPTIONS, loader);
+			block = (FunctionBlock) UsercodeWrapper.base64DecodeToObject(jObject.get("block").getAsString(),
+					Base64.NO_OPTIONS, loader);
 		} catch (IOException e) {
 			throw new JsonParseException("can not parse base64 serializable");
 		} catch (ClassNotFoundException e) {
 			throw new JsonParseException("no appropriate class to decode serializable in value message.");
+		} catch (UserSuppliedCodeException e) {
+			throw new JsonParseException("Can not decode base64 serializable (overriden decoder?)");
 		}
 
 		return new BlockMessage(msgUuid, appId, block);

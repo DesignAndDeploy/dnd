@@ -82,20 +82,6 @@ public class FunctionBlockSecurityDecorator extends FunctionBlock {
 	}
 
 	@Override
-	public long getTimebetweenSchedules() {
-		long time;
-		try {
-			time = block.getTimebetweenSchedules();
-		} catch (Throwable t) {
-			LOGGER.warn("Block {} ({}), threw an exception in getTimebetweenSchedules()", this.getBlockName(),
-					this.getID());
-			return -1;
-		}
-		return time;
-
-	}
-
-	@Override
 	public int hashCode() {
 		// Note that we cannot prevent breaking the equals/hashCode contract.
 		int hashCode;
