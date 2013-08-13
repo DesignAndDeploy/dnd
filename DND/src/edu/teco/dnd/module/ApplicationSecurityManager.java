@@ -112,7 +112,7 @@ public class ApplicationSecurityManager extends SecurityManager {
 			}
 		} // Next ste;
 		if (isPrivileged && reasonForGrant != null) {
-			System.out.println("granting privileges because of " + reasonForGrant[0] + "." + reasonForGrant[1]);
+			LOGGER.trace("granting privileges because of {}.{}", reasonForGrant[0], reasonForGrant[1]);
 		}
 		return isPrivileged;
 	}
