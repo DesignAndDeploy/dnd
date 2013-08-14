@@ -183,7 +183,8 @@ public class Application {
 
 		// TODO: implement a way to specify interval for updates
 		// long period = block.getTimebetweenSchedules();
-		long period = Integer.MIN_VALUE;
+		long period = block.getUpdateInterval();
+		System.out.println(period);
 		try {
 			if (period < 0) {
 				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);

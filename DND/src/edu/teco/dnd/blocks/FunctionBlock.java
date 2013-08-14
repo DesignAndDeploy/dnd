@@ -89,6 +89,36 @@ public abstract class FunctionBlock implements Serializable {
 		}
 		return null;
 	}
+	
+	// FIXME: FunctionBlocks can still change the value with reflection. Get the value in doInit and keep it
+	public final long getUpdateInterval() {
+		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
+			final Field field;
+			try {
+				field = c.getDeclaredField("BLOCK_UPDATE_INTERVAL");
+			} catch (SecurityException e) {
+				continue;
+			} catch (NoSuchFieldException e) {
+				continue;
+			}
+			final int modifiers = field.getModifiers();
+			if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers) && long.class.equals(field.getType())) {
+				field.setAccessible(true);
+				Long value = null;
+				try {
+					value = (Long) field.get(null);
+				} catch (IllegalArgumentException e) {
+					continue;
+				} catch (IllegalAccessException e) {
+					continue;
+				}
+				if (value != null) {
+					return value;
+				}
+			}
+		}
+		return Long.MIN_VALUE;
+	}
 
 	/**
 	 * This method is called when a FunctionBlock is started on a module.
