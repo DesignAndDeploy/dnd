@@ -19,7 +19,6 @@ import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
 /**
  * This feature is used to create new FunctionBlocks.
  */
-@SuppressWarnings("restriction")
 public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	/**
 	 * The type of blocks created by this feature.
