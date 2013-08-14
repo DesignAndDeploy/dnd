@@ -25,6 +25,7 @@ public class BlockTypeHolder {
 	@SerializedName("amount")
 	private int amountAllowed = -1;
 	private int amountLeft = -1;
+	private int idNumber = -1;
 	/** null if none */
 	private Set<BlockTypeHolder> children = null;
 
@@ -100,6 +101,24 @@ public class BlockTypeHolder {
 
 	public String getType() {
 		return this.type;
+	}
+
+	/**
+	 * @return the idNumber
+	 */
+	public int getIdNumber() {
+		return idNumber;
+	}
+
+	/**
+	 * @param idNumber
+	 *            the idNumber to set >= 0
+	 */
+	public void setIdNumber(int idNumber) {
+		if (idNumber < 0) {
+			throw new IllegalArgumentException();
+		}
+		this.idNumber = idNumber;
 	}
 
 	/**

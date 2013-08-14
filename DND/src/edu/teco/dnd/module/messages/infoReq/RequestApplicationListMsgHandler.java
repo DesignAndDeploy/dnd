@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
@@ -27,10 +28,13 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 	@Override
 	public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
 			final RequestApplicationListMessage message) {
-		final Map<UUID, String> applications = new HashMap<UUID, String>();
+		final Map<UUID, String> applicationNames = new HashMap<UUID, String>();
+		final Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks = new HashMap<UUID, Map<UUID, FunctionBlock>>();
+
 		for (final Application application : applicationManager.getRunningApps().values()) {
-			applications.put(application.getOwnAppId(), application.getName());
+			applicationNames.put(application.getOwnAppId(), application.getName());
+			applicationBlocks.put(application.getOwnAppId(), application.getFuncBlockById());
 		}
-		return new ApplicationListResponse(moduleUUID, applications);
+		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks);
 	}
 }

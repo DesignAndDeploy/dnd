@@ -27,10 +27,12 @@ public class JsonConfig extends ConfigReader {
 	private UUID uuid = UUID.randomUUID();
 	private int maxAppthreads = 0;
 	private boolean allowNIO = true;
+	private int announceInterval = 5;
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
 	private BlockTypeHolder allowedBlocks; // the rootBlock
+	private transient int currentBlockId = 0;
 
 	private static transient final Logger LOGGER = LogManager.getLogger(JsonConfig.class);
 	private static transient final Gson gson;
@@ -56,6 +58,7 @@ public class JsonConfig extends ConfigReader {
 	}
 
 	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
+	private transient Map<Integer, BlockTypeHolder> blockIdQuickaccess = new HashMap<Integer, BlockTypeHolder>();
 
 	public JsonConfig() {
 	}
@@ -76,6 +79,7 @@ public class JsonConfig extends ConfigReader {
 		if (oldConf.uuid != null) {
 			this.uuid = oldConf.uuid;
 		}
+		this.announceInterval = oldConf.announceInterval;
 		this.listen = oldConf.listen;
 		this.announce = oldConf.announce;
 		this.multicast = oldConf.multicast;
@@ -99,20 +103,22 @@ public class JsonConfig extends ConfigReader {
 		}
 
 		if (allowedBlocks != null) {
-			fillTransientVariables(blockQuickaccess, allowedBlocks);
+			fillTransientVariables(blockQuickaccess, blockIdQuickaccess, allowedBlocks);
 		}
 	}
 
 	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess,
-			final BlockTypeHolder currentBlock) {
+			Map<Integer, BlockTypeHolder> blockIdQuickaccess, final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
+		currentBlock.setIdNumber(++currentBlockId);
+		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children == null) {
 			blockQuickaccess.put(currentBlock.type, currentBlock);
 		} else {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
-				fillTransientVariables(blockQuickaccess, child);
+				fillTransientVariables(blockQuickaccess, blockIdQuickaccess, child);
 			}
 		}
 	}
@@ -176,7 +182,17 @@ public class JsonConfig extends ConfigReader {
 	}
 
 	@Override
+	public Map<Integer, BlockTypeHolder> getAllowedBlocksById() {
+		return blockIdQuickaccess;
+	}
+
+	@Override
 	public boolean getAllowNIO() {
 		return allowNIO;
+	}
+
+	@Override
+	public int getAnnounceInterval() {
+		return announceInterval;
 	}
 }

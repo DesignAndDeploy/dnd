@@ -56,4 +56,17 @@ public abstract class ConfigReader {
 	 */
 	public abstract BlockTypeHolder getBlockRoot();
 
+	/**
+	 * @return a set of blocks allowed to run and their amounts (encoded in BlockType). Key is the <i>internal id
+	 *         number</i> of the block.
+	 */
+	public abstract Map<Integer, BlockTypeHolder> getAllowedBlocksById();
+
+	/**
+	 * Returns the number of seconds that should be waited between sending two beacons.
+	 * 
+	 * @return the number of seconds to wait between to beacons
+	 */
+	public abstract int getAnnounceInterval();
+
 }

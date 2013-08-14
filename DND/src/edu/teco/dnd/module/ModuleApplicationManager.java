@@ -49,6 +49,7 @@ public class ModuleApplicationManager {
 	private final ConnectionManager connMan;
 	private final Set<FunctionBlock> scheduledToStart = Collections.synchronizedSet(new HashSet<FunctionBlock>());
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
+	private final Map<UUID, Integer> spotOccupiedByBlock = new HashMap<UUID, Integer>();
 
 	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
 		this.localeModuleId = moduleConfig.getUuid();
@@ -118,7 +119,7 @@ public class ModuleApplicationManager {
 	 *            the options for the FunctionBlock
 	 */
 	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID,
-			final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs) {
+			final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs, int scheduleToId) {
 		isShuttingDown.readLock().lock();
 		try {
 			final Application application = runningApps.get(appId);
@@ -167,13 +168,27 @@ public class ModuleApplicationManager {
 				e.printStackTrace();
 				return false; // not scheduling bad block.
 			}
-			BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
+			BlockTypeHolder blockAllowed;
+			if (scheduleToId < 0) {
+				blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
+			} else {
+				blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
+			}
 			if (blockAllowed == null) {
-				LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
+				if (scheduleToId < 0) {
+					LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
+				} else {
+					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, runningApps.get(appId), appId);
+				}
+				return false;
+			}
+			if (!blockAllowed.type.equals(blockType)) {
+				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId, blockAllowed.type,
+						blockType);
 				return false;
 			}
 			if (!blockAllowed.tryDecrease()) {
-				LOGGER.info("Blockamount of {} exceeded. Not scheduling!", blockType);
+				LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
 				return false;
 			}
 			LOGGER.info("foo");
@@ -191,6 +206,7 @@ public class ModuleApplicationManager {
 				}
 				out.setTarget(application.new ApplicationOutputTarget(output.getValue()));
 			}
+			spotOccupiedByBlock.put(block.getBlockUUID(), blockAllowed.getIdNumber());
 			scheduledToStart.add(block);
 			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, application, appId);
 			return true;
@@ -288,22 +304,14 @@ public class ModuleApplicationManager {
 		app.shutdown();
 		runningApps.remove(appId);
 		for (FunctionBlock block : blocksKilled) {
-			String blockType = "";
-			// TODO: implement block types
-			// try {
-			// blockType = BlockRunner.getBlockType(block);
-			// } catch (UserSuppliedCodeException e) {
-			// e.printStackTrace();
-			// blockType = "";
-			// // FIXME: If block return a different value during start and shutdown, they can change the maximum
-			// // amount of blocks allowed to run of the latter type.
-			// }
-			BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(blockType);
+			// BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(block.getType());
+			BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(block.getBlockUUID()));
 			if (holder != null) {
 				holder.increase();
 			} else {
 				LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
 			}
+			spotOccupiedByBlock.remove(block.getBlockUUID());
 		}
 	}
 

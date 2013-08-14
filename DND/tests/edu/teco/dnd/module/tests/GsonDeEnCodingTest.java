@@ -21,8 +21,6 @@ import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.tests.TestConfigReader;
-import edu.teco.dnd.module.messages.BlockMessageDeserializerAdapter;
-import edu.teco.dnd.module.messages.BlockMessageSerializerAdapter;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleAck;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
@@ -41,6 +39,8 @@ import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppNak;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockAck;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockMessageDeserializerAdapter;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockMessageSerializerAdapter;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockNak;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
@@ -101,9 +101,14 @@ public class GsonDeEnCodingTest implements Serializable {
 	public void ApplicationListResponseTest() {
 
 		Map<UUID, String> modIds = new TreeMap<UUID, String>();
+		Map<UUID, Map<UUID, FunctionBlock>> AppBlocksRunning = new TreeMap<UUID, Map<UUID, FunctionBlock>>();
+		Map<UUID, FunctionBlock> blockMap = new TreeMap<UUID, FunctionBlock>();
+		blockMap.put(TEST_FUNBLOCK_UUID, new BeamerOperatorBlock(TEST_FUNBLOCK_UUID));
+		AppBlocksRunning.put(TEST_APP_UUID, blockMap);
+
 		modIds.put(TEST_APP_UUID, "APP_1");
 		msgAdapter.addMessageType(ApplicationListResponse.class);
-		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds));
+		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds, AppBlocksRunning));
 	}
 
 	@Test

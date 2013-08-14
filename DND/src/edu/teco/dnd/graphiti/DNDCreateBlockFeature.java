@@ -1,11 +1,7 @@
 package edu.teco.dnd.graphiti;
 
-import java.lang.reflect.Modifier;
-
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.FunctionBlockClass;
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
@@ -13,12 +9,16 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
 import org.eclipse.graphiti.features.impl.AbstractCreateFeature;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
-import org.eclipse.graphiti.ui.editor.DiagramEditorFactory;
 import org.eclipse.graphiti.ui.services.GraphitiUi;
+
+import edu.teco.dnd.blocks.FunctionBlockClass;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
 
 /**
  * This feature is used to create new FunctionBlocks.
  */
+@SuppressWarnings("restriction")
 public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	/**
 	 * The type of blocks created by this feature.
@@ -74,7 +74,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 		 * this part.
 		 */
 		Diagram diagram = getDiagram();
-		TransactionalEditingDomain domain = DiagramEditorFactory.createResourceSetAndEditingDomain();
+		TransactionalEditingDomain domain = createEditingDomain();
 		;
 		Assert.isNotNull(diagram.getDiagramTypeId());
 		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId(diagram.getDiagramTypeId());
@@ -82,6 +82,81 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 		domain.getCommandStack().execute(new LinkCoreModelCommand(domain, diagram, newBlock, providerId));
 
 		return new Object[] { newBlock };
+	}
+	
+	/**
+	 * Tries to create a TransactionalEditingDomain. This is a workaround to support both versions of Graphiti &lt;0.9.0 and &gt;=0.9.0.
+	 * 
+	 *  @return a TransactionalEditingDomain or null if creating one failed
+	 */
+	private static final TransactionalEditingDomain createEditingDomain() {
+		final ClassLoader loader = DNDCreateBlockFeature.class.getClassLoader();
+		
+		// version for Graphiti <0.9.0. Calls DiagramEditorFactory.createResourceSetAndEditingDomain()
+		Class<?> diagramEditorFactoryClass = null;
+		try {
+			diagramEditorFactoryClass = loader.loadClass("org.eclipse.graphiti.ui.editor.DiagramEditorFactory");
+		} catch (final ClassNotFoundException e) {
+		}
+		if (diagramEditorFactoryClass != null) {
+			Method createResourceSetAndEditingDomainMethod = null;
+			try {
+				createResourceSetAndEditingDomainMethod = diagramEditorFactoryClass.getDeclaredMethod("createResourceSetAndEditingDomain");
+			} catch (SecurityException e) {
+			} catch (NoSuchMethodException e) {
+			}
+			if (createResourceSetAndEditingDomainMethod != null) {
+				try {
+					return (TransactionalEditingDomain) createResourceSetAndEditingDomainMethod.invoke(null);
+				} catch (IllegalArgumentException e) {
+				} catch (IllegalAccessException e) {
+				} catch (InvocationTargetException e) {
+				}
+			}
+		}
+		
+		// we only get here if we failed to create an EditingDomain via DiagramEditorFactory
+		// version for Graphiti >=0.9.0. Calls GraphitiUiInternal.getEmfService().createResourceSetAndEditingDomain()
+		Class<?> graphitiUiInternalClass = null;
+		try {
+			graphitiUiInternalClass = loader.loadClass("org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal");
+		} catch (ClassNotFoundException e) {
+		}
+		if (graphitiUiInternalClass != null) {
+			Method getEmfServiceMethod = null;
+			try {
+				getEmfServiceMethod = graphitiUiInternalClass.getDeclaredMethod("getEmfService");
+			} catch (SecurityException e) {
+			} catch (NoSuchMethodException e) {
+			}
+			Object emfService = null;
+			if (getEmfServiceMethod != null) {
+				try {
+					emfService = getEmfServiceMethod.invoke(null);
+				} catch (IllegalArgumentException e) {
+				} catch (IllegalAccessException e) {
+				} catch (InvocationTargetException e) {
+				}
+			}
+			Method createResourceSetAndEditingDomainMethod = null;
+			if (emfService != null) {
+				try {
+					createResourceSetAndEditingDomainMethod = emfService.getClass().getDeclaredMethod("createResourceSetAndEditingDomain");
+				} catch (SecurityException e) {
+				} catch (NoSuchMethodException e) {
+				}
+			}
+			if (createResourceSetAndEditingDomainMethod != null) {
+				try {
+					return (TransactionalEditingDomain) createResourceSetAndEditingDomainMethod.invoke(emfService);
+				} catch (IllegalArgumentException e) {
+				} catch (IllegalAccessException e) {
+				} catch (InvocationTargetException e) {
+				}
+			}
+		}
+		
+		return null;
 	}
 
 	/**

@@ -21,9 +21,11 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	public final Map<String, String> options;
 
 	public final Map<String, Collection<ValueDestination>> outputs;
+	
+	public int scheduleToId;
 
 	public BlockMessage(UUID uuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
-			Map<String, Collection<ValueDestination>> outputs) {
+			Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
 		super(uuid, appId);
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
@@ -35,10 +37,11 @@ public class BlockMessage extends ApplicationSpecificMessage {
 				this.outputs.put(output.getKey(), new HashSet<ValueDestination>(destinations));
 			}
 		}
+		this.scheduleToId = scheduledToId;
 	}
 
 	public BlockMessage(UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
-			Map<String, Collection<ValueDestination>> outputs) {
+			Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
 		super(appId);
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
@@ -50,6 +53,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 				this.outputs.put(output.getKey(), new HashSet<ValueDestination>(destinations));
 			}
 		}
+		this.scheduleToId = scheduledToId;
 	}
 
 	@Override
@@ -59,6 +63,8 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		result = prime * result + ((blockClass == null) ? 0 : blockClass.hashCode());
 		result = prime * result + ((blockUUID == null) ? 0 : blockUUID.hashCode());
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
+		result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
+		result = prime * result + scheduleToId;
 		return result;
 	}
 
@@ -86,12 +92,19 @@ public class BlockMessage extends ApplicationSpecificMessage {
 				return false;
 		} else if (!options.equals(other.options))
 			return false;
+		if (outputs == null) {
+			if (other.outputs != null)
+				return false;
+		} else if (!outputs.equals(other.outputs))
+			return false;
+		if (scheduleToId != other.scheduleToId)
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "BlockMessage[uuid=" + getUUID() + ",blockClass=" + blockClass + ", blockUUID=" + blockUUID
-				+ ", options=" + options + "]";
+		return "BlockMessage [blockClass=" + blockClass + ", blockUUID=" + blockUUID + ", options=" + options
+				+ ", outputs=" + outputs + ", scheduleToId=" + scheduleToId + "]";
 	}
 }
