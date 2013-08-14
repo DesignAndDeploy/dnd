@@ -130,6 +130,6 @@ public abstract class FunctionBlock implements Serializable {
 
 	@Override
 	public final String toString() {
-		return "FunctionBlock[class=" + getClass() + ",blockUUID=" + getBlockType() + "]";
+		return "FunctionBlock[class=" + getClass() + ",blockUUID=" + getBlockUUID() + "]";
 	}
 }
