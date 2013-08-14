@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -73,12 +74,12 @@ public class ModuleApplicationManager {
 			final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
 
 			ThreadFactory fact = new ThreadFactory() {
-				private int counter = 0;
+				private AtomicInteger counter = new AtomicInteger(0);
 				private UUID threadAppId = appId;
 
 				@Override
 				public Thread newThread(Runnable r) {
-					Thread appThread = new Thread(r, "thread: app - " + threadAppId + " - " + counter);
+					Thread appThread = new Thread(r, "thread: app - " + threadAppId + " - " + counter.getAndIncrement());
 					appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
 					return appThread;
 				}
