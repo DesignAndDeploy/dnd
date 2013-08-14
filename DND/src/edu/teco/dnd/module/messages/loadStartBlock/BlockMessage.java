@@ -22,6 +22,12 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		this.scheduleToId = scheduleToId;
 	}
 
+	public BlockMessage(UUID appId, FunctionBlock funBlock, int scheduleToId) {
+		super(appId);
+		this.block = funBlock;
+		this.scheduleToId = scheduleToId;
+	}
+
 	public BlockMessage(UUID appId, FunctionBlock funBlock) {
 		super(appId);
 		this.block = funBlock;

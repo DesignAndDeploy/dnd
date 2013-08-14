@@ -520,7 +520,7 @@ public class Deploy {
 	 * @return a FutureNotifier that will return the Response of the Module
 	 */
 	private FutureNotifier<Response> sendBlock(final UUID moduleUUID, final FunctionBlock block) {
-		final BlockMessage blockMsg = new BlockMessage(appId, block);
+		final BlockMessage blockMsg = new BlockMessage(appId, block, distribution.get(block).getBlockTypeHolder().getIdNumber());
 		return connectionManager.sendMessage(moduleUUID, blockMsg);
 	}
 
