@@ -539,7 +539,7 @@ public class Deploy {
 				outputs.put(output.getName(), destinations);
 			}
 		}
-		final BlockMessage blockMsg = new BlockMessage(appId, block.getBlockClass(), block.getID(), options, outputs);
+		final BlockMessage blockMsg = new BlockMessage(appId, block.getBlockClass(), block.getID(), options, outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
 		return connectionManager.sendMessage(moduleUUID, blockMsg);
 	}
 
