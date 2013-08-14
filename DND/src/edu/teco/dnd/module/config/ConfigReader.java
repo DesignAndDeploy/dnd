@@ -62,6 +62,11 @@ public abstract class ConfigReader {
 	 */
 	public abstract Map<Integer, BlockTypeHolder> getAllowedBlocksById();
 
+	/**
+	 * Returns the number of seconds that should be waited between sending two beacons.
+	 * 
+	 * @return the number of seconds to wait between to beacons
+	 */
 	public abstract int getAnnounceInterval();
 
 }

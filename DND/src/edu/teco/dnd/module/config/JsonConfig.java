@@ -79,6 +79,7 @@ public class JsonConfig extends ConfigReader {
 		if (oldConf.uuid != null) {
 			this.uuid = oldConf.uuid;
 		}
+		this.announceInterval = oldConf.announceInterval;
 		this.listen = oldConf.listen;
 		this.announce = oldConf.announce;
 		this.multicast = oldConf.multicast;
