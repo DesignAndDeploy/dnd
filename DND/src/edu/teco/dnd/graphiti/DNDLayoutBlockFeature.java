@@ -7,12 +7,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.graphiti.datatypes.IDimension;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ILayoutContext;
 import org.eclipse.graphiti.features.impl.AbstractLayoutFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Polyline;
 import org.eclipse.graphiti.mm.algorithms.Text;
+import org.eclipse.graphiti.mm.algorithms.styles.Font;
 import org.eclipse.graphiti.mm.algorithms.styles.Point;
 import org.eclipse.graphiti.mm.pictograms.Anchor;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
@@ -99,11 +101,16 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 		int minWidth = MINIMUM_WIDTH;
 		if (text != null) {
 			LOGGER.trace("found name: {}", text);
-			minWidth =
-					Math.max(minWidth,
-							GraphitiUi.getUiLayoutService().calculateTextSize(text.getValue(), text.getFont())
-									.getWidth()
-									+ NAME_EXTRA_SPACE);
+			final String value = text.getValue();
+			final Font font = text.getFont();
+			int width = 0;
+			if (value != null && font != null) {
+				IDimension textSize = GraphitiUi.getUiLayoutService().calculateTextSize(value, font);
+				if (textSize != null) {
+					width = textSize.getWidth();
+				}
+			}
+			minWidth = Math.max(minWidth, width + NAME_EXTRA_SPACE);
 		}
 		LOGGER.trace("minimum width is {}", minWidth);
 		if (containerGa.getWidth() < minWidth) {
