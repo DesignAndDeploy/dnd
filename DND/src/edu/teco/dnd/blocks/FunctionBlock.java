@@ -3,6 +3,7 @@ package edu.teco.dnd.blocks;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,8 @@ public abstract class FunctionBlock implements Serializable {
 
 	private Map<String, Output<? extends Serializable>> outputs = null;
 
+	private Map<String, Input<? extends Serializable>> inputs = null;
+
 	// FIXME: should probably be run in the Constructor so that the block can't execute code beforehand. What about
 	// (static) code blocks?
 	public synchronized final void doInit(final UUID blockUUID) throws IllegalArgumentException, IllegalAccessException {
@@ -38,17 +41,26 @@ public abstract class FunctionBlock implements Serializable {
 		this.blockUUID = blockUUID;
 		final Map<String, Output<? extends Serializable>> outputs =
 				new HashMap<String, Output<? extends Serializable>>();
+		final Map<String, Input<? extends Serializable>> inputs = new HashMap<String, Input<? extends Serializable>>();
 		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
-			for (final Field field : c.getFields()) {
-				if (Output.class.isAssignableFrom(field.getType()) && !outputs.containsKey(field.getName())) {
+			for (final Field field : c.getDeclaredFields()) {
+				final Class<?> type = field.getType();
+				final String name = field.getName();
+				if (Output.class.isAssignableFrom(type) && !outputs.containsKey(name)) {
 					final Output<?> output = new Output<Serializable>();
 					field.setAccessible(true);
 					field.set(this, output);
-					outputs.put(field.getName(), output);
+					outputs.put(name, output);
+				} else if (Input.class.isAssignableFrom(type) && !inputs.containsKey(name)) {
+					final Input<?> input = new Input<Serializable>();
+					field.setAccessible(true);
+					field.set(this, input);
+					inputs.put(name, input);
 				}
 			}
 		}
 		this.outputs = Collections.unmodifiableMap(outputs);
+		this.inputs = Collections.unmodifiableMap(inputs);
 	}
 
 	/**
@@ -62,6 +74,10 @@ public abstract class FunctionBlock implements Serializable {
 
 	public final synchronized Map<String, Output<? extends Serializable>> getOutputs() {
 		return this.outputs;
+	}
+	
+	public final synchronized Map<String, Input<? extends Serializable>> getInputs() {
+		return this.inputs;
 	}
 
 	// FIXME: FunctionBlocks can still change the value with reflection. Get the value in doInit and keep it
@@ -89,7 +105,7 @@ public abstract class FunctionBlock implements Serializable {
 		}
 		return null;
 	}
-	
+
 	// FIXME: FunctionBlocks can still change the value with reflection. Get the value in doInit and keep it
 	public final long getUpdateInterval() {
 		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {

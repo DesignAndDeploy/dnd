@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.blocks.OutputTarget;
@@ -210,22 +211,25 @@ public class Application {
 	 * @throws NonExistentFunctionblockException
 	 * @throws NonExistentInputException
 	 */
-	public void receiveValue(final UUID funcBlockId, String input, Serializable value)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void receiveValue(final UUID funcBlockId, String inputName, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
-
-		if (funcBlockById.get(funcBlockId) == null) {
+		
+		final FunctionBlock block = funcBlockById.get(funcBlockId);
+		if (block == null) {
 			LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
 			throw LOGGER.throwing(new NonExistentFunctionblockException());
 		}
-		// TODO: set value
+		
+		final Input input = block.getInputs().get(inputName);
+		if (input == null) {
+			LOGGER.info("input '{}' non existant for {}", inputName, block);
+		}
+		input.setValue(value);
 
 		Runnable updater = new Runnable() {
 			@Override
 			public void run() {
-				FunctionBlock block = funcBlockById.get(funcBlockId);
-				if (block == null) {
-					LOGGER.warn("scheduled a block, that does not exist.");
-				}
 				block.update();
 			}
 		};
