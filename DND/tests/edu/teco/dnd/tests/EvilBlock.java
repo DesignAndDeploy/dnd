@@ -145,6 +145,14 @@ public class EvilBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+		doEvilStuff("INIT");
+	}
+
+	/**
 	 * Checks whether there is a meeting and if the outlet is used to control a BeamerActorBlock. If both is true:
 	 * beamer-power activate!
 	 */

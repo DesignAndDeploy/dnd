@@ -87,6 +87,13 @@ public class LightSensorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * measures brightness.
 	 */
 	@Override

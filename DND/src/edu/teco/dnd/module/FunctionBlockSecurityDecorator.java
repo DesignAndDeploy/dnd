@@ -68,6 +68,17 @@ public class FunctionBlockSecurityDecorator extends FunctionBlock {
 	}
 
 	@Override
+	public void shutdown() {
+		try {
+			block.shutdown();
+		} catch (Throwable t) {
+			Thread.dumpStack();
+			LOGGER.warn("Block {} ({}), threw an exception in init()", this.getBlockName(), this.getID());
+			// ignoring. Don't kill the rest of the application.
+		}
+	}
+
+	@Override
 	protected void update() {
 		try {
 			try {

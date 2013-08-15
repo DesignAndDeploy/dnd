@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +31,7 @@ public class Application {
 
 	private final UUID ownAppId;
 	private final String name;
+	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
@@ -148,10 +151,18 @@ public class Application {
 	 *            bytecode of the class to be loaded
 	 */
 	public void loadClass(String classname, byte[] classData) {
-		if (classname == null || classData == null) {
-			throw new IllegalArgumentException("classname and classdata must not be null.");
+		if (!shutdownLock.readLock().tryLock()) {
+			throw new IllegalStateException("App already shuting down");
 		}
-		classLoader.appLoadClass(classname, classData);
+
+		try {
+			if (classname == null || classData == null) {
+				throw new IllegalArgumentException("classname and classdata must not be null.");
+			}
+			classLoader.appLoadClass(classname, classData);
+		} finally {
+			shutdownLock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -159,52 +170,58 @@ public class Application {
 	 * 
 	 * @param block
 	 *            the block to be started.
-	 * @return true iff block was successfully started.
 	 */
 	public void startBlock(final FunctionBlock block) {
-		funcBlockById.put(block.getID(), block);
+		if (!shutdownLock.readLock().tryLock()) {
+			return; // Already shutting down.
+		}
+		try {
+			funcBlockById.put(block.getID(), block);
 
-		Runnable initRunnable = new Runnable() {
-			@Override
-			public void run() {
-				block.init();
-				try {
-					for (Output<?> output : block.getOutputs().values()) {
-						for (ConnectionTarget ct : output.getConnectedTargets()) {
-							if (ct instanceof RemoteConnectionTarget) {
-								RemoteConnectionTarget rct = (RemoteConnectionTarget) ct;
-								rct.setApplication(Application.this);
+			Runnable initRunnable = new Runnable() {
+				@Override
+				public void run() {
+					block.init();
+					try {
+						for (Output<?> output : block.getOutputs().values()) {
+							for (ConnectionTarget ct : output.getConnectedTargets()) {
+								if (ct instanceof RemoteConnectionTarget) {
+									RemoteConnectionTarget rct = (RemoteConnectionTarget) ct;
+									rct.setApplication(Application.this);
+								}
 							}
 						}
+					} catch (InvalidFunctionBlockException e) {
+						LOGGER.warn("FunctionBlock {} initialization failed.", block.getID());
+						LOGGER.catching(e);
 					}
-				} catch (InvalidFunctionBlockException e) {
-					LOGGER.warn("FunctionBlock {} initialization failed.", block.getID());
-					LOGGER.catching(e);
-				}
 
-			}
-		};
-		Runnable updater = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					block.doUpdate();
-				} catch (AssignmentException e) {
-					LOGGER.info("Can not assign field of functionBlock {}", block);
 				}
-			}
-		};
+			};
+			Runnable updater = new Runnable() {
+				@Override
+				public void run() {
+					try {
+						block.doUpdate();
+					} catch (AssignmentException e) {
+						LOGGER.info("Can not assign field of functionBlock {}", block);
+					}
+				}
+			};
 
-		scheduledThreadPool.execute(initRunnable);
-		long period = block.getTimebetweenSchedules();
-		try {
-			if (period < 0) {
-				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
-			} else {
-				scheduledThreadPool.scheduleAtFixedRate(updater, period, period, TimeUnit.MILLISECONDS);
+			scheduledThreadPool.execute(initRunnable);
+			long period = block.getTimebetweenSchedules();
+			try {
+				if (period < 0) {
+					scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
+				} else {
+					scheduledThreadPool.scheduleAtFixedRate(updater, period, period, TimeUnit.MILLISECONDS);
+				}
+			} catch (RejectedExecutionException e) {
+				LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
 			}
-		} catch (RejectedExecutionException e) {
-			LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
+		} finally {
+			shutdownLock.readLock().unlock();
 		}
 	}
 
@@ -224,36 +241,43 @@ public class Application {
 	 */
 	public void receiveValue(final UUID funcBlockId, String input, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
-
-		if (funcBlockById.get(funcBlockId) == null) {
-			LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
-			throw LOGGER.throwing(new NonExistentFunctionblockException());
+		if (!shutdownLock.readLock().tryLock()) {
+			return; // Already shutting down.
 		}
-		ConnectionTarget ct = funcBlockById.get(funcBlockId).getConnectionTargets().get(input);
-		if (ct == null) {
-			LOGGER.warn("specified input does not exist: {} on {}", input, funcBlockId);
-			throw LOGGER.throwing(new NonExistentInputException());
-		}
-		ct.setValue(value);
-		Runnable updater = new Runnable() {
-			@Override
-			public void run() {
-				FunctionBlock block = funcBlockById.get(funcBlockId);
-				if (block == null) {
-					LOGGER.warn("scheduled a block, that does not exist.");
-				}
-				try {
-					block.doUpdate();
-				} catch (AssignmentException e) {
-					LOGGER.info("Can not assign field of functionBlock {}", block);
-				}
-			}
-		};
-
 		try {
-			scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
-		} catch (RejectedExecutionException e) {
-			LOGGER.info("Received message after initiating shutdown. Not rescheduling {}.", funcBlockId);
+
+			if (funcBlockById.get(funcBlockId) == null) {
+				LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
+				throw LOGGER.throwing(new NonExistentFunctionblockException());
+			}
+			ConnectionTarget ct = funcBlockById.get(funcBlockId).getConnectionTargets().get(input);
+			if (ct == null) {
+				LOGGER.warn("specified input does not exist: {} on {}", input, funcBlockId);
+				throw LOGGER.throwing(new NonExistentInputException());
+			}
+			ct.setValue(value);
+			Runnable updater = new Runnable() {
+				@Override
+				public void run() {
+					FunctionBlock block = funcBlockById.get(funcBlockId);
+					if (block == null) {
+						LOGGER.warn("scheduled a block, that does not exist.");
+					}
+					try {
+						block.doUpdate();
+					} catch (AssignmentException e) {
+						LOGGER.info("Can not assign field of functionBlock {}", block);
+					}
+				}
+			};
+
+			try {
+				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
+			} catch (RejectedExecutionException e) {
+				LOGGER.info("Received message after initiating shutdown. Not rescheduling {}.", funcBlockId);
+			}
+		} finally {
+			shutdownLock.readLock().unlock();
 		}
 	}
 
@@ -262,12 +286,35 @@ public class Application {
 	 * 
 	 */
 	public void shutdown() {
+		shutdownLock.writeLock().lock(); // will not be unlocked.
 		scheduledThreadPool.shutdown();
-		// TODO function to tell blocks they are being shut down.
-	}
+		final Thread shutdownThread = new Thread(new Runnable() {
+			public void run() {
+				for (FunctionBlock fun : funcBlockById.values()) {
+					funcBlockById.remove(fun.getID());
+					fun.shutdown();
+				}
+			}
+		});
 
-	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-		return scheduledThreadPool.awaitTermination(timeout, unit);
+		Thread watcherThread = new Thread(new Runnable() {
+			@SuppressWarnings("deprecation")
+			public void run() {
+				shutdownThread.run();
+				try {
+					Thread.sleep(2000);// TODO make configurable.
+
+					shutdownThread.interrupt();
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+				}
+				shutdownThread.stop();
+				// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
+				// yet there is no alternative to it if the victim is refusing to cooperate.
+			}
+		});
+
+		watcherThread.start();
 	}
 
 	public UUID getOwnAppId() {

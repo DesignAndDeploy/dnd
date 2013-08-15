@@ -73,6 +73,13 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Compares temperature with a preset threshold to calculate the setting of the heating.
 	 */
 	@Override

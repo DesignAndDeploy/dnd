@@ -81,6 +81,13 @@ public class TemperatureActorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * This method is used to turn the heating off or on, depending on the input.
 	 */
 	@Override
