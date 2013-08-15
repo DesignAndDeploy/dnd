@@ -54,6 +54,10 @@ public class ModuleApplicationManager {
 		this.connMan = connMan;
 	}
 
+	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
+		this(moduleConfig, connMan, null);
+	}
+
 	/**
 	 * called when a new application is supposed to be started.
 	 * 
@@ -201,7 +205,9 @@ public class ModuleApplicationManager {
 	public void shutdownModule() {
 		isShuttingDown.writeLock().lock();
 		try {
-			moduleShutdownHook.run();
+			if (moduleShutdownHook != null) {
+				moduleShutdownHook.run();
+			}
 			for (UUID appId : runningApps.keySet()) {
 				stopApplication(appId);
 			}
