@@ -1,11 +1,11 @@
 package edu.teco.dnd.module;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -37,20 +37,21 @@ public class ModuleApplicationManager {
 
 	public UUID localeModuleId;
 	public ConfigReader moduleConfig;
-	private Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
+	private Map<UUID, Application> runningApps = new ConcurrentHashMap<UUID, Application>();
 	public final int maxAllowedThreadsPerApp;
 	private final ConnectionManager connMan;
+	private final Runnable moduleShutdownHook;
 	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
-	private final Map<UUID, Integer> spotOccupiedByBlock = new HashMap<UUID, Integer>();
-	private final ModuleMain moduleMain;
+	private final Map<UUID, Integer> spotOccupiedByBlock = new ConcurrentHashMap<UUID, Integer>();
+	private boolean isRunning = false;
 
-	public ModuleApplicationManager(ModuleMain moduleMain) {
-		this.moduleConfig = moduleMain.getModuleConfig();
+	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan, Runnable modShutdownHook) {
+		this.moduleShutdownHook = modShutdownHook;
+		this.moduleConfig = moduleConfig;
 		this.localeModuleId = moduleConfig.getUuid();
 		this.maxAllowedThreadsPerApp = moduleConfig.getMaxThreadsPerApp();
-		this.moduleMain = moduleMain;
-		this.connMan = moduleMain.getConnectionManager();
+		this.connMan = connMan;
 	}
 
 	/**
@@ -106,99 +107,92 @@ public class ModuleApplicationManager {
 	 * Schedules a FunctionBlock to be started, when StartApp() is called.
 	 * 
 	 * @param insecureBlock
-	 *            the FunctionBlock
+	 *            the FunctionBlock without a security wrapper.
+	 * @throws UserSuppliedCodeException
 	 */
-	public boolean scheduleBlock(UUID appId, FunctionBlock insecureBlock, int scheduleToId) {
+	public void scheduleBlock(UUID appId, FunctionBlock insecureBlock, int scheduleToId)
+			throws UserSuppliedCodeException {
 		FunctionBlock block;
 		if (insecureBlock == null) {
 			LOGGER.warn("send block message with NULL block.");
-			return false;
+			throw new NullPointerException("send block message with NULL block.");
 		}
 		try {
 			block = new FunctionBlockSecurityDecorator(insecureBlock);
 		} catch (UserSuppliedCodeException e) {
 			LOGGER.warn("Not scheduling block {} ({}), because of error in code.", insecureBlock.getBlockName(),
 					insecureBlock.getID());
-			return false;
+			throw new UserSuppliedCodeException("Not scheduling block, because of error in block-code.");
 		}
-		isShuttingDown.readLock().lock();
-		String blockType = block.getType();
 
+		String blockType = block.getType();
+		isShuttingDown.readLock().lock();
 		try {
 			BlockTypeHolder blockAllowed;
 			if (scheduleToId < 0) {
 				blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
+				if (blockAllowed == null) {
+					LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
+					throw new IllegalArgumentException("Block not allowed in App");
+				}
 			} else {
 				blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
+				if (blockAllowed == null) {
+					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, runningApps.get(appId), appId);
+					throw new IllegalArgumentException("Id does not exist in App");
+				}
 			}
 
-			if (blockAllowed == null) {
-				if (scheduleToId < 0) {
-					LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
-				} else {
-					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, runningApps.get(appId), appId);
-				}
-				return false;
-			}
 			if (!blockAllowed.type.equals(blockType)) {
 				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId, blockAllowed.type,
 						blockType);
-				return false;
+				throw new IllegalArgumentException("given scheduleId and Blocktype incompatible");
 			}
-			if (!blockAllowed.tryDecrease()) {
-				LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
-				return false;
+			synchronized (scheduledToStart) {
+				if (isRunning == true) {
+					LOGGER.info("tried to schedule Block to already running application.");
+					throw new IllegalArgumentException("tried to schedule Block to already running application.");
+				}
+				if (!blockAllowed.tryDecrease()) {
+					LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
+					throw new IllegalArgumentException("Blockamount exceeded. Not scheduling!");
+				}
+				spotOccupiedByBlock.put(block.getID(), blockAllowed.getIdNumber());
+
+				scheduledToStart.add(block);
 			}
-			spotOccupiedByBlock.put(block.getID(), blockAllowed.getIdNumber());
-			scheduledToStart.add(block);
 			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, runningApps.get(appId), appId);
-			return true;
+
 		} finally {
 			isShuttingDown.readLock().unlock();
 		}
+
 	}
 
 	public void startApp(UUID appId) {
-		for (FunctionBlock func : scheduledToStart) {
-			Application app = runningApps.get(appId);
-			if (app == null) {
-				LOGGER.warn("Tried to start non existing app: {}", appId);
-				throw new IllegalArgumentException("tried to start app that does not exist.");
-			} else {
-				runningApps.get(appId).startBlock(func);
+
+		synchronized (scheduledToStart) {
+			isShuttingDown.readLock().lock();
+			try {
+				if (isRunning == true) {
+					LOGGER.warn("tried to double start Application.");
+					throw new IllegalArgumentException("tried to double start Application.");
+				}
+				isRunning = true;
+
+				Application app = runningApps.get(appId);
+				if (app == null) {
+					LOGGER.warn("Tried to start non existing app: {}", appId);
+					throw new IllegalArgumentException("tried to start app that does not exist.");
+				}
+				for (FunctionBlock func : scheduledToStart) {
+					app.startBlock(func);
+				}
+			} finally {
+				isShuttingDown.readLock().unlock();
 			}
 
 		}
-	}
-
-	/**
-	 * called if a block should be started.
-	 * 
-	 * @param appId
-	 *            the app this is directed to.
-	 * @param block
-	 *            the block to start.
-	 * @return true iff starting was successful.
-	 */
-	public boolean startBlock(UUID appId, FunctionBlock block) {
-		String blockType;
-		blockType = block.getType();
-
-		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
-		if (blockAllowed == null) {
-			// do not log the block directly, as that would call block.toString which is untrusted code
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("Block {} not allowed in App {}({})", block.getID(), runningApps.get(appId), appId);
-			}
-			return false;
-		}
-
-		if (blockAllowed.tryDecrease()) {
-			LOGGER.info("Blockamount of {} exceeded. Not starting!", blockType);
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -207,7 +201,7 @@ public class ModuleApplicationManager {
 	public void shutdownModule() {
 		isShuttingDown.writeLock().lock();
 		try {
-			moduleMain.shutdownNetwork();
+			moduleShutdownHook.run();
 			for (UUID appId : runningApps.keySet()) {
 				stopApplication(appId);
 			}
