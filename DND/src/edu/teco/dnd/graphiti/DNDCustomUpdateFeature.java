@@ -22,7 +22,6 @@ public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 	public DNDCustomUpdateFeature(IFeatureProvider fp) {
 		super(fp);
 		featureProv = fp;
-		// TODO Auto-generated constructor stub
 	}
 
 	private boolean hasDoneChanges = false;
