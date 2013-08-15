@@ -141,12 +141,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
 		}
 		manager.addModuleManagerListener(this);
-		LOGGER.exit();
 		mapBlockToTarget = new HashMap<FunctionBlock, BlockTarget>();
+		LOGGER.exit();
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
+		LOGGER.entry(parent);
 		functionBlockModels = new ArrayList<FunctionBlockModel>();
 		mapItemToBlockModel = new HashMap<TableItem, FunctionBlockModel>();
 
@@ -171,6 +172,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		createSelectionListeners();
 
 		loadBlockModels(getEditorInput());
+		LOGGER.exit();
 	}
 
 	/**
@@ -189,6 +191,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever the UpdateBlocks Button is pressed.
 	 */
 	private void updateBlocks() {
+		LOGGER.entry();
 		Collection<FunctionBlockModel> newBlockModels = new ArrayList<FunctionBlockModel>();
 		Map<UUID, FunctionBlockModel> newIDs = new HashMap<UUID, FunctionBlockModel>();
 		Map<UUID, FunctionBlockModel> oldIDs = new HashMap<UUID, FunctionBlockModel>();
@@ -241,6 +244,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			}
 		}
 		functionBlockModels = newBlockModels;
+		LOGGER.exit();
 	}
 
 	/**
@@ -314,13 +318,16 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever the Create Button is pressed.
 	 */
 	private void create() {
+		LOGGER.entry();
 		Collection<Module> moduleCollection = getModuleCollection();
 		if (functionBlockModels.isEmpty()) {
 			warn("No blockModels to distribute");
+			LOGGER.exit();
 			return;
 		}
 		if (moduleCollection.isEmpty()) {
 			warn("No modules to deploy on");
+			LOGGER.exit();
 			return;
 		}
 
@@ -330,7 +337,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			try {
 				blocksToModels.put(model.createBlock(classLoader), model);
 			} catch (InvalidFunctionBlockException e) {
-				e.printStackTrace();
+				LOGGER.catching(e);
 			}
 		}
 
@@ -355,20 +362,24 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				newConstraints = false;
 			}
 		}
+		LOGGER.exit();
 	}
 
 	/**
 	 * Invoked whenever the Deploy Button is pressed.
 	 */
 	private void deploy() {
+		LOGGER.entry();
 		if (mapBlockToTarget.isEmpty()) {
 			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
+			LOGGER.exit();
 			return;
 		}
 
 		if (newConstraints) {
 			int cancel = warn(DeployViewTexts.NEWCONSTRAINTS);
 			if (cancel == -4) {
+				LOGGER.exit();
 				return;
 			}
 		}
@@ -421,6 +432,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		});
 		deploy.deploy();
 		resetDeployment();
+		LOGGER.exit();
 	}
 
 	/**
