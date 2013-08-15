@@ -115,11 +115,14 @@ public class ModuleMain {
 			LOGGER.fatal("Can not set SecurityManager.");
 			System.exit(-1);
 		}
-		
-		ModuleShutdownHook shutdownHook = new ModuleShutdownHook(eventLoopGroups);
 
-		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig, tcpConnectionManager, shutdownHook);
-		registerHandlerAdapter(moduleConfig, tcpConnectionManager, appMan);
+		ModuleShutdownHook shutdownHook = new ModuleShutdownHook(eventLoopGroups);
+		synchronized (shutdownHook) {
+			ModuleApplicationManager appMan =
+					new ModuleApplicationManager(moduleConfig, tcpConnectionManager, shutdownHook);
+			registerHandlerAdapter(moduleConfig, tcpConnectionManager, appMan);
+		}
+
 		System.out.println("Module is up and running.");
 
 	}
