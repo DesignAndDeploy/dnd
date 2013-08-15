@@ -31,6 +31,7 @@ import edu.teco.dnd.module.messages.values.ValueMessageHandler;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.module.messages.values.WhoHasFuncBlockHandler;
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.util.IndexedThreadFactory;
 
 public class ModuleApplicationManager {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleApplicationManager.class);
@@ -73,13 +74,12 @@ public class ModuleApplicationManager {
 
 			final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
 
-			ThreadFactory fact = new ThreadFactory() {
-				private AtomicInteger counter = new AtomicInteger(0);
-				private UUID threadAppId = appId;
+			final ThreadFactory fact = new ThreadFactory() {
+				private final ThreadFactory internalFactory = new IndexedThreadFactory("app-" + appId.toString() + "-");
 
 				@Override
 				public Thread newThread(Runnable r) {
-					Thread appThread = new Thread(r, "thread: app - " + threadAppId + " - " + counter.getAndIncrement());
+					final Thread appThread = internalFactory.newThread(r);
 					appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
 					return appThread;
 				}
