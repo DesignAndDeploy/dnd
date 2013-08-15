@@ -1,17 +1,23 @@
 package edu.teco.dnd.module;
 
 import io.netty.bootstrap.ChannelFactory;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
+import io.netty.util.concurrent.Future;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,11 +58,13 @@ import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.values.ValueNak;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
+import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.network.messages.PeerMessage;
 import edu.teco.dnd.util.Base64Adapter;
+import edu.teco.dnd.util.IndexedThreadFactory;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
 import edu.teco.dnd.util.NetConnectionAdapter;
@@ -75,15 +83,24 @@ public class ModuleMain {
 	 */
 	public static final String DEFAULT_CONFIG_PATH = "module.cfg";
 
-	private static final NioEventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
-	private static final OioEventLoopGroup oioGroup = new OioEventLoopGroup();
-
 	/**
 	 * The default address used for multicast.
 	 */
 	public static final InetSocketAddress DEFAULT_MULTICAST_ADDRESS = new InetSocketAddress("225.0.0.1", 5000);
 
+	private final Set<EventLoopGroup> eventLoopGroups = new HashSet<EventLoopGroup>();
+	
+	private TCPConnectionManager tcpConnectionManager;
+	
+	private UDPMulticastBeacon udpMulticastBeacon;
+
+	private final ConfigReader moduleConfig;
+
 	public static void main(final String[] args) {
+		new ModuleMain(args);
+	}
+	
+	public ModuleMain(final String[] args) {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
 		String configPath = DEFAULT_CONFIG_PATH;
@@ -99,11 +116,11 @@ public class ModuleMain {
 			}
 		}
 
-		ConfigReader moduleConfig = getModuleConfig(configPath);
+		moduleConfig = getModuleConfig(configPath);
 		if (moduleConfig == null) {
 			System.exit(1);
 		}
-		TCPConnectionManager connectionManager = prepareNetwork(moduleConfig);
+		prepareNetwork(moduleConfig);
 
 		try {
 			System.setSecurityManager(new ApplicationSecurityManager());
@@ -112,13 +129,13 @@ public class ModuleMain {
 			System.exit(-1);
 		}
 
-		ModuleApplicationManager appMan = new ModuleApplicationManager(moduleConfig, connectionManager);
-		registerHandlerAdapter(moduleConfig, connectionManager, appMan);
+		ModuleApplicationManager appMan = new ModuleApplicationManager(this);
+		registerHandlerAdapter(moduleConfig, tcpConnectionManager, appMan);
 		System.out.println("Module is up and running.");
 
 	}
 
-	public static ConfigReader getModuleConfig(final String configPath) {
+	private static ConfigReader getModuleConfig(final String configPath) {
 		ConfigReader moduleConfig = null;
 		try {
 			moduleConfig = new JsonConfig(configPath);
@@ -132,13 +149,26 @@ public class ModuleMain {
 		}
 		return moduleConfig;
 	}
+	
+	public ConfigReader getModuleConfig() {
+		return this.moduleConfig;
+	}
 
-	public static TCPConnectionManager prepareNetwork(ConfigReader moduleConfig) {
+	private synchronized void prepareNetwork(ConfigReader moduleConfig) {
+		if (tcpConnectionManager != null) {
+			LOGGER.error("tcpConnectionManager is not null");
+			return;
+		}
+		
+		final EventLoopGroup networkGroup = new NioEventLoopGroup(0, new IndexedThreadFactory("network-"));
+		final EventLoopGroup applicationGroup = new NioEventLoopGroup(0, new IndexedThreadFactory("application-"));
+		final EventLoopGroup beaconGroup = new OioEventLoopGroup(0, new IndexedThreadFactory("beacon-"));
+		eventLoopGroups.add(networkGroup);
+		eventLoopGroups.add(applicationGroup);
+		eventLoopGroups.add(beaconGroup);
 
-		// TODO: name threads (app threads are already named)
-
-		final TCPConnectionManager connectionManager =
-				new TCPConnectionManager(networkEventLoopGroup, networkEventLoopGroup,
+		tcpConnectionManager =
+				new TCPConnectionManager(networkGroup, applicationGroup,
 						new ChannelFactory<NioServerSocketChannel>() {
 							@Override
 							public NioServerSocketChannel newChannel() {
@@ -151,28 +181,28 @@ public class ModuleMain {
 							}
 						}, moduleConfig.getUuid());
 		for (final InetSocketAddress address : moduleConfig.getListen()) {
-			connectionManager.startListening(address);
+			tcpConnectionManager.startListening(address);
 		}
 
-		final UDPMulticastBeacon beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
+		udpMulticastBeacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
 			@Override
 			public OioDatagramChannel newChannel() {
 				return new OioDatagramChannel();
 			}
-		}, oioGroup, networkEventLoopGroup, moduleConfig.getUuid(), moduleConfig.getAnnounceInterval(), TimeUnit.SECONDS);
-		beacon.addListener(connectionManager);
+		}, beaconGroup, applicationGroup, moduleConfig.getUuid(), moduleConfig.getAnnounceInterval(), TimeUnit.SECONDS);
+		udpMulticastBeacon.addListener(tcpConnectionManager);
 		final List<InetSocketAddress> announce = Arrays.asList(moduleConfig.getAnnounce());
-		beacon.setAnnounceAddresses(announce);
+		udpMulticastBeacon.setAnnounceAddresses(announce);
 		for (final NetConnection address : moduleConfig.getMulticast()) {
-			beacon.addAddress(address.getInterface(), address.getAddress());
+			udpMulticastBeacon.addAddress(address.getInterface(), address.getAddress());
 		}
 
-		connectionManager.addMessageType(PeerMessage.class);
+		tcpConnectionManager.addMessageType(PeerMessage.class);
 
 		// final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
 		// peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
-		return connectionManager;
+		return;
 	}
 
 	public static void globalRegisterMessageAdapterType(TCPConnectionManager connectionManager) {
@@ -211,7 +241,7 @@ public class ModuleMain {
 		connectionManager.addMessageType(ModuleInfoMessage.class);
 	}
 
-	public static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
+	private void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager connectionManager,
 			ModuleApplicationManager appMan) {
 		globalRegisterMessageAdapterType(connectionManager);
 		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
@@ -230,12 +260,26 @@ public class ModuleMain {
 		connectionManager.addHandler(null, ValueMessage.class, new MissingApplicationHandler());
 		connectionManager.addHandler(null, WhoHasBlockMessage.class, new MissingApplicationHandler());
 		connectionManager.addHandler(null, ShutdownModuleMessage.class, new ShutdownModuleHandler(appMan));
-
+	}
+	
+	public synchronized ConnectionManager getConnectionManager() {
+		return tcpConnectionManager;
+	}
+	
+	public synchronized UDPMulticastBeacon getMulticastBeacon() {
+		return udpMulticastBeacon;
 	}
 
-	public static void shutdownNetwork() {
-		networkEventLoopGroup.shutdownGracefully();
-		oioGroup.shutdownGracefully();
+	public synchronized void shutdownNetwork() {
+		final Collection<Future<?>> futures = new ArrayList<Future<?>>();
+		for (final EventLoopGroup group : eventLoopGroups) {
+			futures.add(group.shutdownGracefully());
+		}
+		for (final Future<?> future : futures) {
+			future.awaitUninterruptibly();
+		}
+		eventLoopGroups.clear();
+		tcpConnectionManager = null;
+		udpMulticastBeacon = null;
 	}
-
 }

@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -44,12 +43,14 @@ public class ModuleApplicationManager {
 	private final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
 	private final Map<UUID, Integer> spotOccupiedByBlock = new HashMap<UUID, Integer>();
+	private final ModuleMain moduleMain;
 
-	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
+	public ModuleApplicationManager(ModuleMain moduleMain) {
+		this.moduleConfig = moduleMain.getModuleConfig();
 		this.localeModuleId = moduleConfig.getUuid();
 		this.maxAllowedThreadsPerApp = moduleConfig.getMaxThreadsPerApp();
-		this.moduleConfig = moduleConfig;
-		this.connMan = connMan;
+		this.moduleMain = moduleMain;
+		this.connMan = moduleMain.getConnectionManager();
 	}
 
 	/**
@@ -206,7 +207,7 @@ public class ModuleApplicationManager {
 	public void shutdownModule() {
 		isShuttingDown.writeLock().lock();
 		try {
-			ModuleMain.shutdownNetwork();
+			moduleMain.shutdownNetwork();
 			for (UUID appId : runningApps.keySet()) {
 				stopApplication(appId);
 			}
