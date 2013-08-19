@@ -213,6 +213,8 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 				return new DNDUpdatePositionFeature(this);
 			} else if (TypePropertyUtil.isBlockNameText(ga)) {
 				return new DNDUpdateBlockNameFeature(this);
+			} else if (TypePropertyUtil.isBlockShape(ga)) {
+				return new DNDUpdateBlockFeature(this);
 			}
 		}
 		return super.getUpdateFeature(context);

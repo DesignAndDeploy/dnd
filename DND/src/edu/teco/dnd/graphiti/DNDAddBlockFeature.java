@@ -7,6 +7,7 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddShapeFeature;
@@ -228,6 +229,8 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 				getDiagram().eResource().getContents().add(addedBlock);
 			}
 
+			TypePropertyUtil.setBlockShape(roundedRectangle);
+
 			link(containerShape, addedBlock);
 		}
 
@@ -306,6 +309,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		layoutPictogramElement(containerShape);
 
 		LOGGER.exit(containerShape);
+		
 		return containerShape;
 	}
 

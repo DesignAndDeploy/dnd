@@ -140,7 +140,6 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		IContextButtonPadData data = super.getContextButtonPad(context);
 		PictogramElement pe = context.getPictogramElement();
 		setGenericContextButtons(data, pe, CONTEXT_BUTTON_DELETE | CONTEXT_BUTTON_UPDATE);
-		// TODO: Why doesn't the update button appear?
 		return data;
 
 	}
