@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
@@ -59,6 +60,7 @@ import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.eclipse.ModuleManager;
 import edu.teco.dnd.eclipse.ModuleManagerListener;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.ModelPackage;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Dependencies;
 import edu.teco.dnd.util.FutureListener;
@@ -467,6 +469,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 	private void saveConstraints() {
 		String text = places.getText();
+
 		if (selectedIndex > 0) {
 			selectedID = idList.get(selectedIndex - 1);
 		} else {
@@ -497,8 +500,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			moduleConstraints.remove(selectedBlockModel);
 		}
 
-		selectedBlockModel.setBlockName(this.blockModelName.getText());
+		String oldName = selectedBlockModel.getBlockName();
+		String newName = this.blockModelName.getText();
+		selectedBlockModel.setBlockName(newName);
 		selectedItem.setText(0, blockModelName.getText());
+
+		Resource blockresource = selectedBlockModel.eResource();
+		boolean bla = blockresource.isTrackingModification();
 
 		try {
 			resource.save(null);
@@ -506,6 +514,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		firePropertyChange(IEditorPart.PROP_DIRTY);
 
 		newConstraints = true;
 	}
@@ -623,7 +633,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		for (EObject object : resource.getContents()) {
 			if (object instanceof FunctionBlockModel) {
 				LOGGER.trace("found FunctionBlockModel {}", object);
-				blockModelList.add(((FunctionBlockModel) object));
+				FunctionBlockModel blockmodel = (FunctionBlockModel) object;
+				// TODO: Why does this FunctionBlockModel have a different eResource and class path than the original
+				// one created by DNDCreateBlockFeature? Is it not the same FunctionBlockModel?
+				Resource rec = blockmodel.eResource();
+				boolean tracks = rec.isTrackingModification();
+				blockModelList.add(blockmodel);
+
 			}
 		}
 		return blockModelList;
