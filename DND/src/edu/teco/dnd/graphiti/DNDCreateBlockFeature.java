@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
@@ -71,6 +72,52 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	public final Object[] create(final ICreateContext context) {
 		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockType);
 		getDiagram().eResource().getContents().add(newBlock);
+		//TODO: Try to store block and diagram in different resources.
+		
+		/**Philipp: Finger weg.
+		 * 
+		 * 
+		 * http://help.eclipse.org/kepler/index.jsp?nav=%2F24
+		 * Für Domain Model Change Notifications.
+		 * 
+		 * FAQ of Graphiti says:
+		 * 
+		 * Is it possible to separate the diagram data from the domain data?
+		 * Yes, and it is also recommended to do so.
+		 * Simply use the standard EMF mechanisms to store the domain objects
+		 * in an EMF resource of your choice.
+		 * The tutorial follows the very simple approach to store both the diagram
+		 * and domain objects inside the same resource, this is definitely not the
+		 * way to go for building your own tool. Have a look at this forum entry
+		 * to see how it can be changed for the tutorial. 
+		 * 
+		 *  Forum:
+		 *  
+		Hi !
+		Here is a hack which shows how it can be accomplished in the case of the graphiti tutorial:
+		- Add the following method, e.g. to the class TutorialUtil
+		- Call saveToModelFile() in the TutorialCreateEClassFeature instead of adding the created EClass to the Resource of the Diagram.
+
+		public static void saveToModelFile(final EObject obj, final Diagram d) throws CoreException, IOException {
+		URI uri = d.eResource().getURI();
+		uri = uri.trimFragment();
+		uri = uri.trimFileExtension();
+		uri = uri.appendFileExtension("model");
+		ResourceSet rSet = d.eResource().getResourceSet();
+		final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IResource file = workspaceRoot.findMember(uri.toPlatformString(true));
+		if (file == null || !file.exists()) {
+		Resource createResource = rSet.createResource(uri);
+		createResource.save(new HashMap());
+		createResource.setTrackingModification(true);
+		}
+		final Resource resource = rSet.getResource(uri, true);
+		resource.getContents().add(obj);
+
+		}**/
+		
+		Resource rec = newBlock.eResource();
+		boolean bla = rec.isTrackingModification();
 
 		addGraphicalRepresentation(context, newBlock);
 
