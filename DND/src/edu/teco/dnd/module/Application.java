@@ -262,6 +262,7 @@ public class Application {
 					FunctionBlock block = funcBlockById.get(funcBlockId);
 					if (block == null) {
 						LOGGER.warn("scheduled a block, that does not exist.");
+						return;
 					}
 					try {
 						block.doUpdate();
