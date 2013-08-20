@@ -13,32 +13,36 @@ public class IndexedThreadFactory implements ThreadFactory {
 	 * The prefix of the Threads' names. {@link #index} will be appended.
 	 */
 	private final String prefix;
-	
+
 	/**
 	 * Will be appended and increment to get the name for a new Thread.
 	 */
 	private final AtomicInteger index;
-	
+
 	/**
-	 * Initializes a new IndexedThreadFactory that names threads by appending the current index to <code>prefix</code> and then incrementing the index. The index will start at <code>start</code>.
+	 * Initializes a new IndexedThreadFactory that names threads by appending the current index to <code>prefix</code>
+	 * and then incrementing the index. The index will start at <code>start</code>.
 	 * 
-	 * @param prefix the prefix for the Threads' names
-	 * @param start the index of the first Thread that will be created
+	 * @param prefix
+	 *            the prefix for the Threads' names
+	 * @param start
+	 *            the index of the first Thread that will be created
 	 */
 	public IndexedThreadFactory(final String prefix, final int start) {
 		this.prefix = prefix;
 		this.index = new AtomicInteger(start);
 	}
-	
+
 	/**
 	 * Initializes a new IndexedThreadFactory that starts the index at 0.
 	 * 
-	 * @param prefix the prefix for the Thread's names
+	 * @param prefix
+	 *            the prefix for the Thread's names
 	 */
 	public IndexedThreadFactory(final String prefix) {
 		this(prefix, 0);
 	}
-	
+
 	@Override
 	public Thread newThread(final Runnable r) {
 		return new Thread(r, prefix + index.getAndIncrement());
