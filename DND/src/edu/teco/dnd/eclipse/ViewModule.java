@@ -112,7 +112,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 							ViewModule.this.activator.startServer();
 						}
 					}
-				}.run();
+				}.start();
 			}
 		});
 

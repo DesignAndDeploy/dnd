@@ -327,7 +327,7 @@ public class Activator extends AbstractUIPlugin {
 					serverStateLock.writeLock().unlock();
 				}
 			}
-		}.run();
+		}.start();
 		LOGGER.exit();
 	}
 

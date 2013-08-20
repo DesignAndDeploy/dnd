@@ -864,7 +864,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 							DeployView.this.activator.startServer();
 						}
 					}
-				}.run();
+				}.start();
 			}
 		});
 
