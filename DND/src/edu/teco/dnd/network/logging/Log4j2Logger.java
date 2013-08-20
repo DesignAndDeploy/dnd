@@ -1,13 +1,13 @@
 package edu.teco.dnd.network.logging;
 
+import io.netty.util.internal.logging.InternalLogLevel;
+import io.netty.util.internal.logging.InternalLogger;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-
-import io.netty.util.internal.logging.InternalLogLevel;
-import io.netty.util.internal.logging.InternalLogger;
 
 public class Log4j2Logger implements InternalLogger {
 	public static final Map<InternalLogLevel, Level> INTERNAL_TO_LOG4J2_LEVEL;

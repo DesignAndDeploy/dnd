@@ -8,23 +8,6 @@ import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.eclipse.EclipseUtil;
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.OptionModel;
-import edu.teco.dnd.meeting.BeamerActorBlock;
-import edu.teco.dnd.meeting.BeamerOperatorBlock;
-import edu.teco.dnd.meeting.DisplayActorBlock;
-import edu.teco.dnd.meeting.DisplayOperatorBlock;
-import edu.teco.dnd.meeting.LightSensorBlock;
-import edu.teco.dnd.meeting.MeetingOperatorBlock;
-import edu.teco.dnd.meeting.OutletActorBlock;
-import edu.teco.dnd.meeting.OutletSensorBlock;
-import edu.teco.dnd.temperature.TemperatureActorBlock;
-import edu.teco.dnd.temperature.TemperatureLogicBlock;
-import edu.teco.dnd.temperature.TemperatureSensorBlock;
-import edu.teco.dnd.util.ClassScanner;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
@@ -53,6 +36,23 @@ import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
+
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.eclipse.EclipseUtil;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.meeting.BeamerActorBlock;
+import edu.teco.dnd.meeting.BeamerOperatorBlock;
+import edu.teco.dnd.meeting.DisplayActorBlock;
+import edu.teco.dnd.meeting.DisplayOperatorBlock;
+import edu.teco.dnd.meeting.LightSensorBlock;
+import edu.teco.dnd.meeting.MeetingOperatorBlock;
+import edu.teco.dnd.meeting.OutletActorBlock;
+import edu.teco.dnd.meeting.OutletSensorBlock;
+import edu.teco.dnd.temperature.TemperatureActorBlock;
+import edu.teco.dnd.temperature.TemperatureLogicBlock;
+import edu.teco.dnd.temperature.TemperatureSensorBlock;
+import edu.teco.dnd.util.ClassScanner;
 
 /**
  * Provides the features that are used by the editor.

@@ -2,9 +2,9 @@
  */
 package edu.teco.dnd.graphiti.model;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-
 import org.eclipse.emf.ecore.EFactory;
+
+import edu.teco.dnd.blocks.FunctionBlock;
 
 /**
  * <!-- begin-user-doc --> The <b>Factory</b> for the model. It provides a create method for each non-abstract class of

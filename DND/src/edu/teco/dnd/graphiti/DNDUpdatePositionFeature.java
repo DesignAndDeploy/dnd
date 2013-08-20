@@ -1,7 +1,5 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -13,6 +11,8 @@ import org.eclipse.graphiti.features.impl.Reason;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
 /**
  * This class is used to update options if they are changed in the underlying model.

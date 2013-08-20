@@ -1,9 +1,5 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -11,6 +7,10 @@ import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
 import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * This class is used for logging informations on graphiti stuff.

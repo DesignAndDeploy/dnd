@@ -1,13 +1,13 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.blocks.Option;
-import edu.teco.dnd.graphiti.model.OptionModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.impl.AbstractDirectEditingFeature;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+
+import edu.teco.dnd.blocks.Option;
+import edu.teco.dnd.graphiti.model.OptionModel;
 
 /**
  * Direct editing feature for {@link Option}s.

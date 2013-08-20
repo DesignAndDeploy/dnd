@@ -5,13 +5,13 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.UUID;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.graphiti.BlockType;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.Input;
+import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This FunctionBlock is used to put a String on a display.

@@ -1,8 +1,5 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
@@ -24,6 +21,9 @@ import org.eclipse.graphiti.mm.pictograms.Shape;
 import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.ui.services.GraphitiUi;
+
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * Layouts a block after resizing.

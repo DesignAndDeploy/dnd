@@ -3,7 +3,6 @@ package edu.teco.dnd.network.messages;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonArray;
@@ -12,7 +11,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * A deserializer for {@link BeaconMessage}s that uses the public constructor so that <code>addresses</code> is kept

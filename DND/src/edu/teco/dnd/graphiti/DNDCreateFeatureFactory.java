@@ -4,11 +4,11 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
+
+import edu.teco.dnd.blocks.FunctionBlock;
 
 /**
  * A factory for function block create features.

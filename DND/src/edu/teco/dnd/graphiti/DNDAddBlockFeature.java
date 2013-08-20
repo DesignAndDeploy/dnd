@@ -1,13 +1,7 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.OptionModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IAddContext;
 import org.eclipse.graphiti.features.impl.AbstractAddShapeFeature;
@@ -26,6 +20,11 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 import org.eclipse.graphiti.util.ColorConstant;
 import org.eclipse.graphiti.util.IColorConstant;
+
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * Adds a graphical representation for a FunctionBlock.
