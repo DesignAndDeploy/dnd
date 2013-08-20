@@ -329,8 +329,9 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 							LOGGER.debug("shutting down, doing nothing for {}", future);
 							return;
 						}
-						unconnectedChannels.remove(future);
-						serverChannels.add((ServerSocketChannel) future.channel());
+						final Channel channel = future.channel();
+						unconnectedChannels.remove(channel);
+						serverChannels.add((ServerSocketChannel) channel);
 					} finally {
 						channelsLock.writeLock().unlock();
 					}
@@ -338,10 +339,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 					if (LOGGER.isWarnEnabled()) {
 						LOGGER.warn("bind {} failed", future);
 					}
-					future.channel().close();
+					final Channel channel = future.channel();
+					channel.close();
 					channelsLock.writeLock().lock();
 					try {
-						unconnectedChannels.remove(future);
+						unconnectedChannels.remove(channel);
 					} finally {
 						channelsLock.writeLock().unlock();
 					}
