@@ -3,6 +3,7 @@ package edu.teco.dnd.network.codecs;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
@@ -93,21 +94,41 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 	public void addMessageType(final Class<? extends Message> cls, final String type) {
 		LOGGER.entry(cls, type);
 		typeLock.readLock().lock();
-		if (!clss.containsKey(cls) && !types.containsKey(type)) {
-			LOGGER.debug("{} and {} not found, getting write lock", cls, type);
-			typeLock.readLock().unlock();
-			typeLock.writeLock().lock();
-			if (!clss.containsKey(cls) && !types.containsKey(type)) {
-				LOGGER.debug("got write lock, {}  and {} still missing", cls, type);
-				clss.put(cls, type);
-				types.put(type, cls);
-			} else {
-				LOGGER.debug("got write lock, but {} or {} is already registered", cls, type);
+		try {
+			if (clss.containsKey(cls)) {
+				LOGGER.warn("class {} already registered", cls);
+				LOGGER.exit();
+				return;
 			}
-			typeLock.readLock().lock();
+			if (types.containsKey(type)) {
+				LOGGER.warn("type {} already registered", type);
+				LOGGER.exit();
+				return;
+			}
+		} finally {
+			typeLock.readLock().unlock();
+		}
+
+		LOGGER.debug("{} and {} not found, getting write lock", cls, type);
+
+		typeLock.writeLock().lock();
+		try {
+			if (clss.containsKey(cls)) {
+				LOGGER.warn("class {} already registered", cls);
+				LOGGER.exit();
+				return;
+			}
+			if (types.containsKey(type)) {
+				LOGGER.warn("type {} already registered", type);
+				LOGGER.exit();
+				return;
+			}
+			LOGGER.debug("got write lock, {}  and {} still missing", cls, type);
+			clss.put(cls, type);
+			types.put(type, cls);
+		} finally {
 			typeLock.writeLock().unlock();
 		}
-		typeLock.readLock().unlock();
 		LOGGER.exit();
 	}
 
