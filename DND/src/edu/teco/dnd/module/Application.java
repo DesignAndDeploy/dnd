@@ -3,7 +3,9 @@ package edu.teco.dnd.module;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,14 +27,16 @@ import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
 
-	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 	public static final long MODULE_LOCATION_REQUEST_DELAY = 500;
 	public static final int SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION = 2;
+	private static final Logger LOGGER = LogManager.getLogger(Application.class);
+
+	public final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
+	public boolean isRunning = false;
 
 	private final UUID ownAppId;
 	private final String name;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
-
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
 
