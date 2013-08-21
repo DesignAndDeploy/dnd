@@ -5,21 +5,24 @@
  */
 package edu.teco.dnd.graphiti.model.impl;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.FunctionBlockClass;
-
-import edu.teco.dnd.graphiti.model.*;
-
 import java.io.Serializable;
 import java.util.UUID;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
+
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.ModelFactory;
+import edu.teco.dnd.graphiti.model.ModelPackage;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model <b>Factory</b>. <!-- end-user-doc -->

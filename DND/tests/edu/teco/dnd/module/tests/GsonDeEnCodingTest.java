@@ -75,7 +75,7 @@ public class GsonDeEnCodingTest implements Serializable {
 
 		ModuleApplicationManager appMan;
 		try {
-			appMan = new ModuleApplicationManager(TestConfigReader.getPredefinedReader(), null) {
+			appMan = new ModuleApplicationManager(TestConfigReader.getPredefinedReader(), null, null) {
 				public ClassLoader getAppClassLoader(UUID appId) {
 					return null;
 				};

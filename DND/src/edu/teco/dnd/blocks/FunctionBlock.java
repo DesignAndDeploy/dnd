@@ -142,6 +142,13 @@ public abstract class FunctionBlock implements Serializable {
 	public abstract void init();
 
 	/**
+	 * Can be used to perform necessary operations upon block shutdown. Block will still be in a functional state,
+	 * although it is likely that at least some of the connected blocks have already been shut down. Should return
+	 * quickly, otherwise it might be terminated and no other shutdowns of the application executed.
+	 */
+	public abstract void shutdown();
+
+	/**
 	 * This method is called when either the inputs have new values or the timer has run out.
 	 */
 	public abstract void update();

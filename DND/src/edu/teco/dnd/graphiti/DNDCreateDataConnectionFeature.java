@@ -1,8 +1,5 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IRemoveFeature;
@@ -14,6 +11,9 @@ import org.eclipse.graphiti.features.impl.AbstractCreateConnectionFeature;
 import org.eclipse.graphiti.mm.pictograms.Anchor;
 import org.eclipse.graphiti.mm.pictograms.Connection;
 import org.eclipse.graphiti.mm.pictograms.FixPointAnchor;
+
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * Creates a new data connection.

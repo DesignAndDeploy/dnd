@@ -1,8 +1,5 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -16,6 +13,9 @@ import org.eclipse.graphiti.services.Graphiti;
 import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 import org.eclipse.graphiti.util.IColorConstant;
+
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * Adds a representation for a data connection.

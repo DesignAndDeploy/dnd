@@ -1,9 +1,16 @@
 package edu.teco.dnd.graphiti;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICreateContext;
@@ -18,7 +25,6 @@ import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
 /**
  * This feature is used to create new FunctionBlocks.
  */
-@SuppressWarnings("restriction")
 public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	/**
 	 * The type of blocks created by this feature.
@@ -65,8 +71,10 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	@Override
 	public final Object[] create(final ICreateContext context) {
 		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockClass);
-		getDiagram().eResource().getContents().add(newBlock);
-
+		
+		Resource resource = ((DNDFeatureProvider) getFeatureProvider()).getEMFResource();
+		resource.getContents().add(newBlock);
+		
 		addGraphicalRepresentation(context, newBlock);
 
 		/**

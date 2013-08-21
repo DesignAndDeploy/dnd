@@ -48,6 +48,13 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Checks the lights. If it is bright enough, there is a meeting, and a BeamerOperatingBlock and
 	 * DisplayOperatingBlock can be informed thusly.
 	 */

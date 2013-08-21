@@ -12,28 +12,30 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.blocks.OutputTarget;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
 
-	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 	public static final long MODULE_LOCATION_REQUEST_DELAY = 500;
 	public static final int SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION = 2;
+	private static final Logger LOGGER = LogManager.getLogger(Application.class);
+
+	public final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
+	public boolean isRunning = false;
 
 	private final UUID ownAppId;
 	private final String name;
-
+	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
 
@@ -152,10 +154,18 @@ public class Application {
 	 *            bytecode of the class to be loaded
 	 */
 	public void loadClass(String classname, byte[] classData) {
-		if (classname == null || classData == null) {
-			throw new IllegalArgumentException("classname and classdata must not be null.");
+		if (!shutdownLock.readLock().tryLock()) {
+			throw new IllegalStateException("App already shuting down");
 		}
-		classLoader.appLoadClass(classname, classData);
+
+		try {
+			if (classname == null || classData == null) {
+				throw new IllegalArgumentException("classname and classdata must not be null.");
+			}
+			classLoader.appLoadClass(classname, classData);
+		} finally {
+			shutdownLock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -163,37 +173,40 @@ public class Application {
 	 * 
 	 * @param block
 	 *            the block to be started.
-	 * @return true iff block was successfully started.
 	 */
 	public void startBlock(final FunctionBlock block) {
-		funcBlockById.put(block.getBlockUUID(), block);
-
-		Runnable initRunnable = new Runnable() {
-			@Override
-			public void run() {
-				block.init();
-			}
-		};
-		Runnable updater = new Runnable() {
-			@Override
-			public void run() {
-				block.update();
-			}
-		};
-		scheduledThreadPool.execute(initRunnable);
-
-		// TODO: implement a way to specify interval for updates
-		// long period = block.getTimebetweenSchedules();
-		long period = block.getUpdateInterval();
-		System.out.println(period);
+		if (!shutdownLock.readLock().tryLock()) {
+			return; // Already shutting down.
+		}
 		try {
-			if (period < 0) {
-				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
-			} else {
-				scheduledThreadPool.scheduleAtFixedRate(updater, period, period, TimeUnit.MILLISECONDS);
+			funcBlockById.put(block.getBlockUUID(), block);
+
+			Runnable initRunnable = new Runnable() {
+				@Override
+				public void run() {
+					block.init();
+				}
+			};
+			Runnable updater = new Runnable() {
+				@Override
+				public void run() {
+					block.update();
+				}
+			};
+			scheduledThreadPool.execute(initRunnable);
+
+			long period = block.getUpdateInterval();
+			try {
+				if (period < 0) {
+					scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
+				} else {
+					scheduledThreadPool.scheduleAtFixedRate(updater, period, period, TimeUnit.MILLISECONDS);
+				}
+			} catch (RejectedExecutionException e) {
+				LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
 			}
-		} catch (RejectedExecutionException e) {
-			LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
+		} finally {
+			shutdownLock.readLock().unlock();
 		}
 	}
 
@@ -214,30 +227,40 @@ public class Application {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void receiveValue(final UUID funcBlockId, String inputName, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
-		
-		final FunctionBlock block = funcBlockById.get(funcBlockId);
-		if (block == null) {
-			LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
-			throw LOGGER.throwing(new NonExistentFunctionblockException());
+		if (!shutdownLock.readLock().tryLock()) {
+			return; // Already shutting down.
 		}
-		
-		final Input input = block.getInputs().get(inputName);
-		if (input == null) {
-			LOGGER.info("input '{}' non existant for {}", inputName, block);
-		}
-		input.setValue(value);
-
-		Runnable updater = new Runnable() {
-			@Override
-			public void run() {
-				block.update();
-			}
-		};
-
 		try {
-			scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
-		} catch (RejectedExecutionException e) {
-			LOGGER.info("Received message after initiating shutdown. Not rescheduling {}.", funcBlockId);
+			final FunctionBlock block = funcBlockById.get(funcBlockId);
+			if (block == null) {
+				LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
+				throw LOGGER.throwing(new NonExistentFunctionblockException());
+			}
+			final Input input = block.getInputs().get(inputName);
+			if (input == null) {
+				LOGGER.info("input '{}' non existant for {}", inputName, block);
+			}
+			input.setValue(value);
+			// TODO: set value
+			Runnable updater = new Runnable() {
+				@Override
+				public void run() {
+					FunctionBlock block = funcBlockById.get(funcBlockId);
+					if (block == null) {
+						LOGGER.warn("scheduled a block, that does not exist.");
+						return;
+					}
+					block.update();
+				}
+			};
+
+			try {
+				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
+			} catch (RejectedExecutionException e) {
+				LOGGER.info("Received message after initiating shutdown. Not rescheduling {}.", funcBlockId);
+			}
+		} finally {
+			shutdownLock.readLock().unlock();
 		}
 	}
 
@@ -246,12 +269,35 @@ public class Application {
 	 * 
 	 */
 	public void shutdown() {
+		shutdownLock.writeLock().lock(); // will not be unlocked.
 		scheduledThreadPool.shutdown();
-		// TODO function to tell blocks they are being shut down.
-	}
+		final Thread shutdownThread = new Thread(new Runnable() {
+			public void run() {
+				for (FunctionBlock fun : funcBlockById.values()) {
+					funcBlockById.remove(fun.getBlockUUID());
+					fun.shutdown();
+				}
+			}
+		});
 
-	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-		return scheduledThreadPool.awaitTermination(timeout, unit);
+		Thread watcherThread = new Thread(new Runnable() {
+			@SuppressWarnings("deprecation")
+			public void run() {
+				shutdownThread.start();
+				try {
+					Thread.sleep(2000);// TODO make configurable.
+
+					shutdownThread.interrupt();
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+				}
+				shutdownThread.stop();
+				// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
+				// yet there is no alternative to it if the victim is refusing to cooperate.
+			}
+		});
+
+		watcherThread.start();
 	}
 
 	public UUID getOwnAppId() {

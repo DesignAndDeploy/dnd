@@ -46,6 +46,7 @@ import edu.teco.dnd.network.codecs.DatagramPacketWrapper;
 import edu.teco.dnd.network.codecs.GsonCodec;
 import edu.teco.dnd.network.codecs.MessageAdapter;
 import edu.teco.dnd.network.messages.BeaconMessage;
+import edu.teco.dnd.network.messages.BeaconMessageDeserializer;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 
@@ -150,6 +151,7 @@ public class UDPMulticastBeacon {
 		final GsonCodec gsonCodec = new GsonCodec(Message.class);
 		gsonCodec.registerTypeAdapter(Message.class, messageAdapter);
 		gsonCodec.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
+		gsonCodec.registerTypeAdapter(BeaconMessage.class, new BeaconMessageDeserializer());
 
 		this.channelFactory = new UDPMulticastChannelFactory(factory, group, new ChannelInitializer<DatagramChannel>() {
 			private final DatagramPacketWrapper datagramPacketWrapper = new DatagramPacketWrapper();

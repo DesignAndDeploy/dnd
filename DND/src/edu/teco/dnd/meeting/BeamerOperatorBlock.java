@@ -40,6 +40,13 @@ public class BeamerOperatorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Checks whether there is a meeting and if the outlet is used to control a BeamerActorBlock. If both is true:
 	 * beamer-power activate!
 	 */

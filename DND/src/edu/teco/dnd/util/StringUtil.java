@@ -1,6 +1,5 @@
 package edu.teco.dnd.util;
 
-import java.util.Collection;
 
 /**
  * Provides utility methods for handling Strings.

@@ -1,9 +1,11 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.IReason;
 import org.eclipse.graphiti.features.context.ICustomContext;
@@ -13,6 +15,8 @@ import org.eclipse.graphiti.features.impl.Reason;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
+
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
 /**
  * This class is used to update options if they are changed in the underlying model.
@@ -86,8 +90,9 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 	}
 
 	/**
-	 * This update-method is called by the DNDCustomUpdateFeature. It offers an alternative to the not-working update
-	 * button, that should appear in graphiti by default.
+	 * This update-method is called by the DNDCustomUpdateFeature. It offers an alternative to the previously not
+	 * working update-functionality by graphiti. This method should be obsolete by now, still leaving it in here, just
+	 * in case...
 	 * 
 	 * @param context
 	 *            Context offered by the DNDCustomUpdateFeature

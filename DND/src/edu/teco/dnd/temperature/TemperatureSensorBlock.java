@@ -64,6 +64,13 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Reads new temperature and sets it on output temperature.
 	 */
 	@Override

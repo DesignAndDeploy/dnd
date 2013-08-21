@@ -49,6 +49,18 @@ public class ApplicationSecurityManager extends SecurityManager {
 	 */
 	private static final Collection<String[]> securedMethods = new LinkedList<String[]>();
 
+	// FIXME: I'm not exactly sure which class Base64$1 is or what it is needed for
+	private static final Class<?> BASE64_CLASS;
+	static {
+		Class<?> cls = null;
+		try {
+			cls = Class.forName("edu.teco.dnd.util.Base64$1");
+		} catch (final ClassNotFoundException e) {
+			LOGGER.catching(e);
+		}
+		BASE64_CLASS = cls;
+	}
+
 	static {
 		insecureMethods.add(new String[] { "edu.teco.dnd.module.UsercodeWrapper" });
 		insecureMethods.add(new String[] { "edu.teco.dnd.module.FunctionBlockSecurityDecorator" });
@@ -164,8 +176,7 @@ public class ApplicationSecurityManager extends SecurityManager {
 					doAllow = true;
 				} else if (bPerm.getName().equals("accessDeclaredMembers")) {
 					StackTraceElement trace = Thread.currentThread().getStackTrace()[15];
-					if (trace.getClass().equals("edu.teco.dnd.util.Base64$1")
-							&& trace.getMethodName().equals("readObject")) {
+					if (BASE64_CLASS.equals(trace.getClass()) && trace.getMethodName().equals("readObject")) {
 						doAllow = true;
 					}
 				} else {

@@ -42,7 +42,7 @@
    </extension>
       <extension point="org.eclipse.ui.editors">
       <editor class="edu.teco.dnd.eclipse.deployView.DeployView"
-      		extensions="diagram"
+      		extensions="blocks"
       		id="edu.teco.dnd.eclipse.deployView.DeployView"
       		name="Deploy"/>
    </extension>

@@ -38,6 +38,17 @@ public class FunctionBlockSecurityDecorator extends FunctionBlock {
 	}
 
 	@Override
+	public void shutdown() {
+		try {
+			block.shutdown();
+		} catch (Throwable t) {
+			Thread.dumpStack();
+			LOGGER.warn("Block {}, threw an exception in init()", this.getBlockUUID());
+			// ignoring. Don't kill the rest of the application.
+		}
+	}
+
+	@Override
 	public void update() {
 		try {
 			block.update();
@@ -46,56 +57,4 @@ public class FunctionBlockSecurityDecorator extends FunctionBlock {
 			// Ignoring, Do not want to kill application because of this.
 		}
 	}
-
-	@Override
-	public int hashCode() {
-		// Note that we cannot prevent breaking the equals/hashCode contract.
-		int hashCode;
-		try {
-			hashCode = block.hashCode();
-		} catch (Throwable t) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Block {} ({}), threw an exception in hashCode()", block.getClass(), this.getBlockUUID());
-			}
-			hashCode = rnd.nextInt();
-		}
-		return hashCode;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-
-		boolean equal;
-		try {
-			equal = block.equals(obj);
-		} catch (Throwable t) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Block {} ({}), threw an exception in equals()", block.getClass(), this.getBlockUUID());
-			}
-			return false;
-		}
-		return equal;
-	}
-
-	@Override
-	public String toString() {
-		String toStr;
-		try {
-			toStr = block.toString();
-		} catch (Throwable t) {
-			LOGGER.warn("Block {} ({}), threw an exception in toString()", block.getClass(), this.getBlockUUID());
-			try {
-				return "[ERROR: " + t.getMessage() + "]";
-			} catch (Throwable t2) {
-				// Throwable might be overridden as well;
-				return "[ERROR]";
-			}
-		}
-		if (toStr == null) {
-			return "[NULL]";
-		} else {
-			return toStr;
-		}
-	}
-
 }

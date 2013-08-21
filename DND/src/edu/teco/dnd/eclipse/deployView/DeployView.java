@@ -3,10 +3,10 @@ package edu.teco.dnd.eclipse.deployView;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +26,6 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -41,17 +39,17 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
 import edu.teco.dnd.deploy.Constraint;
-import edu.teco.dnd.deploy.Distribution;
-import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DeployListener;
+import edu.teco.dnd.deploy.Distribution;
+import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.deploy.DistributionGenerator;
 import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.deploy.UserConstraints;
@@ -140,12 +138,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
 		}
 		manager.addModuleManagerListener(this);
-		LOGGER.exit();
 		mapBlockToTarget = new HashMap<FunctionBlockModel, BlockTarget>();
+		LOGGER.exit();
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
+		LOGGER.entry(parent);
 		functionBlocks = new ArrayList<FunctionBlockModel>();
 		mapItemToBlockModel = new HashMap<TableItem, FunctionBlockModel>();
 
@@ -170,6 +169,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		createSelectionListeners();
 
 		loadBlockModels(getEditorInput());
+		LOGGER.exit();
 	}
 
 	/**
@@ -188,6 +188,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever the UpdateBlocks Button is pressed.
 	 */
 	private void updateBlocks() {
+		LOGGER.entry();
 		Collection<FunctionBlockModel> newBlockModels = new ArrayList<FunctionBlockModel>();
 		Map<UUID, FunctionBlockModel> newIDs = new HashMap<UUID, FunctionBlockModel>();
 		Map<UUID, FunctionBlockModel> oldIDs = new HashMap<UUID, FunctionBlockModel>();
@@ -240,6 +241,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			}
 		}
 		functionBlocks = newBlockModels;
+		LOGGER.exit();
 	}
 
 	/**
@@ -291,11 +293,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 
 		String newPosition = newBlock.getPosition();
-		if (newPosition != null) {
+		if (newPosition != null && !newPosition.isEmpty()) {
 			item.setText(2, newPosition);
-			if (!newPosition.isEmpty()) {
 				placeConstraints.put(newBlock, newPosition);
-			}
 		} else {
 			item.setText(2, "");
 		}
@@ -313,13 +313,16 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 * Invoked whenever the Create Button is pressed.
 	 */
 	private void create() {
+		LOGGER.entry();
 		Collection<Module> moduleCollection = getModuleCollection();
 		if (functionBlocks.isEmpty()) {
 			warn("No blockModels to distribute");
+			LOGGER.exit();
 			return;
 		}
 		if (moduleCollection.isEmpty()) {
 			warn("No modules to deploy on");
+			LOGGER.exit();
 			return;
 		}
 
@@ -343,20 +346,24 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 				newConstraints = false;
 			}
 		}
+		LOGGER.exit();
 	}
 
 	/**
 	 * Invoked whenever the Deploy Button is pressed.
 	 */
 	private void deploy() {
+		LOGGER.entry();
 		if (mapBlockToTarget.isEmpty()) {
 			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
+			LOGGER.exit();
 			return;
 		}
 
 		if (newConstraints) {
 			int cancel = warn(DeployViewTexts.NEWCONSTRAINTS);
 			if (cancel == -4) {
+				LOGGER.exit();
 				return;
 			}
 		}
@@ -409,6 +416,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		});
 		deploy.deploy();
 		resetDeployment();
+		LOGGER.exit();
 	}
 
 	/**
@@ -445,6 +453,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 
 	private void saveConstraints() {
 		String text = places.getText();
+
 		if (selectedIndex > 0) {
 			selectedID = idList.get(selectedIndex - 1);
 		} else {
@@ -475,15 +484,18 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			moduleConstraints.remove(selectedBlockModel);
 		}
 
-		selectedBlockModel.setBlockName(this.blockModelName.getText());
-		selectedItem.setText(0, blockModelName.getText());
+		String newName = this.blockModelName.getText();
+		selectedBlockModel.setBlockName(newName);
+		selectedItem.setText(0, newName);
 
 		try {
-			resource.save(null);
+			resource.save(Collections.EMPTY_MAP);
+			resource.setModified(true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		firePropertyChange(IEditorPart.PROP_DIRTY);
 
 		newConstraints = true;
 	}
@@ -593,15 +605,18 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private Collection<FunctionBlockModel> loadInput(final FileEditorInput input) throws IOException {
 		LOGGER.entry(input);
 		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
-		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
+		appName.setText(input.getFile().getName().replaceAll("\\.blocks", ""));
 
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		resource = new XMIResourceImpl(uri);
+		resource.setTrackingModification(true);
 		resource.load(null);
 		for (EObject object : resource.getContents()) {
 			if (object instanceof FunctionBlockModel) {
 				LOGGER.trace("found FunctionBlockModel {}", object);
-				blockModelList.add(((FunctionBlockModel) object));
+				FunctionBlockModel blockmodel = (FunctionBlockModel) object;
+				blockModelList.add(blockmodel);
+
 			}
 		}
 		return blockModelList;
@@ -826,7 +841,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 							DeployView.this.activator.startServer();
 						}
 					}
-				}.run();
+				}.start();
 			}
 		});
 

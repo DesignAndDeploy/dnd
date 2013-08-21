@@ -1,5 +1,9 @@
 package edu.teco.dnd.module.tests;
 
+import io.netty.channel.EventLoopGroup;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -9,6 +13,7 @@ import java.util.UUID;
 
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.ModuleMain;
+import edu.teco.dnd.module.ModuleShutdownHook;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.tests.TestConfigReader;
@@ -27,9 +32,39 @@ public class ModuleMainTest {
 				public void run() {
 					System.out.println("starting modmain");
 
-					TCPConnectionManager connectionManager = ModuleMain.prepareNetwork(reader);
-					ModuleApplicationManager appMan = new ModuleApplicationManager(reader, connectionManager);
-					ModuleMain.registerHandlerAdapter(reader, connectionManager, appMan);
+					final Set<EventLoopGroup> eventLoopGroups = new HashSet<EventLoopGroup>();
+					TCPConnectionManager connectionManager;
+
+					try {
+						// ModuleMain.prepareNetwork(reader, eventLoopGroups);
+						Method method =
+								ModuleMain.class.getDeclaredMethod("prepareNetwork", reader.getClass(), Set.class);
+						method.setAccessible(true);
+						connectionManager = (TCPConnectionManager) method.invoke(null, reader, eventLoopGroups);
+
+						ModuleApplicationManager appMan =
+								new ModuleApplicationManager(reader, connectionManager, new ModuleShutdownHook(
+										eventLoopGroups));
+
+						// ModuleMain.registerHandlerAdapter(reader, connectionManager, appMan);
+						method =
+								ModuleMain.class.getDeclaredMethod("registerHandlerAdapter", reader.getClass(),
+										connectionManager.getClass(), appMan.getClass());
+						method.setAccessible(true);
+						method.invoke(null, reader, connectionManager, appMan);
+
+					} catch (NoSuchMethodException e) {
+						throw new Error(e);
+					} catch (SecurityException e) {
+						throw new Error(e);
+					} catch (IllegalAccessException e) {
+						throw new Error(e);
+					} catch (IllegalArgumentException e) {
+						throw new Error(e);
+					} catch (InvocationTargetException e) {
+						throw new Error(e);
+					}
+
 				}
 			}).start();
 		}

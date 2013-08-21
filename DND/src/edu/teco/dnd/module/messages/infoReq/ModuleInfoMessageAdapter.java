@@ -26,7 +26,10 @@ public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMess
 		UUID sourceUUID = context.deserialize(jsonSourceUUID, UUID.class);
 		final JsonElement jsonModule = jsonObj.get("module");
 		Module module = context.deserialize(jsonModule, Module.class);
-		setParents(module.getHolder());
+		final BlockTypeHolder rootHolder = module.getHolder();
+		if (rootHolder != null) {
+			setParents(rootHolder);
+		}
 		return new ModuleInfoMessage(sourceUUID, uuid, module);
 	}
 

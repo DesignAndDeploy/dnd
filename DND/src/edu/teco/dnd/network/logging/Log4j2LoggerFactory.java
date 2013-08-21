@@ -1,9 +1,9 @@
 package edu.teco.dnd.network.logging;
 
-import org.apache.logging.log4j.LogManager;
-
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import org.apache.logging.log4j.LogManager;
 
 public class Log4j2LoggerFactory extends InternalLoggerFactory {
 	@Override

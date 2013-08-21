@@ -123,7 +123,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String POSITION_EDEFAULT = null;
+	protected static final String POSITION_EDEFAULT = "";
 
 	/**
 	 * The cached value of the '{@link #getPosition() <em>Position</em>}' attribute. <!-- begin-user-doc --> <!--
@@ -143,7 +143,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String BLOCK_NAME_EDEFAULT = null;
+	protected static final String BLOCK_NAME_EDEFAULT = "";
 
 	/**
 	 * The cached value of the '{@link #getBlockName() <em>Block Name</em>}' attribute. <!-- begin-user-doc --> <!--

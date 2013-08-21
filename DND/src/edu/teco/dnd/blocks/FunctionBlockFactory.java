@@ -11,9 +11,6 @@ import java.util.regex.Pattern;
 
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Attribute;
-import org.apache.bcel.classfile.ClassFormatException;
-import org.apache.bcel.classfile.Constant;
-import org.apache.bcel.classfile.ConstantInteger;
 import org.apache.bcel.classfile.ConstantLong;
 import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.classfile.ConstantString;
@@ -24,7 +21,6 @@ import org.apache.bcel.classfile.Signature;
 import org.apache.bcel.classfile.Utility;
 import org.apache.bcel.generic.BasicType;
 import org.apache.bcel.generic.ObjectType;
-import org.apache.bcel.generic.ReferenceType;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.util.ClassPath;
 import org.apache.bcel.util.Repository;

@@ -5,23 +5,20 @@
  */
 package edu.teco.dnd.graphiti.model.impl;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.ModelPackage;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.Repository;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.eclipse.emf.ecore.util.EcoreUtil;
+
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.ModelPackage;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object '<em><b>Input Model</b></em>'. <!-- end-user-doc -->

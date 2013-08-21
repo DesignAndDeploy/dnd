@@ -3,8 +3,8 @@ package edu.teco.dnd.module.messages.values;
 import java.io.Serializable;
 import java.util.UUID;
 
-import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.module.UserSuppliedCodeException;
+import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class ValueMessage extends ApplicationSpecificMessage {

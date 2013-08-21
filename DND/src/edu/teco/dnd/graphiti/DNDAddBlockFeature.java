@@ -1,10 +1,5 @@
 package edu.teco.dnd.graphiti;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.OptionModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
@@ -25,6 +20,11 @@ import org.eclipse.graphiti.services.IGaService;
 import org.eclipse.graphiti.services.IPeCreateService;
 import org.eclipse.graphiti.util.ColorConstant;
 import org.eclipse.graphiti.util.IColorConstant;
+
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * Adds a graphical representation for a FunctionBlock.
@@ -228,6 +228,8 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 				getDiagram().eResource().getContents().add(addedBlock);
 			}
 
+			TypePropertyUtil.setBlockShape(roundedRectangle);
+
 			link(containerShape, addedBlock);
 		}
 
@@ -306,6 +308,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		layoutPictogramElement(containerShape);
 
 		LOGGER.exit(containerShape);
+		
 		return containerShape;
 	}
 

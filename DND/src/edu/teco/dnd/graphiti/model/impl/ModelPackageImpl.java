@@ -5,15 +5,6 @@
  */
 package edu.teco.dnd.graphiti.model.impl;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.graphiti.model.InputModel;
-import edu.teco.dnd.graphiti.model.ModelFactory;
-import edu.teco.dnd.graphiti.model.ModelPackage;
-import edu.teco.dnd.graphiti.model.OptionModel;
-import edu.teco.dnd.graphiti.model.OutputModel;
-
 import java.io.Serializable;
 
 import org.eclipse.emf.ecore.EAttribute;
@@ -21,8 +12,15 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-
 import org.eclipse.emf.ecore.impl.EPackageImpl;
+
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.ModelFactory;
+import edu.teco.dnd.graphiti.model.ModelPackage;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model <b>Package</b>. <!-- end-user-doc -->

@@ -20,20 +20,40 @@ public class BeaconMessage extends Message {
 	/**
 	 * The addresses of the module that send this message.
 	 */
-	// TODO: add Gson deserializer that keeps addresses unmodifiable
 	private final List<InetSocketAddress> addresses;
 
 	/**
 	 * Initializes a new BeaconMessage.
 	 * 
 	 * @param uuid
+	 *            the UUID of this Message
+	 * @param moduleUUID
 	 *            the UUID of the module
 	 * @param addresses
 	 *            the addresses the module that can be used to initiate a connection. The list is copied to make it
 	 *            unmodifiable. Can be null to use an empty list.
 	 */
-	public BeaconMessage(final UUID uuid, final List<InetSocketAddress> addresses) {
-		this.moduleUUID = uuid;
+	public BeaconMessage(final UUID uuid, final UUID moduleUUID, final List<InetSocketAddress> addresses) {
+		super(uuid);
+		this.moduleUUID = moduleUUID;
+		if (addresses == null) {
+			this.addresses = Collections.unmodifiableList(Collections.<InetSocketAddress> emptyList());
+		} else {
+			this.addresses = Collections.unmodifiableList(new ArrayList<InetSocketAddress>(addresses));
+		}
+	}
+
+	/**
+	 * Initializes a new BeaconMessage.
+	 * 
+	 * @param moduleUUID
+	 *            the UUID of the module
+	 * @param addresses
+	 *            the addresses the module that can be used to initiate a connection. The list is copied to make it
+	 *            unmodifiable. Can be null to use an empty list.
+	 */
+	public BeaconMessage(final UUID moduleUUID, final List<InetSocketAddress> addresses) {
+		this.moduleUUID = moduleUUID;
 		if (addresses == null) {
 			this.addresses = Collections.unmodifiableList(Collections.<InetSocketAddress> emptyList());
 		} else {

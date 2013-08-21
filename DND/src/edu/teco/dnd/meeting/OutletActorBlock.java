@@ -51,6 +51,13 @@ public class OutletActorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Turns the beamer on or off.
 	 */
 	@Override

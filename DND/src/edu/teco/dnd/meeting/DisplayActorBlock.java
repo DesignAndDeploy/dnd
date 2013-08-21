@@ -46,6 +46,13 @@ public class DisplayActorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Puts the input string on a display.
 	 */
 	@Override

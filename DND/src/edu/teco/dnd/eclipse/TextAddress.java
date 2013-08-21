@@ -2,6 +2,7 @@ package edu.teco.dnd.eclipse;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 import org.eclipse.swt.widgets.Text;
 
 /**

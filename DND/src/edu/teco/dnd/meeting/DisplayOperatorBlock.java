@@ -35,6 +35,13 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Checks if there is a meeting and accordingly sets the text to be shown on the display ("frei" oder "besetzt").
 	 */
 	@Override

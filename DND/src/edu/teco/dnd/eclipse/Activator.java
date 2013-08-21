@@ -35,10 +35,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import sun.net.InetAddressCachePolicy;
-
 import edu.teco.dnd.module.ModuleMain;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
@@ -325,7 +322,7 @@ public class Activator extends AbstractUIPlugin {
 					serverStateLock.writeLock().unlock();
 				}
 			}
-		}.run();
+		}.start();
 		LOGGER.exit();
 	}
 

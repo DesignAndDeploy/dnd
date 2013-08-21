@@ -3,15 +3,11 @@ package edu.teco.dnd.module;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -38,24 +34,30 @@ import edu.teco.dnd.module.messages.values.ValueMessageHandler;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.module.messages.values.WhoHasFuncBlockHandler;
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.util.IndexedThreadFactory;
 
 public class ModuleApplicationManager {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleApplicationManager.class);
 
-	public UUID localeModuleId;
-	public ConfigReader moduleConfig;
-	private Map<UUID, Application> runningApps = Collections.synchronizedMap(new HashMap<UUID, Application>());
+	public final UUID localeModuleId;
+	public final ConfigReader moduleConfig;
 	public final int maxAllowedThreadsPerApp;
+	private final Map<UUID, Application> runningApps = new ConcurrentHashMap<UUID, Application>();
 	private final ConnectionManager connMan;
-	private final Set<FunctionBlock> scheduledToStart = Collections.synchronizedSet(new HashSet<FunctionBlock>());
+	private final Runnable moduleShutdownHook;
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
-	private final Map<UUID, Integer> spotOccupiedByBlock = new HashMap<UUID, Integer>();
+	private final Map<UUID, Integer> spotOccupiedByBlock = new ConcurrentHashMap<UUID, Integer>();
 
-	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
+	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan, Runnable modShutdownHook) {
+		this.moduleShutdownHook = modShutdownHook;
+		this.moduleConfig = moduleConfig;
 		this.localeModuleId = moduleConfig.getUuid();
 		this.maxAllowedThreadsPerApp = moduleConfig.getMaxThreadsPerApp();
-		this.moduleConfig = moduleConfig;
 		this.connMan = connMan;
+	}
+
+	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
+		this(moduleConfig, connMan, null);
 	}
 
 	/**
@@ -71,37 +73,40 @@ public class ModuleApplicationManager {
 	 */
 	public void joinApplication(final UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("joining app {} ({}), as requested by {}", name, appId, deployingAgentId);
+
 		isShuttingDown.readLock().lock();
 		try {
-			if (runningApps.containsKey(appId)) {
-				LOGGER.info("trying to rejoin app that was already joined before.");
-				return;
-			}
-
-			final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
-
-			ThreadFactory fact = new ThreadFactory() {
-				private int counter = 0;
-				private UUID threadAppId = appId;
-
-				@Override
-				public Thread newThread(Runnable r) {
-					Thread appThread = new Thread(r, "thread: app - " + threadAppId + " - " + counter);
-					appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
-					return appThread;
+			synchronized (runningApps) {
+				if (runningApps.containsKey(appId)) {
+					LOGGER.info("trying to rejoin app that was already joined before.");
+					return;
 				}
-			};
 
-			ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, fact);
-			Application newApp = new Application(appId, name, pool, connMan, classLoader);
-			runningApps.put(appId, newApp);
+				final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
 
-			connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, newApp), pool);
-			connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), pool);
-			connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
-			connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
-			connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
-			connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
+				final ThreadFactory fact = new ThreadFactory() {
+					private final ThreadFactory internalFactory = new IndexedThreadFactory("app-" + appId.toString()
+							+ "-");
+
+					@Override
+					public Thread newThread(Runnable r) {
+						final Thread appThread = internalFactory.newThread(r);
+						appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
+						return appThread;
+					}
+				};
+
+				ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, fact);
+				Application newApp = new Application(appId, name, pool, connMan, classLoader);
+				runningApps.put(appId, newApp);
+
+				connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, newApp), pool);
+				connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), pool);
+				connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
+				connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
+				connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
+				connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
+			}
 		} finally {
 			isShuttingDown.readLock().unlock();
 		}
@@ -122,10 +127,10 @@ public class ModuleApplicationManager {
 			final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs, int scheduleToId) {
 		isShuttingDown.readLock().lock();
 		try {
-			final Application application = runningApps.get(appId);
+			final Application app = runningApps.get(appId);
 			Class<?> cls;
 			try {
-				cls = application.getClassLoader().loadClass(blockClass);
+				cls = app.getClassLoader().loadClass(blockClass);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				return false;
@@ -171,25 +176,40 @@ public class ModuleApplicationManager {
 			BlockTypeHolder blockAllowed;
 			if (scheduleToId < 0) {
 				blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
+				if (blockAllowed == null) {
+					LOGGER.info("Block {} not allowed in App {}({})", blockType, app, appId);
+					throw new IllegalArgumentException("Block not allowed in App");
+				}
 			} else {
 				blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
 			}
 			if (blockAllowed == null) {
 				if (scheduleToId < 0) {
-					LOGGER.info("Block {} not allowed in App {}({})", blockType, runningApps.get(appId), appId);
+					LOGGER.info("Block {} not allowed in App {}({})", blockType, app, appId);
 				} else {
-					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, runningApps.get(appId), appId);
+					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, app, appId);
+					throw new IllegalArgumentException("Id does not exist in App");
 				}
-				return false;
 			}
+
 			if (!blockAllowed.type.equals(blockType)) {
 				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId, blockAllowed.type,
 						blockType);
-				return false;
+				throw new IllegalArgumentException("given scheduleId and Blocktype incompatible");
 			}
-			if (!blockAllowed.tryDecrease()) {
-				LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
-				return false;
+
+			synchronized (app.scheduledToStart) {
+				if (app.isRunning == true) {
+					LOGGER.info("tried to schedule Block to already running application.");
+					throw new IllegalArgumentException("tried to schedule Block to already running application.");
+				}
+				if (!blockAllowed.tryDecrease()) {
+					LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
+					throw new IllegalArgumentException("Blockamount exceeded. Not scheduling!");
+				}
+				spotOccupiedByBlock.put(block.getBlockUUID(), blockAllowed.getIdNumber());
+
+				app.scheduledToStart.add(block);
 			}
 			LOGGER.info("foo");
 			final Map<String, Output<? extends Serializable>> blockOutputs = block.getOutputs();
@@ -204,70 +224,42 @@ public class ModuleApplicationManager {
 					}
 					continue;
 				}
-				out.setTarget(application.new ApplicationOutputTarget(output.getValue()));
+				out.setTarget(app.new ApplicationOutputTarget(output.getValue()));
 			}
 			spotOccupiedByBlock.put(block.getBlockUUID(), blockAllowed.getIdNumber());
-			scheduledToStart.add(block);
-			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, application, appId);
+			app.scheduledToStart.add(block);
+			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, app, appId);
 			return true;
 		} finally {
 			isShuttingDown.readLock().unlock();
 		}
+
 	}
 
 	public void startApp(UUID appId) {
-		// TODO: add synchronization
-		// TODO: clear list of scheduled blocks
-		// TODO: only start the blocks that are scheduled for this application
-		for (FunctionBlock block : scheduledToStart) {
-			Application app = runningApps.get(appId);
-			if (app == null) {
-				LOGGER.warn("Tried to start non existing app: {}", appId);
-				throw new IllegalArgumentException("tried to start app that does not exist.");
-			} else {
-				runningApps.get(appId).startBlock(block);
+		Application app = runningApps.get(appId);
+		if (app == null) {
+			LOGGER.warn("Tried to start non existing app: {}", appId);
+			throw new IllegalArgumentException("tried to start app that does not exist.");
+		}
+
+		isShuttingDown.readLock().lock();
+		try {
+			synchronized (app.scheduledToStart) {
+				if (app.isRunning == true) {
+					LOGGER.warn("tried to double start Application.");
+					throw new IllegalArgumentException("tried to double start Application.");
+				}
+				app.isRunning = true;
+
+				for (FunctionBlock func : app.scheduledToStart) {
+					app.startBlock(func);
+				}
 			}
-		}
-	}
-
-	/**
-	 * called if a block should be started.
-	 * 
-	 * @param appId
-	 *            the app this is directed to.
-	 * @param block
-	 *            the block to start.
-	 * @return true iff starting was successful.
-	 */
-	public boolean startBlock(UUID appId, final String blockClass, final UUID blockUUID,
-			final Map<String, String> options) {
-		String blockType = "";
-		// TODO: implement block types
-		// TODO: maybe merge some code with scheduleBlock, there seems to be a lot of redundancy
-		// try {
-		// blockType = BlockRunner.getBlockType(block);
-		// } catch (UserSuppliedCodeException e) {
-		// e.printStackTrace();
-		// return false; // not scheduling bad block.
-		// }
-		BlockTypeHolder blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
-		if (blockAllowed == null) {
-			// do not log the block directly, as that would call block.toString which is untrusted code
-			if (LOGGER.isInfoEnabled()) {
-				// TODO: FunctionBlocks no longer store their own id. Add them back to the class or store them somewhere
-				// else
-				// LOGGER.info("Block {} not allowed in App {}({})", block.getID(), runningApps.get(appId), appId);
-				LOGGER.info("Block {} not allowed in App {}({})", blockUUID, runningApps.get(appId), appId);
-			}
-			return false;
+		} finally {
+			isShuttingDown.readLock().unlock();
 		}
 
-		if (blockAllowed.tryDecrease()) {
-			LOGGER.info("Blockamount of {} exceeded. Not starting!", blockType);
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -276,7 +268,9 @@ public class ModuleApplicationManager {
 	public void shutdownModule() {
 		isShuttingDown.writeLock().lock();
 		try {
-			ModuleMain.shutdownNetwork();
+			if (moduleShutdownHook != null) {
+				moduleShutdownHook.run();
+			}
 			for (UUID appId : runningApps.keySet()) {
 				stopApplication(appId);
 			}
@@ -294,18 +288,23 @@ public class ModuleApplicationManager {
 	 */
 	public void stopApplication(UUID appId) {
 		LOGGER.entry(appId);
-		Application app = runningApps.get(appId);
-		if (app == null) {
-			return;
+		Collection<FunctionBlock> blocksKilled;
+		synchronized (runningApps) {
+
+			Application app = runningApps.get(appId);
+			if (app == null) {
+				return;
+			}
+
+			blocksKilled = app.getAllBlocks();
+
+			app.shutdown();
+			runningApps.remove(appId);
+
 		}
-
-		Collection<FunctionBlock> blocksKilled = app.getAllBlocks();
-
-		app.shutdown();
-		runningApps.remove(appId);
 		for (FunctionBlock block : blocksKilled) {
-			// BlockTypeHolder holder = moduleConfig.getAllowedBlocks().get(block.getType());
-			BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(block.getBlockUUID()));
+			BlockTypeHolder holder =
+					moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(block.getBlockUUID()));
 			if (holder != null) {
 				holder.increase();
 			} else {

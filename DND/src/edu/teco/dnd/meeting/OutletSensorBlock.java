@@ -61,6 +61,13 @@ public class OutletSensorBlock extends FunctionBlock {
 	}
 
 	/**
+	 * Shutdown Block.
+	 */
+	@Override
+	public void shutdown() {
+	}
+
+	/**
 	 * Checks use of the outlet.
 	 */
 	@Override
