@@ -301,7 +301,7 @@ public class Application {
 		Thread watcherThread = new Thread(new Runnable() {
 			@SuppressWarnings("deprecation")
 			public void run() {
-				shutdownThread.run();
+				shutdownThread.start();
 				try {
 					Thread.sleep(2000);// TODO make configurable.
 
