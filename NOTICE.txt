@@ -83,3 +83,13 @@ This product uses iharder's Base64 ecoder/decoder
 		* public domain
 	* HOMEPAGE:
 		* http://iharder.sourceforge.net/current/java/base64/
+
+This product uses Mockito, a clean and simple mocking framework.
+
+	* LICENSE:
+		* license/license.mockito.txt (MIT License)
+		* Mockito includes Cglib (license/license.cglib.txt, Apache
+		  License 2.0), ASM (license/license.asm.txt, BSD License)
+		  and Objenesis (license/license.objenesis.txt, MIT License)
+	* HOMEPAGE:
+		* https://code.google.com/p/mockito/
