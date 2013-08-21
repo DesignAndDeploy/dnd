@@ -2,6 +2,7 @@ package edu.teco.dnd.graphiti;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.IReason;
 import org.eclipse.graphiti.features.IUpdateFeature;
@@ -10,6 +11,7 @@ import org.eclipse.graphiti.features.context.impl.UpdateContext;
 import org.eclipse.graphiti.features.impl.AbstractUpdateFeature;
 import org.eclipse.graphiti.features.impl.Reason;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
+import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.mm.pictograms.Shape;
@@ -67,6 +69,11 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 				}
 			}
 		}
+		if (((DNDFeatureProvider) getFeatureProvider()).EMFResourceChanged()){
+			reason = Reason.createTrueReason("Resource modified");
+			return reason;
+		}
+		
 		reason = Reason.createFalseReason();
 		LOGGER.exit(reason);
 		return reason;
@@ -74,18 +81,24 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 
 	@Override
 	public boolean update(IUpdateContext context) {
-		
+		System.out.println("Update wurde aufgerufen");
 		LOGGER.entry(context);
+		boolean changeNeeded = ((DNDFeatureProvider) getFeatureProvider()).EMFResourceChanged();
+		((DNDFeatureProvider) getFeatureProvider()).updateEMFResource();
+		
 		PictogramElement pe = context.getPictogramElement();
 		IFeatureProvider provider = getFeatureProvider();
 		ContainerShape shape = (ContainerShape) pe;
 		IReason reason = null;
+		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
+		Resource rec = block.eResource();
+		
 		for (Shape child : shape.getChildren()){
 			UpdateContext childContext = new UpdateContext(child);
 			IUpdateFeature feature = provider.getUpdateFeature(childContext);
 			if (feature != null){
 				reason = feature.updateNeeded(childContext);
-				if (reason.toBoolean()){
+				if (reason.toBoolean() || rec.isModified() || changeNeeded){
 					feature.update(childContext);
 				}
 			}
