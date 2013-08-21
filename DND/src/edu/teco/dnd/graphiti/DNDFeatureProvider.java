@@ -1,19 +1,30 @@
 package edu.teco.dnd.graphiti;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.graphiti.dt.IDiagramTypeProvider;
 import org.eclipse.graphiti.features.IAddFeature;
 import org.eclipse.graphiti.features.ICreateConnectionFeature;
@@ -34,6 +45,7 @@ import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.custom.ICustomFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.Connection;
+import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
 
@@ -63,6 +75,118 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(DNDFeatureProvider.class);
 
+	private Resource resource = null;
+	
+	public synchronized Resource getEMFResource(){
+		if (resource == null){
+			Diagram d = getDiagramTypeProvider().getDiagram();
+			
+			URI uri = d.eResource().getURI();
+			uri = uri.trimFragment();
+			uri = uri.trimFileExtension();
+			uri = uri.appendFileExtension("blocks");
+
+			ResourceSet rSet = d.eResource().getResourceSet();
+			final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			IResource file = workspaceRoot.findMember(uri.toPlatformString(true));
+			if (file == null || !file.exists()) {
+				Resource createResource = rSet.createResource(uri);
+				try {
+					createResource.save(null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				createResource.setTrackingModification(true);
+			}
+			resource = rSet.getResource(uri, true);
+			resource.setTrackingModification(true);
+			System.out.println("Resource vom Featureprovider erstellt. Trackt? " + resource.isTrackingModification());
+		}
+		return resource;
+	}
+	
+	/**
+	 * Creates a new resource, to be invoked whenever an update / load from a resource is needed.
+	 * @return false if no Position or Blockname changed.
+	 */
+	public synchronized void updateEMFResource(){
+		if (resource == null){
+			getEMFResource();
+		}
+		Diagram d = getDiagramTypeProvider().getDiagram();
+		
+		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
+		for (EObject obj : resource.getContents()){
+			if (obj instanceof FunctionBlockModel){
+				oldModels.add((FunctionBlockModel) obj);
+			}
+		}
+		
+		URI uri = d.eResource().getURI();
+		uri = uri.trimFragment();
+		uri = uri.trimFileExtension();
+		uri = uri.appendFileExtension("blocks");
+		
+		Resource newResource = new XMIResourceImpl(uri);
+		try {
+			newResource.load(null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (EObject obj : newResource.getContents()){
+			if (obj instanceof FunctionBlockModel){
+				FunctionBlockModel newModel = (FunctionBlockModel) obj;
+				for (FunctionBlockModel oldModel : oldModels){
+					if (oldModel.getID().equals(newModel.getID())){
+						oldModel.setPosition(newModel.getPosition());
+						oldModel.setBlockName(newModel.getBlockName());
+					}
+				}
+			}
+		}
+	}
+	
+	
+	public synchronized boolean EMFResourceChanged(){
+		if (resource == null){
+			getEMFResource();
+		}
+		Diagram d = getDiagramTypeProvider().getDiagram();
+		
+		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
+		for (EObject obj : resource.getContents()){
+			if (obj instanceof FunctionBlockModel){
+				oldModels.add((FunctionBlockModel) obj);
+			}
+		}
+		
+		URI uri = d.eResource().getURI();
+		uri = uri.trimFragment();
+		uri = uri.trimFileExtension();
+		uri = uri.appendFileExtension("blocks");
+		
+		Resource newResource = new XMIResourceImpl(uri);
+		try {
+			newResource.load(null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (EObject obj : newResource.getContents()){
+			if (obj instanceof FunctionBlockModel){
+				FunctionBlockModel newModel = (FunctionBlockModel) obj;
+				for (FunctionBlockModel oldModel : oldModels){
+					if (oldModel.getID().equals(newModel.getID())){
+						if (!oldModel.getPosition().equals(newModel.getPosition()) || !oldModel.getBlockName().equals(newModel.getBlockName())){
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	
 	/**
 	 * Default FunctionBlocks.
 	 */
