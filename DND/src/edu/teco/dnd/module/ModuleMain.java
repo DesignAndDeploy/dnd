@@ -196,10 +196,6 @@ public class ModuleMain {
 		connectionManager.registerTypeAdapter(byte[].class, new Base64Adapter());
 		connectionManager.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
 
-		connectionManager.addMessageType(RequestModuleInfoMessage.class);
-		connectionManager.addMessageType(ModuleInfoMessage.class);
-		connectionManager.addMessageType(RequestApplicationListMessage.class);
-		connectionManager.addMessageType(ApplicationListResponse.class);
 		connectionManager.addMessageType(JoinApplicationMessage.class);
 		connectionManager.addMessageType(JoinApplicationAck.class);
 		connectionManager.addMessageType(JoinApplicationNak.class);
