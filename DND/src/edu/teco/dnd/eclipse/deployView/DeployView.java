@@ -7,6 +7,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -295,11 +296,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 
 		String newPosition = newBlock.getPosition();
-		if (newPosition != null) {
+		if (newPosition != null && !newPosition.isEmpty()) {
 			item.setText(2, newPosition);
-			if (!newPosition.isEmpty()) {
 				placeConstraints.put(newBlock, newPosition);
-			}
 		} else {
 			item.setText(2, "");
 		}
@@ -499,21 +498,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			moduleConstraints.remove(selectedBlockModel);
 		}
 
-		String oldName = selectedBlockModel.getBlockName();
 		String newName = this.blockModelName.getText();
 		selectedBlockModel.setBlockName(newName);
-		selectedItem.setText(0, blockModelName.getText());
-
-		Resource blockresource = selectedBlockModel.eResource();
-		boolean bla = blockresource.isTrackingModification();
+		selectedItem.setText(0, newName);
 
 		try {
-			resource.save(null);
+			resource.save(Collections.EMPTY_MAP);
+			resource.setModified(true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 
 		newConstraints = true;
@@ -624,19 +619,16 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private Collection<FunctionBlockModel> loadInput(final FileEditorInput input) throws IOException {
 		LOGGER.entry(input);
 		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
-		appName.setText(input.getFile().getName().replaceAll("\\.diagram", ""));
+		appName.setText(input.getFile().getName().replaceAll("\\.blocks", ""));
 
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		resource = new XMIResourceImpl(uri);
+		resource.setTrackingModification(true);
 		resource.load(null);
 		for (EObject object : resource.getContents()) {
 			if (object instanceof FunctionBlockModel) {
 				LOGGER.trace("found FunctionBlockModel {}", object);
 				FunctionBlockModel blockmodel = (FunctionBlockModel) object;
-				// TODO: Why does this FunctionBlockModel have a different eResource and class path than the original
-				// one created by DNDCreateBlockFeature? Is it not the same FunctionBlockModel?
-				Resource rec = blockmodel.eResource();
-				boolean tracks = rec.isTrackingModification();
 				blockModelList.add(blockmodel);
 
 			}
