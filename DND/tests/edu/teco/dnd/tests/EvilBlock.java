@@ -24,7 +24,7 @@ public class EvilBlock extends FunctionBlock {
 
 	// getType = operator
 
-	private static final boolean Do_DUMP_STACK = false;
+	private static final boolean DO_DUMP_STACK = false;
 	private static final boolean DO_EVIL_ON_MODULE_ONLY = true;
 
 	private static final boolean BE_EVIL = true;
@@ -73,7 +73,7 @@ public class EvilBlock extends FunctionBlock {
 	}
 
 	private void doEvilStuff(String positionMarker) {
-		if (Do_DUMP_STACK) {
+		if (DO_DUMP_STACK) {
 			Thread.dumpStack();
 		}
 		if (!beEvil())
@@ -149,7 +149,7 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public void shutdown() {
-		doEvilStuff("INIT");
+		doEvilStuff("SHUTDOWN");
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class EvilBlock extends FunctionBlock {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (Do_DUMP_STACK) {
+		if (DO_DUMP_STACK) {
 			Thread.dumpStack();
 		}
 		if (!beEvil())
