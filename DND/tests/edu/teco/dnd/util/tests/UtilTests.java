@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ StringUtilTest.class, DefaultFutureNotifierTest.class })
+@SuiteClasses({ StringUtilTest.class, DefaultFutureNotifierTest.class, Base64AdapterTest.class })
 public class UtilTests {
 
 }
