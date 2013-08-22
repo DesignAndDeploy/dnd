@@ -36,8 +36,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import edu.teco.dnd.module.ModuleMain;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessageSerializerAdapter;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
@@ -148,7 +146,6 @@ public class Activator extends AbstractUIPlugin {
 								}
 							}, uuid);
 			ModuleMain.globalRegisterMessageAdapterType(connectionManager);
-			connectionManager.registerTypeAdapter(BlockMessage.class, new BlockMessageSerializerAdapter());
 			this.connectionManager = connectionManager;
 
 			beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {

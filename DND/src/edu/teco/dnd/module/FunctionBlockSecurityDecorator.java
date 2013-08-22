@@ -1,142 +1,92 @@
 package edu.teco.dnd.module;
 
-import java.util.Random;
+import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.AssignmentException;
 import edu.teco.dnd.blocks.FunctionBlock;
 
-public class FunctionBlockSecurityDecorator extends FunctionBlock {
-	private static final long serialVersionUID = -2698446647806837671L;
-
-	private static final Random rnd = new Random();
+public class FunctionBlockSecurityDecorator {
 	private static final Logger LOGGER = LogManager.getLogger(FunctionBlockSecurityDecorator.class);
 
 	private final FunctionBlock block;
-	private final String blockType;
 
-	public FunctionBlockSecurityDecorator(FunctionBlock block) throws UserSuppliedCodeException, NullPointerException {
-		super(block.getID(), block.getBlockName());
+	public FunctionBlockSecurityDecorator(final FunctionBlock block) {
 		this.block = block;
+	}
 
-		String type;
+	public static FunctionBlockSecurityDecorator getDecorator(final Class<? extends FunctionBlock> blockClass) {
+		final FunctionBlock realBlock;
 		try {
-			type = block.getType();
-		} catch (Throwable t) {
-			LOGGER.warn("Block {} ({}), threw an exception in getBlockType()", this.getBlockName(), this.getID());
-			throw new UserSuppliedCodeException("Exception in getBlockType.");
+			realBlock = (FunctionBlock) blockClass.getConstructor().newInstance();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			return null;
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			return null;
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			return null;
 		}
-		if (type == null) {
-			LOGGER.warn("Blocktype returned by {} ({}), was null", this.getBlockName(), this.getID());
-			throw new UserSuppliedCodeException("Blocktype must not be null!");
-		} else {
-			this.blockType = type;
+		return new FunctionBlockSecurityDecorator(realBlock);
+	}
+
+	public boolean doInit(final UUID blockUUID) {
+		try {
+			this.block.doInit(blockUUID);
+		} catch (IllegalAccessException e) {
+			Thread.dumpStack();
+			LOGGER.warn("{} threw an exception in doInit()", block);
+			return LOGGER.exit(false);
 		}
-
+		return true;
 	}
 
-	/**
-	 * Returns the type of the given functionBlock.(Making sure it stays the same between runs.)
-	 * 
-	 * @param block
-	 *            the FunctionBlock to get the type from.
-	 * @return the type of the block
-	 * @throws UserSuppliedCodeException
-	 *             if the code produces any Exceptions.
-	 */
-	@Override
-	public String getType() {
-		return blockType;
-	}
-
-	public void doInitBlock(Application associatedApp) {
-
-	}
-
-	@Override
-	public void init() {
-
+	public boolean init() {
 		try {
 			block.init();
 		} catch (Throwable t) {
 			Thread.dumpStack();
-			LOGGER.warn("Block {} ({}), threw an exception in init()", this.getBlockName(), this.getID());
-			// ignoring. Don't kill the rest of the application.
+			LOGGER.warn("{} threw an exception in init()", block);
+			return LOGGER.exit(false);
 		}
+		return true;
 	}
 
-	@Override
-	public void shutdown() {
+	public boolean shutdown() {
 		try {
 			block.shutdown();
 		} catch (Throwable t) {
 			Thread.dumpStack();
-			LOGGER.warn("Block {} ({}), threw an exception in init()", this.getBlockName(), this.getID());
-			// ignoring. Don't kill the rest of the application.
+			LOGGER.warn("{} threw an exception in init()", block);
+			return LOGGER.exit(false);
 		}
+		return true;
 	}
 
-	@Override
-	protected void update() {
+	public boolean update() {
 		try {
-			try {
-				block.doUpdate();
-			} catch (AssignmentException e) {
-				LOGGER.catching(e);
-			}
+			block.update();
 		} catch (Throwable t) {
 			Thread.dumpStack();
-			// Ignoring, Do not want to kill application because of this.
+			return LOGGER.exit(false);
 		}
+		return true;
 	}
 
-	@Override
-	public int hashCode() {
-		// Note that we cannot prevent breaking the equals/hashCode contract.
-		int hashCode;
-		try {
-			hashCode = block.hashCode();
-		} catch (Throwable t) {
-			LOGGER.warn("Block {} ({}), threw an exception in hashCode()", this.getBlockName(), this.getID());
-			hashCode = rnd.nextInt();
-		}
-		return hashCode;
+	public FunctionBlock getRealBlock() {
+		return block;
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-
-		boolean equal;
-		try {
-			equal = block.equals(obj);
-		} catch (Throwable t) {
-			LOGGER.warn("Block {} ({}), threw an exception in equals()", this.getBlockName(), this.getID());
-			return false;
-		}
-		return equal;
-	}
-
-	@Override
-	public String toString() {
-		String toStr;
-		try {
-			toStr = block.toString();
-		} catch (Throwable t) {
-			LOGGER.warn("Block {} ({}), threw an exception in toString()", this.getBlockName(), this.getID());
-			try {
-				return "[ERROR: " + t.getMessage() + "]";
-			} catch (Throwable t2) {
-				// Throwable might be overridden as well;
-				return "[ERROR]";
-			}
-		}
-		if (toStr == null) {
-			return "[NULL]";
-		} else {
-			return toStr;
-		}
-	}
-
 }

@@ -5,8 +5,6 @@
  */
 package edu.teco.dnd.graphiti.model.impl;
 
-import java.io.Serializable;
-
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
@@ -62,7 +60,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Serializable VALUE_EDEFAULT = null;
+	protected static final String VALUE_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getValue() <em>Value</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc
@@ -72,7 +70,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * @generated
 	 * @ordered
 	 */
-	protected Serializable value = VALUE_EDEFAULT;
+	protected String value = VALUE_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc
@@ -139,7 +137,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * 
 	 * @generated
 	 */
-	public Serializable getValue() {
+	public String getValue() {
 		return value;
 	}
 
@@ -148,8 +146,8 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 	 * 
 	 * @generated
 	 */
-	public void setValue(Serializable newValue) {
-		Serializable oldValue = value;
+	public void setValue(String newValue) {
+		String oldValue = value;
 		value = newValue;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.OPTION_MODEL__VALUE, oldValue, value));
@@ -299,7 +297,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 			setType((String) newValue);
 			return;
 		case ModelPackage.OPTION_MODEL__VALUE:
-			setValue((Serializable) newValue);
+			setValue((String) newValue);
 			return;
 		case ModelPackage.OPTION_MODEL__NAME:
 			setName((String) newValue);

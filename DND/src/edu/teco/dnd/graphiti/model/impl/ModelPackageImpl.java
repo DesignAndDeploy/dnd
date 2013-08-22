@@ -216,6 +216,15 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 	 * 
 	 * @generated
 	 */
+	public EAttribute getFunctionBlockModel_BlockClass() {
+		return (EAttribute) functionBlockModelEClass.getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated
+	 */
 	public EClass getInputModel() {
 		return inputModelEClass;
 	}
@@ -254,15 +263,6 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 	 */
 	public EAttribute getInputModel_Type() {
 		return (EAttribute) inputModelEClass.getEStructuralFeatures().get(3);
-	}
-
-	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @generated
-	 */
-	public EAttribute getInputModel_Queued() {
-		return (EAttribute) inputModelEClass.getEStructuralFeatures().get(4);
 	}
 
 	/**
@@ -418,13 +418,13 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__ID);
 		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__POSITION);
 		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__BLOCK_NAME);
+		createEAttribute(functionBlockModelEClass, FUNCTION_BLOCK_MODEL__BLOCK_CLASS);
 
 		inputModelEClass = createEClass(INPUT_MODEL);
 		createEAttribute(inputModelEClass, INPUT_MODEL__NAME);
 		createEReference(inputModelEClass, INPUT_MODEL__FUNCTION_BLOCK);
 		createEReference(inputModelEClass, INPUT_MODEL__OUTPUT);
 		createEAttribute(inputModelEClass, INPUT_MODEL__TYPE);
-		createEAttribute(inputModelEClass, INPUT_MODEL__QUEUED);
 
 		optionModelEClass = createEClass(OPTION_MODEL);
 		createEAttribute(optionModelEClass, OPTION_MODEL__TYPE);
@@ -496,6 +496,9 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 		initEAttribute(getFunctionBlockModel_BlockName(), ecorePackage.getEString(), "blockName", null, 0, 1,
 				FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID,
 				IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFunctionBlockModel_BlockClass(), ecorePackage.getEString(), "blockClass", null, 0, 1,
+				FunctionBlockModel.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID,
+				IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(inputModelEClass, InputModel.class, "InputModel", !IS_ABSTRACT, !IS_INTERFACE,
 				IS_GENERATED_INSTANCE_CLASS);
@@ -510,14 +513,12 @@ public class ModelPackageImpl extends EPackageImpl implements ModelPackage {
 				!IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getInputModel_Type(), ecorePackage.getEString(), "type", null, 0, 1, InputModel.class,
 				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getInputModel_Queued(), ecorePackage.getEBoolean(), "queued", null, 0, 1, InputModel.class,
-				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(optionModelEClass, OptionModel.class, "OptionModel", !IS_ABSTRACT, !IS_INTERFACE,
 				IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getOptionModel_Type(), ecorePackage.getEString(), "type", null, 0, 1, OptionModel.class,
 				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getOptionModel_Value(), this.getSerializable(), "value", null, 0, 1, OptionModel.class,
+		initEAttribute(getOptionModel_Value(), ecorePackage.getEString(), "value", null, 0, 1, OptionModel.class,
 				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getOptionModel_Name(), ecorePackage.getEString(), "name", null, 0, 1, OptionModel.class,
 				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

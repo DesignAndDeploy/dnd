@@ -1,7 +1,6 @@
 package edu.teco.dnd.temperature;
 
 import java.net.MalformedURLException;
-import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
@@ -25,45 +24,23 @@ public class TemperatureActorBlock extends FunctionBlock {
 	/**
 	 * Temperature the heater shall achieve.
 	 */
-	@Input
-	private Integer temperature;
+	private Input<Integer> temperature;
 
 	/**
 	 * URL of the heater. Default is already set; doesn't contain ID.
 	 */
-	@Option
-	private String url = "http://cumulus.teco.edu:51525/actuator/entity/";
+	private Option url;
+	// TODO: set default "http://cumulus.teco.edu:51525/actuator/entity/"
 
 	/**
-	 * ID of the heater. Default: Living_Lab
+	 * ID of the heater.
 	 */
-	@Option
-	private String heaterID = "Heater_Living";
+	private Option heaterID;
 
 	/**
 	 * Used to control the heater.
 	 */
 	private HeaterControl control;
-
-	/**
-	 * Creates new TemperatureActorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of newTemperatureActorBlock
-	 */
-	public TemperatureActorBlock(final UUID blockID) {
-		super(blockID, "TemperatureActorBlock1");
-	}
-
-	/**
-	 * Returns Type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "actorTemperature";
-	}
 
 	/**
 	 * Initializes TemperatureActorBlock.
@@ -73,9 +50,9 @@ public class TemperatureActorBlock extends FunctionBlock {
 		if (url == null || heaterID == null) {
 			return;
 		}
-		url = url.concat(heaterID).concat("/function/set");
+		String fullURL = url.getValue() + heaterID.getValue();
 		try {
-			control = new HeaterControl(url);
+			control = new HeaterControl(fullURL);
 		} catch (MalformedURLException e) {
 		}
 	}
@@ -91,13 +68,22 @@ public class TemperatureActorBlock extends FunctionBlock {
 	 * This method is used to turn the heating off or on, depending on the input.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (control == null || temperature == null) {
 			return;
 		}
-		try {
-			control.updateHeater(temperature);
-		} catch (SensorException e) {
+		Integer newTemperature = null;
+		while (temperature.hasMoreValues()) {
+			Integer t = temperature.popValue();
+			if (t != null) {
+				newTemperature = t;
+			}
+		}
+		if (newTemperature != null) {
+			try {
+				control.updateHeater(newTemperature);
+			} catch (SensorException e) {
+			}
 		}
 	}
 

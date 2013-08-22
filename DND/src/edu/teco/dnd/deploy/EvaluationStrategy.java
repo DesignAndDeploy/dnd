@@ -2,7 +2,7 @@ package edu.teco.dnd.deploy;
 
 import java.util.Collection;
 
-import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 
 /**
@@ -31,5 +31,5 @@ public interface EvaluationStrategy {
 	 *            all available Modules
 	 * @return an upper bound for the value all Distributions based on the partial Distribution can achieve
 	 */
-	int upperBound(Distribution distribution, Collection<FunctionBlock> blocks, Collection<Module> modules);
+	int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks, Collection<Module> modules);
 }

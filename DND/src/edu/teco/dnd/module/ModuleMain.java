@@ -44,7 +44,6 @@ import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppNak;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockAck;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessageDeserializerAdapter;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockNak;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
@@ -226,7 +225,6 @@ public class ModuleMain {
 			ModuleApplicationManager appMan) {
 		globalRegisterMessageAdapterType(connectionManager);
 		connectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
-		connectionManager.registerTypeAdapter(BlockMessage.class, new BlockMessageDeserializerAdapter(appMan));
 
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
 		connectionManager.addHandler(RequestApplicationListMessage.class, new RequestApplicationListMsgHandler(

@@ -2,6 +2,7 @@ package edu.teco.dnd.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -9,12 +10,16 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.util.ClassPath;
+import org.apache.bcel.util.Repository;
+import org.apache.bcel.util.SyntheticRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Scans through directories and JAR files and returns all found classes.
+ * Scans through directories and JAR files and returns all found classes using BCEL.
  * 
  * @author philipp
  */
@@ -33,7 +38,7 @@ public class ClassScanner {
 		 * @return true
 		 */
 		@Override
-		public boolean acceptClass(final Class<?> cls) {
+		public boolean acceptClass(final JavaClass cls) {
 			return true;
 		}
 	}
@@ -44,9 +49,9 @@ public class ClassScanner {
 	private static final Logger LOGGER = LogManager.getLogger(ClassScanner.class);
 
 	/**
-	 * The ClassLoader to use.
+	 * The repository used to load the classes.
 	 */
-	private final ClassLoader classLoader;
+	private final Repository repository;
 
 	/**
 	 * The filter used by this scanner.
@@ -56,37 +61,41 @@ public class ClassScanner {
 	/**
 	 * Initializes a new scanner.
 	 * 
-	 * @param cl
-	 *            the ClassLoader to use. Must not be null.
+	 * @param repository
+	 *            the Repository to use for loading classes. Must not be null
 	 * @param filter
 	 *            the filter to use. Must not be null.
 	 */
-	public ClassScanner(final ClassLoader cl, final ClassFilter filter) {
-		if (cl == null) {
-			throw new IllegalArgumentException("cl must not be null");
+	public ClassScanner(final Repository repository, final ClassFilter filter) {
+		if (repository == null) {
+			throw new IllegalArgumentException("repository must not be null");
 		}
 		if (filter == null) {
 			throw new IllegalArgumentException("filter must not be null");
 		}
-		classLoader = cl;
+		this.repository = repository;
 		this.filter = filter;
 	}
 
-	/**
-	 * Initializes a new scanner with the default ClassLoader.
-	 * 
-	 * @param filter
-	 *            the filter to use. Must not be null.
-	 */
-	public ClassScanner(final ClassFilter filter) {
-		this(ClassScanner.class.getClassLoader(), filter);
+	public ClassScanner(final Collection<File> paths, final ClassFilter filter) {
+		if (paths == null) {
+			throw new IllegalArgumentException("paths must not be null");
+		}
+		if (filter == null) {
+			throw new IllegalArgumentException("filter must not be null");
+		}
+
+		final ClassPath classPath = new ClassPath(StringUtil.joinIterable(new HashSet<File>(paths), ":"));
+		this.repository = SyntheticRepository.getInstance(classPath);
+		this.filter = filter;
 	}
 
-	/**
-	 * Initializes a new scanner that accepts all classes and uses the default ClassLoader.
-	 */
-	public ClassScanner() {
-		this(ClassScanner.class.getClassLoader(), new NullFilter());
+	public ClassScanner(final Repository repository) {
+		this(repository, new NullFilter());
+	}
+
+	public ClassScanner(final Collection<File> paths) {
+		this(paths, new NullFilter());
 	}
 
 	/**
@@ -96,8 +105,8 @@ public class ClassScanner {
 	 *            the directories to scan
 	 * @return a set containing all classes in the given directories that were accepted by the filter
 	 */
-	public Set<Class<?>> getClasses(final String... files) {
-		Set<Class<?>> classes = new HashSet<Class<?>>();
+	public Set<JavaClass> getClasses(final String... files) {
+		Set<JavaClass> classes = new HashSet<JavaClass>();
 		for (String f : files) {
 			classes.addAll(getClasses(new File(f)));
 		}
@@ -111,8 +120,16 @@ public class ClassScanner {
 	 *            the directories to scan
 	 * @return a set containing all classes in the given directories that were accepted by the filter
 	 */
-	public Set<Class<?>> getClasses(final File... files) {
-		Set<Class<?>> classes = new HashSet<Class<?>>();
+	public Set<JavaClass> getClasses(final File... files) {
+		Set<JavaClass> classes = new HashSet<JavaClass>();
+		for (File f : files) {
+			classes.addAll(getClasses(f));
+		}
+		return classes;
+	}
+
+	public Set<JavaClass> getClasses(final Iterable<File> files) {
+		Set<JavaClass> classes = new HashSet<JavaClass>();
 		for (File f : files) {
 			classes.addAll(getClasses(f));
 		}
@@ -127,7 +144,7 @@ public class ClassScanner {
 	 *            the directory or JAR file to scan
 	 * @return a list of all classes accepted by the filter
 	 */
-	public Set<Class<?>> getClasses(final File f) {
+	public Set<JavaClass> getClasses(final File f) {
 		if (f == null) {
 			throw new IllegalArgumentException("f must not be null");
 		} else if (f.isDirectory()) {
@@ -146,7 +163,7 @@ public class ClassScanner {
 	 *            the jar file
 	 * @return the classes accepted by the filter in the given jar file
 	 */
-	private Set<Class<?>> getClassesJar(final File jar) {
+	private Set<JavaClass> getClassesJar(final File jar) {
 		assert jar != null;
 		if (!jar.exists()) {
 			return Collections.emptySet();
@@ -157,7 +174,7 @@ public class ClassScanner {
 		} catch (IOException e) {
 			return Collections.emptySet();
 		}
-		Set<Class<?>> classes = new HashSet<Class<?>>();
+		Set<JavaClass> classes = new HashSet<JavaClass>();
 		Enumeration<? extends ZipEntry> entries = zip.entries();
 		for (ZipEntry entry = null; entries.hasMoreElements();) {
 			entry = entries.nextElement();
@@ -169,9 +186,9 @@ public class ClassScanner {
 			}
 			String className = entry.getName();
 			className = className.substring(0, className.length() - 6).replace('/', '.');
-			Class<?> cls = null;
+			JavaClass cls = null;
 			try {
-				cls = classLoader.loadClass(className);
+				cls = repository.loadClass(className);
 			} catch (ClassNotFoundException e) {
 				LOGGER.catching(Level.DEBUG, e);
 				continue;
@@ -197,21 +214,21 @@ public class ClassScanner {
 	 *            base name
 	 * @return the classes accepted by the filter in the given directory
 	 */
-	private Set<Class<?>> getClassesDirectory(final File directory, final String base) {
+	private Set<JavaClass> getClassesDirectory(final File directory, final String base) {
 		assert directory != null;
 		assert directory.isDirectory();
 		assert base != null;
 		LOGGER.entry(directory, base);
-		Set<Class<?>> classes = new HashSet<Class<?>>();
+		Set<JavaClass> classes = new HashSet<JavaClass>();
 		for (File f : directory.listFiles()) {
 			if (f.isDirectory()) {
 				classes.addAll(getClassesDirectory(f, (base.isEmpty() ? "" : base + ".") + f.getName()));
 			} else if (f.getName().endsWith(".class")) {
 				String className = f.getName();
 				className = className.substring(0, className.length() - 6);
-				Class<?> cls = null;
+				JavaClass cls = null;
 				try {
-					cls = classLoader.loadClass((base.isEmpty() ? "" : base + ".") + className);
+					cls = repository.loadClass((base.isEmpty() ? "" : base + ".") + className);
 				} catch (ClassNotFoundException e) {
 					LOGGER.catching(Level.DEBUG, e);
 					continue;

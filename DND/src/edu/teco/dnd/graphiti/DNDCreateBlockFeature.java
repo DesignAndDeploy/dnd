@@ -2,7 +2,6 @@ package edu.teco.dnd.graphiti;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -13,7 +12,7 @@ import org.eclipse.graphiti.features.impl.AbstractCreateFeature;
 import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.ui.services.GraphitiUi;
 
-import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
 
@@ -24,29 +23,24 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	/**
 	 * The type of blocks created by this feature.
 	 */
-	private final Class<? extends edu.teco.dnd.blocks.FunctionBlock> blockType;
+	private final FunctionBlockClass blockClass;
 
 	/**
 	 * Initializes a new create feature.
 	 * 
 	 * @param fp
 	 *            the feature provider
-	 * @param blockType
+	 * @param blockClass
 	 *            the type of FunctionBlocks to create
 	 */
-	public DNDCreateBlockFeature(final IFeatureProvider fp,
-			final Class<? extends edu.teco.dnd.blocks.FunctionBlock> blockType) {
-		super(fp, blockType == null ? "null" : blockType.getSimpleName(),
+	public DNDCreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
+		super(fp, blockClass == null ? "null" : blockClass.getSimpleClassName(),
 				Messages.DNDCreateBlockFeature_CreatesFunBlockOfTpe_Info
-						+ (blockType == null ? "null" : blockType.getSimpleName()));
-		if (blockType == null) {
-			throw new IllegalArgumentException("blockType must not be null");
+						+ (blockClass == null ? "null" : blockClass.getSimpleClassName()));
+		if (blockClass == null) {
+			throw new IllegalArgumentException("blockClass must not be null");
 		}
-		if (Modifier.isAbstract(blockType.getModifiers())) {
-			throw new IllegalArgumentException("blockType must not be abstract");
-		}
-		this.blockType = blockType;
-
+		this.blockClass = blockClass;
 	}
 
 	/**
@@ -70,7 +64,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 */
 	@Override
 	public final Object[] create(final ICreateContext context) {
-		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockType);
+		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockClass);
 		
 		Resource resource = ((DNDFeatureProvider) getFeatureProvider()).getEMFResource();
 		resource.getContents().add(newBlock);
@@ -168,11 +162,11 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	}
 
 	/**
-	 * Returns the block type created by this feature.
+	 * Returns the block class created by this feature.
 	 * 
-	 * @return the block type created by this feature
+	 * @return the block class created by this feature
 	 */
-	public final Class<? extends FunctionBlock> getBlockType() {
-		return blockType;
+	public final FunctionBlockClass getBlockClass() {
+		return blockClass;
 	}
 }

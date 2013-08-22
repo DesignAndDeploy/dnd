@@ -5,10 +5,6 @@ import java.util.UUID;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.module.RemoteConnectionTarget;
-
 /**
  * @model
  */
@@ -93,6 +89,16 @@ public interface FunctionBlockModel extends EObject {
 	void setBlockName(String value);
 
 	/**
+	 * @model
+	 */
+	String getBlockClass();
+
+	/**
+	 * @generated
+	 */
+	void setBlockClass(String value);
+
+	/**
 	 * Whether or not this FunctionBlock is a sensor. A FunctionBlock is a sensor if it has no inputs and at least one
 	 * output.
 	 * 
@@ -114,26 +120,4 @@ public interface FunctionBlockModel extends EObject {
 	 * @return the name of the type of the FunctionBlock
 	 */
 	String getTypeName();
-
-	/**
-	 * Creates a FunctionBlock matching this model. It is of the type set in the model, the options are set and
-	 * RemoteConnectionTargets are created for all connected inputs. The default class loader for this class is used.
-	 * 
-	 * @return the created block
-	 * @throws InvalidFunctionBlockException
-	 *             if loading the block fails or setting the options/outputs fails
-	 */
-	FunctionBlock createBlock() throws InvalidFunctionBlockException;
-
-	/**
-	 * Creates a FunctionBlock matching this model. It is of the type set in the model, the options are set and
-	 * {@link RemoteConnectionTarget}s are created for all connected inputs.
-	 * 
-	 * @param cl
-	 *            the classloader to use
-	 * @return the created block
-	 * @throws InvalidFunctionBlockException
-	 *             if loading the block fails or setting the options/outputs fails
-	 */
-	FunctionBlock createBlock(ClassLoader cl) throws InvalidFunctionBlockException;
 }

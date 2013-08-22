@@ -1,26 +1,36 @@
 package edu.teco.dnd.blocks;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
-/**
- * Marks a field of a {@link FunctionBlock} as an input.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-@Documented
-public @interface Input {
-	/**
-	 * If set to true all values will be passed to the FunctionBlock. If set to false values will be discarded if newer
-	 * ones arrive before the block is updated.
-	 */
-	boolean value() default false;
+public class Input<T extends Serializable> implements OutputTarget<T> {
+	private boolean newestOnly = false;
 
-	/**
-	 * If set to true only a change in a value will cause an update.
-	 */
-	boolean newOnly() default false;
+	// TODO: Maybe change to (Soft)Reference, but then a wrapper is needed for null
+	private final Deque<T> values = new ArrayDeque<T>();
+
+	public synchronized T popValue() {
+		return values.poll();
+	}
+
+	public synchronized boolean hasMoreValues() {
+		return !values.isEmpty();
+	}
+
+	public synchronized void setValue(T value) {
+		if (newestOnly) {
+			values.clear();
+		}
+		values.add(value);
+	}
+
+	public synchronized void setNewestOnly(final boolean state) {
+		this.newestOnly = state;
+		if (newestOnly) {
+			final T value = values.peekLast();
+			values.clear();
+			values.add(value);
+		}
+	}
 }

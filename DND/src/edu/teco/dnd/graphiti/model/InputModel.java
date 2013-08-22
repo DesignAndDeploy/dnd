@@ -1,5 +1,6 @@
 package edu.teco.dnd.graphiti.model;
 
+import org.apache.bcel.util.Repository;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -70,21 +71,5 @@ public interface InputModel extends EObject {
 	 */
 	void setType(String value);
 
-	/**
-	 * @model
-	 */
-	boolean isQueued();
-
-	/**
-	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.InputModel#isQueued <em>Queued</em>}' attribute. <!--
-	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @param value
-	 *            the new value of the '<em>Queued</em>' attribute.
-	 * @see #isQueued()
-	 * @generated
-	 */
-	void setQueued(boolean value);
-
-	boolean isCompatible(ClassLoader cl, OutputModel output);
+	boolean isCompatible(Repository repository, OutputModel output);
 }

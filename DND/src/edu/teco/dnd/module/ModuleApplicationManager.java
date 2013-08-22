@@ -1,7 +1,9 @@
 package edu.teco.dnd.module;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -13,6 +15,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.Output;
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
@@ -110,37 +114,41 @@ public class ModuleApplicationManager {
 	/**
 	 * Schedules a FunctionBlock to be started, when StartApp() is called.
 	 * 
-	 * @param insecureBlock
-	 *            the FunctionBlock without a security wrapper.
-	 * @param scheduleToId
-	 *            the ID of the free blockPosition in the allowed block config. If not supplied (< 0) a random one is
-	 *            taken. Be aware that not giving this ID might lead to an otherwise schedulable combination of blocks
-	 *            being disallowed as resources might be depleted in an unfavorable order.
-	 * @throws UserSuppliedCodeException
+	 * @param blockClass
+	 *            the class of the FunctionBlock
+	 * @param blockUUID
+	 *            the UUID of the FunctionBlock
+	 * @param options
+	 *            the options for the FunctionBlock
 	 */
-	public void scheduleBlock(UUID appId, FunctionBlock insecureBlock, int scheduleToId)
-			throws UserSuppliedCodeException {
-		FunctionBlock block;
-		if (insecureBlock == null) {
-			LOGGER.warn("send block message with NULL block.");
-			throw new NullPointerException("send block message with NULL block.");
-		}
-		try {
-			block = new FunctionBlockSecurityDecorator(insecureBlock);
-		} catch (UserSuppliedCodeException e) {
-			LOGGER.warn("Not scheduling block {} ({}), because of error in block code.", insecureBlock.getBlockName(),
-					insecureBlock.getID());
-			throw new UserSuppliedCodeException("Not scheduling block, because of error in block-code.");
-		}
-
-		Application app = runningApps.get(appId);
-		if (app == null) {
-			LOGGER.warn("No application {} running on this module.", appId);
-			throw new IllegalArgumentException("App must be started before blocks can be scheduled on it.");
-		}
-		String blockType = block.getType();
+	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID,
+			final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs, int scheduleToId) {
 		isShuttingDown.readLock().lock();
 		try {
+			final Application app = runningApps.get(appId);
+			Class<?> cls;
+			try {
+				cls = app.getClassLoader().loadClass(blockClass);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				return false;
+			}
+			if (!FunctionBlock.class.isAssignableFrom(cls)) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			final FunctionBlockSecurityDecorator block =
+					FunctionBlockSecurityDecorator.getDecorator((Class<? extends FunctionBlock>) cls);
+			if (block == null) {
+				return false;
+			}
+			try {
+				block.doInit(blockUUID);
+			} catch (final IllegalArgumentException e) {
+				e.printStackTrace();
+				return false;
+			}
+			final String blockType = block.getRealBlock().getBlockType();
 			BlockTypeHolder blockAllowed;
 			if (scheduleToId < 0) {
 				blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
@@ -150,7 +158,11 @@ public class ModuleApplicationManager {
 				}
 			} else {
 				blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
-				if (blockAllowed == null) {
+			}
+			if (blockAllowed == null) {
+				if (scheduleToId < 0) {
+					LOGGER.info("Block {} not allowed in App {}({})", blockType, app, appId);
+				} else {
 					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, app, appId);
 					throw new IllegalArgumentException("Id does not exist in App");
 				}
@@ -171,11 +183,29 @@ public class ModuleApplicationManager {
 					LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
 					throw new IllegalArgumentException("Blockamount exceeded. Not scheduling!");
 				}
-				spotOccupiedByBlock.put(block.getID(), blockAllowed.getIdNumber());
+				spotOccupiedByBlock.put(block.getRealBlock().getBlockUUID(), blockAllowed.getIdNumber());
+
 				app.scheduledToStart.add(block);
 			}
+			LOGGER.info("foo");
+			final Map<String, Output<? extends Serializable>> blockOutputs = block.getRealBlock().getOutputs();
+			System.out.println(blockOutputs);
+			for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
+				System.out.println(output.getKey());
+				System.out.println(output.getValue());
+				final Output<? extends Serializable> out = blockOutputs.get(output.getKey());
+				if (out == null) {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("did not find Output {}", output.getKey());
+					}
+					continue;
+				}
+				out.setTarget(app.new ApplicationOutputTarget(output.getValue()));
+			}
+			spotOccupiedByBlock.put(block.getRealBlock().getBlockUUID(), blockAllowed.getIdNumber());
+			app.scheduledToStart.add(block);
 			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, app, appId);
-
+			return true;
 		} finally {
 			isShuttingDown.readLock().unlock();
 		}
@@ -198,7 +228,7 @@ public class ModuleApplicationManager {
 				}
 				app.isRunning = true;
 
-				for (FunctionBlock func : app.scheduledToStart) {
+				for (final FunctionBlockSecurityDecorator func : app.scheduledToStart) {
 					app.startBlock(func);
 				}
 			}
@@ -234,7 +264,7 @@ public class ModuleApplicationManager {
 	 */
 	public void stopApplication(UUID appId) {
 		LOGGER.entry(appId);
-		Collection<FunctionBlock> blocksKilled;
+		Collection<FunctionBlockSecurityDecorator> blocksKilled;
 		synchronized (runningApps) {
 
 			Application app = runningApps.get(appId);
@@ -248,15 +278,15 @@ public class ModuleApplicationManager {
 			runningApps.remove(appId);
 
 		}
-		for (FunctionBlock block : blocksKilled) {
-
-			BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(block.getID()));
+		for (FunctionBlockSecurityDecorator block : blocksKilled) {
+			final UUID blockUUID = block.getRealBlock().getBlockUUID();
+			BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockUUID));
 			if (holder != null) {
 				holder.increase();
 			} else {
 				LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
 			}
-			spotOccupiedByBlock.remove(block.getID());
+			spotOccupiedByBlock.remove(blockUUID);
 		}
 	}
 

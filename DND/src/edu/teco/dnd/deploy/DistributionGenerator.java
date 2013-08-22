@@ -9,7 +9,7 @@ import java.util.Queue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.BlockTypeHolderIterator;
@@ -81,10 +81,10 @@ public class DistributionGenerator {
 	 *            the available modules
 	 * @return the best Distribution found or null if none exists
 	 */
-	public Distribution getDistribution(final Collection<FunctionBlock> blocks, final Collection<Module> modules) {
+	public Distribution getDistribution(final Collection<FunctionBlockModel> blocks, final Collection<Module> modules) {
 		best = null;
 		bestValue = Integer.MIN_VALUE;
-		getDistribution(new ArrayList<FunctionBlock>(blocks), modules, new Distribution());
+		getDistribution(new ArrayList<FunctionBlockModel>(blocks), modules, new Distribution());
 		return best;
 	}
 
@@ -98,7 +98,7 @@ public class DistributionGenerator {
 	 * @param start
 	 *            the Distribution that has been built so far
 	 */
-	private void getDistribution(final Collection<FunctionBlock> blocks, final Collection<Module> modules,
+	private void getDistribution(final Collection<FunctionBlockModel> blocks, final Collection<Module> modules,
 			final Distribution start) {
 		LOGGER.entry(blocks, modules, start);
 		if (blocks.isEmpty()) {
@@ -112,10 +112,10 @@ public class DistributionGenerator {
 			return;
 		}
 
-		final Queue<FunctionBlock> blockStack = new ArrayDeque<FunctionBlock>(blocks);
+		final Queue<FunctionBlockModel> blockStack = new ArrayDeque<FunctionBlockModel>(blocks);
 
 		while (!blockStack.isEmpty()) {
-			final FunctionBlock block = blockStack.remove();
+			final FunctionBlockModel block = blockStack.remove();
 
 			blocks.remove(block);
 
@@ -153,7 +153,7 @@ public class DistributionGenerator {
 	 *            the holder where the block should be added
 	 * @return
 	 */
-	private boolean isAllowed(final Distribution distribution, final FunctionBlock block, final Module module,
+	private boolean isAllowed(final Distribution distribution, final FunctionBlockModel block, final Module module,
 			final BlockTypeHolder holder) {
 		for (final Constraint constraint : constraints) {
 			if (!constraint.isAllowed(distribution, block, module, holder)) {

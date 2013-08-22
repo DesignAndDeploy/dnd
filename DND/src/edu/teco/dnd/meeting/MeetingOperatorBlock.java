@@ -1,7 +1,5 @@
 package edu.teco.dnd.meeting;
 
-import java.util.UUID;
-
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Option;
@@ -23,8 +21,7 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	/**
 	 * indicates brightness.
 	 */
-	@Input(newOnly = true)
-	private Integer lights;
+	private Input<Integer> lights;
 
 	/**
 	 * this variable tells whether there is a meeting (true) or not (false).
@@ -34,34 +31,20 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	/**
 	 * Threshold to decide whether the light is bright enough to have a meeting or if it is to dark.
 	 */
-	@Option
-	private Integer threshold;
+	private Option threshold;
 
-	/**
-	 * Creates new MeetingOperatorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new MeetingOperatorBlock
-	 */
-	public MeetingOperatorBlock(final UUID blockID) {
-		super(blockID, "MeetingOperatorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "operator";
-	}
+	private int _threshold;
 
 	/**
 	 * Initializes MeetingOperatorBlock.
 	 */
 	@Override
 	public void init() {
+		try {
+			_threshold = Integer.parseInt(threshold.getValue());
+		} catch (NumberFormatException e) {
+			_threshold = Integer.MIN_VALUE;
+		}
 	}
 
 	/**
@@ -76,11 +59,15 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	 * DisplayOperatingBlock can be informed thusly.
 	 */
 	@Override
-	protected void update() {
-		if (lights == null || threshold == null) {
+	public void update() {
+		if (lights == null) {
 			return;
 		}
-		meeting.setValue(lights > threshold);
+		Integer lightsValue = lights.popValue();
+		if (lightsValue == null) {
+			return;
+		}
+		meeting.setValue(lightsValue > _threshold);
 	}
 
 }

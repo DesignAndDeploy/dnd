@@ -1,11 +1,13 @@
 package edu.teco.dnd.module.messages.infoReq;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
-import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -22,9 +24,9 @@ public class ApplicationListResponse extends Response {
 	 */
 	private final Map<UUID, String> applicationNames;
 	/**
-	 * The UUIDs of all running applications mapped to their running Map<BlockUUID,FunctionBlock>.
+	 * The UUIDs of all running applications mapped to the UUID of the blocks.
 	 */
-	private final Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks;
+	private final Map<UUID, Collection<UUID>> applicationBlocks;
 
 	/**
 	 * The UUID of the module this Response was generated on.
@@ -38,15 +40,20 @@ public class ApplicationListResponse extends Response {
 	 *            the UUIDs of the running Applications mapped to their names
 	 */
 	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames,
-			Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks) {
+			Map<UUID, Collection<UUID>> applicationBlocks) {
 		this.moduleUUID = moduleUUID;
 		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
-		this.applicationBlocks = Collections.unmodifiableMap(new HashMap<UUID, Map<UUID, FunctionBlock>>());
+		Map<UUID, Collection<UUID>> blocks = new HashMap<UUID, Collection<UUID>>();
+		for (final Entry<UUID, Collection<UUID>> entry : applicationBlocks.entrySet()) {
+			blocks.put(entry.getKey(), Collections.unmodifiableList(new ArrayList<UUID>(entry.getValue())));
+		}
+		this.applicationBlocks = Collections.unmodifiableMap(blocks);
 	}
 
 	/**
 	 * Constructor used by gson.
 	 */
+	// FIXME: add adapter that keeps the maps unmodifiable
 	@SuppressWarnings("unused")
 	private ApplicationListResponse() {
 		this.moduleUUID = null;
@@ -77,7 +84,7 @@ public class ApplicationListResponse extends Response {
 	 * 
 	 * @return the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
 	 */
-	public Map<UUID, Map<UUID, FunctionBlock>> getApplicationBlocks() {
+	public Map<UUID, Collection<UUID>> getApplicationBlocks() {
 		return this.applicationBlocks;
 	}
 
@@ -139,5 +146,4 @@ public class ApplicationListResponse extends Response {
 		return "ApplicationListResponse [applications=" + applicationNames + ", moduleUUID=" + moduleUUID
 				+ ", getSourceUUID()=" + getSourceUUID() + "]";
 	}
-
 }

@@ -12,11 +12,11 @@ import edu.teco.dnd.graphiti.model.OptionModel;
 /**
  * Direct editing feature for {@link Option}s.
  */
-public class DNDEditStringOptionFeature extends AbstractDirectEditingFeature {
+public class DNDEditOptionFeature extends AbstractDirectEditingFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDEditStringOptionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(DNDEditOptionFeature.class);
 
 	/**
 	 * Passes the feature provider to the super constructor.
@@ -24,7 +24,7 @@ public class DNDEditStringOptionFeature extends AbstractDirectEditingFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDEditStringOptionFeature(final DNDFeatureProvider fp) {
+	public DNDEditOptionFeature(final DNDFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -41,15 +41,6 @@ public class DNDEditStringOptionFeature extends AbstractDirectEditingFeature {
 		PictogramElement pe = context.getPictogramElement();
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		if (!(bo instanceof OptionModel)) {
-			LOGGER.exit(false);
-			return false;
-		}
-		Class<?> type = null;
-		try {
-			type = ((DNDFeatureProvider) getFeatureProvider()).getClassLoader().loadClass(((OptionModel) bo).getType());
-		} catch (ClassNotFoundException e) {
-		}
-		if (type == null || !type.isAssignableFrom(String.class)) {
 			LOGGER.exit(false);
 			return false;
 		}

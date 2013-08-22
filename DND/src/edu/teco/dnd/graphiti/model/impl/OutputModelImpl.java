@@ -7,6 +7,7 @@ package edu.teco.dnd.graphiti.model.impl;
 
 import java.util.Collection;
 
+import org.apache.bcel.util.Repository;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
@@ -369,11 +370,11 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 	}
 
 	@Override
-	public boolean isCompatible(ClassLoader cl, InputModel input) {
+	public boolean isCompatible(Repository repository, InputModel input) {
 		if (input == null) {
 			return false;
 		}
-		return input.isCompatible(cl, this);
+		return input.isCompatible(repository, this);
 	}
 
 } // OutputModelImpl
