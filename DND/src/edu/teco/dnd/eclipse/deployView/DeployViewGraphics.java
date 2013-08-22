@@ -82,7 +82,7 @@ public class DeployViewGraphics {
 
 	protected Table createDeploymentTable() {
 		GridData data = new GridData();
-		data.verticalSpan = 4;
+		data.verticalSpan = 5;
 		data.horizontalAlignment = SWT.FILL;
 		data.verticalAlignment = SWT.FILL;
 		data.grabExcessVerticalSpace = true;
@@ -213,10 +213,9 @@ public class DeployViewGraphics {
 
 	protected Button createDeployButton() {
 		GridData data = new GridData();
-		data.verticalSpan = 3;
 		data.horizontalAlignment = SWT.FILL;
 		data.verticalAlignment = SWT.BEGINNING;
-
+		data.verticalSpan = 3;
 		Button deployButton = new Button(parent, SWT.NONE);
 		deployButton.setText("Deploy");
 		deployButton.setToolTipText(DeployViewTexts.DEPLOY_TOOLTIP);
@@ -234,5 +233,18 @@ public class DeployViewGraphics {
 		constraintsButton.setEnabled(false);
 		constraintsButton.pack();
 		return constraintsButton;
+	}
+	
+	protected Text createInformationText(){
+		GridData data = new GridData();
+		data.horizontalSpan = 2;
+		data.horizontalAlignment = SWT.FILL;
+		data.verticalAlignment = SWT.FILL;
+		Text infoText = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
+		infoText.setLayoutData(data);
+		infoText.setText("Information");
+		infoText.setEditable(false);
+		infoText.pack();
+		return infoText;
 	}
 }

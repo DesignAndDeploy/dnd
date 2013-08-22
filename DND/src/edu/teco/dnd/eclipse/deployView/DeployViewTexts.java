@@ -41,6 +41,9 @@ public class DeployViewTexts {
 	public static final String WARN_CONSTRAINTS =
 			"You entered both a module and a place. Keep in mind that if the module doesn't match the place, no possible distribution will be found.\n\n Press OK to constrain both module and place for this function block anyway. Close this window to abort.";
 
+	public static final String INFORM_CONSTRAINTS =
+			"The Algorithm that creates possible distribution will only provide a valid distribution, if the module you selected is at the given place. If the module's location is somewhere else or none at all, no valid deployment will be found";
+
 	public static final String NO_DEPLOYMENT_YET = "No deployment created yet";
 
 	public static final String NEWCONSTRAINTS =
