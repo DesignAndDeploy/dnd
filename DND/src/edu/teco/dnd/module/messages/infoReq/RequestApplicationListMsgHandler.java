@@ -1,10 +1,10 @@
 package edu.teco.dnd.module.messages.infoReq;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
@@ -29,11 +29,11 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 	public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
 			final RequestApplicationListMessage message) {
 		final Map<UUID, String> applicationNames = new HashMap<UUID, String>();
-		final Map<UUID, Map<UUID, FunctionBlock>> applicationBlocks = new HashMap<UUID, Map<UUID, FunctionBlock>>();
+		final Map<UUID, Collection<UUID>> applicationBlocks = new HashMap<UUID, Collection<UUID>>();
 
 		for (final Application application : applicationManager.getRunningApps().values()) {
 			applicationNames.put(application.getOwnAppId(), application.getName());
-			applicationBlocks.put(application.getOwnAppId(), application.getFuncBlockById());
+			applicationBlocks.put(application.getOwnAppId(), application.getFuncBlockById().keySet());
 		}
 		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks);
 	}
