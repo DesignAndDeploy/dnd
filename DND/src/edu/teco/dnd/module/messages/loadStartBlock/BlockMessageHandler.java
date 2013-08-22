@@ -16,11 +16,11 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, BlockMessage message) {
-		try {
-			appManager.scheduleBlock(message.getApplicationID(), message.block, message.scheduleToId);
-		} catch (Exception e) {
+		if (appManager.scheduleBlock(message.getApplicationID(), message.blockClass, message.blockUUID,
+				message.options, message.outputs, message.scheduleToId)) {
+			return new BlockAck();
+		} else {
 			return new BlockNak();
 		}
-		return new BlockAck();
 	}
 }

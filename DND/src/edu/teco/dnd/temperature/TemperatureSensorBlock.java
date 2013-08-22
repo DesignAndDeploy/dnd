@@ -1,12 +1,10 @@
 package edu.teco.dnd.temperature;
 
 import java.net.MalformedURLException;
-import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.blocks.Timed;
 import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.SensorException;
 import edu.teco.dnd.uPart.UPartReader;
@@ -15,7 +13,6 @@ import edu.teco.dnd.uPart.UPartReader;
  * This class represents a {@link FunctionBlock} that can read a temperature sensor.
  */
 @BlockType("Temperature")
-@Timed(TemperatureSensorBlock.UPDATE_TIME)
 public class TemperatureSensorBlock extends FunctionBlock {
 
 	/**
@@ -23,10 +20,12 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	 */
 	private static final long serialVersionUID = -1362359340515519805L;
 
+	public static final String BLOCK_TYPE = "sensorTemperature";
+
 	/**
 	 * Time between updates.
 	 */
-	public static final long UPDATE_TIME = 1000L;
+	public static final long BLOCK_UPDATE_INTERVAL = 1000L;
 
 	/**
 	 * current temperature.
@@ -36,39 +35,18 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	/**
 	 * URL of the UPart. Default is already set; doesn't contain ID.
 	 */
-	@Option
-	private String url = "http://cumulus.teco.edu:51525/sensor/entity/";
+	private Option url;
+	// TODO: set default "http://cumulus.teco.edu:51525/sensor/entity/"
 
 	/**
 	 * ID of the UPart.
 	 */
-	@Option
-	private String uPartID;
+	private Option uPartID;
 
 	/**
 	 * Reads from the UPart.
 	 */
 	private UPartReader reader;
-
-	/**
-	 * Creates new TemperatureSensorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new TemperatureSensorBlock
-	 */
-	public TemperatureSensorBlock(final UUID blockID) {
-		super(blockID, "TemperatureSensorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "sensorTemperature";
-	}
 
 	/**
 	 * Initializes TemperatureSensorBlock.
@@ -78,9 +56,9 @@ public class TemperatureSensorBlock extends FunctionBlock {
 		if (url == null || uPartID == null) {
 			return;
 		}
-		url = url.concat(uPartID);
+		String fullURL = url.getValue() + uPartID.getValue();
 		try {
-			reader = new UPartReader(url);
+			reader = new UPartReader(fullURL);
 		} catch (MalformedURLException e) {
 		}
 	}
@@ -96,7 +74,7 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	 * Reads new temperature and sets it on output temperature.
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (reader == null) {
 			return;
 		}
@@ -104,10 +82,5 @@ public class TemperatureSensorBlock extends FunctionBlock {
 			temperature.setValue(reader.getTemperature());
 		} catch (SensorException e) {
 		}
-	}
-
-	@Override
-	public String toString() {
-		return "TemperatureSensorBlock[id='" + getID() + "']";
 	}
 }

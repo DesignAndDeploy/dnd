@@ -4,7 +4,7 @@ package edu.teco.dnd.graphiti.model;
 
 import org.eclipse.emf.ecore.EFactory;
 
-import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
 
 /**
  * <!-- begin-user-doc --> The <b>Factory</b> for the model. It provides a create method for each non-abstract class of
@@ -29,7 +29,7 @@ public interface ModelFactory extends EFactory {
 	 */
 	FunctionBlockModel createFunctionBlockModel();
 
-	FunctionBlockModel createFunctionBlockModel(Class<? extends FunctionBlock> cls);
+	FunctionBlockModel createFunctionBlockModel(FunctionBlockClass cls);
 
 	/**
 	 * Returns a new object of class '<em>Input Model</em>'. <!-- begin-user-doc --> <!-- end-user-doc -->

@@ -19,7 +19,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.InputModel;
+import edu.teco.dnd.graphiti.model.OptionModel;
+import edu.teco.dnd.graphiti.model.OutputModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
@@ -83,7 +88,7 @@ public class Deploy {
 	/**
 	 * The distribution that should be deployed.
 	 */
-	private final Map<FunctionBlock, BlockTarget> distribution;
+	private final Map<FunctionBlockModel, BlockTarget> distribution;
 
 	/**
 	 * The name of the application.
@@ -125,7 +130,7 @@ public class Deploy {
 	/**
 	 * Stores the FunctionBlocks that are to be sent to each Module.
 	 */
-	private final Map<Module, Set<FunctionBlock>> moduleMap;
+	private final Map<Module, Set<FunctionBlockModel>> moduleMap;
 
 	/**
 	 * Used to make sure that the deployment process is only started once.
@@ -146,7 +151,7 @@ public class Deploy {
 	 * @param appId
 	 *            the UUID of the Application
 	 */
-	public Deploy(final ConnectionManager connectionManager, final Map<FunctionBlock, BlockTarget> distribution,
+	public Deploy(final ConnectionManager connectionManager, final Map<FunctionBlockModel, BlockTarget> distribution,
 			final String name, final Dependencies dependencies, final UUID appId) {
 		LOGGER.entry(connectionManager, distribution, name, dependencies, appId);
 		this.connectionManager = connectionManager;
@@ -170,7 +175,7 @@ public class Deploy {
 	 * @param dependencies
 	 *            used to resolve Dependencies
 	 */
-	public Deploy(final ConnectionManager connectionManager, final Map<FunctionBlock, BlockTarget> distribution,
+	public Deploy(final ConnectionManager connectionManager, final Map<FunctionBlockModel, BlockTarget> distribution,
 			final String name, final Dependencies dependencies) {
 		this(connectionManager, distribution, name, dependencies, UUID.randomUUID());
 	}
@@ -285,7 +290,7 @@ public class Deploy {
 
 		unfinishedModules.set(moduleMap.size());
 
-		final Map<FunctionBlock, Set<ClassFile>> neededFiles = getNeededFiles();
+		final Map<FunctionBlockModel, Set<ClassFile>> neededFiles = getNeededFiles();
 		neededFilesPerModule = MapUtil.transitiveMapSet(moduleMap, neededFiles);
 
 		for (final Module module : moduleMap.keySet()) {
@@ -305,9 +310,9 @@ public class Deploy {
 	 * 
 	 * @return a mapping from FunctionBlock to corresponding Module
 	 */
-	private Map<FunctionBlock, Module> getModuleMapping() {
-		final Map<FunctionBlock, Module> moduleMapping = new HashMap<FunctionBlock, Module>();
-		for (final Entry<FunctionBlock, BlockTarget> entry : distribution.entrySet()) {
+	private Map<FunctionBlockModel, Module> getModuleMapping() {
+		final Map<FunctionBlockModel, Module> moduleMapping = new HashMap<FunctionBlockModel, Module>();
+		for (final Entry<FunctionBlockModel, BlockTarget> entry : distribution.entrySet()) {
 			moduleMapping.put(entry.getKey(), entry.getValue().getModule());
 		}
 		return moduleMapping;
@@ -318,10 +323,10 @@ public class Deploy {
 	 * 
 	 * @return a mapping that contains all ClassFiles needed for each block
 	 */
-	private Map<FunctionBlock, Set<ClassFile>> getNeededFiles() {
-		final Map<FunctionBlock, Set<ClassFile>> neededFiles = new HashMap<FunctionBlock, Set<ClassFile>>();
-		for (final FunctionBlock block : distribution.keySet()) {
-			neededFiles.put(block, new HashSet<ClassFile>(dependencies.getDependencies(block.getClass().getName())));
+	private Map<FunctionBlockModel, Set<ClassFile>> getNeededFiles() {
+		final Map<FunctionBlockModel, Set<ClassFile>> neededFiles = new HashMap<FunctionBlockModel, Set<ClassFile>>();
+		for (final FunctionBlockModel block : distribution.keySet()) {
+			neededFiles.put(block, new HashSet<ClassFile>(dependencies.getDependencies(block.getBlockClass())));
 		}
 		return neededFiles;
 	}
@@ -504,7 +509,8 @@ public class Deploy {
 		final UUID moduleUUID = module.getUUID();
 		final Collection<FutureNotifier<? extends Response>> futureNotifiers =
 				new ArrayList<FutureNotifier<? extends Response>>();
-		for (final FunctionBlock block : moduleMap.get(module)) {
+		for (final FunctionBlockModel block : moduleMap.get(module)) {
+			LOGGER.debug("sending block {}", block);
 			futureNotifiers.add(sendBlock(moduleUUID, block));
 		}
 		return new JoinedFutureNotifier<Response>(futureNotifiers);
@@ -519,9 +525,22 @@ public class Deploy {
 	 *            the FunctionBlock to send
 	 * @return a FutureNotifier that will return the Response of the Module
 	 */
-	private FutureNotifier<Response> sendBlock(final UUID moduleUUID, final FunctionBlock block) {
-		final BlockMessage blockMsg =
-				new BlockMessage(appId, block, distribution.get(block).getBlockTypeHolder().getIdNumber());
+	private FutureNotifier<Response> sendBlock(final UUID moduleUUID, final FunctionBlockModel block) {
+		final Map<String, String> options = new HashMap<String, String>();
+		for (final OptionModel option : block.getOptions()) {
+			options.put(option.getName(), option.getValue());
+		}
+		final Map<String, Collection<ValueDestination>> outputs = new HashMap<String, Collection<ValueDestination>>();
+		for (final OutputModel output : block.getOutputs()) {
+			final Collection<ValueDestination> destinations = new ArrayList<ValueDestination>();
+			for (final InputModel input : output.getInputs()) {
+				destinations.add(new ValueDestination(input.getFunctionBlock().getID(), input.getName()));
+			}
+			if (!destinations.isEmpty()) {
+				outputs.put(output.getName(), destinations);
+			}
+		}
+		final BlockMessage blockMsg = new BlockMessage(appId, block.getBlockClass(), block.getID(), options, outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
 		return connectionManager.sendMessage(moduleUUID, blockMsg);
 	}
 

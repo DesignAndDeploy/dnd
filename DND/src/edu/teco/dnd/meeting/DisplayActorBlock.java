@@ -3,7 +3,6 @@ package edu.teco.dnd.meeting;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -37,28 +36,7 @@ public class DisplayActorBlock extends FunctionBlock {
 	/**
 	 * Text to show on display.
 	 */
-	@Input
-	private String text;
-
-	/**
-	 * Creates new DisplayActorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new DisplayActorBlock
-	 */
-	public DisplayActorBlock(final UUID blockID) {
-		super(blockID, "DisplayActorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "actorDisplay";
-	}
+	private Input<String> text;
 
 	/**
 	 * Initializes DisplayActorBlock.
@@ -78,13 +56,13 @@ public class DisplayActorBlock extends FunctionBlock {
 	 * Puts the input string on a display.
 	 */
 	@Override
-	protected void update() {
-		if (text == null || LOGGER == null) {
+	public void update() {
+		if (text == null) {
 			return;
 		}
 		try {
 			PrintWriter printWriter = new PrintWriter(new FileOutputStream(FILENAME));
-			printWriter.println(text);
+			printWriter.println(text.popValue());
 			printWriter.close();
 		} catch (FileNotFoundException e) {
 			LOGGER.catching(Level.WARN, e);

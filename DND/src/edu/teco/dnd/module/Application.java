@@ -18,11 +18,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.AssignmentException;
-import edu.teco.dnd.blocks.ConnectionTarget;
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.blocks.Output;
+import edu.teco.dnd.blocks.Input;
+import edu.teco.dnd.blocks.OutputTarget;
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
@@ -31,7 +29,7 @@ public class Application {
 	public static final int SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION = 2;
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
-	public final Set<FunctionBlock> scheduledToStart = new HashSet<FunctionBlock>();
+	public final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
 	public boolean isRunning = false;
 
 	private final UUID ownAppId;
@@ -47,12 +45,12 @@ public class Application {
 
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
-	private final Map<UUID, FunctionBlock> funcBlockById;
+	private final Map<UUID, FunctionBlockSecurityDecorator> funcBlockById;
 
 	/**
 	 * @return all blocks, this app is currently executing.
 	 */
-	public Collection<FunctionBlock> getAllBlocks() {
+	public Collection<FunctionBlockSecurityDecorator> getAllBlocks() {
 		return funcBlockById.values();
 	}
 
@@ -63,7 +61,7 @@ public class Application {
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
 		this.classLoader = classloader;
-		this.funcBlockById = new HashMap<UUID, FunctionBlock>();
+		this.funcBlockById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
 	}
 
 	/**
@@ -175,46 +173,28 @@ public class Application {
 	 * @param block
 	 *            the block to be started.
 	 */
-	public void startBlock(final FunctionBlock block) {
+	public void startBlock(final FunctionBlockSecurityDecorator block) {
 		if (!shutdownLock.readLock().tryLock()) {
 			return; // Already shutting down.
 		}
 		try {
-			funcBlockById.put(block.getID(), block);
+			funcBlockById.put(block.getRealBlock().getBlockUUID(), block);
 
 			Runnable initRunnable = new Runnable() {
 				@Override
 				public void run() {
 					block.init();
-					try {
-						for (Output<?> output : block.getOutputs().values()) {
-							for (ConnectionTarget ct : output.getConnectedTargets()) {
-								if (ct instanceof RemoteConnectionTarget) {
-									RemoteConnectionTarget rct = (RemoteConnectionTarget) ct;
-									rct.setApplication(Application.this);
-								}
-							}
-						}
-					} catch (InvalidFunctionBlockException e) {
-						LOGGER.warn("FunctionBlock {} initialization failed.", block.getID());
-						LOGGER.catching(e);
-					}
-
 				}
 			};
 			Runnable updater = new Runnable() {
 				@Override
 				public void run() {
-					try {
-						block.doUpdate();
-					} catch (AssignmentException e) {
-						LOGGER.info("Can not assign field of functionBlock {}", block);
-					}
+					block.update();
 				}
 			};
-
 			scheduledThreadPool.execute(initRunnable);
-			long period = block.getTimebetweenSchedules();
+
+			long period = block.getRealBlock().getUpdateInterval();
 			try {
 				if (period < 0) {
 					scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
@@ -243,36 +223,27 @@ public class Application {
 	 * @throws NonExistentFunctionblockException
 	 * @throws NonExistentInputException
 	 */
-	public void receiveValue(final UUID funcBlockId, String input, Serializable value)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void receiveValue(final UUID funcBlockId, String inputName, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
 		if (!shutdownLock.readLock().tryLock()) {
 			return; // Already shutting down.
 		}
 		try {
-
-			if (funcBlockById.get(funcBlockId) == null) {
+			final FunctionBlockSecurityDecorator block = funcBlockById.get(funcBlockId);
+			if (block == null) {
 				LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
 				throw LOGGER.throwing(new NonExistentFunctionblockException());
 			}
-			ConnectionTarget ct = funcBlockById.get(funcBlockId).getConnectionTargets().get(input);
-			if (ct == null) {
-				LOGGER.warn("specified input does not exist: {} on {}", input, funcBlockId);
-				throw LOGGER.throwing(new NonExistentInputException());
+			final Input input = block.getRealBlock().getInputs().get(inputName);
+			if (input == null) {
+				LOGGER.info("input '{}' non existant for {}", inputName, block);
 			}
-			ct.setValue(value);
+			input.setValue(value);
 			Runnable updater = new Runnable() {
 				@Override
 				public void run() {
-					FunctionBlock block = funcBlockById.get(funcBlockId);
-					if (block == null) {
-						LOGGER.warn("scheduled a block, that does not exist.");
-						return;
-					}
-					try {
-						block.doUpdate();
-					} catch (AssignmentException e) {
-						LOGGER.info("Can not assign field of functionBlock {}", block);
-					}
+					block.update();
 				}
 			};
 
@@ -295,8 +266,8 @@ public class Application {
 		scheduledThreadPool.shutdown();
 		final Thread shutdownThread = new Thread(new Runnable() {
 			public void run() {
-				for (FunctionBlock fun : funcBlockById.values()) {
-					funcBlockById.remove(fun.getID());
+				for (FunctionBlockSecurityDecorator fun : funcBlockById.values()) {
+					funcBlockById.remove(fun.getRealBlock().getBlockUUID());
 					fun.shutdown();
 				}
 			}
@@ -338,8 +309,8 @@ public class Application {
 		return scheduledThreadPool;
 	}
 
-	public Map<UUID, FunctionBlock> getFuncBlockById() {
-		return new HashMap<UUID, FunctionBlock>(funcBlockById);
+	public Map<UUID, FunctionBlockSecurityDecorator> getFuncBlockById() {
+		return new HashMap<UUID, FunctionBlockSecurityDecorator>(funcBlockById);
 	}
 
 	/**
@@ -349,5 +320,20 @@ public class Application {
 	 */
 	public boolean isExecuting(UUID blockId) {
 		return funcBlockById.containsKey(blockId);
+	}
+
+	class ApplicationOutputTarget implements OutputTarget<Serializable> {
+		private final Set<ValueDestination> destinations;
+
+		public ApplicationOutputTarget(final Collection<ValueDestination> destinations) {
+			this.destinations = new HashSet<ValueDestination>(destinations);
+		}
+
+		@Override
+		public void setValue(Serializable value) {
+			for (final ValueDestination destination : destinations) {
+				sendValue(destination.getBlock(), destination.getInput(), value);
+			}
+		}
 	}
 }

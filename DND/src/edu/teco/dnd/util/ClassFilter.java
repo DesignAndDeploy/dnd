@@ -1,5 +1,7 @@
 package edu.teco.dnd.util;
 
+import org.apache.bcel.classfile.JavaClass;
+
 /**
  * Filters classes. Used by {@link ClassScanner}.
  * 
@@ -13,5 +15,5 @@ public interface ClassFilter {
 	 *            the class to check
 	 * @return true if the class should be accepted
 	 */
-	boolean acceptClass(Class<?> cls);
+	boolean acceptClass(JavaClass cls);
 }

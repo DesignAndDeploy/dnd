@@ -2,15 +2,17 @@ package edu.teco.dnd.graphiti;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.util.Repository;
+import org.apache.bcel.util.SyntheticRepository;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
@@ -48,7 +50,8 @@ import org.eclipse.graphiti.mm.pictograms.Diagram;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
 
-import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
+import edu.teco.dnd.blocks.FunctionBlockFactory;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.OptionModel;
@@ -64,6 +67,7 @@ import edu.teco.dnd.temperature.TemperatureActorBlock;
 import edu.teco.dnd.temperature.TemperatureLogicBlock;
 import edu.teco.dnd.temperature.TemperatureSensorBlock;
 import edu.teco.dnd.util.ClassScanner;
+import edu.teco.dnd.util.StringUtil;
 
 /**
  * Provides the features that are used by the editor.
@@ -213,9 +217,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	private final DNDCreateFeatureFactory createFeatureFactory = new DNDCreateFeatureFactory();
 
 	/**
-	 * an URLClassLoader.
+	 * Used to inspect FunctionBlocks.
 	 */
-	private URLClassLoader ucl = null;
+	private FunctionBlockFactory blockFactory;
 
 	/**
 	 * Whether or not {@link #createFeatureFactory} was initialised.
@@ -227,11 +231,26 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * 
 	 * @param dtp
 	 *            the diagram type provider this feature provider belongs to
+	 * @throws ClassNotFoundException
 	 */
-	public DNDFeatureProvider(final IDiagramTypeProvider dtp) {
+	public DNDFeatureProvider(final IDiagramTypeProvider dtp) throws ClassNotFoundException {
 		super(dtp);
 		LOGGER.info("DNDFeatureProvider created successfully");
-		registerDefaultTypes();
+	}
+
+	/**
+	 * Returns the class path for the Eclipse project this diagram is part of.
+	 * 
+	 * @return the class path for the enclosing Eclipse project
+	 */
+	private Set<IPath> getProjectClassPath() {
+		final Diagram diagram = getDiagramTypeProvider().getDiagram();
+		if (diagram == null) {
+			return Collections.emptySet();
+		}
+		IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(diagram).toString()));
+		Set<URL> urls = new HashSet<URL>();
+		return EclipseUtil.getAbsoluteBinPaths(project);
 	}
 
 	/**
@@ -239,8 +258,19 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 */
 	@SuppressWarnings("unchecked")
 	private void registerDefaultTypes() {
+		final FunctionBlockFactory factory;
+		try {
+			factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
+		} catch (final ClassNotFoundException e) {
+			LOGGER.catching(Level.WARN, e);
+			return;
+		}
 		for (Class<?> type : DEFAULT_TYPES) {
-			createFeatureFactory.registerBlockType((Class<? extends FunctionBlock>) type);
+			try {
+				createFeatureFactory.registerBlockType(factory.getFunctionBlockClass(type));
+			} catch (final ClassNotFoundException e) {
+				LOGGER.catching(Level.WARN, e);
+			}
 		}
 	}
 
@@ -257,42 +287,47 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * Used to initialize a Factory.
 	 */
-	@SuppressWarnings("unchecked")
 	private synchronized void initialiseFactory() {
 		if (!factoryInitialised) {
-			IProject project =
-					EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(
-							getDiagramTypeProvider().getDiagram()).toString()));
-			Set<URL> urls = new HashSet<URL>();
-			Set<IPath> paths = EclipseUtil.getAbsoluteBinPaths(project);
-			for (IPath path : paths) {
-				try {
-					urls.add(path.toFile().toURI().toURL());
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
+			final Set<IPath> ipaths = getProjectClassPath();
+			try {
+				blockFactory = new FunctionBlockFactory(StringUtil.joinIterable(ipaths, ":"));
+			} catch (final ClassNotFoundException e) {
+				LOGGER.catching(e);
 			}
-			LOGGER.debug(urls);
-			ucl = new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader());
-			ClassScanner scanner = new ClassScanner(ucl, new FunctionBlockFilter());
-			for (IPath path : paths) {
-				File f = path.toFile();
-				for (Class<?> cls : scanner.getClasses(f)) {
-					createFeatureFactory.registerBlockType((Class<? extends FunctionBlock>) cls);
+			registerDefaultTypes();
+			final Set<File> paths = new HashSet<File>();
+			for (final IPath ipath : getProjectClassPath()) {
+				paths.add(ipath.toFile());
+			}
+			final ClassScanner scanner = new ClassScanner(blockFactory.getRepository());
+			for (final JavaClass cls : scanner.getClasses(paths)) {
+				final FunctionBlockClass blockClass;
+				try {
+					blockClass = blockFactory.getFunctionBlockClass(cls.getClassName());
+				} catch (final ClassNotFoundException e) {
+					continue;
+				} catch (final IllegalArgumentException e) {
+					continue;
 				}
+				createFeatureFactory.registerBlockType(blockClass);
 			}
 			factoryInitialised = true;
 		}
 	}
 
 	/**
-	 * Returns the ClassLoader.
+	 * Returns the FunctionBlockFactory.
 	 * 
-	 * @return class loader
+	 * @return the FunctionBlockFactory
 	 */
-	public final synchronized ClassLoader getClassLoader() {
+	public final synchronized FunctionBlockFactory getFunctionBlockFactory() {
 		initialiseFactory();
-		return ucl;
+		return blockFactory;
+	}
+
+	public final Repository getRepository() {
+		return blockFactory.getRepository();
 	}
 
 	/**
@@ -381,18 +416,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		IDirectEditingFeature feature = null;
 		if (bo instanceof OptionModel) {
-			OptionModel option = (OptionModel) bo;
-			Class<? extends Serializable> type = null;
-			try {
-				type = (Class<? extends Serializable>) getClassLoader().loadClass(option.getType());
-			} catch (ClassNotFoundException e) {
-				LOGGER.catching(e);
-			}
-			if (type != null && type.isAssignableFrom(String.class)) {
-				feature = new DNDEditStringOptionFeature(this);
-			} else if (type != null && type.isAssignableFrom(Integer.class)) {
-				feature = new DNDEditIntegerOptionFeature(this);
-			}
+			feature = new DNDEditOptionFeature(this);
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 			if (TypePropertyUtil.isBlockNameText(ga)) {

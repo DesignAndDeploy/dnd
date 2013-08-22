@@ -1,7 +1,5 @@
 package edu.teco.dnd.meeting;
 
-import java.util.UUID;
-
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
@@ -22,33 +20,12 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	/**
 	 * this variable tells whether there is a meeting (true) or not (false).
 	 */
-	@Input
-	private Boolean meeting;
+	private Input<Boolean> meeting;
 
 	/**
 	 * Text to show on display.
 	 */
 	private Output<String> text;
-
-	/**
-	 * Creates new DisplayOperatorBlock.
-	 * 
-	 * @param blockID
-	 *            ID of new DisplayOperatorBlock
-	 */
-	public DisplayOperatorBlock(final UUID blockID) {
-		super(blockID, "DisplayOperatorBlock1");
-	}
-
-	/**
-	 * Returns type of this FunctionBlock.
-	 * 
-	 * @return type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		return "operator";
-	}
 
 	/**
 	 * Initializes DisplayOperatorBlock.
@@ -68,14 +45,23 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	 * Checks if there is a meeting and accordingly sets the text to be shown on the display ("frei" oder "besetzt").
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		if (meeting == null) {
 			return;
 		}
-		if (meeting) {
-			text.setValue("besetzt");
-		} else {
-			text.setValue("frei");
+		Boolean meetingState = null;
+		while (meeting.hasMoreValues()) {
+			Boolean state = meeting.popValue();
+			if (state != null) {
+				meetingState = state;
+			}
+		}
+		if (meetingState != null) {
+			if (meetingState) {
+				text.setValue("besetzt");
+			} else {
+				text.setValue("frei");
+			}
 		}
 	}
 

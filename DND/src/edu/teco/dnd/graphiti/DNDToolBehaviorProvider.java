@@ -58,11 +58,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
 			String category = "Other";
 			if (cf instanceof DNDCreateBlockFeature) {
-				DNDCreateBlockFeature cbf = (DNDCreateBlockFeature) cf;
-				BlockType blockType = cbf.getBlockType().getAnnotation(BlockType.class);
-				if (blockType != null) {
-					category = blockType.value();
-				}
+				// TODO: implement categories
 				if (!categories.containsKey(category)) {
 					categories.put(category, new ArrayList<ICreateFeature>());
 				}

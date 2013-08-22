@@ -67,6 +67,7 @@ public class ApplicationSecurityManager extends SecurityManager {
 		insecureMethods.add(new String[] { "java.io.ObjectStreamClass", "invokeReadObject" });
 		insecureMethods.add(new String[] { "java.io.ObjectStreamClass", "invokeReadResolve" });
 
+		securedMethods.add(new String[] { "edu.teco.dnd.module.FunctionBlockSecurityDecorator", "doInit" });
 		securedMethods.add(new String[] { "edu.teco.dnd.module.Application", "sendValue" });
 		// sending need special privileges.
 		securedMethods.add(new String[] { "java.lang.ClassLoader", "loadClass" });

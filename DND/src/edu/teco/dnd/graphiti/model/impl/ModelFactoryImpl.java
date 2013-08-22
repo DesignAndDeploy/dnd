@@ -16,6 +16,7 @@ import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockClass;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.ModelFactory;
@@ -125,7 +126,7 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 		return functionBlockModel;
 	}
 
-	public FunctionBlockModel createFunctionBlockModel(Class<? extends FunctionBlock> cls) {
+	public FunctionBlockModel createFunctionBlockModel(final FunctionBlockClass cls) {
 		FunctionBlockModelImpl functionBlockModel = new FunctionBlockModelImpl(cls);
 		return functionBlockModel;
 	}

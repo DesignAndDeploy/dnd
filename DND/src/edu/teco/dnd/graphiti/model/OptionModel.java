@@ -1,9 +1,8 @@
 package edu.teco.dnd.graphiti.model;
 
-import java.io.Serializable;
-
 import org.eclipse.emf.ecore.EObject;
 
+// TODO: regenerate model
 /**
  * @model
  */
@@ -43,7 +42,7 @@ public interface OptionModel extends EObject {
 	/**
 	 * @model
 	 */
-	Serializable getValue();
+	String getValue();
 
 	/**
 	 * Sets the value of the '{@link edu.teco.dnd.graphiti.model.OptionModel#getValue <em>Value</em>}' attribute. <!--
@@ -54,7 +53,7 @@ public interface OptionModel extends EObject {
 	 * @see #getValue()
 	 * @generated
 	 */
-	void setValue(Serializable value);
+	void setValue(String value);
 
 	/**
 	 * @model opposite="options"

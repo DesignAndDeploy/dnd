@@ -5,18 +5,11 @@
  */
 package edu.teco.dnd.graphiti.model.impl;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
@@ -27,19 +20,12 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentWithInverseEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
-import edu.teco.dnd.blocks.AssignmentException;
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.blocks.InvalidFunctionBlockException;
-import edu.teco.dnd.blocks.Option;
-import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.blocks.RetrievementException;
+import edu.teco.dnd.blocks.FunctionBlockClass;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.ModelPackage;
 import edu.teco.dnd.graphiti.model.OptionModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
-import edu.teco.dnd.module.RemoteConnectionTarget;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object '<em><b>Function Block Model</b></em>'. <!--
@@ -54,6 +40,7 @@ import edu.teco.dnd.module.RemoteConnectionTarget;
  * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getID <em>ID</em>}</li>
  * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getPosition <em>Position</em>}</li>
  * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getBlockName <em>Block Name</em>}</li>
+ * <li>{@link edu.teco.dnd.graphiti.model.impl.FunctionBlockModelImpl#getBlockClass <em>Block Class</em>}</li>
  * </ul>
  * </p>
  * 
@@ -81,8 +68,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	protected String type = TYPE_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getInputs() <em>Inputs</em>}' containment reference list. <!-- begin-user-doc-->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getInputs() <em>Inputs</em>}' containment reference list. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
 	 * 
 	 * @see #getInputs()
 	 * @generated
@@ -101,8 +88,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	protected EList<OutputModel> outputs;
 
 	/**
-	 * The cached value of the '{@link #getOptions() <em>Options</em>}' containment reference list. <!--
-	 * begin-user-doc--> <!-- end-user-doc -->
+	 * The cached value of the '{@link #getOptions() <em>Options</em>}' containment reference list. <!-- begin-user-doc
+	 * --> <!-- end-user-doc -->
 	 * 
 	 * @see #getOptions()
 	 * @generated
@@ -169,6 +156,26 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	protected String blockName = BLOCK_NAME_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getBlockClass() <em>Block Class</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
+	 * @see #getBlockClass()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String BLOCK_CLASS_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getBlockClass() <em>Block Class</em>}' attribute. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 * 
+	 * @see #getBlockClass()
+	 * @generated
+	 * @ordered
+	 */
+	protected String blockClass = BLOCK_CLASS_EDEFAULT;
+
+	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
 	 * @generated
@@ -177,90 +184,32 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		super();
 	}
 
-	protected FunctionBlockModelImpl(Class<? extends FunctionBlock> cls) {
+	protected FunctionBlockModelImpl(FunctionBlockClass cls) {
 		super();
 		setID(UUID.randomUUID());
 		if (cls != null) {
-			setBlockName(cls.getSimpleName());
-			setType(cls.getName());
-			for (Field field : FunctionBlock.getInputs(cls)) {
-				InputModel input = ModelFactoryImpl.eINSTANCE.createInputModel();
-				input.setFunctionBlock(this);
-				input.setName(field.getName());
-				input.setQueued(field.getAnnotation(Input.class).value());
-				input.setType(field.getType().getName());
+			setBlockName(cls.getSimpleClassName());
+			setBlockClass(cls.getClassName());
+			setType(cls.getBlockType());
+			for (final Entry<String, JavaClass> input : cls.getInputs().entrySet()) {
+				final InputModel inputModel = ModelFactoryImpl.eINSTANCE.createInputModel();
+				inputModel.setFunctionBlock(this);
+				inputModel.setName(input.getKey());
+				inputModel.setType(input.getValue().getClassName());
 			}
-			for (Field field : FunctionBlock.getOutputs(cls)) {
-				OutputModel output = ModelFactoryImpl.eINSTANCE.createOutputModel();
-				output.setFunctionBlock(this);
-				output.setName(field.getName());
-				final Type genericType = field.getGenericType();
-				if (genericType instanceof ParameterizedType) {
-					final Type[] actualTypes = ((ParameterizedType) genericType).getActualTypeArguments();
-					if (actualTypes != null && actualTypes.length == 1 && actualTypes[0] instanceof Class<?>
-							&& Serializable.class.isAssignableFrom((Class<?>) actualTypes[0])) {
-						output.setType(((Class<?>) actualTypes[0]).getName());
-					}
-				}
+			for (final Entry<String, JavaClass> output : cls.getOutputs().entrySet()) {
+				final OutputModel outputModel = ModelFactoryImpl.eINSTANCE.createOutputModel();
+				outputModel.setFunctionBlock(this);
+				outputModel.setName(output.getKey());
+				outputModel.setType(output.getValue().getClassName());
 			}
-			for (Field field : getOptions(cls)) {
-				OptionModel option = ModelFactoryImpl.eINSTANCE.createOptionModel();
-				option.setName(field.getName());
-				option.setType(field.getType().getName());
-				option.setFunctionBlock(this);
-			}
-			FunctionBlock block = null;
-			try {
-				Constructor<? extends FunctionBlock> constructor = cls.getConstructor(String.class);
-				block = constructor.newInstance("id");
-			} catch (InstantiationException e) {
-			} catch (IllegalAccessException e) {
-			} catch (IllegalArgumentException e) {
-			} catch (InvocationTargetException e) {
-			} catch (NoSuchMethodException e) {
-			} catch (SecurityException e) {
-			}
-
-			if (block != null) {
-				for (Object optionObject : getOptions()) {
-					OptionModel option = (OptionModel) optionObject;
-					Serializable value = null;
-					try {
-						value = block.getOption(option.getName());
-					} catch (RetrievementException e) {
-						continue;
-					}
-					option.setValue(value);
-				}
+			for (final String option : cls.getOptions()) {
+				final OptionModel optionModel = ModelFactoryImpl.eINSTANCE.createOptionModel();
+				optionModel.setFunctionBlock(this);
+				optionModel.setName(option);
+				optionModel.setType("java.lang.String");
 			}
 		}
-	}
-
-	/**
-	 * Returns a set containing all fields that are marked as Options. If a subclass has an option with the same name as
-	 * a superclass the option of the subclass takes precedence. Code duplication from FunctionBlock, so special
-	 * privileges can be granted to the one in FunctionBlock.
-	 * 
-	 * @param cls
-	 *            the class to inspect. Must not be null.
-	 * @return all options defined in the class
-	 */
-	private static Set<Field> getOptions(final Class<? extends FunctionBlock> cls) {
-		if (cls == null) {
-			throw new IllegalArgumentException("cls must not be null");
-		}
-		Set<Field> options = new HashSet<Field>();
-		Set<String> names = new HashSet<String>();
-		for (Class<?> c = cls; c != null; c = c.getSuperclass()) {
-			for (Field field : c.getDeclaredFields()) {
-				Option optionAnnotation = field.getAnnotation(Option.class);
-				if (optionAnnotation != null && !names.contains(field.getName())) {
-					options.add(field);
-					names.add(field.getName());
-				}
-			}
-		}
-		return options;
 	}
 
 	/**
@@ -407,6 +356,28 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * 
 	 * @generated
 	 */
+	public String getBlockClass() {
+		return blockClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated
+	 */
+	public void setBlockClass(String newBlockClass) {
+		String oldBlockClass = blockClass;
+		blockClass = newBlockClass;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS,
+					oldBlockClass, blockClass));
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
@@ -461,6 +432,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			return getPosition();
 		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 			return getBlockName();
+		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+			return getBlockClass();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -498,6 +471,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 			setBlockName((String) newValue);
 			return;
+		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+			setBlockClass((String) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -531,6 +507,9 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 			setBlockName(BLOCK_NAME_EDEFAULT);
 			return;
+		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+			setBlockClass(BLOCK_CLASS_EDEFAULT);
+			return;
 		}
 		super.eUnset(featureID);
 	}
@@ -557,6 +536,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			return POSITION_EDEFAULT == null ? position != null : !POSITION_EDEFAULT.equals(position);
 		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_NAME:
 			return BLOCK_NAME_EDEFAULT == null ? blockName != null : !BLOCK_NAME_EDEFAULT.equals(blockName);
+		case ModelPackage.FUNCTION_BLOCK_MODEL__BLOCK_CLASS:
+			return BLOCK_CLASS_EDEFAULT == null ? blockClass != null : !BLOCK_CLASS_EDEFAULT.equals(blockClass);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -580,6 +561,8 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		result.append(position);
 		result.append(", blockName: ");
 		result.append(blockName);
+		result.append(", blockClass: ");
+		result.append(blockClass);
 		result.append(')');
 		return result.toString();
 	}
@@ -600,67 +583,5 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	@Override
 	public boolean isActor() {
 		return !getInputs().isEmpty() && getOutputs().isEmpty();
-	}
-
-	@Override
-	public FunctionBlock createBlock() throws InvalidFunctionBlockException {
-		return createBlock(getClass().getClassLoader());
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public FunctionBlock createBlock(final ClassLoader cl) throws InvalidFunctionBlockException {
-		if (cl == null) {
-			throw new IllegalArgumentException("cl must not be null");
-		}
-		Class<? extends FunctionBlock> cls = null;
-		try {
-			cls = (Class<? extends FunctionBlock>) cl.loadClass(type);
-		} catch (ClassNotFoundException e) {
-			throw new InvalidFunctionBlockException("Could not get block class", e);
-		} catch (ClassCastException e) {
-			throw new InvalidFunctionBlockException("Could not get block class", e);
-		}
-		Constructor<? extends FunctionBlock> constructor = null;
-		try {
-			constructor = cls.getConstructor(UUID.class);
-		} catch (NoSuchMethodException e) {
-			throw new InvalidFunctionBlockException("Could not find constructor", e);
-		} catch (SecurityException e) {
-			throw new InvalidFunctionBlockException("Could not find constructor", e);
-		}
-		FunctionBlock block = null;
-		try {
-			block = constructor.newInstance(getID());
-		} catch (InstantiationException e) {
-			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
-		} catch (IllegalAccessException e) {
-			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
-		} catch (IllegalArgumentException e) {
-			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
-		} catch (InvocationTargetException e) {
-			throw new InvalidFunctionBlockException("Could not instantiate FunctionBlock", e);
-		}
-		for (Object optionObject : getOptions()) {
-			final OptionModel option = (OptionModel) optionObject;
-			try {
-				block.setOption(option.getName(), option.getValue());
-			} catch (AssignmentException e) {
-				throw new InvalidFunctionBlockException("Could not set option", e);
-			}
-		}
-		Map<String, Output<?>> outputs = block.getOutputs();
-		for (Object outputModelObject : getOutputs()) {
-			final OutputModel outputModel = (OutputModel) outputModelObject;
-			Output<?> output = outputs.get(outputModel.getName());
-			for (Object inputObject : outputModel.getInputs()) {
-				final InputModel input = (InputModel) inputObject;
-				UUID uuid = input.getFunctionBlock().getID();
-				output.addConnection(new RemoteConnectionTarget(outputModel.getName(), uuid, input.getName()));
-			}
-		}
-		block.setPosition(getPosition());
-		block.setBlockName(getBlockName());
-		return block;
 	}
 } // FunctionBlockModelImpl

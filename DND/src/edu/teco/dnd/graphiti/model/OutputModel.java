@@ -1,5 +1,6 @@
 package edu.teco.dnd.graphiti.model;
 
+import org.apache.bcel.util.Repository;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
@@ -60,5 +61,5 @@ public interface OutputModel extends EObject {
 	 */
 	void setType(String value);
 
-	boolean isCompatible(ClassLoader cl, InputModel input);
+	boolean isCompatible(Repository repository, InputModel input);
 }

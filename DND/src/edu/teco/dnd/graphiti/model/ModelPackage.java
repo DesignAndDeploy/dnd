@@ -121,13 +121,21 @@ public interface ModelPackage extends EPackage {
 	int FUNCTION_BLOCK_MODEL__BLOCK_NAME = 6;
 
 	/**
+	 * The feature id for the '<em><b>Block Class</b></em>' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_BLOCK_MODEL__BLOCK_CLASS = 7;
+
+	/**
 	 * The number of structural features of the '<em>Function Block Model</em>' class. <!-- begin-user-doc --> <!--
 	 * end-user-doc -->
 	 * 
 	 * @generated
 	 * @ordered
 	 */
-	int FUNCTION_BLOCK_MODEL_FEATURE_COUNT = 7;
+	int FUNCTION_BLOCK_MODEL_FEATURE_COUNT = 8;
 
 	/**
 	 * The meta object id for the '{@link edu.teco.dnd.graphiti.model.impl.InputModelImpl <em>Input Model</em>}' class.
@@ -173,21 +181,13 @@ public interface ModelPackage extends EPackage {
 	int INPUT_MODEL__TYPE = 3;
 
 	/**
-	 * The feature id for the '<em><b>Queued</b></em>' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @generated
-	 * @ordered
-	 */
-	int INPUT_MODEL__QUEUED = 4;
-
-	/**
 	 * The number of structural features of the '<em>Input Model</em>' class. <!-- begin-user-doc --> <!-- end-user-doc
 	 * -->
 	 * 
 	 * @generated
 	 * @ordered
 	 */
-	int INPUT_MODEL_FEATURE_COUNT = 5;
+	int INPUT_MODEL_FEATURE_COUNT = 4;
 
 	/**
 	 * The meta object id for the '{@link edu.teco.dnd.graphiti.model.impl.OptionModelImpl <em>Option Model</em>}'
@@ -411,6 +411,17 @@ public interface ModelPackage extends EPackage {
 	EAttribute getFunctionBlockModel_BlockName();
 
 	/**
+	 * Returns the meta object for the attribute '{@link edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockClass
+	 * <em>Block Class</em>}'. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @return the meta object for the attribute '<em>Block Class</em>'.
+	 * @see edu.teco.dnd.graphiti.model.FunctionBlockModel#getBlockClass()
+	 * @see #getFunctionBlockModel()
+	 * @generated
+	 */
+	EAttribute getFunctionBlockModel_BlockClass();
+
+	/**
 	 * Returns the meta object for class '{@link edu.teco.dnd.graphiti.model.InputModel <em>Input Model</em>}'. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
@@ -464,17 +475,6 @@ public interface ModelPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getInputModel_Type();
-
-	/**
-	 * Returns the meta object for the attribute '{@link edu.teco.dnd.graphiti.model.InputModel#isQueued
-	 * <em>Queued</em>}'. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @return the meta object for the attribute '<em>Queued</em>'.
-	 * @see edu.teco.dnd.graphiti.model.InputModel#isQueued()
-	 * @see #getInputModel()
-	 * @generated
-	 */
-	EAttribute getInputModel_Queued();
 
 	/**
 	 * Returns the meta object for class '{@link edu.teco.dnd.graphiti.model.OptionModel <em>Option Model</em>}'. <!--
@@ -707,6 +707,14 @@ public interface ModelPackage extends EPackage {
 		EAttribute FUNCTION_BLOCK_MODEL__BLOCK_NAME = eINSTANCE.getFunctionBlockModel_BlockName();
 
 		/**
+		 * The meta object literal for the '<em><b>Block Class</b></em>' attribute feature. <!-- begin-user-doc --> <!--
+		 * end-user-doc -->
+		 * 
+		 * @generated
+		 */
+		EAttribute FUNCTION_BLOCK_MODEL__BLOCK_CLASS = eINSTANCE.getFunctionBlockModel_BlockClass();
+
+		/**
 		 * The meta object literal for the '{@link edu.teco.dnd.graphiti.model.impl.InputModelImpl <em>Input Model</em>}
 		 * ' class. <!-- begin-user-doc --> <!-- end-user-doc -->
 		 * 
@@ -747,14 +755,6 @@ public interface ModelPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute INPUT_MODEL__TYPE = eINSTANCE.getInputModel_Type();
-
-		/**
-		 * The meta object literal for the '<em><b>Queued</b></em>' attribute feature. <!-- begin-user-doc --> <!--
-		 * end-user-doc -->
-		 * 
-		 * @generated
-		 */
-		EAttribute INPUT_MODEL__QUEUED = eINSTANCE.getInputModel_Queued();
 
 		/**
 		 * The meta object literal for the '{@link edu.teco.dnd.graphiti.model.impl.OptionModelImpl
