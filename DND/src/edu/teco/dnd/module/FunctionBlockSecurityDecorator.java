@@ -1,60 +1,92 @@
 package edu.teco.dnd.module;
 
-import java.util.Random;
+import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 
-public class FunctionBlockSecurityDecorator extends FunctionBlock {
-	private static final long serialVersionUID = -2698446647806837671L;
-
-	private static final Random rnd = new Random();
+public class FunctionBlockSecurityDecorator {
 	private static final Logger LOGGER = LogManager.getLogger(FunctionBlockSecurityDecorator.class);
 
 	private final FunctionBlock block;
 
-	public FunctionBlockSecurityDecorator(FunctionBlock block) throws UserSuppliedCodeException, NullPointerException,
-			IllegalArgumentException, IllegalAccessException {
-		doInit(block.getBlockUUID());
+	public FunctionBlockSecurityDecorator(final FunctionBlock block) {
 		this.block = block;
 	}
 
-	public void doInitBlock(Application associatedApp) {
-
+	public static FunctionBlockSecurityDecorator getDecorator(final Class<? extends FunctionBlock> blockClass) {
+		final FunctionBlock realBlock;
+		try {
+			realBlock = (FunctionBlock) blockClass.getConstructor().newInstance();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			return null;
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			return null;
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return new FunctionBlockSecurityDecorator(realBlock);
 	}
 
-	@Override
-	public void init() {
+	public boolean doInit(final UUID blockUUID) {
+		try {
+			this.block.doInit(blockUUID);
+		} catch (IllegalAccessException e) {
+			Thread.dumpStack();
+			LOGGER.warn("{} threw an exception in doInit()", block);
+			return LOGGER.exit(false);
+		}
+		return true;
+	}
 
+	public boolean init() {
 		try {
 			block.init();
 		} catch (Throwable t) {
 			Thread.dumpStack();
-			LOGGER.warn("Block {} ({}), threw an exception in init()", block.getClass(), this.getBlockUUID());
-			// ignoring. Don't kill the rest of the application.
+			LOGGER.warn("{} threw an exception in init()", block);
+			return LOGGER.exit(false);
 		}
+		return true;
 	}
 
-	@Override
-	public void shutdown() {
+	public boolean shutdown() {
 		try {
 			block.shutdown();
 		} catch (Throwable t) {
 			Thread.dumpStack();
-			LOGGER.warn("Block {}, threw an exception in init()", this.getBlockUUID());
-			// ignoring. Don't kill the rest of the application.
+			LOGGER.warn("{} threw an exception in init()", block);
+			return LOGGER.exit(false);
 		}
+		return true;
 	}
 
-	@Override
-	public void update() {
+	public boolean update() {
 		try {
 			block.update();
 		} catch (Throwable t) {
 			Thread.dumpStack();
-			// Ignoring, Do not want to kill application because of this.
+			return LOGGER.exit(false);
 		}
+		return true;
+	}
+
+	public FunctionBlock getRealBlock() {
+		return block;
 	}
 }
