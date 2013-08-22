@@ -107,18 +107,13 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread() {
-					@Override
-					public void run() {
-						if (ViewModule.this.activator.isRunning()) {
-							ViewModule.this.serverStatus.setText("Stopping server…");
-							ViewModule.this.activator.shutdownServer();
-						} else {
-							ViewModule.this.serverStatus.setText("Starting server…");
-							ViewModule.this.activator.startServer();
-						}
-					}
-				}.start();
+				if (ViewModule.this.activator.isRunning()) {
+					ViewModule.this.serverStatus.setText("Stopping server…");
+					ViewModule.this.activator.shutdownServer();
+				} else {
+					ViewModule.this.serverStatus.setText("Starting server…");
+					ViewModule.this.activator.startServer();
+				}
 			}
 		});
 
