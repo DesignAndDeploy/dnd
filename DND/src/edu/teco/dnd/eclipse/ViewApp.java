@@ -1,15 +1,11 @@
 package edu.teco.dnd.eclipse;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.network.ConnectionManager;
@@ -24,7 +20,7 @@ public class ViewApp extends ViewPart {
 	private Label label;
 	ConnectionManager manager;
 	// Used to map FunctionBlocks on table items
-	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
+	//private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
 
 	/**
 	 * Creates a new Appview.

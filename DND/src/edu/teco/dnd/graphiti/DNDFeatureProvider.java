@@ -80,6 +80,13 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 
 	private Resource resource = null;
 
+	/**
+	 * Returns the resource containing the desired FunctionBlockModels. Use this method to get to the resource whenever
+	 * you need it (to get to or add FunctionBlockModels) instead of creating a new one or getting it from somewhere
+	 * else. TThat way multiple competitive resources or files can be prevented.
+	 * 
+	 * @return the resource containing FunctionBlockModels.
+	 */
 	public synchronized Resource getEMFResource() {
 		if (resource == null) {
 			Diagram d = getDiagramTypeProvider().getDiagram();
@@ -109,9 +116,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	}
 
 	/**
-	 * Creates a new resource, to be invoked whenever an update / load from a resource is needed.
-	 * 
-	 * @return false if no Position or Blockname changed.
+	 * Updates the contents (FunctionBlockModels) of its resource. This can be invoked whenever @getEMFResource()
+	 * returns true, but also works in case nothing changed. This method updates the BlockName and Position of all
+	 * FunctionBlockModel in the resource to be consistent with changes made outside the resource.
 	 */
 	public synchronized void updateEMFResource() {
 		if (resource == null) {
@@ -150,6 +157,12 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		}
 	}
 
+	/**
+	 * Checks whether the FunctionBlockModels contained by the resource have been changed outside this specific
+	 * resource.
+	 * 
+	 * @return true if changes happened, false if not.
+	 */
 	public synchronized boolean EMFResourceChanged() {
 		if (resource == null) {
 			getEMFResource();

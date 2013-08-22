@@ -62,6 +62,7 @@ import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Dependencies;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
+import edu.teco.dnd.util.JoinedFutureNotifier;
 import edu.teco.dnd.util.StringUtil;
 
 /**
@@ -70,7 +71,8 @@ import edu.teco.dnd.util.StringUtil;
  * create a distribution and deploy the function blocks on the modules.
  * 
  */
-public class DeployView extends EditorPart implements ModuleManagerListener {
+public class DeployView extends EditorPart implements ModuleManagerListener,
+		FutureListener<JoinedFutureNotifier<Module>> {
 
 	/**
 	 * The logger for this class.
@@ -107,6 +109,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	private Text blockModelName; // Name of BlockModel
 	private Combo moduleCombo;
 	private Text places;
+	private Text infoText;
 	private Table deployment; // Table to show blockModels and current
 								// deployment
 
@@ -155,10 +158,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		serverButton = graphicsManager.createServerButton();
 		graphicsManager.createBlockModelSpecsLabel();
 		deployment = graphicsManager.createDeploymentTable();
-		updateModulesButton = graphicsManager.createUpdateModulesButton();
+		updateBlocksButton = graphicsManager.createUpdateBlocksButton();
 		graphicsManager.createBlockModelLabel();
 		blockModelName = graphicsManager.createBlockModelName();
-		updateBlocksButton = graphicsManager.createUpdateBlocksButton();
+		updateModulesButton = graphicsManager.createUpdateModulesButton();
 		graphicsManager.createModuleLabel();
 		moduleCombo = graphicsManager.createModuleCombo();
 		createButton = graphicsManager.createCreateButton();
@@ -166,6 +169,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		places = graphicsManager.createPlacesText();
 		deployButton = graphicsManager.createDeployButton();
 		constraintsButton = graphicsManager.createConstraintsButton();
+		infoText = graphicsManager.createInformationText();
 		createSelectionListeners();
 
 		loadBlockModels(getEditorInput());
@@ -177,7 +181,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	 */
 	private void updateModules() {
 		if (Activator.getDefault().isRunning()) {
-			warn("Not implemented yet. \n Later: Will update information on moduleCombo");
+			FutureNotifier<Collection<Module>> notifier = manager.updateModuleInfo();
+			notifier.addListener(this);
+
 		} else {
 			warn("Server not running");
 		}
@@ -295,7 +301,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		String newPosition = newBlock.getPosition();
 		if (newPosition != null && !newPosition.isEmpty()) {
 			item.setText(2, newPosition);
-				placeConstraints.put(newBlock, newPosition);
+			placeConstraints.put(newBlock, newPosition);
 		} else {
 			item.setText(2, "");
 		}
@@ -461,6 +467,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		}
 
 		if (!text.isEmpty() && selectedID != null) {
+			infoText.setText(DeployViewTexts.INFORM_CONSTRAINTS);
 			int cancel = warn(DeployViewTexts.WARN_CONSTRAINTS);
 			if (cancel == -4) {
 				return;
@@ -494,7 +501,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 
 		newConstraints = true;
@@ -623,10 +630,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Opens a warning window with the given message.
+	 * Opens a window of the given type with the given message.
+	 * 
 	 * 
 	 * @param message
 	 *            Warning message
+	 * @param type
+	 *            Type of the Window. Currently available: Warning Window (WARN) and Information Window (INFORM)
+	 * @return int representing the choice of the user.
 	 */
 	private int warn(String message) {
 		Display display = Display.getCurrent();
@@ -907,6 +918,28 @@ public class DeployView extends EditorPart implements ModuleManagerListener {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DeployView.this.saveConstraints();
+			}
+		});
+	}
+
+	/**
+	 * Invoked whenever the update button was pressed and the update failed or is completed.
+	 */
+
+	@Override
+	public void operationComplete(final JoinedFutureNotifier<Module> future) throws Exception {
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				String newText;
+				if (future.isSuccess()) {
+					newText = "Update complete";
+				} else {
+					newText = "Update failed";
+				}
+				newText = newText.concat("\n");
+				newText = newText.concat(infoText.getText());
+				infoText.setText(newText);
 			}
 		});
 	}

@@ -1,5 +1,6 @@
 package edu.teco.dnd.eclipse;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
+import edu.teco.dnd.util.JoinedFutureNotifier;
 
 /**
  * This class coordinates a List of currently running modules. It provides the views and editors with information to
@@ -159,4 +161,21 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	public synchronized Map<UUID, Module> getMap() {
 		return new HashMap<UUID, Module>(map);
 	}
+
+	/**
+	 * Updates information on modules, in explicit how the BlockTypeHolder has changed and which applications are
+	 * running on the module.
+	 * @return 
+	 */
+	public synchronized FutureNotifier<Collection<Module>> updateModuleInfo() {
+		final Collection<FutureNotifier<? extends Module>> futures = new ArrayList<FutureNotifier<? extends Module>>();
+		for (UUID uuid : map.keySet()){
+			final FutureNotifier<Module> future = query.getModuleInfo(uuid);
+			future.addListener(this);
+			futures.add(future);
+		}
+		return new JoinedFutureNotifier<Module>(futures);
+	}
+	
+	
 }
