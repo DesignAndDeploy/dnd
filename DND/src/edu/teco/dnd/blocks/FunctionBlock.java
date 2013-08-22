@@ -2,8 +2,6 @@ package edu.teco.dnd.blocks;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,22 +21,51 @@ public abstract class FunctionBlock implements Serializable {
 	private static final long serialVersionUID = 7444744469990667015L;
 
 	/**
-	 * The UUID of this block. Can't be changed once set.
+	 * The UUID of the block. Will be set in {@link #doInit(UUID)}. Is used as an indicator to see if doInit has been
+	 * called.
 	 */
 	private UUID blockUUID = null;
 
+	/**
+	 * The type of the block. Set in {@link #doInit(UUID)}.
+	 */
+	private String blockType = null;
+
+	/**
+	 * The time between scheduled updates of the block. Set in {@link #doInit(UUID)}.
+	 */
+	private Long updateInterval = null;
+
+	/**
+	 * Contains all outputs of the block mapped from their name.
+	 */
 	private Map<String, Output<? extends Serializable>> outputs = null;
 
+	/**
+	 * Contains all inputs of the block mapped from their name.
+	 */
 	private Map<String, Input<? extends Serializable>> inputs = null;
 
-	// FIXME: should probably be run in the Constructor so that the block can't execute code beforehand. What about
-	// (static) code blocks?
-	public synchronized final void doInit(final UUID blockUUID) throws IllegalArgumentException, IllegalAccessException {
+	/**
+	 * Initializes the block. This method queries the block type and update interval and creates the Inputs and Outputs
+	 * of the block.
+	 * 
+	 * @param blockUUID
+	 *            the UUID of the block. Will be stored so that it can be queried later with {@link #getBlockUUID()}.
+	 * @throws IllegalAccessException
+	 *             if quering a field using reflection fails
+	 */
+	public final synchronized void doInit(final UUID blockUUID) throws IllegalAccessException {
 		if (this.blockUUID != null) {
 			return;
 		}
 
-		this.blockUUID = blockUUID;
+		if (blockUUID == null) {
+			this.blockUUID = UUID.randomUUID();
+		} else {
+			this.blockUUID = blockUUID;
+		}
+
 		final Map<String, Output<? extends Serializable>> outputs =
 				new HashMap<String, Output<? extends Serializable>>();
 		final Map<String, Input<? extends Serializable>> inputs = new HashMap<String, Input<? extends Serializable>>();
@@ -56,84 +83,83 @@ public abstract class FunctionBlock implements Serializable {
 					field.setAccessible(true);
 					field.set(this, input);
 					inputs.put(name, input);
+				} else if (String.class.isAssignableFrom(type) && blockType == null
+						&& "BLOCK_TYPE".equals(field.getName())) {
+					field.setAccessible(true);
+					blockType = (String) field.get(this);
+				} else if (Long.class.isAssignableFrom(type) && updateInterval == null
+						&& "BLOCK_UPDATE_INTERVAL".equals(field.getName())) {
+					field.setAccessible(true);
+					updateInterval = (Long) field.get(this);
 				}
 			}
 		}
 		this.outputs = Collections.unmodifiableMap(outputs);
 		this.inputs = Collections.unmodifiableMap(inputs);
+
+		if (this.updateInterval == null) {
+			this.updateInterval = Long.MIN_VALUE;
+		}
 	}
 
 	/**
-	 * Returns the UUID of this block.
+	 * Returns the UUID of this block. {@link #doInit(UUID)} must be called first.
 	 * 
 	 * @return the UUID of this block or null if it hasn't been set yet
 	 */
 	public final synchronized UUID getBlockUUID() {
+		if (blockUUID == null) {
+			throw new IllegalStateException("doInit hasn't been called yet");
+		}
 		return this.blockUUID;
 	}
 
+	/**
+	 * Returns all Outputs of the block mapped from their name. {@link #doInit(UUID)} must be called first.
+	 * 
+	 * @return the Outputs of the block mapped from their name
+	 */
 	public final synchronized Map<String, Output<? extends Serializable>> getOutputs() {
+		if (blockUUID == null) {
+			throw new IllegalStateException("doInit hasn't been called yet");
+		}
 		return this.outputs;
 	}
-	
+
+	/**
+	 * Returns all Inputs of the block mapped from their name. {@link #doInit(UUID)} must be called first.
+	 * 
+	 * @return the Inputs of the block mapped from their name
+	 */
 	public final synchronized Map<String, Input<? extends Serializable>> getInputs() {
+		if (blockUUID == null) {
+			throw new IllegalStateException("doInit hasn't been called yet");
+		}
 		return this.inputs;
 	}
 
-	// FIXME: FunctionBlocks can still change the value with reflection. Get the value in doInit and keep it
-	public final String getBlockType() {
-		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
-			final Field field;
-			try {
-				field = c.getDeclaredField("BLOCK_TYPE");
-			} catch (final SecurityException e) {
-				continue;
-			} catch (final NoSuchFieldException e) {
-				continue;
-			}
-			final int modifiers = field.getModifiers();
-			if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers) && String.class.equals(field.getType())) {
-				field.setAccessible(true);
-				try {
-					return (String) field.get(null);
-				} catch (IllegalArgumentException e) {
-					continue;
-				} catch (IllegalAccessException e) {
-					continue;
-				}
-			}
+	/**
+	 * Returns the type of the block. {@link #doInit(UUID)} must be called first.
+	 * 
+	 * @return
+	 */
+	public final synchronized String getBlockType() {
+		if (blockUUID == null) {
+			throw new IllegalStateException("doInit hasn't been called yet");
 		}
-		return null;
+		return blockType;
 	}
 
-	// FIXME: FunctionBlocks can still change the value with reflection. Get the value in doInit and keep it
-	public final long getUpdateInterval() {
-		for (Class<?> c = getClass(); c != null; c = c.getSuperclass()) {
-			final Field field;
-			try {
-				field = c.getDeclaredField("BLOCK_UPDATE_INTERVAL");
-			} catch (SecurityException e) {
-				continue;
-			} catch (NoSuchFieldException e) {
-				continue;
-			}
-			final int modifiers = field.getModifiers();
-			if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers) && long.class.equals(field.getType())) {
-				field.setAccessible(true);
-				Long value = null;
-				try {
-					value = (Long) field.get(null);
-				} catch (IllegalArgumentException e) {
-					continue;
-				} catch (IllegalAccessException e) {
-					continue;
-				}
-				if (value != null) {
-					return value;
-				}
-			}
+	/**
+	 * Returns the update interval for the block. {@link #doInit(UUID)} must be called first.
+	 * 
+	 * @return the update interval for the block
+	 */
+	public final synchronized long getUpdateInterval() {
+		if (blockUUID == null) {
+			throw new IllegalStateException("doInit hasn't been called yet");
 		}
-		return Long.MIN_VALUE;
+		return updateInterval;
 	}
 
 	/**
@@ -183,6 +209,11 @@ public abstract class FunctionBlock implements Serializable {
 
 	@Override
 	public final String toString() {
-		return "FunctionBlock[class=" + getClass() + ",blockUUID=" + getBlockUUID() + "]";
+		final UUID blockUUID = getBlockUUID();
+		if (blockUUID == null) {
+			return "FunctionBlock[class=" + getClass() + "]";
+		} else {
+			return "FunctionBlock[class=" + getClass() + ",blockUUID=" + blockUUID + "]";
+		}
 	}
 }
