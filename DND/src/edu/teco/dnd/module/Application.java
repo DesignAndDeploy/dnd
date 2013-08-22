@@ -241,7 +241,6 @@ public class Application {
 				LOGGER.info("input '{}' non existant for {}", inputName, block);
 			}
 			input.setValue(value);
-			// TODO: set value
 			Runnable updater = new Runnable() {
 				@Override
 				public void run() {
