@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -88,6 +90,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private Activator activator;
 	private ModuleManager manager;
 
+	private List<String> infoTexts;
+
 	private ArrayList<UUID> idList = new ArrayList<UUID>();
 
 	private Collection<FunctionBlockModel> functionBlocks;
@@ -151,6 +155,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		LOGGER.entry(parent);
 		functionBlocks = new ArrayList<FunctionBlockModel>();
 		mapItemToBlockModel = new HashMap<TableItem, FunctionBlockModel>();
+		infoTexts = new LinkedList<String>();
 
 		graphicsManager = new DeployViewGraphics(parent, activator);
 		graphicsManager.initializeParent();
@@ -186,6 +191,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			notifier.addListener(this);
 		} else {
 			warn("Server not running");
+			addNewInfoText("As long as there is no server, no modules can be accessed.");
 		}
 	}
 
@@ -246,6 +252,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			}
 		}
 		functionBlocks = newBlockModels;
+		addNewInfoText("Block update complete.");
 		LOGGER.exit();
 	}
 
@@ -350,6 +357,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				deployButton.setEnabled(true);
 				newConstraints = false;
 			}
+			addNewInfoText("Deployment created.");
 		}
 		LOGGER.exit();
 	}
@@ -388,6 +396,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			public void operationComplete(FutureNotifier<? super Void> future) {
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("deploy: {}", future.isSuccess());
+				}
+				if (future.isSuccess()) {
+					addNewInfoText("Deployment complete.");
+				} else {
+					addNewInfoText("Deployment failed.");
 				}
 			}
 		});
@@ -466,9 +479,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		if (!text.isEmpty() && selectedID != null) {
-			infoText.setText(DeployViewTexts.INFORM_CONSTRAINTS);
+			replaceInfoText(DeployViewTexts.INFORM_CONSTRAINTS);
 			int cancel = warn(DeployViewTexts.WARN_CONSTRAINTS);
 			if (cancel == -4) {
+				addNewInfoText("Constrains not saved.");
 				return;
 			}
 		}
@@ -502,6 +516,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		firePropertyChange(IEditorPart.PROP_DIRTY);
+
+		addNewInfoText("Constrains saved.");
 
 		newConstraints = true;
 	}
@@ -809,6 +825,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 						addID(moduleID);
 					}
 				}
+				if (infoText != null && infoTexts != null){
+					addNewInfoText("Server online.");
+				}
 			}
 		});
 	}
@@ -830,6 +849,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 						removeID(idList.get(0)); // TODO: Unschön, aber geht
 													// hoffentlich?
 					}
+				}
+				if (infoText != null && infoTexts != null){
+					addNewInfoText("Server offline.");
 				}
 			}
 		});
@@ -929,14 +951,35 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			public void run() {
 				String newText;
 				if (future.isSuccess()) {
-					newText = "Update complete";
+					newText = "Module update complete.";
 				} else {
-					newText = "Update failed";
+					newText = "Module update failed.";
 				}
-				newText = newText.concat("\n");
-				newText = newText.concat(infoText.getText());
-				infoText.setText(newText);
+				addNewInfoText(newText);
 			}
 		});
+	}
+
+	private void addNewInfoText(String text) {
+		infoTexts.add(text);
+		text = text.concat("\n");
+		text = text.concat(infoText.getText());
+		infoText.setText(text);
+		limitInfoText();
+	}
+
+	private void replaceInfoText(String text) {
+		infoTexts.clear();
+		infoTexts.add(text);
+		infoText.setText(text);
+		limitInfoText();
+	}
+
+	private void limitInfoText() {
+		while (infoText.getLineCount() > 20 && !infoTexts.isEmpty()) {
+			String oldText = infoTexts.remove(0);
+			int newInfoLength = infoText.getText().length() - 1 - oldText.length();
+			infoText.setText(infoText.getText().substring(0, newInfoLength));
+		}
 	}
 }

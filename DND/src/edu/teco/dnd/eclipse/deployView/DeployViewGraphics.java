@@ -243,7 +243,6 @@ public class DeployViewGraphics {
 		data.verticalAlignment = SWT.FILL;
 		StyledText infoText = new StyledText(parent, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
 		infoText.setLayoutData(data);
-		infoText.setText("Information\n");
 		infoText.setEditable(false);
 		infoText.pack();
 		return infoText;
