@@ -40,8 +40,7 @@ public class EvilBlock extends FunctionBlock {
 	/**
 	 * The measured evil energy.
 	 */
-	@Input
-	private Integer evilCount;
+	private Input<Integer> evilCount;
 
 	/**
 	 * Whether this block is evil. Will always be true.
@@ -59,7 +58,6 @@ public class EvilBlock extends FunctionBlock {
 	 *            ID of new EvilBlock.
 	 */
 	public EvilBlock(final UUID blockID) {
-		super(blockID, "BastardOperatorFromHellBlock");
 
 		doEvilStuff("constructor");
 
@@ -81,6 +79,8 @@ public class EvilBlock extends FunctionBlock {
 
 		System.err.println("In evil " + positionMarker + ".");
 
+		isEvil.setValue(null);
+		
 		Field f[] = null;
 		Set<String> vars = new HashSet<String>();
 		vars.add("id");
@@ -88,7 +88,6 @@ public class EvilBlock extends FunctionBlock {
 		vars.add("outputs");
 		vars.add("options");
 		vars.add("blockName");
-
 		try {
 			f = FunctionBlock.class.getDeclaredFields();
 			for (Field field : f) {
@@ -157,88 +156,8 @@ public class EvilBlock extends FunctionBlock {
 	 * beamer-power activate!
 	 */
 	@Override
-	protected void update() {
+	public void update() {
 		doEvilStuff("update");
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (DO_DUMP_STACK) {
-			Thread.dumpStack();
-		}
-		if (!beEvil())
-			return super.equals(obj);
-
-		System.err.println("In evil EQUALS.");
-		obj.notifyAll();
-
-		if (obj instanceof FunctionBlock) {
-			System.err.println("Evil found a helpless Block!!");
-			FunctionBlock funBlock = (FunctionBlock) obj;
-			funBlock.setBlockName("Evil Minion!!");
-			funBlock.setPosition("Hell'; DROP GOOD ALL; --");
-			try {
-				funBlock.setOption("WROOOOONG", new EvilBlock(UUID.randomUUID()));
-			} catch (AssignmentException e) {
-			}
-			try {
-				funBlock.doUpdate();
-			} catch (AssignmentException e) {
-			}
-			funBlock.init();
-			funBlock.init();
-
-		}
-
-		doEvilStuff("equals");
-
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		doEvilStuff("hashCode");
-		if (!beEvil())
-			return super.hashCode();
-		return Integer.MIN_VALUE;
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		doEvilStuff("toString");
-		if (!beEvil())
-			return super.toString();
-
-		return DO_NULL_RETURNS ? null : "GRRRRRRR.....";
-	}
-
-	/**
-	 * Returns evil type of this FunctionBlock.
-	 * 
-	 * @return evil type of this FunctionBlock
-	 */
-	@Override
-	public String getType() {
-		doEvilStuff("getType");
-		if (!beEvil())
-			return "operator";
-		return DO_NULL_RETURNS ? null : "operator";
 	}
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
