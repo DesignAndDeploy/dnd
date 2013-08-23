@@ -68,7 +68,7 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 				}
 			}
 		}
-		if (((DNDFeatureProvider) getFeatureProvider()).EMFResourceChanged()){
+		if (((DNDFeatureProvider) getFeatureProvider()).emfResourceChanged()){
 			reason = Reason.createTrueReason("Resource modified");
 			return reason;
 		}
@@ -82,7 +82,7 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 	public boolean update(IUpdateContext context) {
 		System.out.println("Update wurde aufgerufen");
 		LOGGER.entry(context);
-		boolean changeNeeded = ((DNDFeatureProvider) getFeatureProvider()).EMFResourceChanged();
+		boolean changeNeeded = ((DNDFeatureProvider) getFeatureProvider()).emfResourceChanged();
 		((DNDFeatureProvider) getFeatureProvider()).updateEMFResource();
 		
 		PictogramElement pe = context.getPictogramElement();

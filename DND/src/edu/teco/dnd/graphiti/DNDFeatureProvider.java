@@ -81,129 +81,6 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	private Resource resource = null;
 
 	/**
-	 * Returns the resource containing the desired FunctionBlockModels. Use this method to get to the resource whenever
-	 * you need it (to get to or add FunctionBlockModels) instead of creating a new one or getting it from somewhere
-	 * else. TThat way multiple competitive resources or files can be prevented.
-	 * 
-	 * @return the resource containing FunctionBlockModels.
-	 */
-	public synchronized Resource getEMFResource() {
-		if (resource == null) {
-			Diagram d = getDiagramTypeProvider().getDiagram();
-
-			URI uri = d.eResource().getURI();
-			uri = uri.trimFragment();
-			uri = uri.trimFileExtension();
-			uri = uri.appendFileExtension("blocks");
-
-			ResourceSet rSet = d.eResource().getResourceSet();
-			final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-			IResource file = workspaceRoot.findMember(uri.toPlatformString(true));
-			if (file == null || !file.exists()) {
-				Resource createResource = rSet.createResource(uri);
-				try {
-					createResource.save(null);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				createResource.setTrackingModification(true);
-			}
-			resource = rSet.getResource(uri, true);
-			resource.setTrackingModification(true);
-			System.out.println("Resource vom Featureprovider erstellt. Trackt? " + resource.isTrackingModification());
-		}
-		return resource;
-	}
-
-	/**
-	 * Updates the contents (FunctionBlockModels) of its resource. This can be invoked whenever @getEMFResource()
-	 * returns true, but also works in case nothing changed. This method updates the BlockName and Position of all
-	 * FunctionBlockModel in the resource to be consistent with changes made outside the resource.
-	 */
-	public synchronized void updateEMFResource() {
-		if (resource == null) {
-			getEMFResource();
-		}
-		Diagram d = getDiagramTypeProvider().getDiagram();
-
-		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
-		for (EObject obj : resource.getContents()) {
-			if (obj instanceof FunctionBlockModel) {
-				oldModels.add((FunctionBlockModel) obj);
-			}
-		}
-
-		URI uri = d.eResource().getURI();
-		uri = uri.trimFragment();
-		uri = uri.trimFileExtension();
-		uri = uri.appendFileExtension("blocks");
-
-		Resource newResource = new XMIResourceImpl(uri);
-		try {
-			newResource.load(null);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		for (EObject obj : newResource.getContents()) {
-			if (obj instanceof FunctionBlockModel) {
-				FunctionBlockModel newModel = (FunctionBlockModel) obj;
-				for (FunctionBlockModel oldModel : oldModels) {
-					if (oldModel.getID().equals(newModel.getID())) {
-						oldModel.setPosition(newModel.getPosition());
-						oldModel.setBlockName(newModel.getBlockName());
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Checks whether the FunctionBlockModels contained by the resource have been changed outside this specific
-	 * resource.
-	 * 
-	 * @return true if changes happened, false if not.
-	 */
-	public synchronized boolean EMFResourceChanged() {
-		if (resource == null) {
-			getEMFResource();
-		}
-		Diagram d = getDiagramTypeProvider().getDiagram();
-
-		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
-		for (EObject obj : resource.getContents()) {
-			if (obj instanceof FunctionBlockModel) {
-				oldModels.add((FunctionBlockModel) obj);
-			}
-		}
-
-		URI uri = d.eResource().getURI();
-		uri = uri.trimFragment();
-		uri = uri.trimFileExtension();
-		uri = uri.appendFileExtension("blocks");
-
-		Resource newResource = new XMIResourceImpl(uri);
-		try {
-			newResource.load(null);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		for (EObject obj : newResource.getContents()) {
-			if (obj instanceof FunctionBlockModel) {
-				FunctionBlockModel newModel = (FunctionBlockModel) obj;
-				for (FunctionBlockModel oldModel : oldModels) {
-					if (oldModel.getID().equals(newModel.getID())) {
-						if (!oldModel.getPosition().equals(newModel.getPosition())
-								|| !oldModel.getBlockName().equals(newModel.getBlockName())) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Default FunctionBlocks.
 	 */
 	private static final Class<?>[] DEFAULT_TYPES = new Class<?>[] { OutletActorBlock.class, BeamerOperatorBlock.class,
@@ -448,5 +325,124 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	@Override
 	public final IFeature[] getDragAndDropFeatures(final IPictogramElementContext context) {
 		return getCreateConnectionFeatures();
+	}
+
+	/**
+	 * Returns the resource containing the desired FunctionBlockModels. Use this method to get to the resource whenever
+	 * you need it (to get to or add FunctionBlockModels) instead of creating a new one or getting it from somewhere
+	 * else. TThat way multiple competitive resources or files can be prevented.
+	 * 
+	 * @return the resource containing FunctionBlockModels.
+	 */
+	public synchronized Resource getEMFResource() {
+		if (resource == null) {
+			Diagram d = getDiagramTypeProvider().getDiagram();
+
+			URI uri = d.eResource().getURI();
+			uri = uri.trimFragment();
+			uri = uri.trimFileExtension();
+			uri = uri.appendFileExtension("blocks");
+
+			ResourceSet rSet = d.eResource().getResourceSet();
+			final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			IResource file = workspaceRoot.findMember(uri.toPlatformString(true));
+			if (file == null || !file.exists()) {
+				Resource createResource = rSet.createResource(uri);
+				try {
+					createResource.save(null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				createResource.setTrackingModification(true);
+			}
+			resource = rSet.getResource(uri, true);
+			resource.setTrackingModification(true);
+			System.out.println("Resource vom Featureprovider erstellt. Trackt? " + resource.isTrackingModification());
+		}
+		return resource;
+	}
+
+	/**
+	 * Updates the contents (FunctionBlockModels) of its resource. This can be invoked whenever @getEMFResource()
+	 * returns true, but also works in case nothing changed. This method updates the BlockName and Position of all
+	 * FunctionBlockModel in the resource to be consistent with changes made outside the resource.
+	 */
+	public synchronized void updateEMFResource() {
+		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
+		for (EObject obj : resource.getContents()) {
+			if (obj instanceof FunctionBlockModel) {
+				oldModels.add((FunctionBlockModel) obj);
+			}
+		}
+
+		Resource newResource = getNewEMFResource();
+
+		for (EObject obj : newResource.getContents()) {
+			if (obj instanceof FunctionBlockModel) {
+				FunctionBlockModel newModel = (FunctionBlockModel) obj;
+				for (FunctionBlockModel oldModel : oldModels) {
+					if (oldModel.getID().equals(newModel.getID())) {
+						oldModel.setPosition(newModel.getPosition());
+						oldModel.setBlockName(newModel.getBlockName());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks whether the FunctionBlockModels contained by the resource have been changed outside this specific
+	 * resource.
+	 * 
+	 * @return true if changes happened, false if not.
+	 */
+	public synchronized boolean emfResourceChanged() {
+		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
+		for (EObject obj : resource.getContents()) {
+			if (obj instanceof FunctionBlockModel) {
+				oldModels.add((FunctionBlockModel) obj);
+			}
+		}
+
+		Resource newResource = getNewEMFResource();
+
+		for (EObject obj : newResource.getContents()) {
+			if (obj instanceof FunctionBlockModel) {
+				FunctionBlockModel newModel = (FunctionBlockModel) obj;
+				for (FunctionBlockModel oldModel : oldModels) {
+					if (oldModel.getID().equals(newModel.getID())
+							&& !(oldModel.getPosition().equals(newModel.getPosition()) && oldModel.getBlockName()
+									.equals(newModel.getBlockName()))) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Used by updateEMFResource and emfResourceChanged to load the new resource.
+	 * 
+	 * @return new Resource.
+	 */
+	private Resource getNewEMFResource() {
+		if (resource == null) {
+			getEMFResource();
+		}
+		Diagram d = getDiagramTypeProvider().getDiagram();
+
+		URI uri = d.eResource().getURI();
+		uri = uri.trimFragment();
+		uri = uri.trimFileExtension();
+		uri = uri.appendFileExtension("blocks");
+
+		Resource newResource = new XMIResourceImpl(uri);
+		try {
+			newResource.load(null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return newResource;
 	}
 }
