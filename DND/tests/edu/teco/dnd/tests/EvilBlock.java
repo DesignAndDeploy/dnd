@@ -25,7 +25,7 @@ public class EvilBlock extends FunctionBlock {
 	// getType = operator
 
 	private static final boolean DO_DUMP_STACK = false;
-	private static final boolean DO_EVIL_ON_MODULE_ONLY = true;
+	private static final boolean DO_EVIL_ON_MODULE_ONLY = false;
 
 	private static final boolean BE_EVIL = true;
 

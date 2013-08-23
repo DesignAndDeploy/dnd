@@ -19,6 +19,7 @@ public class Input<T extends Serializable> implements OutputTarget<T> {
 	}
 
 	public synchronized void setValue(T value) {
+		//TODO check for null
 		if (newestOnly) {
 			values.clear();
 		}

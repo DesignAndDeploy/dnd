@@ -2,6 +2,9 @@ package edu.teco.dnd.blocks;
 
 import java.io.Serializable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * An output of a {@link FunctionBlock}.
  * 
@@ -9,6 +12,7 @@ import java.io.Serializable;
  *            the type of data this Output outputs
  */
 public class Output<T extends Serializable> implements Serializable {
+	private static final Logger LOGGER = LogManager.getLogger(Output.class);
 	/**
 	 * Used for serialization.
 	 */
@@ -17,7 +21,11 @@ public class Output<T extends Serializable> implements Serializable {
 	private OutputTarget<? super T> target = null;
 
 	public void setValue(final T value) {
-		target.setValue(value);
+		if (target == null) {
+			LOGGER.warn("called setValue before any targets were set up.");
+		} else {
+			target.setValue(value);
+		}
 	}
 
 	public synchronized boolean setTarget(final OutputTarget<? super T> target) {
