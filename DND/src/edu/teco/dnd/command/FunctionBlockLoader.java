@@ -31,6 +31,7 @@ public class FunctionBlockLoader {
 		blocks = loadBlocks();
 	}
 	
+	//TODO: How are the connections stored?
 	private Collection<FunctionBlockModel> loadBlocks(){
 		Collection<FunctionBlockModel> functionBlocks = new ArrayList<FunctionBlockModel>();
 	

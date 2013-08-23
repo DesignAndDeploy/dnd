@@ -6,13 +6,18 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 
+/**
+ * This class offers the option to create and deploy a distribution of an already existing application via command line.
+ * The addresses for multicast, announce and listen are passed as commands, same as the path of the application to
+ * distribute. In addition, the user can determine whether he just wants to create a distribution and have it displayed
+ * or whether he also wants do directly deploy the distribution.
+ * 
+ * @author jung
+ * 
+ */
 public class CommandMain {
 
 	/**
@@ -20,30 +25,65 @@ public class CommandMain {
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(CommandMain.class);
 
+	/**
+	 * Use this if the user only wants to create a distribution.
+	 */
 	public static final int ONLYCREATE = 0;
+
+	/**
+	 * Use this if the user wants to create and directly deploy any distribution.
+	 */
 	public static final int CREATEANDDEPLOY = 1;
 
+	/**
+	 * Identifier for the announce address, to be entered directly before the address.
+	 */
 	public static final String ANNOUNCE = "--announce";
-	public static final String MULTICAST = "--multicast";
-	public static final String LISTEN = "--listen";
-	public static final String PATH = "--path";
-	public static final String DEPLOY = "--deploy";
-	public static final String CREATE = "--create";
 
-	private static boolean pathInput = false;
-	private static boolean multicastInput = false;
-	private static boolean announceInput = false;
-	private static boolean listenInput = false;
-	private static boolean createOrDeployInput = false;
+	/**
+	 * Identifier for the multicast address, to be entered directly before the address.
+	 */
+	public static final String MULTICAST = "--multicast";
+
+	/**
+	 * Identifier for the listen address, to be entered directly before the address.
+	 */
+	public static final String LISTEN = "--listen";
+
+	/**
+	 * Identifier for the path of the .blocks file representing the application to distribute. To be entered directly
+	 * before the path.
+	 */
+	public static final String PATH = "--path";
+
+	/**
+	 * Identifier to determine that the program shall create a distribution and directly deploy the application
+	 * according to the distribution. Use either this or CREATE, don't use both.
+	 */
+	public static final String DEPLOY = "--deploy";
+
+	/**
+	 * Identifier to determine that the program shall only create and display a possible distribution. Use either this
+	 * or DEPLOY, don't use both.
+	 */
+	public static final String CREATE = "--create";
 
 	private static String path;
 	private static String multicast;
 	private static String announce;
 	private static String listen;
 	private static int createOrDeploy;
-	
+
 	private static Collection<FunctionBlockModel> functionBlocks;
 
+	/**
+	 * The main method.
+	 * 
+	 * @param args
+	 *            Arguments for the command line program. Must contain addresses for announce, multicast and listen, a
+	 *            classpath for a .blocks file and either --create or --deploy to determine whether to only create or
+	 *            also deploy a distribution.
+	 */
 	public static void main(String args[]) {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
@@ -63,7 +103,7 @@ public class CommandMain {
 
 		FunctionBlockLoader blockLoader = new FunctionBlockLoader(path);
 		functionBlocks = blockLoader.getBlocks();
-		
+
 		ServerManager serverManager = new ServerManager(multicast, listen, announce);
 		if (!serverManager.isRunning()) {
 			serverManager.startServer();
@@ -74,13 +114,17 @@ public class CommandMain {
 			System.out.println("Server not running");
 		}
 
-		
-		
 		serverManager.shutdownServer();
 
 	}
 
 	private static void parseArguments(String[] args) {
+		boolean pathInput = false;
+		boolean multicastInput = false;
+		boolean announceInput = false;
+		boolean listenInput = false;
+		boolean createOrDeployInput = false;
+
 		int i = 0;
 		for (; i < args.length - 1; i++) {
 			if (args[i].equals(ANNOUNCE)) {
@@ -98,28 +142,28 @@ public class CommandMain {
 				i++;
 				listen = args[i];
 			} else if (args[i].equals(MULTICAST)) {
-				if (multicastInput){
+				if (multicastInput) {
 					exitTooMany(MULTICAST);
 				}
 				multicastInput = true;
 				i++;
 				multicast = args[i];
 			} else if (args[i].equals(PATH)) {
-				if (pathInput){
+				if (pathInput) {
 					exitTooMany(PATH);
 				}
 				pathInput = true;
 				i++;
 				path = args[i];
 			} else if (args[i].equals(CREATE)) {
-				if (createOrDeployInput){
+				if (createOrDeployInput) {
 					exitTooMany("options whether to create or deploy a distribution");
 				}
 				createOrDeployInput = true;
 				createOrDeploy = ONLYCREATE;
 
 			} else if (args[i].equals(DEPLOY)) {
-				if (createOrDeployInput){
+				if (createOrDeployInput) {
 					exitTooMany("options whether to create or deploy a distribution");
 				}
 				createOrDeployInput = true;
@@ -137,8 +181,7 @@ public class CommandMain {
 			} else if (args[args.length - 1].equals(DEPLOY)) {
 				createOrDeployInput = true;
 				createOrDeploy = CREATEANDDEPLOY;
-			}
-			else{
+			} else {
 				System.out.println("Something went wrong with your arguments.");
 				System.exit(1);
 			}
@@ -153,8 +196,8 @@ public class CommandMain {
 		System.out.println("You defined more than one " + doubleDefined + ".");
 		System.exit(1);
 	}
-	
-	private static void exitFalseInput(){
+
+	private static void exitFalseInput() {
 		System.out.println("Please define your input by " + ANNOUNCE + " for the announce address, " + LISTEN
 				+ " for the listen address, " + MULTICAST + " for the multicast address, " + PATH
 				+ " for the path of the blocks. Also use either " + CREATE + " or " + DEPLOY
