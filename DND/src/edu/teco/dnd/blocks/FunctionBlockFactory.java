@@ -26,8 +26,6 @@ import org.apache.bcel.util.ClassPath;
 import org.apache.bcel.util.Repository;
 import org.apache.bcel.util.SyntheticRepository;
 
-import edu.teco.dnd.temperature.TemperatureSensorBlock;
-
 public class FunctionBlockFactory {
 	// TODO: BCEL is not thread safe, wrap this repository
 	private final Repository repository;
@@ -98,8 +96,7 @@ public class FunctionBlockFactory {
 						ConstantString sc =
 								((ConstantString) cp.getConstant(field.getConstantValue().getConstantValueIndex()));
 						ConstantUtf8 c = (ConstantUtf8) cp.getConstant(sc.getStringIndex(), Constants.CONSTANT_Utf8);
-						
-						blockType = Utility.convertString(((ConstantUtf8) c).getBytes());
+						blockType = Utility.convertString(c.getBytes());
 					}
 					final String typeClassName = ((ObjectType) type).getClassName();
 					if (!outputs.containsKey(field.getName()) && outputClass.getClassName().equals(typeClassName)) {
@@ -149,12 +146,6 @@ public class FunctionBlockFactory {
 			}
 		}
 		return false;
-	}
-
-	// FIXME: remove once no longer needed for testing
-	public static void main(final String[] args) throws ClassNotFoundException {
-		final FunctionBlockFactory factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
-		final FunctionBlockClass blockClass = factory.getFunctionBlockClass(TemperatureSensorBlock.class);
 	}
 
 	public Repository getRepository() {
