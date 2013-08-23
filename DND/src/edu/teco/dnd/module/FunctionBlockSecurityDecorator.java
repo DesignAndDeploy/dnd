@@ -1,12 +1,12 @@
 package edu.teco.dnd.module;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.appender.db.jpa.converter.ThrowableAttributeConverter;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
@@ -25,23 +25,9 @@ public class FunctionBlockSecurityDecorator {
 		final FunctionBlock realBlock;
 		try {
 			realBlock = (FunctionBlock) blockClass.getConstructor().newInstance();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-			return null;
-		} catch (SecurityException e) {
-			e.printStackTrace();
-			return null;
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			return null;
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-			return null;
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
+			Thread.dumpStack();
+			LOGGER.warn("{} threw an exception in constructor", blockClass);
 			return null;
 		}
 		return new FunctionBlockSecurityDecorator(realBlock);
@@ -51,11 +37,16 @@ public class FunctionBlockSecurityDecorator {
 		try {
 			this.block.doInit(blockUUID);
 		} catch (IllegalAccessException e) {
+			// do not access anything on e outside of another try/catch!
 			Thread.dumpStack();
 			LOGGER.warn("{} threw an exception in doInit()", block);
 			return LOGGER.exit(false);
+		} catch (Throwable e) {
+			// do not access anything on e outside of another try/catch!
+			Thread.dumpStack();
+			return LOGGER.exit(false);
 		}
-		return true;
+		return LOGGER.exit(true);
 	}
 
 	public boolean init() {
@@ -74,7 +65,7 @@ public class FunctionBlockSecurityDecorator {
 			block.shutdown();
 		} catch (Throwable t) {
 			Thread.dumpStack();
-			LOGGER.warn("{} threw an exception in init()", block);
+			LOGGER.warn("{} threw an exception in shutdown()", block);
 			return LOGGER.exit(false);
 		}
 		return true;
@@ -90,6 +81,11 @@ public class FunctionBlockSecurityDecorator {
 		return true;
 	}
 
+	/**
+	 * Dangerous. Use with extreme care.
+	 * 
+	 * @return the insecure block.
+	 */
 	public FunctionBlock getRealBlock() {
 		return block;
 	}
