@@ -183,11 +183,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		if (Activator.getDefault().isRunning()) {
 			FutureNotifier<Collection<Module>> notifier = manager.updateModuleInfo();
 			notifier.addListener(this);
-
 		} else {
 			warn("Server not running");
 		}
-
 	}
 
 	/**
@@ -630,13 +628,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	/**
-	 * Opens a window of the given type with the given message.
-	 * 
+	 * Opens a warning window displaying the given message.
 	 * 
 	 * @param message
 	 *            Warning message
-	 * @param type
-	 *            Type of the Window. Currently available: Warning Window (WARN) and Information Window (INFORM)
 	 * @return int representing the choice of the user.
 	 */
 	private int warn(String message) {
@@ -923,7 +918,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	/**
-	 * Invoked whenever the update button was pressed and the update failed or is completed.
+	 * Invoked whenever the update modules button was pressed and the update failed or is completed.
 	 */
 
 	@Override

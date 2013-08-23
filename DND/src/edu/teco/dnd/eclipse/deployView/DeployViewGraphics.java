@@ -15,7 +15,7 @@ import edu.teco.dnd.eclipse.Activator;
 
 /**
  * This class is responsible for creating the graphical representations of the buttons, tables, text fields and so on.
- * It only provides the widgets to be used by the View, not the functionality the user experiences while using them.
+ * It only provides the widgets to be used by the DeployView, not the functionality the user experiences while using them.
  * 
  * @author jung
  * 
