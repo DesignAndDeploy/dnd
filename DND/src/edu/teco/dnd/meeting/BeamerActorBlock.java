@@ -12,15 +12,13 @@ import edu.teco.dnd.uPart.BeamerControl;
 @BlockType("Meeting")
 public class BeamerActorBlock extends FunctionBlock {
 
+	private static final long serialVersionUID = -8839932451597237481L;
+
 	/**
 	 * Type of this block.
 	 */
 	public static final String BLOCK_TYPE = "beamerActor";
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8839932451597237481L;
+
 	/**
 	 * tells BeamerActorBlock to turn on (true) or switch off (false) the beamer.
 	 */

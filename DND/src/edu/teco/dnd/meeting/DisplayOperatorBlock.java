@@ -18,6 +18,11 @@ public class DisplayOperatorBlock extends FunctionBlock {
 	private static final long serialVersionUID = 87890179892296397L;
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "operator";
+
+	/**
 	 * this variable tells whether there is a meeting (true) or not (false).
 	 */
 	private Input<Boolean> meeting;

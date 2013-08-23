@@ -20,6 +20,11 @@ public class OutletSensorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -5476105010804335530L;
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "outletSensor";
+
+	/**
 	 * Time between updates.
 	 */
 	public static final long UPDATE_TIME = 1000L;

@@ -22,6 +22,11 @@ public class TemperatureActorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -9221185917263406514L;
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "temperatureActor";
+
+	/**
 	 * Temperature the heater shall achieve.
 	 */
 	private Input<Integer> temperature;

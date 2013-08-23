@@ -12,10 +12,12 @@ import edu.teco.dnd.graphiti.BlockType;
 @BlockType("Meeting")
 public class BeamerOperatorBlock extends FunctionBlock {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -889186768492376346L;
+
+	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "operator";
 
 	/**
 	 * The measured energy at the outlet.

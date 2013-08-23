@@ -21,6 +21,11 @@ public class LightSensorBlock extends FunctionBlock {
 	private static final long serialVersionUID = 8168482988717037076L;
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "lightSensor";
+
+	/**
 	 * Time between updates.
 	 */
 	public static final long UPDATE_TIME = 1000L;

@@ -17,6 +17,12 @@ public class OutletActorBlock extends FunctionBlock {
 	 * 
 	 */
 	private static final long serialVersionUID = -8839932451597237481L;
+
+	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "outletActor";
+
 	/**
 	 * tells BeamerActorBlock to turn on (true) or switch off (false) the beamer.
 	 */

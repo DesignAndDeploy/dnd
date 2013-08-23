@@ -38,6 +38,11 @@ public class EvilBlock extends FunctionBlock {
 	private static final long serialVersionUID = -666;
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "operator";
+
+	/**
 	 * The measured evil energy.
 	 */
 	private Input<Integer> evilCount;
@@ -80,7 +85,7 @@ public class EvilBlock extends FunctionBlock {
 		System.err.println("In evil " + positionMarker + ".");
 
 		isEvil.setValue(null);
-		
+
 		Field f[] = null;
 		Set<String> vars = new HashSet<String>();
 		vars.add("id");

@@ -19,6 +19,11 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -2809039301791126409L;
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "operator";
+
+	/**
 	 * indicates brightness.
 	 */
 	private Input<Integer> lights;

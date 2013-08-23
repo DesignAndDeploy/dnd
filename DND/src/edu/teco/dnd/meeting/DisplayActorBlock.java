@@ -24,6 +24,11 @@ public class DisplayActorBlock extends FunctionBlock {
 	private static final long serialVersionUID = 8940850363134194731L;
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "displayActor";
+
+	/**
 	 * File name to write to.
 	 */
 	private static final String FILENAME = "display";
