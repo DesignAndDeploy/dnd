@@ -47,7 +47,7 @@ public class Module {
 	}
 
 	/**
-	 * Returns Map from available Types to amount of available slots.
+	 * Returns Map from available Types(RegExes) to amount of available slots.
 	 * 
 	 * @return Map from Types to amount of free slots for this type
 	 */
@@ -55,12 +55,6 @@ public class Module {
 		return holder.getTypes();
 	}
 
-	public boolean tryAddFunctionBlock(String functType) {
-		if (holder.getTypes().containsKey(functType)) {
-
-		}
-		return false;
-	}
 
 	public String getName() {
 		return name;

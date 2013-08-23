@@ -148,27 +148,29 @@ public class ModuleApplicationManager {
 				e.printStackTrace();
 				return false;
 			}
-			final String blockType = block.getRealBlock().getBlockType();
-			BlockTypeHolder blockAllowed;
+			final String blockType = block.getBlockType();
+			BlockTypeHolder blockAllowed = null;
 			if (scheduleToId < 0) {
-				blockAllowed = moduleConfig.getAllowedBlocks().get(blockType);
+				for (String typeRegEx : moduleConfig.getAllowedBlocks().keySet()) {
+					if (blockType.matches(typeRegEx)) {
+						blockAllowed = moduleConfig.getAllowedBlocks().get(typeRegEx);
+					}
+				}
 				if (blockAllowed == null) {
 					LOGGER.info("Block {} not allowed in App {}({})", blockType, app, appId);
 					throw new IllegalArgumentException("Block not allowed in App");
 				}
+
 			} else {
 				blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
-			}
-			if (blockAllowed == null) {
-				if (scheduleToId < 0) {
-					LOGGER.info("Block {} not allowed in App {}({})", blockType, app, appId);
-				} else {
+				if (blockAllowed == null) {
 					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, app, appId);
 					throw new IllegalArgumentException("Id does not exist in App");
 				}
+
 			}
 
-			if (!blockAllowed.type.equals(blockType)) {
+			if (!blockType.matches(blockAllowed.type)) {
 				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId, blockAllowed.type,
 						blockType);
 				throw new IllegalArgumentException("given scheduleId and Blocktype incompatible");
@@ -183,12 +185,12 @@ public class ModuleApplicationManager {
 					LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
 					throw new IllegalArgumentException("Blockamount exceeded. Not scheduling!");
 				}
-				spotOccupiedByBlock.put(block.getRealBlock().getBlockUUID(), blockAllowed.getIdNumber());
+				spotOccupiedByBlock.put(block.getBlockUUID(), blockAllowed.getIdNumber());
 
 				app.scheduledToStart.add(block);
 			}
 			LOGGER.info("foo");
-			final Map<String, Output<? extends Serializable>> blockOutputs = block.getRealBlock().getOutputs();
+			final Map<String, Output<? extends Serializable>> blockOutputs = block.getOutputs();
 			System.out.println(blockOutputs);
 			for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
 				System.out.println(output.getKey());
@@ -202,9 +204,9 @@ public class ModuleApplicationManager {
 				}
 				out.setTarget(app.new ApplicationOutputTarget(output.getValue()));
 			}
-			spotOccupiedByBlock.put(block.getRealBlock().getBlockUUID(), blockAllowed.getIdNumber());
+			spotOccupiedByBlock.put(block.getBlockUUID(), blockAllowed.getIdNumber());
 			app.scheduledToStart.add(block);
-			LOGGER.info("succesfully scheduled block {}, in App {}({})", block, app, appId);
+			LOGGER.info("succesfully scheduled block {}, in App {}({})", block.getBlockType(), app, appId);
 			return true;
 		} finally {
 			isShuttingDown.readLock().unlock();
@@ -279,7 +281,7 @@ public class ModuleApplicationManager {
 
 		}
 		for (FunctionBlockSecurityDecorator block : blocksKilled) {
-			final UUID blockUUID = block.getRealBlock().getBlockUUID();
+			final UUID blockUUID = block.getBlockUUID();
 			BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockUUID));
 			if (holder != null) {
 				holder.increase();

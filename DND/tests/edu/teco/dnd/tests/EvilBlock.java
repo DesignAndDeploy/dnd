@@ -125,7 +125,8 @@ public class EvilBlock extends FunctionBlock {
 			System.err.println("Ragequitting viciously prevented");
 		}
 		// throw new Error();
-		// if (isEvil != null) { // Only after init completed.
+		// throw new RuntimeException();
+		// doEvilStuff(positionMarker); // Loop-a-loop
 		// try {
 		//
 		// for (;;) {
@@ -136,7 +137,6 @@ public class EvilBlock extends FunctionBlock {
 		//
 		// } finally {
 		// System.err.println("was kicked out of for-loop?");
-		// }
 		// }
 	}
 

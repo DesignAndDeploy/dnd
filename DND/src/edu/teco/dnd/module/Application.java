@@ -178,7 +178,7 @@ public class Application {
 			return; // Already shutting down.
 		}
 		try {
-			funcBlockById.put(block.getRealBlock().getBlockUUID(), block);
+			funcBlockById.put(block.getBlockUUID(), block);
 
 			Runnable initRunnable = new Runnable() {
 				@Override
@@ -194,7 +194,7 @@ public class Application {
 			};
 			scheduledThreadPool.execute(initRunnable);
 
-			long period = block.getRealBlock().getUpdateInterval();
+			long period = block.getUpdateInterval();
 			try {
 				if (period < 0) {
 					scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
@@ -235,7 +235,7 @@ public class Application {
 				LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
 				throw LOGGER.throwing(new NonExistentFunctionblockException());
 			}
-			final Input input = block.getRealBlock().getInputs().get(inputName);
+			final Input input = block.getInputs().get(inputName);
 			if (input == null) {
 				LOGGER.info("input '{}' non existant for {}", inputName, block);
 			}
@@ -267,7 +267,7 @@ public class Application {
 		final Thread shutdownThread = new Thread(new Runnable() {
 			public void run() {
 				for (FunctionBlockSecurityDecorator fun : funcBlockById.values()) {
-					funcBlockById.remove(fun.getRealBlock().getBlockUUID());
+					funcBlockById.remove(fun.getBlockUUID());
 					fun.shutdown();
 				}
 			}
