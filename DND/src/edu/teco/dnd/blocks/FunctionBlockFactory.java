@@ -93,10 +93,12 @@ public class FunctionBlockFactory {
 				final Type type = field.getType();
 				if (type instanceof ObjectType) {
 					if (blockType == null && "BLOCK_TYPE".equals(field.getName())) {
+						//FIXME: If BLOCK_TYPE is not public static final, getConstantValue() returns null.
 						final ConstantPool cp = field.getConstantPool();
 						ConstantString sc =
 								((ConstantString) cp.getConstant(field.getConstantValue().getConstantValueIndex()));
 						ConstantUtf8 c = (ConstantUtf8) cp.getConstant(sc.getStringIndex(), Constants.CONSTANT_Utf8);
+						
 						blockType = Utility.convertString(((ConstantUtf8) c).getBytes());
 					}
 					final String typeClassName = ((ObjectType) type).getClassName();

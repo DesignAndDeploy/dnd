@@ -13,6 +13,11 @@ import edu.teco.dnd.uPart.BeamerControl;
 public class BeamerActorBlock extends FunctionBlock {
 
 	/**
+	 * Type of this block.
+	 */
+	public static final String BLOCK_TYPE = "beamerActor";
+	
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8839932451597237481L;
