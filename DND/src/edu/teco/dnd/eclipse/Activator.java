@@ -102,7 +102,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	// TODO: make this all nicer
-	// Alisa says: That would be very nice.
+	// Alisa says: That would be very nice. I use a copy of this code in the ServerManager in edu.teco.dnd.command to
+	// start the server from the command line without opening eclipse.
 	public void startServer() {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
