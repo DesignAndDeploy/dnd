@@ -368,15 +368,15 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * FunctionBlockModel in the resource to be consistent with changes made outside the resource.
 	 */
 	public synchronized void updateEMFResource() {
+		Resource newResource = getNewEMFResource();
+
 		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
 		for (EObject obj : resource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				oldModels.add((FunctionBlockModel) obj);
 			}
 		}
-
-		Resource newResource = getNewEMFResource();
-
+		
 		for (EObject obj : newResource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
@@ -397,15 +397,15 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * @return true if changes happened, false if not.
 	 */
 	public synchronized boolean emfResourceChanged() {
+		Resource newResource = getNewEMFResource();
+
 		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
 		for (EObject obj : resource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				oldModels.add((FunctionBlockModel) obj);
 			}
 		}
-
-		Resource newResource = getNewEMFResource();
-
+		
 		for (EObject obj : newResource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
