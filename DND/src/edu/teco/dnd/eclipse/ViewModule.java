@@ -258,8 +258,10 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				serverStatus.setText("Server running");
-				button.setText("Stop Server");
+				if (serverStatus != null && button != null) {
+					serverStatus.setText("Server running");
+					button.setText("Stop Server");
+				}
 
 				synchronized (ViewModule.this) {
 					for (UUID id : new ArrayList<UUID>(map.keySet())) {
