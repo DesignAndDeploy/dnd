@@ -12,10 +12,6 @@ import edu.teco.dnd.graphiti.BlockType;
  */
 @BlockType("Temperature")
 public class TemperatureLogicBlock extends FunctionBlock {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2352500913660771287L;
 
 	/**

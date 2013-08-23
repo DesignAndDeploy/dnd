@@ -14,10 +14,6 @@ import edu.teco.dnd.uPart.UPartReader;
  */
 @BlockType("Temperature")
 public class TemperatureSensorBlock extends FunctionBlock {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1362359340515519805L;
 
 	/**

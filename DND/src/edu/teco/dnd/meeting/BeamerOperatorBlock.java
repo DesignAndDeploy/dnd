@@ -11,7 +11,6 @@ import edu.teco.dnd.graphiti.BlockType;
  */
 @BlockType("Meeting")
 public class BeamerOperatorBlock extends FunctionBlock {
-
 	private static final long serialVersionUID = -889186768492376346L;
 
 	/**

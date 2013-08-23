@@ -15,16 +15,12 @@ import edu.teco.dnd.uPart.SensorException;
  */
 @BlockType("Temperature")
 public class TemperatureActorBlock extends FunctionBlock {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -9221185917263406514L;
 
 	/**
 	 * Type of this block.
 	 */
-	public static final String BLOCK_TYPE = "temperatureActor";
+	public static final String BLOCK_TYPE = "actorTemperature";
 
 	/**
 	 * Temperature the heater shall achieve.

@@ -14,20 +14,17 @@ import edu.teco.dnd.uPart.SensorException;
  */
 @BlockType("Meeting")
 public class OutletSensorBlock extends FunctionBlock {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5476105010804335530L;
 
 	/**
 	 * Type of this block.
 	 */
-	public static final String BLOCK_TYPE = "outletSensor";
+	public static final String BLOCK_TYPE = "sensorOutlet";
 
 	/**
 	 * Time between updates.
 	 */
-	public static final long UPDATE_TIME = 1000L;
+	public static final long BLOCK_UPDATE_INTERVAL = 1000L;
 
 	/**
 	 * The measured energy at the outlet.

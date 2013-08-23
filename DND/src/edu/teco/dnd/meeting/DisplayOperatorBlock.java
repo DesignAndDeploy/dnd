@@ -11,7 +11,6 @@ import edu.teco.dnd.graphiti.BlockType;
  */
 @BlockType("Meeting")
 public class DisplayOperatorBlock extends FunctionBlock {
-
 	/**
 	 * 
 	 */

@@ -23,12 +23,12 @@ public class LightSensorBlock extends FunctionBlock {
 	/**
 	 * Type of this block.
 	 */
-	public static final String BLOCK_TYPE = "lightSensor";
+	public static final String BLOCK_TYPE = "sensorLight";
 
 	/**
 	 * Time between updates.
 	 */
-	public static final long UPDATE_TIME = 1000L;
+	public static final long BLOCK_UPDATE_INTERVAL = 1000L;
 
 	/**
 	 * Indicates brightness.

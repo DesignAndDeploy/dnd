@@ -26,7 +26,7 @@ public class DisplayActorBlock extends FunctionBlock {
 	/**
 	 * Type of this block.
 	 */
-	public static final String BLOCK_TYPE = "displayActor";
+	public static final String BLOCK_TYPE = "actorDisplay";
 
 	/**
 	 * File name to write to.

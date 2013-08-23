@@ -12,10 +12,6 @@ import edu.teco.dnd.graphiti.BlockType;
  */
 @BlockType("Meeting")
 public class MeetingOperatorBlock extends FunctionBlock {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2809039301791126409L;
 
 	/**
