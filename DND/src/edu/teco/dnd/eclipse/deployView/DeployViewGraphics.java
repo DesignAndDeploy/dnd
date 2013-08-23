@@ -1,6 +1,7 @@
 package edu.teco.dnd.eclipse.deployView;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -235,14 +236,14 @@ public class DeployViewGraphics {
 		return constraintsButton;
 	}
 	
-	protected Text createInformationText(){
+	protected StyledText createInformationText(){
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
 		data.horizontalAlignment = SWT.FILL;
 		data.verticalAlignment = SWT.FILL;
-		Text infoText = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
+		StyledText infoText = new StyledText(parent, SWT.WRAP | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
 		infoText.setLayoutData(data);
-		infoText.setText("Information");
+		infoText.setText("Information\n");
 		infoText.setEditable(false);
 		infoText.pack();
 		return infoText;

@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -109,7 +110,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private Text blockModelName; // Name of BlockModel
 	private Combo moduleCombo;
 	private Text places;
-	private Text infoText;
+	private StyledText infoText;
 	private Table deployment; // Table to show blockModels and current
 								// deployment
 
