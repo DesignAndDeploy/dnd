@@ -638,7 +638,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				LOGGER.trace("found FunctionBlockModel {}", object);
 				FunctionBlockModel blockmodel = (FunctionBlockModel) object;
 				blockModelList.add(blockmodel);
-
 			}
 		}
 		return blockModelList;
