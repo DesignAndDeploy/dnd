@@ -134,8 +134,8 @@ public class ModuleMain {
 			LOGGER.fatal("could not open file: \"{}\"", configPath);
 			return null;
 		} catch (Exception e) {
-			LOGGER.catching(e);
 			LOGGER.fatal("could not load config: \"{}\"", configPath);
+			e.printStackTrace();
 			return null;
 		}
 		return moduleConfig;
