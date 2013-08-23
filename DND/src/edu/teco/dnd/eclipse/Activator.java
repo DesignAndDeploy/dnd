@@ -102,6 +102,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	// TODO: make this all nicer
+	// Alisa says: That would be very nice.
 	public void startServer() {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
