@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse;
+package edu.teco.dnd.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +18,7 @@ import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.JoinedFutureNotifier;
 
 /**
- * This class coordinates a List of currently running modules. It provides the views and editors with information to
+ * This class coordinates a List of currently running modules. It provides module information to
  * display to the user.
  * 
  * @author jung
@@ -48,12 +48,11 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	private ModuleQuery query;
 
 	/**
-	 * Initializes a new ModuleManager.
+	 * Initializes a new ModuleManager. It will automatica
 	 */
 	public ModuleManager() {
 		map = new HashMap<UUID, Module>();
-
-		Activator.getDefault().addServerStateListener(this);
+		ServerManager.getDefault().addServerStateListener(this);
 	}
 
 	/**
@@ -165,17 +164,17 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	/**
 	 * Updates information on modules, in explicit how the BlockTypeHolder has changed and which applications are
 	 * running on the module.
-	 * @return 
+	 * 
+	 * @return
 	 */
 	public synchronized FutureNotifier<Collection<Module>> updateModuleInfo() {
 		final Collection<FutureNotifier<? extends Module>> futures = new ArrayList<FutureNotifier<? extends Module>>();
-		for (UUID uuid : map.keySet()){
+		for (UUID uuid : map.keySet()) {
 			final FutureNotifier<Module> future = query.getModuleInfo(uuid);
 			future.addListener(this);
 			futures.add(future);
 		}
 		return new JoinedFutureNotifier<Module>(futures);
 	}
-	
-	
+
 }

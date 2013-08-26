@@ -1,4 +1,4 @@
-package edu.teco.dnd.command;
+package edu.teco.dnd.server;
 
 import io.netty.bootstrap.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
@@ -30,10 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jface.preference.IPreferenceStore;
 
-import edu.teco.dnd.eclipse.DNDServerStateListener;
-import edu.teco.dnd.eclipse.ModuleManager;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
@@ -41,9 +38,10 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.util.NetConnection;
 
 /**
- * This class is responsible for managing all server activities for the command line program.
+ * This class is responsible for managing all server activities.
+ * 
  * @author jung
- *
+ * 
  */
 public class ServerManager {
 
@@ -62,11 +60,11 @@ public class ServerManager {
 	 */
 	public static final InetSocketAddress DEFAULT_MULTICAST_ADDRESS = ModuleMain.DEFAULT_MULTICAST_ADDRESS;
 
-	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
-
-	private ConnectionManager connectionManager;
+	private static ServerManager serverManager;
 
 	private UUID uuid;
+
+	private ConnectionManager connectionManager;
 
 	private UDPMulticastBeacon beacon;
 
@@ -74,26 +72,39 @@ public class ServerManager {
 
 	private final Set<DNDServerStateListener> serverStateListener = new HashSet<DNDServerStateListener>();
 
-	private String multicastAddress;
-	
-	private String listenAddress;
-	
-	private String announceAddress;
-	
-	/**
-	 * Creates a new ServerManager for the command line program.
-	 * @param multicast String representing the multicast address.
-	 * @param listen String representing the listen address.
-	 * @param announce String representing the announce address.
-	 */
-	public ServerManager(String multicast, String listen, String announce) {
-		uuid = UUID.randomUUID();
-		multicastAddress = multicast;
-		listenAddress = listen;
-		announceAddress = announce;
+	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
+
+	private static ModuleManager moduleManager;
+
+	public static ServerManager getDefault() {
+		if (serverManager == null) {
+			synchronized (ServerManager.class) {
+				if (serverManager == null) {
+					serverManager = new ServerManager();
+					moduleManager = new ModuleManager();
+				}
+			}
+		}
+		return serverManager;
 	}
 
-	public void startServer() {
+	private ServerManager() {
+		uuid = UUID.randomUUID();
+	}
+
+	/**
+	 * Starts a server.
+	 * 
+	 * To start a server from within eclipse, use startServer() in the {@link Activator} class. Only {@link Activator} can access the
+	 * user preferences and will pass them to this method.
+	 * 
+	 * To start a server from outside of eclipse, you need to call this method and pass the arguments (addresses).
+	 * 
+	 * @param multicastAddress
+	 * @param listenAddress
+	 * @param announceAddress
+	 */
+	public void startServer(String multicastAddress, String listenAddress, String announceAddress) {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
 		try {
@@ -107,9 +118,9 @@ public class ServerManager {
 
 		TCPConnectionManager connectionManager = null;
 		EventLoopGroup networkEventLoopGroup = null;
-		final List<InetSocketAddress> listen = getListenSUBSTITUTE();
-		final List<InetSocketAddress> announce = getAnnounceSUBSTITUTE();
-		final List<NetConnection> multicast = getMulticastSUBSTITUTE();
+		final List<NetConnection> multicast = getMulticast(multicastAddress);
+		final List<InetSocketAddress> listen = getListen(listenAddress);
+		final List<InetSocketAddress> announce = getAnnounce(announceAddress);
 
 		serverStateLock.writeLock().lock();
 		try {
@@ -163,7 +174,6 @@ public class ServerManager {
 					}
 				} catch (final SocketException e) {
 					LOGGER.catching(Level.WARN, e);
-					errorExit();
 				}
 			} else {
 				// TODO: will probably return non-optimal result if 0.0.0.0 is used in listen
@@ -195,7 +205,6 @@ public class ServerManager {
 						beacon.addAddress(DEFAULT_MULTICAST_ADDRESS);
 					} catch (final SocketException e) {
 						LOGGER.catching(Level.WARN, e);
-						errorExit();
 					}
 				} else {
 					for (final NetConnection netConnection : multicast) {
@@ -292,9 +301,7 @@ public class ServerManager {
 					try {
 						future.get();
 					} catch (InterruptedException e) {
-						errorExit();
 					} catch (ExecutionException e) {
-						errorExit();
 						break;
 					}
 				}
@@ -326,6 +333,10 @@ public class ServerManager {
 
 	public ConnectionManager getConnectionManager() {
 		return connectionManager;
+	}
+
+	public ModuleManager getModuleManager() {
+		return moduleManager;
 	}
 
 	public UDPMulticastBeacon getMulticastBeacon() {
@@ -377,7 +388,7 @@ public class ServerManager {
 	 * 
 	 * @return List of Addresses for listening, announcing and multicasting.
 	 */
-	private List<InetSocketAddress> getListenSUBSTITUTE() {
+	private List<InetSocketAddress> getListen(String listenAddress) {
 		final List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>(1);
 		String item = listenAddress;
 		final String[] parts = item.split(":", 2);
@@ -392,7 +403,7 @@ public class ServerManager {
 		return addresses;
 	}
 
-	private List<InetSocketAddress> getAnnounceSUBSTITUTE() {
+	private List<InetSocketAddress> getAnnounce(String announceAddress) {
 		final List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>(1);
 		String item = announceAddress;
 		final String[] parts = item.split(":", 2);
@@ -407,7 +418,7 @@ public class ServerManager {
 		return addresses;
 	}
 
-	private List<NetConnection> getMulticastSUBSTITUTE() {
+	private List<NetConnection> getMulticast(String multicastAddress) {
 		final List<NetConnection> addresses = new ArrayList<NetConnection>(1);
 		String item = multicastAddress;
 		final String[] parts = item.split(":", 3);
@@ -424,13 +435,13 @@ public class ServerManager {
 		}
 		return addresses;
 	}
-	
-	private void errorExit(String text){
+
+	private void errorExit(String text) {
 		System.err.println(text);
 		System.exit(1);
 	}
-	
-	private static void errorExit(){
+
+	private static void errorExit() {
 		System.err.println("Something went wrong. Ending program.");
 		System.exit(1);
 	}

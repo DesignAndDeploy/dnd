@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse;
+package edu.teco.dnd.server;
 
 import java.util.Map;
 import java.util.UUID;
