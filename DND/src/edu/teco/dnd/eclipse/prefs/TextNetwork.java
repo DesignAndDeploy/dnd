@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse;
+package edu.teco.dnd.eclipse.prefs;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;

@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse;
+package edu.teco.dnd.eclipse.prefs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+
+import edu.teco.dnd.eclipse.Activator;
 
 /**
  * This class manages the network preferences for the DND eclipse plugin.

@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse;
+package edu.teco.dnd.eclipse.prefs;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
