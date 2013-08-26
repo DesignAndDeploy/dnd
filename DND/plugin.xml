@@ -34,11 +34,11 @@
       <view id="edu.teco.dnd.eclipse.ViewModule"
     		category="edu.teco.dnd.viewCategory"
             name="Modules"
-            class="edu.teco.dnd.eclipse.ViewModule"/>
+            class="edu.teco.dnd.eclipse.ModuleView"/>
       <view id="edu.teco.dnd.eclipse.ViewApp"
       		category="edu.teco.dnd.viewCategory"
             name="Applications"
-            class="edu.teco.dnd.eclipse.ViewApp"/>
+            class="edu.teco.dnd.eclipse.AppView"/>
    </extension>
       <extension point="org.eclipse.ui.editors">
       <editor class="edu.teco.dnd.eclipse.deployView.DeployView"
@@ -48,11 +48,11 @@
    </extension>
    <extension point="org.eclipse.ui.preferencePages">
       <page
-            class="edu.teco.dnd.eclipse.Preferences"
+            class="edu.teco.dnd.eclipse.prefs.Preferences"
             id="DND preferences"
             name="DND"/>
       <page
-            class="edu.teco.dnd.eclipse.PreferencesNetwork"
+            class="edu.teco.dnd.eclipse.prefs.PreferencesNetwork"
             id="DND network preferences"
             name="Network"
             category="DND preferences"/>
