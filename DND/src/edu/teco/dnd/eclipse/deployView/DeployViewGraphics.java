@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 
 import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.server.ServerManager;
 
 /**
  * This class is responsible for creating the graphical representations of the buttons, tables, text fields and so on.
@@ -23,7 +24,6 @@ import edu.teco.dnd.eclipse.Activator;
  */
 public class DeployViewGraphics {
 
-	private Activator activator;
 	private Composite parent;
 
 	/**
@@ -36,8 +36,7 @@ public class DeployViewGraphics {
 	 */
 	public static final int VERTICAL_SPACE = 7;
 
-	public DeployViewGraphics(Composite parent, Activator activator) {
-		this.activator = activator;
+	public DeployViewGraphics(Composite parent) {
 		this.parent = parent;
 	}
 
@@ -61,7 +60,7 @@ public class DeployViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		Button serverButton = new Button(parent, SWT.NONE);
 		serverButton.setLayoutData(data);
-		if (activator.isRunning()) {
+		if (ServerManager.getDefault().isRunning()) {
 			serverButton.setText("Stop server");
 		} else {
 			serverButton.setText("Start server");

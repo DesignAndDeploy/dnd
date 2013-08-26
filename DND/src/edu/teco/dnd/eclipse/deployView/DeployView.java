@@ -58,10 +58,14 @@ import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.eclipse.EclipseUtil;
-import edu.teco.dnd.eclipse.ModuleManager;
-import edu.teco.dnd.eclipse.ModuleManagerListener;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.server.DistributionCreator;
+import edu.teco.dnd.server.ModuleManager;
+import edu.teco.dnd.server.ModuleManagerListener;
+import edu.teco.dnd.server.NoBlocksException;
+import edu.teco.dnd.server.NoModulesException;
+import edu.teco.dnd.server.ServerManager;
 import edu.teco.dnd.util.Dependencies;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
@@ -88,6 +92,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private static final int ENTER = 13;
 	private Display display;
 	private Activator activator;
+	private ServerManager serverManager;
 	private ModuleManager manager;
 
 	private List<String> infoTexts;
@@ -139,8 +144,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		setSite(site);
 		setInput(input);
 		activator = Activator.getDefault();
+		serverManager = ServerManager.getDefault();
 		display = Display.getCurrent();
-		manager = activator.getModuleManager();
+		manager = serverManager.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
 			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
@@ -157,7 +163,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		mapItemToBlockModel = new HashMap<TableItem, FunctionBlockModel>();
 		infoTexts = new LinkedList<String>();
 
-		graphicsManager = new DeployViewGraphics(parent, activator);
+		graphicsManager = new DeployViewGraphics(parent);
 		graphicsManager.initializeParent();
 
 		appName = graphicsManager.createAppNameLabel();
@@ -186,7 +192,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 * Invoked whenever the UpdateModules Button is pressed.
 	 */
 	private void updateModules() {
-		if (Activator.getDefault().isRunning()) {
+		if (ServerManager.getDefault().isRunning()) {
 			FutureNotifier<Collection<Module>> notifier = manager.updateModuleInfo();
 			notifier.addListener(this);
 		} else {
@@ -326,23 +332,19 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 */
 	private void create() {
 		LOGGER.entry();
-		Collection<Module> moduleCollection = getModuleCollection();
-		if (functionBlocks.isEmpty()) {
-			warn("No blockModels to distribute");
-			LOGGER.exit();
-			return;
-		}
-		if (moduleCollection.isEmpty()) {
-			warn("No modules to deploy on");
-			LOGGER.exit();
-			return;
-		}
-
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
 		constraints.add(new UserConstraints(moduleConstraints, placeConstraints));
 
-		DistributionGenerator generator = new DistributionGenerator(new MinimalModuleCountEvaluator(), constraints);
-		Distribution dist = generator.getDistribution(functionBlocks, moduleCollection);
+		Distribution dist = null;
+		try {
+			dist = DistributionCreator.createDistribution(functionBlocks, getModuleCollection(), constraints);
+		} catch (NoBlocksException e) {
+			warn("No blockModels to distribute");
+			LOGGER.exit();
+		} catch (NoModulesException e) {
+			warn("No modules to deploy on");
+			LOGGER.exit();
+		}
 
 		if (dist == null) {
 			warn("No valid deployment exists");
@@ -367,18 +369,18 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 */
 	private void deploy() {
 		LOGGER.entry();
-		if (mapBlockToTarget.isEmpty()) {
-			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
-			LOGGER.exit();
-			return;
-		}
-
 		if (newConstraints) {
 			int cancel = warn(DeployViewTexts.NEWCONSTRAINTS);
 			if (cancel == -4) {
 				LOGGER.exit();
 				return;
 			}
+		}
+		
+		if (mapBlockToTarget.isEmpty()) {
+			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
+			LOGGER.exit();
+			return;
 		}
 
 		final Dependencies dependencies =
@@ -387,8 +389,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"),
 						Pattern.compile("org\\.apache\\.logging\\.log4j")));
 		final Deploy deploy =
-				new Deploy(Activator.getDefault().getConnectionManager(), mapBlockToTarget, appName.getText(),
-						dependencies);
+				new Deploy(serverManager.getConnectionManager(), mapBlockToTarget, appName.getText(), dependencies);
 		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes
 		// or to run code at that point
 		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
@@ -824,7 +825,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 						addID(moduleID);
 					}
 				}
-				if (infoText != null && infoTexts != null){
+				if (infoText != null && infoTexts != null) {
 					addNewInfoText("Server online.");
 				}
 			}
@@ -849,7 +850,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 													// hoffentlich?
 					}
 				}
-				if (infoText != null && infoTexts != null){
+				if (infoText != null && infoTexts != null) {
 					addNewInfoText("Server offline.");
 				}
 			}
@@ -863,7 +864,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				new Thread() {
 					@Override
 					public void run() {
-						if (DeployView.this.activator.isRunning()) {
+						if (ServerManager.getDefault().isRunning()) {
 							DeployView.this.activator.shutdownServer();
 						} else {
 							DeployView.this.activator.startServer();
