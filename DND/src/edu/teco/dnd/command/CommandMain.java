@@ -1,13 +1,32 @@
 package edu.teco.dnd.command;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import edu.teco.dnd.deploy.Constraint;
+import edu.teco.dnd.deploy.Distribution;
+import edu.teco.dnd.deploy.DistributionGenerator;
+import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
+import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
+import edu.teco.dnd.server.DistributionCreator;
+import edu.teco.dnd.server.ModuleManager;
+import edu.teco.dnd.server.NoBlocksException;
+import edu.teco.dnd.server.NoModulesException;
+import edu.teco.dnd.server.ServerManager;
 
 /**
  * This class offers the option to create and deploy a distribution of an already existing application via command line.
@@ -28,12 +47,12 @@ public class CommandMain {
 	/**
 	 * Use this if the user only wants to create a distribution.
 	 */
-	public static final int ONLYCREATE = 0;
+	public static final String ONLY_CREATE = "create";
 
 	/**
 	 * Use this if the user wants to create and directly deploy any distribution.
 	 */
-	public static final int CREATEANDDEPLOY = 1;
+	public static final String CREATE_AND_DEPLOY = "deploy";
 
 	/**
 	 * Identifier for the announce address, to be entered directly before the address.
@@ -72,9 +91,10 @@ public class CommandMain {
 	private static String multicast;
 	private static String announce;
 	private static String listen;
-	private static int createOrDeploy;
+	private static String createOrDeploy;
 
 	private static Collection<FunctionBlockModel> functionBlocks;
+	private static ServerManager serverManager;
 
 	/**
 	 * The main method.
@@ -101,20 +121,22 @@ public class CommandMain {
 			exitFalseInput();
 		}
 
-		FunctionBlockLoader blockLoader = new FunctionBlockLoader(path);
-		functionBlocks = blockLoader.getBlocks();
+		// FunctionBlockLoader blockLoader = new FunctionBlockLoader(path);
+		// functionBlocks = blockLoader.getBlocks();
 
-		ServerManager serverManager = new ServerManager(multicast, listen, announce);
-		if (!serverManager.isRunning()) {
-			serverManager.startServer();
-		}
-		if (serverManager.isRunning()) {
-			System.out.println("Server running");
-		} else {
-			System.out.println("Server not running");
+		// TODO: What happens when you call startServer() while the server is already running? Bad or no problem? Is
+		// this check necessary?
+		if (!ServerManager.getDefault().isRunning()) {
+			ServerManager.getDefault().startServer(multicast, listen, announce);
 		}
 
-		serverManager.shutdownServer();
+		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
+		ServerManager.getDefault().getModuleManager().addModuleManagerListener(moduleRegistrator);
+
+		CommandLoop loop = new CommandLoop(functionBlocks);
+		loop.loop(createOrDeploy);
+
+		exit();
 
 	}
 
@@ -160,14 +182,14 @@ public class CommandMain {
 					exitTooMany("options whether to create or deploy a distribution");
 				}
 				createOrDeployInput = true;
-				createOrDeploy = ONLYCREATE;
+				createOrDeploy = CommandLoop.CREATE;
 
 			} else if (args[i].equals(DEPLOY)) {
 				if (createOrDeployInput) {
 					exitTooMany("options whether to create or deploy a distribution");
 				}
 				createOrDeployInput = true;
-				createOrDeploy = CREATEANDDEPLOY;
+				createOrDeploy = CommandLoop.DEPLOY;
 
 			} else {
 				exitFalseInput();
@@ -177,17 +199,17 @@ public class CommandMain {
 		if (i == args.length - 1 && !createOrDeployInput) {
 			if (args[args.length - 1].equals(CREATE)) {
 				createOrDeployInput = true;
-				createOrDeploy = ONLYCREATE;
+				createOrDeploy = CommandLoop.CREATE;
 			} else if (args[args.length - 1].equals(DEPLOY)) {
 				createOrDeployInput = true;
-				createOrDeploy = CREATEANDDEPLOY;
+				createOrDeploy = CommandLoop.DEPLOY;
 			} else {
 				System.out.println("Something went wrong with your arguments.");
 				System.exit(1);
 			}
 		}
 
-		if (!(pathInput && multicastInput && listenInput && announceInput && createOrDeployInput)) {
+		if (!(pathInput && multicastInput && listenInput && announceInput)) {
 			exitFalseInput();
 		}
 	}
@@ -203,6 +225,15 @@ public class CommandMain {
 				+ " for the path of the blocks. Also use either " + CREATE + " or " + DEPLOY
 				+ " to define whether to only create or also deploy a distribution.");
 		System.exit(1);
+	}
+
+	/**
+	 * Called whenever Program is closed regularly (by user or because there's nothing more to do).
+	 */
+	private static void exit() {
+		if (serverManager != null) {
+			serverManager.shutdownServer();
+		}
 	}
 
 }
