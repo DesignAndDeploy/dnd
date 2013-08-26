@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.server.ServerManager;
 
 /**
  * View for the applications / running function blocks.
@@ -16,18 +17,20 @@ import edu.teco.dnd.network.ConnectionManager;
  * @author jung
  * 
  */
-public class ViewApp extends ViewPart {
+public class AppView extends ViewPart {
 	private Label label;
-	ConnectionManager manager;
+	private ServerManager serverManager;
+	private ConnectionManager manager;
 	// Used to map FunctionBlocks on table items
 	//private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
 
 	/**
 	 * Creates a new Appview.
 	 */
-	public ViewApp() {
+	public AppView() {
 		super();
-		manager = Activator.getDefault().getConnectionManager();
+		serverManager = ServerManager.getDefault();
+		manager = serverManager.getConnectionManager();
 	}
 
 	public void setFocus() {

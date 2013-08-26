@@ -25,6 +25,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.server.ModuleManager;
+import edu.teco.dnd.server.ModuleManagerListener;
+import edu.teco.dnd.server.ServerManager;
 
 /**
  * ModuleView: Shows available modules, Start / Stop Server.
@@ -32,24 +35,25 @@ import edu.teco.dnd.module.Module;
  * @author jung
  * 
  */
-public class ViewModule extends ViewPart implements ModuleManagerListener {
+public class ModuleView extends ViewPart implements ModuleManagerListener {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(ViewModule.class);
+	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
 
 	private Composite parent;
 	private Button button;
 	private Label serverStatus;
 	private Table moduleTable;
 
+	private ServerManager serverManager;
 	private Activator activator;
 	private ModuleManager manager;
 	private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
 
 	private Display display;
 
-	public ViewModule() {
+	public ModuleView() {
 		super();
 	}
 
@@ -63,8 +67,9 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		LOGGER.entry(site, memento);
 		super.init(site, memento);
 		activator = Activator.getDefault();
+		serverManager = ServerManager.getDefault();
 		display = Display.getCurrent();
-		manager = activator.getModuleManager();
+		manager = serverManager.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
 			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
@@ -98,7 +103,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 	 */
 	private void createStartButton() {
 		button = new Button(parent, SWT.NONE);
-		if (activator.isRunning()) {
+		if (serverManager.isRunning()) {
 			button.setText("Stop Server");
 		} else {
 			button.setText("Start Server");
@@ -107,12 +112,12 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (ViewModule.this.activator.isRunning()) {
-					ViewModule.this.serverStatus.setText("Stopping server…");
-					ViewModule.this.activator.shutdownServer();
+				if (ServerManager.getDefault().isRunning()) {
+					ModuleView.this.serverStatus.setText("Stopping server…");
+					ModuleView.this.activator.shutdownServer();
 				} else {
-					ViewModule.this.serverStatus.setText("Starting server…");
-					ViewModule.this.activator.startServer();
+					ModuleView.this.serverStatus.setText("Starting server…");
+					ModuleView.this.activator.startServer();
 				}
 			}
 		});
@@ -125,7 +130,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		gridData.horizontalAlignment = GridData.FILL;
 
 		serverStatus = new Label(parent, 0);
-		if (activator.isRunning()) {
+		if (serverManager.isRunning()) {
 			serverStatus.setText("Server running");
 		} else {
 			serverStatus.setText("Server down");
@@ -263,7 +268,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 					button.setText("Stop Server");
 				}
 
-				synchronized (ViewModule.this) {
+				synchronized (ModuleView.this) {
 					for (UUID id : new ArrayList<UUID>(map.keySet())) {
 						removeID(id);
 					}
@@ -281,7 +286,7 @@ public class ViewModule extends ViewPart implements ModuleManagerListener {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (ViewModule.this) {
+				synchronized (ModuleView.this) {
 					for (UUID id : new ArrayList<UUID>(map.keySet())) {
 						removeID(id);
 					}
