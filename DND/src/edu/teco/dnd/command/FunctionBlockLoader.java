@@ -12,31 +12,34 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
 /**
  * This class is responsible for loading the functionBlockModels from a .blocks file.
+ * 
  * @author jung
- *
+ * 
  */
 public class FunctionBlockLoader {
 
 	private String path;
 	private String applicationName;
 	private Collection<FunctionBlockModel> blocks;
-	
+
 	/**
 	 * Creates a new FunctionBlockLoader that loads the FunctionBlockModels from the given path.
-	 * @param path Path to load the FunctionBlockModels from.
+	 * 
+	 * @param path
+	 *            Path to load the FunctionBlockModels from.
 	 */
-	public FunctionBlockLoader(String path){
+	public FunctionBlockLoader(String path) {
 		this.path = path;
 		applicationName = path.replaceAll("\\.blocks", "");
 		blocks = loadBlocks();
 	}
-	
-	//TODO: How are the connections stored?
-	private Collection<FunctionBlockModel> loadBlocks(){
+
+	// TODO: How are the connections stored?
+	private Collection<FunctionBlockModel> loadBlocks() {
 		Collection<FunctionBlockModel> functionBlocks = new ArrayList<FunctionBlockModel>();
-	
+
 		URI uri = URI.createURI(path);
-		//TODO: Class not found exception for resource. Solve.
+		// TODO: Class not found exception for resource. Solve.
 		Resource resource = new XMIResourceImpl(uri);
 		try {
 			resource.load(null);
@@ -56,21 +59,20 @@ public class FunctionBlockLoader {
 
 	/**
 	 * Returns the blocks loaded by the FunctionBlockLoader.
+	 * 
 	 * @return Collection of loaded function block models.
 	 */
-	public Collection<FunctionBlockModel> getBlocks(){
+	public Collection<FunctionBlockModel> getBlocks() {
 		return blocks;
 	}
-	
+
 	/**
 	 * Returns the name of the application loaded by the FunctionBlockLoader.
+	 * 
 	 * @return Name of the application.
 	 */
-	public String getApplicationName(){
+	public String getApplicationName() {
 		return applicationName;
 	}
-	
-	
-	
-	
+
 }
