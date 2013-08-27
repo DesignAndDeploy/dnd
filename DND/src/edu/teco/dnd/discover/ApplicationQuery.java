@@ -2,14 +2,23 @@ package edu.teco.dnd.discover;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
+import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.util.DefaultFutureNotifier;
@@ -17,18 +26,17 @@ import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
 
 public class ApplicationQuery {
+	private static final Logger LOGGER = LogManager.getLogger(ApplicationQuery.class);
+	public static final long MAX_PER_MODULE_KILL_WAIT_TIME = 1000; // (MilliSeconds)
 	private final ConnectionManager connectionManager;
-
-	private final RequestApplicationListMessage request;
 
 	public ApplicationQuery(final ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
-		this.request = new RequestApplicationListMessage();
 	}
 
 	public ModuleApplicationListFutureNotifier getApplicationList(final UUID module) {
 		final ModuleApplicationListFutureNotifier notifier = new ModuleApplicationListFutureNotifier(module);
-		connectionManager.sendMessage(module, request).addListener(notifier);
+		connectionManager.sendMessage(module, new RequestApplicationListMessage()).addListener(notifier);
 		return notifier;
 	}
 
@@ -36,9 +44,63 @@ public class ApplicationQuery {
 		final Collection<UUID> modules = connectionManager.getConnectedModules();
 		final ApplicationListFutureNotifier notifier = new ApplicationListFutureNotifier(modules.size());
 		for (final UUID module : modules) {
-			connectionManager.sendMessage(module, request).addListener(notifier);
+			connectionManager.sendMessage(module, new RequestApplicationListMessage()).addListener(notifier);
 		}
 		return notifier;
+	}
+
+	/**
+	 * try to kill the application given by appId. Assumes that all modules the app is running on are connected to this
+	 * module.
+	 * 
+	 * @param appId
+	 *            the application UUID to be killed.
+	 * @return true iff all modules involved replied that the application was successfully killed.
+	 */
+	public boolean killApplication(UUID appId) {
+		ApplicationInformation appInfo;
+		ApplicationListFutureNotifier appListNotifier = getApplicationList();
+
+		// get Information about all connected Apps.
+		try {
+			while (true) {
+				try {
+					appInfo = appListNotifier.get().get(appId);
+				} catch (InterruptedException e) {
+					LOGGER.catching(e);
+					continue;
+				}
+				break;
+			}
+		} catch (ExecutionException e) {
+			LOGGER.catching(e);
+			LOGGER.warn("Can not kill app {}.");
+			return false;
+		}
+
+		// for all modules involved in the given appId: send kill(appId) message.
+		Map<UUID/* modId */, FutureNotifier<Response>> killFutures = new HashMap<UUID, FutureNotifier<Response>>();
+		for (UUID modId : appInfo.getModules()) {
+			killFutures.put(modId, connectionManager.sendMessage(modId, new KillAppMessage(appId)));
+		}
+
+		// check if all replied success.
+		for (Map.Entry<UUID, FutureNotifier<Response>> killNotification : killFutures.entrySet()) {
+			while (true) {
+				try {
+					if (!killNotification.getValue().await(MAX_PER_MODULE_KILL_WAIT_TIME, TimeUnit.MILLISECONDS)
+							|| !killNotification.getValue().isSuccess()) {
+						LOGGER.warn("killing timed out or not successfull for module {} because of {}.",
+								killNotification.getKey(), killNotification.getValue().cause());
+						return false;
+					}
+				} catch (InterruptedException e) {
+					continue;
+				}
+				break;
+			}
+		}
+		return true;
 	}
 
 	public static class ModuleApplicationListFutureNotifier extends DefaultFutureNotifier<Map<UUID, String>> implements
@@ -68,20 +130,20 @@ public class ApplicationQuery {
 		}
 	}
 
-	public static class ApplicationListFutureNotifier extends DefaultFutureNotifier<Map<UUID, Map<UUID, String>>>
-			implements FutureListener<FutureNotifier<Response>> {
+	public static class ApplicationListFutureNotifier extends
+			DefaultFutureNotifier<Map<UUID/* appId */, ApplicationInformation>> implements
+			FutureListener<FutureNotifier<Response>> {
 		private final AtomicInteger waiting;
-
-		private final ConcurrentMap<UUID, Map<UUID, String>> applications;
+		private final ConcurrentMap<UUID/* appId */, ApplicationInformation> appInfos;
 
 		public ApplicationListFutureNotifier(final int waiting) {
 			if (waiting == 0) {
 				this.waiting = null;
-				this.applications = null;
-				setSuccess(new HashMap<UUID, Map<UUID, String>>());
+				this.appInfos = null;
+				setSuccess(new HashMap<UUID, ApplicationInformation>());
 			} else {
 				this.waiting = new AtomicInteger(waiting);
-				this.applications = new ConcurrentHashMap<UUID, Map<UUID, String>>();
+				this.appInfos = new ConcurrentHashMap<UUID, ApplicationInformation>();
 			}
 		}
 
@@ -91,12 +153,26 @@ public class ApplicationQuery {
 				final Response response = future.getNow();
 				if (response instanceof ApplicationListResponse) {
 					final ApplicationListResponse applicationListResponse = (ApplicationListResponse) response;
-					applications.put(applicationListResponse.getModuleUUID(),
-							applicationListResponse.getApplicationNames());
+					UUID currentModId = applicationListResponse.getModuleUUID();
+
+					Map<UUID, Collection<UUID>> appBlocks = applicationListResponse.getApplicationBlocks();
+					Map<UUID, String> appNames = applicationListResponse.getApplicationNames();
+					for (UUID appId : appNames.keySet()) {
+						ApplicationInformation currentAppInfo = appInfos.get(appId);
+						if (currentAppInfo == null) {
+							// application is not yet known
+							currentAppInfo = new ApplicationInformation(appId, appNames.get(appId));
+							appInfos.put(appId, currentAppInfo);
+						}
+						for (UUID blockId : appBlocks.get(appId)) {
+							currentAppInfo.addBlockModulePair(blockId, currentModId);
+						}
+					}
+
 				}
 			}
 			if (waiting.decrementAndGet() <= 0) {
-				setSuccess(applications);
+				setSuccess(appInfos);
 			}
 		}
 	}

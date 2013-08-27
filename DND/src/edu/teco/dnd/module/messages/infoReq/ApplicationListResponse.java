@@ -55,7 +55,7 @@ public class ApplicationListResponse extends Response {
 	 */
 	// FIXME: add adapter that keeps the maps unmodifiable.
 	// Why? This will only work AFTER sending, from which point on we do not care. Nothing left that can break on our
-	// part and nobody is going to modify a map by mistake anyway.
+	// part and nobody is going to modify a map by mistake anyway. MM
 	@SuppressWarnings("unused")
 	private ApplicationListResponse() {
 		this.moduleUUID = null;
