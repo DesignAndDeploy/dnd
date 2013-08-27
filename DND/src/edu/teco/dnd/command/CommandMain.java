@@ -120,7 +120,7 @@ public class CommandMain {
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
 		ServerManager.getDefault().getModuleManager().addModuleManagerListener(moduleRegistrator);
 
-		CommandLoop loop = new CommandLoop(functionBlocks);
+		CommandLoop loop = new CommandLoop(functionBlocks, blockLoader.getApplicationName());
 		loop.loop(createOrDeploy);
 
 		exit();

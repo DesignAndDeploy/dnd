@@ -3,12 +3,16 @@ package edu.teco.dnd.command;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
+import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
+import edu.teco.dnd.eclipse.deployView.DeployViewTexts;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.server.DistributionCreator;
@@ -16,6 +20,10 @@ import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.NoBlocksException;
 import edu.teco.dnd.server.NoModulesException;
 import edu.teco.dnd.server.ServerManager;
+import edu.teco.dnd.util.Dependencies;
+import edu.teco.dnd.util.FutureListener;
+import edu.teco.dnd.util.FutureNotifier;
+import edu.teco.dnd.util.StringUtil;
 
 /**
  * This class provides the loop to be run in the command line program, after the necessary variables have been
@@ -41,13 +49,15 @@ public class CommandLoop {
 	 */
 	public static final String QUIT = "quit";
 
+	String appName;
 	Distribution dist;
 	ModuleManager moduleManager;
 	Collection<FunctionBlockModel> blocks;
 
-	public CommandLoop(Collection<FunctionBlockModel> functionBlocks) {
+	public CommandLoop(Collection<FunctionBlockModel> functionBlocks, String appName) {
 		moduleManager = ServerManager.getDefault().getModuleManager();
 		blocks = functionBlocks;
+		this.appName = appName;
 	}
 
 	public void loop(String initialInput) {
@@ -115,7 +125,30 @@ public class CommandLoop {
 	}
 
 	private void deployDistribution(Distribution dist) {
-		// TODO: Deploy distribution.
+		if (dist.getMapping().isEmpty()) {
+			System.out.println(DeployViewTexts.NO_DEPLOYMENT_YET);
+			return;
+		}
+		final Dependencies dependencies =
+				new Dependencies(Arrays.asList(Pattern.compile("java\\..*"),
+						Pattern.compile("edu\\.teco\\.dnd\\..*"), Pattern.compile("com\\.google\\.gson\\..*"),
+						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"),
+						Pattern.compile("org\\.apache\\.logging\\.log4j")));
+		final Deploy deploy =
+				new Deploy(ServerManager.getDefault().getConnectionManager(), dist.getMapping(), appName, dependencies);
+		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes
+		// or to run code at that point
+		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
+			@Override
+			public void operationComplete(FutureNotifier<? super Void> future) {
+				if (future.isSuccess()) {
+					System.out.println("Deployment complete.");
+				} else {
+					System.out.println("Deployment failed.");
+				}
+			}
+		});
+		deploy.deploy();
 	}
 
 	private String askForUserInput(String message) {
