@@ -184,11 +184,11 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 		super();
 	}
 
-	protected FunctionBlockModelImpl(FunctionBlockClass cls) {
+	protected FunctionBlockModelImpl(FunctionBlockClass cls) throws ClassNotFoundException {
 		super();
 		setID(UUID.randomUUID());
 		if (cls != null) {
-			setBlockName(cls.getSimpleClassName());
+			setBlockName(cls.getClassName());
 			setBlockClass(cls.getClassName());
 			setType(cls.getBlockType());
 			for (final Entry<String, JavaClass> input : cls.getInputs().entrySet()) {
@@ -203,10 +203,11 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 				outputModel.setName(output.getKey());
 				outputModel.setType(output.getValue().getClassName());
 			}
-			for (final String option : cls.getOptions()) {
+			for (final Entry<String, String> option : cls.getOptions().entrySet()) {
 				final OptionModel optionModel = ModelFactoryImpl.eINSTANCE.createOptionModel();
 				optionModel.setFunctionBlock(this);
-				optionModel.setName(option);
+				optionModel.setName(option.getKey());
+				optionModel.setValue(option.getValue());
 				optionModel.setType("java.lang.String");
 			}
 		}

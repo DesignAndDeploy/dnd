@@ -29,7 +29,7 @@ public interface ModelFactory extends EFactory {
 	 */
 	FunctionBlockModel createFunctionBlockModel();
 
-	FunctionBlockModel createFunctionBlockModel(FunctionBlockClass cls);
+	FunctionBlockModel createFunctionBlockModel(FunctionBlockClass cls) throws ClassNotFoundException;
 
 	/**
 	 * Returns a new object of class '<em>Input Model</em>'. <!-- begin-user-doc --> <!-- end-user-doc -->

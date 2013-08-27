@@ -126,7 +126,7 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 		return functionBlockModel;
 	}
 
-	public FunctionBlockModel createFunctionBlockModel(final FunctionBlockClass cls) {
+	public FunctionBlockModel createFunctionBlockModel(final FunctionBlockClass cls) throws ClassNotFoundException {
 		FunctionBlockModelImpl functionBlockModel = new FunctionBlockModelImpl(cls);
 		return functionBlockModel;
 	}

@@ -34,9 +34,9 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 *            the type of FunctionBlocks to create
 	 */
 	public DNDCreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
-		super(fp, blockClass == null ? "null" : blockClass.getSimpleClassName(),
+		super(fp, blockClass == null ? "null" : blockClass.getClassName(),
 				Messages.DNDCreateBlockFeature_CreatesFunBlockOfTpe_Info
-						+ (blockClass == null ? "null" : blockClass.getSimpleClassName()));
+						+ (blockClass == null ? "null" : blockClass.getClassName()));
 		if (blockClass == null) {
 			throw new IllegalArgumentException("blockClass must not be null");
 		}
@@ -64,7 +64,12 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 */
 	@Override
 	public final Object[] create(final ICreateContext context) {
-		FunctionBlockModel newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockClass);
+		FunctionBlockModel newBlock;
+		try {
+			newBlock = ModelFactoryImpl.eINSTANCE.createFunctionBlockModel(blockClass);
+		} catch (final ClassNotFoundException e) {
+			return null;
+		}
 		
 		Resource resource = ((DNDFeatureProvider) getFeatureProvider()).getEMFResource();
 		resource.getContents().add(newBlock);

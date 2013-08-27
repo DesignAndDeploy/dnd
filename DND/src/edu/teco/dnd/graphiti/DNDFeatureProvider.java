@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.util.ClassPath;
 import org.apache.bcel.util.Repository;
 import org.apache.bcel.util.SyntheticRepository;
 import org.apache.logging.log4j.Level;
@@ -92,6 +93,11 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * Feature factory for block create features.
 	 */
 	private final DNDCreateFeatureFactory createFeatureFactory = new DNDCreateFeatureFactory();
+	
+	/**
+	 * Used to inspect classes (including loading through {@link #blockFactory}.
+	 */
+	private Repository repository;
 
 	/**
 	 * Used to inspect FunctionBlocks.
@@ -167,8 +173,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	private synchronized void initialiseFactory() {
 		if (!factoryInitialised) {
 			final Set<IPath> ipaths = getProjectClassPath();
+			repository = SyntheticRepository.getInstance(new ClassPath(StringUtil.joinIterable(ipaths, ":")));
 			try {
-				blockFactory = new FunctionBlockFactory(StringUtil.joinIterable(ipaths, ":"));
+				blockFactory = new FunctionBlockFactory(repository);
 			} catch (final ClassNotFoundException e) {
 				LOGGER.catching(e);
 			}
@@ -177,7 +184,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			for (final IPath ipath : getProjectClassPath()) {
 				paths.add(ipath.toFile());
 			}
-			final ClassScanner scanner = new ClassScanner(blockFactory.getRepository());
+			final ClassScanner scanner = new ClassScanner(repository);
 			for (final JavaClass cls : scanner.getClasses(paths)) {
 				final FunctionBlockClass blockClass;
 				try {
@@ -204,7 +211,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	}
 
 	public final Repository getRepository() {
-		return blockFactory.getRepository();
+		return repository;
 	}
 
 	/**

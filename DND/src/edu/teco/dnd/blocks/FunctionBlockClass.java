@@ -1,84 +1,228 @@
 package edu.teco.dnd.blocks;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.bcel.Constants;
+import org.apache.bcel.classfile.Attribute;
+import org.apache.bcel.classfile.ConstantPool;
+import org.apache.bcel.classfile.ConstantString;
+import org.apache.bcel.classfile.ConstantUtf8;
+import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Signature;
+import org.apache.bcel.classfile.Utility;
+import org.apache.bcel.generic.ObjectType;
+import org.apache.bcel.generic.Type;
+import org.apache.bcel.util.Repository;
 
+import edu.teco.dnd.util.FieldIterable;
+
+// TODO: check if performance can be improved by caching block type, inputs, outputs, etc
 public class FunctionBlockClass {
 	public static final Pattern SIMPLE_CLASS_NAME_PATTERN = Pattern.compile("^(?:.*\\.)([^.]*)$");
 
-	private final JavaClass cls;
+	private static final Pattern GENERIC_ARGUMENT_PATTERN = Pattern.compile("<L([^;]*);");
 
-	private final String blockType;
+	private final JavaClass blockClass;
 
-	private final long updateInterval;
+	private final Repository repository;
 
-	private final Map<String, JavaClass> inputs;
-
-	private final Map<String, JavaClass> outputs;
-
-	private final Set<String> options;
-
-	public FunctionBlockClass(final JavaClass cls, final String blockType, final Long updateInterval,
-			final Map<String, JavaClass> inputs, final Map<String, JavaClass> outputs, final Set<String> options) {
-		this.cls = cls;
-		this.inputs = Collections.unmodifiableMap(inputs);
-		this.outputs = Collections.unmodifiableMap(outputs);
-		this.options = Collections.unmodifiableSet(options);
-		this.blockType = blockType;
-		this.updateInterval = updateInterval == null ? Long.MIN_VALUE : updateInterval;
-	}
-
-	public String getBlockType() {
-		return this.blockType;
-	}
-
-	public long getUpdateInterval() {
-		return this.updateInterval;
-	}
-
-	public Map<String, JavaClass> getOutputs() {
-		return this.outputs;
-	}
-
-	public Map<String, JavaClass> getInputs() {
-		return this.inputs;
-	}
-
-	public Set<String> getOptions() {
-		return this.options;
-	}
-
-	public String getClassName() {
-		return cls.getClassName();
-	}
-
-	public String getSimpleClassName() {
-		final Matcher matcher = SIMPLE_CLASS_NAME_PATTERN.matcher(getClassName());
-		if (!matcher.find()) {
-			return getClassName();
+	public FunctionBlockClass(final Repository repository, final String className) throws ClassNotFoundException {
+		this.repository = repository;
+		this.blockClass = repository.loadClass(className);
+		if (!isFunctionBlock(blockClass)) {
+			throw new IllegalArgumentException("not a FunctionBlock class: " + className);
 		}
-		return matcher.group(0);
 	}
 
-	public JavaClass getFunctionBlockClass() {
-		return this.cls;
+	private boolean isFunctionBlock(final JavaClass blockClass) throws ClassNotFoundException {
+		return isSubclass(blockClass, getFunctionBlockClass()) && !blockClass.isAbstract();
+	}
+
+	private JavaClass getFunctionBlockClass() throws ClassNotFoundException {
+		return repository.loadClass(FunctionBlock.class);
+	}
+
+	private static boolean isSubclass(final JavaClass cls, final JavaClass superCls) throws ClassNotFoundException {
+		if (superCls.equals(cls)) {
+			return true;
+		}
+		for (final JavaClass c : cls.getSuperClasses()) {
+			if (superCls.equals(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Map<String, JavaClass> getInputs() throws ClassNotFoundException {
+		final Map<String, JavaClass> inputs = new HashMap<String, JavaClass>();
+		for (final Field field : new FieldIterable(blockClass)) {
+			if (isInputField(field)) {
+				final String name = field.getName();
+				if (!inputs.containsKey(name)) {
+					inputs.put(field.getName(), getInputType(field));	
+				}
+			}
+		}
+		return inputs;
+	}
+
+	private boolean isInputField(final Field field) throws ClassNotFoundException {
+		return !field.isStatic() && isInput(field.getType());
+	}
+
+	private boolean isInput(final Type type) throws ClassNotFoundException {
+		return type instanceof ObjectType && Input.class.getName().equals(((ObjectType) type).getClassName());
+	}
+
+	private JavaClass getInputType(final Field field) throws ClassNotFoundException {
+		return getClassOfGenericArgument(field);
+	}
+	
+	public Map<String, JavaClass> getOutputs() throws ClassNotFoundException {
+		final Map<String, JavaClass> outputs = new HashMap<String, JavaClass>();
+		for (final Field field : new FieldIterable(blockClass)) {
+			if (isOutputField(field)) {
+				final String name = field.getName();
+				if (!outputs.containsKey(name)) {
+					outputs.put(field.getName(), getOutputType(field));
+				}
+			}
+		}
+		return outputs;
+	}
+	
+	private boolean isOutputField(final Field field) throws ClassNotFoundException {
+		return !field.isStatic() && isOutput(field.getType());
+	}
+	
+	private boolean isOutput(final Type type) throws ClassNotFoundException {
+		return type instanceof ObjectType && Output.class.getName().equals(((ObjectType) type).getClassName());
+	}
+	
+	public JavaClass getOutputType(final Field field) throws ClassNotFoundException {
+		return getClassOfGenericArgument(field);
+	}
+
+	public JavaClass getClassOfGenericArgument(final Field field) throws ClassNotFoundException {
+		final Signature signature = getSignature(field);
+		JavaClass argumentClass = null;
+		if (signature != null) {
+			argumentClass = repository.loadClass(getClassNameOfGenericArgument(signature));
+		}
+		return argumentClass;
+	}
+
+	public Signature getSignature(final Field field) {
+		for (final Attribute attribute : field.getAttributes()) {
+			if (attribute instanceof Signature) {
+				return (Signature) attribute;
+			}
+		}
+		return null;
+	}
+
+	public static String getClassNameOfGenericArgument(final Signature signature) {
+		final Matcher matcher = GENERIC_ARGUMENT_PATTERN.matcher(signature.getSignature());
+		matcher.find();
+		String className = matcher.group(1);
+		if (className != null) {
+			className = className.replaceAll("/", ".");
+		}
+		return className;
+	}
+
+	public String getBlockType() throws ClassNotFoundException {
+		final Field blockTypeField = getBlockTypeField();
+		String blockType = null;
+		if (blockTypeField != null) {
+			blockType = getStringConstant(blockTypeField);
+		}
+		return blockType;
+	}
+
+	private Field getBlockTypeField() throws ClassNotFoundException {
+		for (final Field field : new FieldIterable(blockClass)) {
+			if (isBlockTypeField(field)) {
+				return field;
+			}
+		}
+		return null;
+	}
+
+	private boolean isBlockTypeField(final Field field) throws ClassNotFoundException {
+		return isConstant(field) && isString(field.getType()) && "BLOCK_TYPE".equals(field.getName());
+	}
+	
+	public Map<String, String> getOptions() throws ClassNotFoundException {
+		final Map<String, String> options = new HashMap<String, String>();
+		for (final Field field : new FieldIterable(blockClass)) {
+			if (isOptionField(field)) {
+				final String name = getOptionName(field);
+				if (!options.containsKey(name)) {
+					options.put(name, getDefaultOptionValue(field));
+				}
+			}
+		}
+		return options;
+	}
+	
+	private boolean isOptionField(final Field field) throws ClassNotFoundException {
+		return isConstant(field) && isString(field.getType()) && field.getName().startsWith("OPTION_");
+	}
+	
+	private String getOptionName(final Field field) {
+		return field.getName().replaceFirst("^OPTION_", "");
+	}
+	
+	private String getDefaultOptionValue(final Field field) {
+		return getStringConstant(field);
+	}
+
+	private static boolean isConstant(final Field field) {
+		return field.isStatic() && field.isFinal();
+	}
+
+	private boolean isString(final Type type) throws ClassNotFoundException {
+		return type instanceof ObjectType && String.class.getName().equals(((ObjectType) type).getClassName());
+	}
+
+	private String getStringConstant(final Field field) {
+		String result = null;
+		if (hasConstantValue(field)) {
+			final ConstantPool constantPool = field.getConstantPool();
+			final int constantIndex = field.getConstantValue().getConstantValueIndex();
+			final String constantBytes = getStringConstantBytes(constantPool, constantIndex);
+			result = Utility.convertString(constantBytes);
+		}
+		return result;
+	}
+
+	private static boolean hasConstantValue(final Field field) {
+		return field.getConstantValue() != null;
+	}
+
+	private String getStringConstantBytes(final ConstantPool constantPool, final int constantIndex) {
+		final ConstantString constantString = (ConstantString) constantPool.getConstant(constantIndex);
+		final ConstantUtf8 constantUtf8 =
+				(ConstantUtf8) constantPool.getConstant(constantString.getStringIndex(), Constants.CONSTANT_Utf8);
+		return constantUtf8.getBytes();
+	}
+	
+	public String getClassName() {
+		return blockClass.getClassName();
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((blockType == null) ? 0 : blockType.hashCode());
-		result = prime * result + ((cls == null) ? 0 : cls.hashCode());
-		result = prime * result + ((inputs == null) ? 0 : inputs.hashCode());
-		result = prime * result + ((options == null) ? 0 : options.hashCode());
-		result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
-		result = prime * result + (int) (updateInterval ^ (updateInterval >>> 32));
+		result = prime * result + ((blockClass == null) ? 0 : blockClass.hashCode());
+		result = prime * result + ((repository == null) ? 0 : repository.hashCode());
 		return result;
 	}
 
@@ -91,32 +235,15 @@ public class FunctionBlockClass {
 		if (getClass() != obj.getClass())
 			return false;
 		FunctionBlockClass other = (FunctionBlockClass) obj;
-		if (blockType == null) {
-			if (other.blockType != null)
+		if (blockClass == null) {
+			if (other.blockClass != null)
 				return false;
-		} else if (!blockType.equals(other.blockType))
+		} else if (!blockClass.equals(other.blockClass))
 			return false;
-		if (cls == null) {
-			if (other.cls != null)
+		if (repository == null) {
+			if (other.repository != null)
 				return false;
-		} else if (!cls.equals(other.cls))
-			return false;
-		if (inputs == null) {
-			if (other.inputs != null)
-				return false;
-		} else if (!inputs.equals(other.inputs))
-			return false;
-		if (options == null) {
-			if (other.options != null)
-				return false;
-		} else if (!options.equals(other.options))
-			return false;
-		if (outputs == null) {
-			if (other.outputs != null)
-				return false;
-		} else if (!outputs.equals(other.outputs))
-			return false;
-		if (updateInterval != other.updateInterval)
+		} else if (!repository.equals(other.repository))
 			return false;
 		return true;
 	}

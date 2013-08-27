@@ -1,52 +1,23 @@
 package edu.teco.dnd.blocks;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.bcel.Constants;
-import org.apache.bcel.classfile.Attribute;
-import org.apache.bcel.classfile.ConstantLong;
-import org.apache.bcel.classfile.ConstantPool;
-import org.apache.bcel.classfile.ConstantString;
-import org.apache.bcel.classfile.ConstantUtf8;
-import org.apache.bcel.classfile.Field;
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Signature;
-import org.apache.bcel.classfile.Utility;
-import org.apache.bcel.generic.BasicType;
-import org.apache.bcel.generic.ObjectType;
-import org.apache.bcel.generic.Type;
 import org.apache.bcel.util.ClassPath;
 import org.apache.bcel.util.Repository;
 import org.apache.bcel.util.SyntheticRepository;
 
+import edu.teco.dnd.temperature.TemperatureLogicBlock;
+
 public class FunctionBlockFactory {
 	// TODO: BCEL is not thread safe, wrap this repository
 	private final Repository repository;
-
-	private final JavaClass functionBlockClass;
-
-	private final JavaClass outputClass;
-
-	private final JavaClass inputClass;
-
-	private final JavaClass optionClass;
 
 	private final ConcurrentMap<String, FunctionBlockClass> blocks =
 			new ConcurrentHashMap<String, FunctionBlockClass>();
 
 	public FunctionBlockFactory(final Repository repository) throws ClassNotFoundException {
 		this.repository = repository;
-		this.functionBlockClass = repository.loadClass(FunctionBlock.class);
-		this.outputClass = repository.loadClass(Output.class);
-		this.inputClass = repository.loadClass(Input.class);
-		this.optionClass = repository.loadClass(Option.class);
 	}
 
 	public FunctionBlockFactory(final ClassPath classPath) throws ClassNotFoundException {
@@ -62,93 +33,16 @@ public class FunctionBlockFactory {
 	}
 
 	public FunctionBlockClass getFunctionBlockClass(final String className) throws ClassNotFoundException {
-		FunctionBlockClass block = blocks.get(className);
-		if (block != null) {
-			return block;
+		if (!blocks.containsKey(className)) {
+			blocks.putIfAbsent(className, new FunctionBlockClass(repository, className));
 		}
-
-		block = createFunctionBlock(className);
-		final FunctionBlockClass oldBlock = blocks.putIfAbsent(className, block);
-		if (oldBlock != null) {
-			block = oldBlock;
-		}
-		return block;
+		return blocks.get(className);
 	}
 
-	private FunctionBlockClass createFunctionBlock(final String className) throws ClassNotFoundException {
-		final JavaClass cls = repository.loadClass(className);
-		if (!isSubclass(cls, functionBlockClass)) {
-			throw new IllegalArgumentException(className + " is not a FunctionBlock");
-		}
-		final Map<String, JavaClass> inputs = new HashMap<String, JavaClass>();
-		final Map<String, JavaClass> outputs = new HashMap<String, JavaClass>();
-		final Set<String> options = new HashSet<String>();
-		String blockType = null;
-		Long updateInterval = null;
-		JavaClass currentCls = cls;
-		while (currentCls != null) {
-			for (final Field field : currentCls.getFields()) {
-				final Type type = field.getType();
-				if (type instanceof ObjectType) {
-					if (blockType == null && "BLOCK_TYPE".equals(field.getName())) {
-						//FIXME: If BLOCK_TYPE is not public static final, getConstantValue() returns null.
-						final ConstantPool cp = field.getConstantPool();
-						ConstantString sc =
-								((ConstantString) cp.getConstant(field.getConstantValue().getConstantValueIndex()));
-						ConstantUtf8 c = (ConstantUtf8) cp.getConstant(sc.getStringIndex(), Constants.CONSTANT_Utf8);
-						blockType = Utility.convertString(c.getBytes());
-					}
-					final String typeClassName = ((ObjectType) type).getClassName();
-					if (!outputs.containsKey(field.getName()) && outputClass.getClassName().equals(typeClassName)) {
-						outputs.put(field.getName(), getGenericAttribute(field));
-					} else if (!inputs.containsKey(field.getName()) && inputClass.getClassName().equals(typeClassName)) {
-						inputs.put(field.getName(), getGenericAttribute(field));
-					} else if (optionClass.getClassName().equals(typeClassName)) {
-						options.add(field.getName());
-					}
-				} else if (type instanceof BasicType) {
-					if (updateInterval == null && "BLOCK_UPDATE_INTERVAL".equals(field.getName())) {
-						final ConstantPool cp = field.getConstantPool();
-						ConstantLong c =
-								(ConstantLong) cp.getConstant(field.getConstantValue().getConstantValueIndex());
-						updateInterval = c.getBytes();
-					}
-				}
-			}
-			currentCls = currentCls.getSuperClass();
-		}
-		return new FunctionBlockClass(cls, blockType, updateInterval, inputs, outputs, options);
-	}
-
-	private JavaClass getGenericAttribute(final Field field) throws ClassNotFoundException {
-		for (final Attribute attribute : field.getAttributes()) {
-			if (attribute instanceof Signature) {
-				return repository.loadClass(getGenericClassName(((Signature) attribute).getSignature()));
-			}
-		}
-		return null;
-	}
-
-	private static String getGenericClassName(final String signature) {
-		Matcher m = Pattern.compile("<L([^;]*);").matcher(signature);
-		m.find();
-		String clsName = m.group(1);
-		return clsName.replaceAll("/", ".");
-	}
-
-	private static boolean isSubclass(final JavaClass cls, final JavaClass superCls) throws ClassNotFoundException {
-		if (superCls.equals(cls)) {
-			return true;
-		}
-		for (final JavaClass c : cls.getSuperClasses()) {
-			if (superCls.equals(c)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public Repository getRepository() {
-		return repository;
+	// FIXME: remove once no longer needed for testing
+	public static void main(final String[] args) throws ClassNotFoundException {
+		final FunctionBlockFactory factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
+		final FunctionBlockClass blockClass = factory.getFunctionBlockClass(TemperatureLogicBlock.class);
+		System.out.println(blockClass.getOptions());
 	}
 }
