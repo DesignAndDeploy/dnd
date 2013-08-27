@@ -222,7 +222,6 @@ public class FunctionBlockClass {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((blockClass == null) ? 0 : blockClass.hashCode());
-		result = prime * result + ((repository == null) ? 0 : repository.hashCode());
 		return result;
 	}
 
@@ -239,11 +238,6 @@ public class FunctionBlockClass {
 			if (other.blockClass != null)
 				return false;
 		} else if (!blockClass.equals(other.blockClass))
-			return false;
-		if (repository == null) {
-			if (other.repository != null)
-				return false;
-		} else if (!repository.equals(other.repository))
 			return false;
 		return true;
 	}
