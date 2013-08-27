@@ -12,7 +12,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 
-import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.server.ServerManager;
 
 /**

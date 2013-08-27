@@ -1,31 +1,18 @@
 package edu.teco.dnd.command;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
-import edu.teco.dnd.deploy.Constraint;
-import edu.teco.dnd.deploy.Distribution;
-import edu.teco.dnd.deploy.DistributionGenerator;
-import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
-import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.graphiti.model.ModelPackage;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
-import edu.teco.dnd.server.DistributionCreator;
-import edu.teco.dnd.server.ModuleManager;
-import edu.teco.dnd.server.NoBlocksException;
-import edu.teco.dnd.server.NoModulesException;
 import edu.teco.dnd.server.ServerManager;
 
 /**
@@ -120,9 +107,13 @@ public class CommandMain {
 		} else {
 			exitFalseInput();
 		}
-
-		// FunctionBlockLoader blockLoader = new FunctionBlockLoader(path);
-		// functionBlocks = blockLoader.getBlocks();
+		ResourceSet newSet = new ResourceSetImpl();
+		newSet.setPackageRegistry(new EPackageRegistryImpl());
+		newSet.getPackageRegistry().put(ModelPackage.eNS_URI, ModelPackage.eINSTANCE);
+		
+		FunctionBlockLoader blockLoader = new FunctionBlockLoader(path);
+		blockLoader.loadBlocks();
+		functionBlocks = blockLoader.getBlocks();
 
 		// TODO: What happens when you call startServer() while the server is already running? Bad or no problem? Is
 		// this check necessary?

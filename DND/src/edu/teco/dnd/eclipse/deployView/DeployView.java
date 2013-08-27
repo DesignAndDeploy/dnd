@@ -53,8 +53,6 @@ import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DeployListener;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
-import edu.teco.dnd.deploy.DistributionGenerator;
-import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.eclipse.EclipseUtil;
@@ -337,7 +335,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 		Distribution dist = null;
 		try {
-			dist = DistributionCreator.createDistribution(functionBlocks, getModuleCollection(), constraints);
+			dist = DistributionCreator.createDistribution(functionBlocks, constraints);
 		} catch (NoBlocksException e) {
 			warn("No blockModels to distribute");
 			LOGGER.exit();
@@ -630,6 +628,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
 		appName.setText(input.getFile().getName().replaceAll("\\.blocks", ""));
 
+		System.out.println(input.getURI().toASCIIString());
+		
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		resource = new XMIResourceImpl(uri);
 		resource.setTrackingModification(true);
@@ -658,24 +658,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		dialog.setText("Warning");
 		dialog.setMessage(message);
 		return dialog.open();
-	}
-
-	/**
-	 * Returns a Collection of currently running modules that are already resolved. Does not contain modules that
-	 * haven't been resolved from their UUID yet.
-	 * 
-	 * @return collection of currently running modules to deploy on.
-	 */
-	private Collection<Module> getModuleCollection() {
-		Collection<Module> collection = new ArrayList<Module>();
-		Map<UUID, Module> map = manager.getMap();
-		for (UUID id : map.keySet()) {
-			Module m = map.get(id);
-			if (m != null) {
-				collection.add(m);
-			}
-		}
-		return collection;
 	}
 
 	/**

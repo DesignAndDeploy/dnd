@@ -54,16 +54,16 @@ public class CommandLoop {
 		boolean done = false;
 		String getInput = initialInput;
 		while (!done) {
-			if ("quit".equals(getInput)) {
+			if (QUIT.equals(getInput)) {
 				done = true;
 				exit();
 				break;
-			} else if ("create".equals(getInput)) {
+			} else if (CREATE.equals(getInput)) {
 				currentDistribution = createDistribution();
 				if (currentDistribution != null && askForUserConfirm("Deploy this now?")) {
 					deployDistribution(currentDistribution);
 				}
-			} else if ("deploy".equals(getInput)) {
+			} else if (DEPLOY.equals(getInput)) {
 				currentDistribution = createDistribution();
 				if (currentDistribution != null) {
 					deployDistribution(currentDistribution);
@@ -84,7 +84,7 @@ public class CommandLoop {
 
 		Distribution dist = null;
 		try {
-			dist = DistributionCreator.createDistribution(blocks, map.values(), null);
+			dist = DistributionCreator.createDistribution(blocks, null);
 		} catch (NoBlocksException e) {
 			System.out.println("Function Block Loading not implemented yet.");
 		} catch (NoModulesException e) {
@@ -113,7 +113,7 @@ public class CommandLoop {
 			userInput = br.readLine();
 		} catch (IOException e) {
 		}
-		if ("quit".equals(userInput) || "create".equals(userInput) || "deploy".equals(userInput)) {
+		if (QUIT.equals(userInput) || CREATE.equals(userInput) || DEPLOY.equals(userInput)) {
 			return userInput;
 		} else {
 			System.out.println("No valid command.");

@@ -1,5 +1,6 @@
 package edu.teco.dnd.command;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +10,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.ModelFactory;
 
 /**
  * This class is responsible for loading the functionBlockModels from a .blocks file.
@@ -31,16 +33,21 @@ public class FunctionBlockLoader {
 	public FunctionBlockLoader(String path) {
 		this.path = path;
 		applicationName = path.replaceAll("\\.blocks", "");
-		blocks = loadBlocks();
+		java.net.URI uuri = new File(path).toURI();
+		System.out.println(uuri.toASCIIString());
+		//blocks = loadBlocks();
 	}
 
 	// TODO: How are the connections stored?
-	private Collection<FunctionBlockModel> loadBlocks() {
+	public void loadBlocks() {
 		Collection<FunctionBlockModel> functionBlocks = new ArrayList<FunctionBlockModel>();
 
-		URI uri = URI.createURI(path);
-		// TODO: Class not found exception for resource. Solve.
+		ModelFactory.eINSTANCE.eClass();
+		
+		URI uri = URI.createURI(new File(path).toURI().toASCIIString());
+		
 		Resource resource = new XMIResourceImpl(uri);
+		
 		try {
 			resource.load(null);
 		} catch (IOException e) {
@@ -54,7 +61,7 @@ public class FunctionBlockLoader {
 				System.out.println(blockmodel.getBlockName());
 			}
 		}
-		return functionBlocks;
+		blocks = functionBlocks;
 	}
 
 	/**

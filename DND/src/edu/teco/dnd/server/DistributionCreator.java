@@ -23,15 +23,16 @@ import edu.teco.dnd.module.Module;
  */
 public class DistributionCreator {
 
-	public static Distribution createDistribution(Collection<FunctionBlockModel> blocks, Collection<Module> modules,
+	public static Distribution createDistribution(Collection<FunctionBlockModel> blocks,
 			Collection<Constraint> constraints) throws NoBlocksException, NoModulesException {
+		Collection<Module> modules = ServerManager.getDefault().getModuleManager().getModuleCollection();
 		if (blocks == null || blocks.isEmpty()) {
 			throw new NoBlocksException();
 		}
 		if (modules == null || modules.isEmpty()) {
 			throw new NoModulesException();
 		}
-		if (constraints == null){
+		if (constraints == null) {
 			constraints = new ArrayList<Constraint>();
 		}
 		DistributionGenerator generator = new DistributionGenerator(new MinimalModuleCountEvaluator(), constraints);
