@@ -21,6 +21,10 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -37,6 +41,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -374,7 +379,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				return;
 			}
 		}
-		
+
 		if (mapBlockToTarget.isEmpty()) {
 			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
 			LOGGER.exit();
@@ -390,48 +395,28 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				new Deploy(serverManager.getConnectionManager(), mapBlockToTarget, appName.getText(), dependencies);
 		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes
 		// or to run code at that point
+		
 		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
 			@Override
-			public void operationComplete(FutureNotifier<? super Void> future) {
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("deploy: {}", future.isSuccess());
-				}
-				if (future.isSuccess()) {
-					addNewInfoText("Deployment complete.");
-				} else {
-					addNewInfoText("Deployment failed.");
-				}
+			public void operationComplete(final FutureNotifier<? super Void> future) {
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						if (LOGGER.isInfoEnabled()) {
+							LOGGER.info("deploy: {}", future.isSuccess());
+						}
+						if (future.isSuccess()) {
+							addNewInfoText("Deployment complete.");
+						} else {
+							addNewInfoText("Deployment failed.");
+						}
+					}
+				});
 			}
 		});
-		deploy.addListener(new DeployListener() {
-			// TODO: actually show the progress. Probably using Eclipse Jobs
-
-			@Override
-			public void moduleJoined(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} joined Application {}", moduleUUID, appId);
-			}
-
-			@Override
-			public void moduleLoadedClasses(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, appId);
-			}
-
-			@Override
-			public void moduleLoadedBlocks(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
-			}
-
-			@Override
-			public void moduleStarted(final UUID appId, final UUID moduleUUID) {
-				LOGGER.debug("Module {} started the Application {}", moduleUUID, appId);
-			}
-
-			@Override
-			public void deployFailed(UUID appId, Throwable cause) {
-				LOGGER.debug("deploying Application {} failed: {}", appId, cause);
-			}
-		});
-		deploy.deploy();
+		
+		DeployViewProgress prog = new DeployViewProgress();
+		prog.startDeploying(appName.getText(), deploy, mapBlockToTarget);
 		resetDeployment();
 		LOGGER.exit();
 	}
@@ -629,7 +614,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		appName.setText(input.getFile().getName().replaceAll("\\.blocks", ""));
 
 		System.out.println(input.getURI().toASCIIString());
-		
+
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		resource = new XMIResourceImpl(uri);
 		resource.setTrackingModification(true);
