@@ -36,6 +36,5 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.7.Final-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/jung/.eclipse/org.eclipse.platform_3.7.0_155965261/plugins/org.eclipse.emf.ecore_2.7.0.v20120127-1122.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
