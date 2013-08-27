@@ -745,7 +745,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	@Override
-	public void moduleOffline(final UUID id) {
+	public void moduleOffline(final UUID id, Module module) {
 		LOGGER.entry(id);
 		display.asyncExec(new Runnable() {
 			@Override

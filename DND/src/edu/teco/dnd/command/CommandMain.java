@@ -115,11 +115,7 @@ public class CommandMain {
 		blockLoader.loadBlocks();
 		functionBlocks = blockLoader.getBlocks();
 
-		// TODO: What happens when you call startServer() while the server is already running? Bad or no problem? Is
-		// this check necessary?
-		if (!ServerManager.getDefault().isRunning()) {
-			ServerManager.getDefault().startServer(multicast, listen, announce);
-		}
+		ServerManager.getDefault().startServer(multicast, listen, announce);
 
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
 		ServerManager.getDefault().getModuleManager().addModuleManagerListener(moduleRegistrator);

@@ -27,8 +27,10 @@ public interface ModuleManagerListener {
 	 * 
 	 * @param id
 	 *            UUID of the Module.
+	 * @param module
+	 *            Module that has been removed. Might be null if module was not resolved before.
 	 */
-	void moduleOffline(UUID id);
+	void moduleOffline(UUID id, Module module);
 
 	/**
 	 * Informs that UUID has been resolved to a module.

@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.server.ModuleManagerListener;
-import edu.teco.dnd.server.ServerManager;
 
 /**
  * This class displays the registered modules for the command line program.
@@ -21,11 +20,10 @@ public class ModuleRegistrator implements ModuleManagerListener{
 	}
 
 	@Override
-	public void moduleOffline(UUID id) {
-		Map<UUID, Module> map = ServerManager.getDefault().getModuleManager().getMap();
+	public void moduleOffline(UUID id, Module module) {
 		System.out.print("Module went offline: ");
-		if (map.get(id) != null){
-			System.out.print(map.get(id).getName() + " ");
+		if (module != null){
+			System.out.print(module.getName() + " ");
 		}
 		System.out.println(": " + id.toString());
 	}

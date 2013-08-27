@@ -48,9 +48,9 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	private ModuleQuery query;
 
 	/**
-	 * Initializes a new ModuleManager. It will automatica
+	 * Initializes a new ModuleManager.
 	 */
-	public ModuleManager() {
+	protected ModuleManager() {
 		map = new HashMap<UUID, Module>();
 		ServerManager.getDefault().addServerStateListener(this);
 	}
@@ -107,8 +107,6 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 
 	@Override
 	public synchronized void serverStopped() {
-		map.clear();
-
 		if (connectionManager != null) {
 			connectionManager.removeConnectionListener(this);
 		}
@@ -116,6 +114,8 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 		for (final ModuleManagerListener listener : moduleManagerListener) {
 			listener.serverOffline();
 		}
+		
+		map.clear();
 	}
 
 	@Override
@@ -130,10 +130,11 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 
 	@Override
 	public synchronized void connectionClosed(UUID uuid) {
+		Module mod = map.get(uuid);
 		map.remove(uuid);
-
+		
 		for (final ModuleManagerListener listener : moduleManagerListener) {
-			listener.moduleOffline(uuid);
+			listener.moduleOffline(uuid, mod);
 		}
 	}
 
@@ -143,7 +144,6 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 			Module module = future.getNow();
 			UUID id = module.getUUID();
 			map.put(id, module);
-
 			for (final ModuleManagerListener listener : moduleManagerListener) {
 				listener.moduleResolved(id, module);
 			}

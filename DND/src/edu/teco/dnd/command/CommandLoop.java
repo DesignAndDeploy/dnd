@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.teco.dnd.deploy.Distribution;
+import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.server.DistributionCreator;
@@ -24,24 +25,23 @@ import edu.teco.dnd.server.ServerManager;
  * 
  */
 public class CommandLoop {
-	
+
 	/**
 	 * To be entered by user to create and display a distribution.
 	 */
 	public static final String CREATE = "create";
-	
+
 	/**
 	 * To be entered by user do create, display and deploy a distribution.
 	 */
 	public static final String DEPLOY = "deploy";
-	
+
 	/**
 	 * To be entered by user to quit the program.
 	 */
 	public static final String QUIT = "quit";
-	
-	
-	Distribution currentDistribution;
+
+	Distribution dist;
 	ModuleManager moduleManager;
 	Collection<FunctionBlockModel> blocks;
 
@@ -59,14 +59,14 @@ public class CommandLoop {
 				exit();
 				break;
 			} else if (CREATE.equals(getInput)) {
-				currentDistribution = createDistribution();
-				if (currentDistribution != null && askForUserConfirm("Deploy this now?")) {
-					deployDistribution(currentDistribution);
+				dist = createDistribution();
+				if (distributionSucceeded(dist) && askForUserConfirm("Deploy now?")){
+					deployDistribution(dist);
 				}
 			} else if (DEPLOY.equals(getInput)) {
-				currentDistribution = createDistribution();
-				if (currentDistribution != null) {
-					deployDistribution(currentDistribution);
+				dist = createDistribution();
+				if (distributionSucceeded(dist)) {
+					deployDistribution(dist);
 				}
 			}
 			getInput =
@@ -100,7 +100,21 @@ public class CommandLoop {
 		return dist;
 	}
 
-	private static void deployDistribution(Distribution dist) {
+	private boolean distributionSucceeded(Distribution dist) {
+		if (dist == null){
+			System.out.println("No distribution exists.");
+			return false;
+		}
+		System.out.println("Distribution succeeded:");
+		Map<FunctionBlockModel, BlockTarget> map = dist.getMapping();
+		for (FunctionBlockModel block : map.keySet()) {
+			Module mod = map.get(block).getModule();
+			System.out.println(block.getBlockName() + " mapped to " + mod.getName() + " : " + mod.getUUID().toString());
+		}
+		return true;
+	}
+
+	private void deployDistribution(Distribution dist) {
 		// TODO: Deploy distribution.
 	}
 
