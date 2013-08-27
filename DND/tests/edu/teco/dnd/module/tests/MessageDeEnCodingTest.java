@@ -3,8 +3,12 @@ package edu.teco.dnd.module.tests;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleApplicationManager;
@@ -39,8 +44,6 @@ import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppNak;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockAck;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessageDeserializerAdapter;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockMessageSerializerAdapter;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockNak;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
@@ -58,11 +61,11 @@ import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
 import edu.teco.dnd.util.NetConnectionAdapter;
 
-public class GsonDeEnCodingTest implements Serializable {
+public class MessageDeEnCodingTest implements Serializable {
 
 	private static final long serialVersionUID = -6437521431147083820L;
 
-	private static final Logger LOGGER = LogManager.getLogger(GsonDeEnCodingTest.class);
+	private static final Logger LOGGER = LogManager.getLogger(MessageDeEnCodingTest.class);
 
 	private static final UUID TEST_MODULE_UUID = UUID.fromString("00000000-9abc-def0-1234-56789abcdef0");
 	private static final UUID TEST_APP_UUID = UUID.fromString("11111111-9abc-def0-1234-56789abcdef0");
@@ -90,8 +93,6 @@ public class GsonDeEnCodingTest implements Serializable {
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
-		builder.registerTypeAdapter(BlockMessage.class, new BlockMessageSerializerAdapter());
-		builder.registerTypeAdapter(BlockMessage.class, new BlockMessageDeserializerAdapter(appMan));
 		builder.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
 		builder.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
 		gson = builder.create();
@@ -101,9 +102,9 @@ public class GsonDeEnCodingTest implements Serializable {
 	public void ApplicationListResponseTest() {
 
 		Map<UUID, String> modIds = new TreeMap<UUID, String>();
-		Map<UUID, Map<UUID, FunctionBlock>> AppBlocksRunning = new TreeMap<UUID, Map<UUID, FunctionBlock>>();
-		Map<UUID, FunctionBlock> blockMap = new TreeMap<UUID, FunctionBlock>();
-		blockMap.put(TEST_FUNBLOCK_UUID, new BeamerOperatorBlock(TEST_FUNBLOCK_UUID));
+		Map<UUID, Collection<UUID>> AppBlocksRunning = new TreeMap<UUID, Collection<UUID>>();
+		Set<UUID> blockMap = new TreeSet<UUID>();
+		blockMap.add(TEST_FUNBLOCK_UUID);
 		AppBlocksRunning.put(TEST_APP_UUID, blockMap);
 
 		modIds.put(TEST_APP_UUID, "APP_1");
@@ -228,8 +229,15 @@ public class GsonDeEnCodingTest implements Serializable {
 	@Test
 	public void BlockMessageTest() {
 
+		Map<String, String> options = new TreeMap<String, String>();
+		options.put("Option_key", "option_val");
+		Set<ValueDestination> valueDest = new HashSet<ValueDestination>();
+		valueDest.add(new ValueDestination(TEST_FUNBLOCK_UUID, "input_Name"));
+		Map<String, Collection<ValueDestination>> outputs = new TreeMap<String, Collection<ValueDestination>>();
+		outputs.put("Outp_key", valueDest);
+
 		msgAdapter.addMessageType(BlockMessage.class);
-		testEnDeCoding(new BlockMessage(TEST_APP_UUID, new BeamerOperatorBlock(TEST_FUNBLOCK_UUID)));
+		testEnDeCoding(new BlockMessage(TEST_APP_UUID, "BeamerActor", TEST_FUNBLOCK_UUID, options, outputs, 3));
 	}
 
 	@Test
@@ -299,7 +307,7 @@ public class GsonDeEnCodingTest implements Serializable {
 		class Seri implements Serializable {
 			int a = 42;
 			Long l = 12L;
-			FunctionBlock con = new BeamerOperatorBlock(TEST_FUNBLOCK_UUID);
+			FunctionBlock con = new BeamerOperatorBlock();
 
 			@Override
 			public String toString() {
