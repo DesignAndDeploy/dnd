@@ -8,8 +8,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
-
 /**
  * A class that does the boilerplate work for FutureNotifiers.
  * 

@@ -1,15 +1,11 @@
 package edu.teco.dnd.eclipse;
 
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.part.ViewPart;
-
-import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.server.ServerManager;
 
 /**
  * View for the applications / running function blocks.
@@ -19,18 +15,15 @@ import edu.teco.dnd.server.ServerManager;
  */
 public class AppView extends ViewPart {
 	private Label label;
-	private ServerManager serverManager;
-	private ConnectionManager manager;
+
 	// Used to map FunctionBlocks on table items
-	//private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
+	// private Map<UUID, TableItem> map = new HashMap<UUID, TableItem>();
 
 	/**
 	 * Creates a new Appview.
 	 */
 	public AppView() {
 		super();
-		serverManager = ServerManager.getDefault();
-		manager = serverManager.getConnectionManager();
 	}
 
 	public void setFocus() {

@@ -2,7 +2,6 @@ package edu.teco.dnd.module.messages.loadStartBlock;
 
 import java.util.UUID;
 
-import edu.teco.dnd.meeting.OutletSensorBlock;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;

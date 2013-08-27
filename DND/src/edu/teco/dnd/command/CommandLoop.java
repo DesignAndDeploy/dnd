@@ -23,7 +23,6 @@ import edu.teco.dnd.server.ServerManager;
 import edu.teco.dnd.util.Dependencies;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
-import edu.teco.dnd.util.StringUtil;
 
 /**
  * This class provides the loop to be run in the command line program, after the necessary variables have been

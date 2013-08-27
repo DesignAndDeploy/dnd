@@ -3,7 +3,6 @@ package edu.teco.dnd.eclipse;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,8 +35,6 @@ public class Activator extends AbstractUIPlugin {
 
 	private static ServerManager serverManager;
 
-	private UUID uuid;
-
 	static {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 	}
@@ -52,7 +49,6 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 
-		uuid = UUID.randomUUID();
 		serverManager = ServerManager.getDefault();
 
 		LOGGER.exit();

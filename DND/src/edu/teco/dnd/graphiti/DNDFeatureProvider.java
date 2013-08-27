@@ -2,7 +2,6 @@ package edu.teco.dnd.graphiti;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -132,14 +131,12 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			return Collections.emptySet();
 		}
 		IProject project = EclipseUtil.getWorkspaceProject(URI.createURI(EcoreUtil.getURI(diagram).toString()));
-		Set<URL> urls = new HashSet<URL>();
 		return EclipseUtil.getAbsoluteBinPaths(project);
 	}
 
 	/**
 	 * Registers default create features at the factory.
 	 */
-	@SuppressWarnings("unchecked")
 	private void registerDefaultTypes() {
 		final FunctionBlockFactory factory;
 		try {
@@ -292,7 +289,6 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 *            the context for which to return a feature
 	 * @return a matching DirectEditFeature
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public final IDirectEditingFeature getDirectEditingFeature(final IDirectEditingContext context) {
 		LOGGER.entry(context);
