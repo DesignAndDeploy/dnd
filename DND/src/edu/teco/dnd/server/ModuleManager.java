@@ -162,6 +162,23 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	}
 
 	/**
+	 * Returns a Collection of currently running modules that are already resolved. Does not contain modules that
+	 * haven't been resolved from their UUID yet.
+	 * 
+	 * @return collection of currently running modules to deploy on.
+	 */
+	public Collection<Module> getModuleCollection() {
+		Collection<Module> collection = new ArrayList<Module>();
+		for (UUID id : map.keySet()) {
+			Module m = map.get(id);
+			if (m != null) {
+				collection.add(m);
+			}
+		}
+		return collection;
+	}
+	
+	/**
 	 * Updates information on modules, in explicit how the BlockTypeHolder has changed and which applications are
 	 * running on the module.
 	 * 
