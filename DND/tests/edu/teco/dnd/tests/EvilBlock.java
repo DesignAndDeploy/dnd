@@ -30,6 +30,11 @@ public class EvilBlock extends FunctionBlock {
 	private static final boolean DO_EVIL_SYSOUT_SPAM = true;
 	private static final boolean DO_NULL_RETURNS = false;
 
+	private static final boolean THROW_EVIL_ERROR = false;
+	private static final boolean THROW_EVIL_RUNTIME_EXCEPTION = false;
+	private static final boolean DO_EVIL_INFINIT_RECURSION = false;
+	private static final boolean DO_EVIL_INFINIT_LOOP = false;
+
 	/**
 	 * 
 	 */
@@ -121,6 +126,37 @@ public class EvilBlock extends FunctionBlock {
 			System.exit(666);
 		} catch (Exception e) {
 			System.err.println("Ragequitting viciously prevented");
+		}
+
+		throwError(positionMarker);
+		loopToInfinityAndMuchMuchFurther(positionMarker);
+
+	}
+
+	private void throwError(String positionMarker) {
+		if (THROW_EVIL_ERROR) {
+			throw new Error(positionMarker);
+		} else if (THROW_EVIL_RUNTIME_EXCEPTION) {
+			throw new RuntimeException(positionMarker);
+		}
+
+	}
+
+	private void loopToInfinityAndMuchMuchFurther(String positionMarker) {
+		if (DO_EVIL_INFINIT_RECURSION) {
+			doEvilStuff(positionMarker); // Loop-a-loop
+		} else if (DO_EVIL_INFINIT_LOOP) {
+			try {
+
+				for (;;) {
+					if (DO_EVIL_SYSOUT_SPAM)
+						System.err.println("" + positionMarker + ": Spammm EVVVIIIILLL!!!!");
+					isEvil.setValue(true);
+				}
+
+			} finally {
+				System.err.println("was kicked out of for-loop?");
+			}
 		}
 	}
 
