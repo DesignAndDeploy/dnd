@@ -57,7 +57,6 @@ public class JsonConfig extends ConfigReader {
 		gson = builder.create();
 	}
 
-	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
 	private transient Map<Integer, BlockTypeHolder> blockIdQuickaccess = new HashMap<Integer, BlockTypeHolder>();
 
 	public JsonConfig() {
@@ -103,22 +102,19 @@ public class JsonConfig extends ConfigReader {
 		}
 
 		if (allowedBlocks != null) {
-			fillTransientVariables(blockQuickaccess, blockIdQuickaccess, allowedBlocks);
+			fillTransientVariables(allowedBlocks);
 		}
 	}
 
-	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess,
-			Map<Integer, BlockTypeHolder> blockIdQuickaccess, final BlockTypeHolder currentBlock) {
+	private void fillTransientVariables(final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
 		currentBlock.setIdNumber(++currentBlockId);
 		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
-		if (children == null) {
-			blockQuickaccess.put(currentBlock.type, currentBlock);
-		} else {
+		if (children != null) {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
-				fillTransientVariables(blockQuickaccess, blockIdQuickaccess, child);
+				fillTransientVariables(child);
 			}
 		}
 	}
@@ -174,11 +170,6 @@ public class JsonConfig extends ConfigReader {
 	@Override
 	public BlockTypeHolder getBlockRoot() {
 		return allowedBlocks;
-	}
-
-	@Override
-	public Map<String, BlockTypeHolder> getAllowedBlocks() {
-		return blockQuickaccess;
 	}
 
 	@Override

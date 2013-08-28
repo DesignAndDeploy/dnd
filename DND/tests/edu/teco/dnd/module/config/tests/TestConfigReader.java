@@ -145,11 +145,6 @@ public class TestConfigReader extends ConfigReader {
 	}
 
 	@Override
-	public Map<String, BlockTypeHolder> getAllowedBlocks() {
-		return blockQuickaccess;
-	}
-
-	@Override
 	public boolean getAllowNIO() {
 		return allowNIO;
 	}

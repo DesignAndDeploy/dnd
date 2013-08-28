@@ -169,24 +169,10 @@ public class ModuleApplicationManager {
 			}
 			final String blockType = block.getBlockType();
 			BlockTypeHolder blockAllowed = null;
-			if (scheduleToId < 0) {
-				for (String typeRegEx : moduleConfig.getAllowedBlocks().keySet()) {
-					if (blockType.matches(typeRegEx)) {
-						blockAllowed = moduleConfig.getAllowedBlocks().get(typeRegEx);
-					}
-				}
-				if (blockAllowed == null) {
-					LOGGER.info("Block {} not allowed in App {}({})", blockType, app, appId);
-					throw new IllegalArgumentException("Block not allowed in App");
-				}
-
-			} else {
-				blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
-				if (blockAllowed == null) {
-					LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, app, appId);
-					throw new IllegalArgumentException("Id does not exist in App");
-				}
-
+			blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
+			if (blockAllowed == null) {
+				LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, app, appId);
+				throw new IllegalArgumentException("Id does not exist in App");
 			}
 
 			if (!blockType.matches(blockAllowed.type)) {

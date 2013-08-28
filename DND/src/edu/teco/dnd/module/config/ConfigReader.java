@@ -45,12 +45,6 @@ public abstract class ConfigReader {
 	public abstract NetConnection[] getMulticast();
 
 	/**
-	 * @return a set of blocks allowed to run and their amounts (encoded in BlockType). Key is the <i>name</i> of the
-	 *         block.
-	 */
-	public abstract Map<String, BlockTypeHolder> getAllowedBlocks();
-
-	/**
 	 * @return a tree structure of blocks and their allowed amount (encoded in blocktype). This returns the root of the
 	 *         tree. See getAllowedBlocks() for a Map version.
 	 */
