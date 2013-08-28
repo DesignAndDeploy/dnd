@@ -5,7 +5,7 @@ import java.util.UUID;
 import edu.teco.dnd.network.messages.Message;
 
 /**
- * send when a new Application is supposed to be started.
+ * send when the receiving module is supposed to join in a new Application and prepare for starting it
  * 
  * @author Marvin Marx
  * 
@@ -15,7 +15,13 @@ public class JoinApplicationMessage extends Message {
 
 	public static String MESSAGE_TYPE = "join application";
 
+	/**
+	 * UUID of the application to join in.
+	 */
 	public UUID appId;
+	/**
+	 * human readable name of the application to join
+	 */
 	public String name;
 
 	public JoinApplicationMessage(String name, UUID appId) {

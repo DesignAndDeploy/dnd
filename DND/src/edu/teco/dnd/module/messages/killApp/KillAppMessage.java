@@ -15,11 +15,17 @@ public class KillAppMessage extends ApplicationSpecificMessage {
 
 	public static String MESSAGE_TYPE = "kill";
 
+	/**
+	 * 
+	 * @param appId
+	 *            UUID of the app supposed to be stopped. Note it does not need to be stored in the message, because the
+	 *            message is simply SEND to the appropriate App, which is enough.
+	 */
 	public KillAppMessage(UUID appId) {
 		super(appId);
 	}
 
-	/* for gson */
+	/* for gson. */
 	private KillAppMessage() {
 		super(null);
 	}
@@ -34,11 +40,6 @@ public class KillAppMessage extends ApplicationSpecificMessage {
 		return "KillAppMessage [" + super.toString() + "]";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -47,11 +48,13 @@ public class KillAppMessage extends ApplicationSpecificMessage {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		} else {
-			return true; // KillAppMsg = every other KillAppMsg
-		}
+		return getClass() == obj.getClass(); // KillAppMsg = every other KillAppMsg
+
+	}
+
+	@Override
+	public int hashCode() {
+		return 72347826; // does not matter. All KillAppMsgs are equal.
 	}
 
 }

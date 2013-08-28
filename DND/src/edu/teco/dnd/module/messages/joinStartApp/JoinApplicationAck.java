@@ -5,7 +5,8 @@ import java.util.UUID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
- * send when a new Application is supposed to be started.
+ * send when the module received a request to join in a new Application and prepare for starting it and this was
+ * successful.
  * 
  * @author Marvin Marx
  * 
@@ -14,21 +15,40 @@ public class JoinApplicationAck extends Response {
 
 	public static String MESSAGE_TYPE = "join application ack";
 
-	public UUID appId;
-	public String name;
+	/**
+	 * UUID of the new Application.
+	 */
+	public final UUID appId;
+	/**
+	 * Human readable name of the new application.
+	 */
+	public final String name;
 
+	/**
+	 * 
+	 * @param name
+	 *            human readable name of the App joined.
+	 * @param appId
+	 *            id of the app started.
+	 */
 	public JoinApplicationAck(String name, UUID appId) {
 		this.name = name;
 		this.appId = appId;
 	}
 
+	/**
+	 * convenience constructor.
+	 * 
+	 * @param msg
+	 *            the JoinAppMsg this is the reply to.
+	 */
 	public JoinApplicationAck(JoinApplicationMessage msg) {
 		this.name = msg.name;
 		this.appId = msg.appId;
 	}
 
+	/** for gson. */
 	@SuppressWarnings("unused")
-	/* for gson */
 	private JoinApplicationAck() {
 		name = null;
 		appId = null;

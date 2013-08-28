@@ -316,7 +316,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 				LOGGER.trace("future {} was a success and returned {}", future, response);
 				LOGGER.trace(response.getClass());
 				if (response instanceof BlockFoundResponse) {
-					final UUID moduleUUID = ((BlockFoundResponse) response).getModuleUUID();
+					final UUID moduleUUID = ((BlockFoundResponse) response).moduleId;
 					if (moduleUUID != null) {
 						LOGGER.debug("future {} returned UUID {}", moduleUUID);
 						moduleUUIDFutureNotifier.queryFinishedSuccessfully(moduleUUID);

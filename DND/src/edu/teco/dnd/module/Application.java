@@ -217,9 +217,10 @@ public class Application {
 	 * @param value
 	 *            the value to give to the input.
 	 * @return true iff value was successfully passed on.
-	 * @throws IllegalAccessException
 	 * @throws NonExistentFunctionblockException
+	 *             If the FunctionBlock is not being executed by this module.
 	 * @throws NonExistentInputException
+	 *             If the FunctionBlock is being executed but does not have an input of said name.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void receiveValue(final UUID funcBlockId, String inputName, Serializable value)
@@ -236,6 +237,7 @@ public class Application {
 			final Input input = block.getInputs().get(inputName);
 			if (input == null) {
 				LOGGER.info("input '{}' non existant for {}", inputName, block);
+				throw LOGGER.throwing(new NonExistentInputException());
 			}
 			input.setValue(value);
 			Runnable updater = new Runnable() {

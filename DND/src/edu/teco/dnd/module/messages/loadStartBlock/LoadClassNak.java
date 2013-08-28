@@ -4,13 +4,32 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * Send when loading the Class bytecode into the application failed.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class LoadClassNak extends Response {
 
 	public static String MESSAGE_TYPE = "load class nak";
 
+	/**
+	 * Application the code was supposed to be loaded into.
+	 */
 	public UUID appId;
+	/**
+	 * name of the class we wanted to load.
+	 */
 	public String className;
 
+	/**
+	 * 
+	 * @param className
+	 *            name of the class we wanted to load.
+	 * @param appId
+	 *            Application the code was supposed to be loaded into.
+	 */
 	public LoadClassNak(String className, UUID appId) {
 		this.className = className;
 		this.appId = appId;

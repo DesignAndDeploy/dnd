@@ -4,13 +4,31 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * confirms that the bytecode of a class was successfully loaded.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class LoadClassAck extends Response {
 
 	public static String MESSAGE_TYPE = "load class ack";
-
+	/**
+	 * ID of the application the code was loaded on.
+	 */
 	public UUID appId;
+	/**
+	 * Name of the class that was loaded.
+	 */
 	public String className;
 
+	/**
+	 * 
+	 * @param className
+	 *            name of the class that was loaded
+	 * @param appId
+	 *            the appID this class was loaded into.
+	 */
 	public LoadClassAck(String className, UUID appId) {
 		this.className = className;
 		this.appId = appId;

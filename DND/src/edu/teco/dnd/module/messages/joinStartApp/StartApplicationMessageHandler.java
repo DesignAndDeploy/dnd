@@ -7,9 +7,23 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * Triggers starting of applications on the given ApplicationManager.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class StartApplicationMessageHandler implements MessageHandler<StartApplicationMessage> {
-	final ModuleApplicationManager appManager;
+	/**
+	 * ApplicationManager to start the Application on.
+	 */
+	private final ModuleApplicationManager appManager;
 
+	/**
+	 * 
+	 * @param appManager
+	 *            the applicationManager to start the application on.
+	 */
 	public StartApplicationMessageHandler(ModuleApplicationManager appManager) {
 		this.appManager = appManager;
 	}

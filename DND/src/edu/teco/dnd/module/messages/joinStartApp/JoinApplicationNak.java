@@ -5,7 +5,7 @@ import java.util.UUID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
- * send when a new Application is supposed to be started.
+ * send when a module failed to join an application.
  * 
  * @author Marvin Marx
  * 
@@ -15,14 +15,33 @@ public class JoinApplicationNak extends Response {
 
 	public static String MESSAGE_TYPE = "join application nak";
 
+	/**
+	 * human readable name of the application.
+	 */
 	public String name;
+	/**
+	 * UUID of the application that was supposed to be joined.
+	 */
 	public UUID appId;
 
+	/**
+	 * 
+	 * @param name
+	 *            human readable name of the application.
+	 * @param appId
+	 *            UUID of the application that was supposed to be joined.
+	 */
 	public JoinApplicationNak(String name, UUID appId) {
 		this.name = name;
 		this.appId = appId;
 	}
 
+	/**
+	 * convenience constructor.
+	 * 
+	 * @param msg
+	 *            the message that triggered the failure.
+	 */
 	public JoinApplicationNak(JoinApplicationMessage msg) {
 		this.name = msg.name;
 		this.appId = msg.appId;

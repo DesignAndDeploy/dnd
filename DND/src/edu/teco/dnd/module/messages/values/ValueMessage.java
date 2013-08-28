@@ -7,13 +7,39 @@ import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
+/**
+ * Message containing a value send by the output of one functionBlock to the input of another.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ValueMessage extends ApplicationSpecificMessage {
 
 	public static String MESSAGE_TYPE = "value";
+	/**
+	 * ID of the block this is to be send to.
+	 */
 	public final UUID blockId;
+	/**
+	 * Name of the input this is to be send to.
+	 */
 	public final String input;
+	/**
+	 * The actual value.
+	 */
 	public final Serializable value;
 
+	/**
+	 * 
+	 * @param appId
+	 *            ID of the application this is part of
+	 * @param functionBlock
+	 *            ID of the block this is to be send to.
+	 * @param input
+	 *            Name of the input this is to be send to.
+	 * @param value
+	 *            The actual value.
+	 */
 	public ValueMessage(UUID appId, UUID functionBlock, String input, Serializable value) {
 		super(appId);
 		this.blockId = functionBlock;
@@ -43,6 +69,10 @@ public class ValueMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * ATTENTION: may falsely return false, because the Serializable value does not guarantee comparability!
+	 * 
+	 * @param obj
+	 *            the usual.
+	 * @return the usual.
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -74,7 +104,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 			if (other.value != null) {
 				return false;
 			}
-		} else
+		} else {
 			try {
 				if (!UsercodeWrapper.getEquals(value, other.value)) {
 					return false;
@@ -83,6 +113,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 				e.printStackTrace();
 				return false;
 			}
+		}
 		return true;
 	}
 

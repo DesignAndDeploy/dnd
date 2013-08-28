@@ -52,7 +52,7 @@ public class Module {
 	 * @return Map from Types to amount of free slots for this type
 	 */
 	public HashMap<String, Integer> getTypes() {
-		return holder.getTypes();
+		return holder.getAllAllowedChildTypes();
 	}
 
 

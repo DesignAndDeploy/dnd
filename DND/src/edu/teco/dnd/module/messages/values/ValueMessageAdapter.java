@@ -20,6 +20,13 @@ import com.google.gson.JsonSerializer;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.util.Base64;
 
+/**
+ * GSon adapter used to (de)serialize a ValueMessage. Reads the Object and writes it as primitives onto the sjson
+ * stream. or the other way round.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, JsonSerializer<ValueMessage> {
 
 	/**
@@ -28,6 +35,12 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 	private static final Logger LOGGER = LogManager.getLogger(ValueMessageAdapter.class);
 	private final ModuleApplicationManager appMan;
 
+	/**
+	 * 
+	 * @param appMan
+	 *            the ApplicationManager used to retrieve the appropriate class loader. ( In case the value is of a type
+	 *            that is missing on the module).
+	 */
 	public ValueMessageAdapter(ModuleApplicationManager appMan) {
 		this.appMan = appMan;
 	}

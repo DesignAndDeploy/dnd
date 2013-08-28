@@ -83,7 +83,7 @@ public class ModuleApplicationManager {
 
 				final Application newApp = createApplication(appId, name);
 				runningApps.put(appId, newApp);
-				
+
 				registerMessageHandlers(newApp);
 			}
 		} finally {
@@ -118,11 +118,11 @@ public class ModuleApplicationManager {
 			}
 		};
 	}
-	
+
 	private void registerMessageHandlers(final Application application) {
 		final UUID appId = application.getOwnAppId();
 		final Executor executor = application.getThreadPool();
-		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, application), executor);
+		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(application), executor);
 		connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), executor);
 		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), executor);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), executor);
@@ -175,9 +175,9 @@ public class ModuleApplicationManager {
 				throw new IllegalArgumentException("Id does not exist in App");
 			}
 
-			if (!blockType.matches(blockAllowed.type)) {
-				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId, blockAllowed.type,
-						blockType);
+			if (!blockType.matches(blockAllowed.getType())) {
+				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId,
+						blockAllowed.getType(), blockType);
 				throw new IllegalArgumentException("given scheduleId and Blocktype incompatible");
 			}
 
@@ -260,6 +260,7 @@ public class ModuleApplicationManager {
 	 * @return true iff successful
 	 */
 	public void stopApplication(UUID appId) {
+		// TODO deregister Message handlers
 		LOGGER.entry(appId);
 		Collection<FunctionBlockSecurityDecorator> blocksKilled;
 		synchronized (runningApps) {

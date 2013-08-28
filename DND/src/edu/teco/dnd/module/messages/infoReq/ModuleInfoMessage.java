@@ -5,20 +5,49 @@ import java.util.UUID;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * Message containing information about the sending module (like name...).
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ModuleInfoMessage extends Response {
 
 	public static String MESSAGE_TYPE = "module info";
+	/**
+	 * a Module class that encapsulates the information about the module.
+	 */
 	public final Module module;
 
-	public ModuleInfoMessage(final UUID sourceUUID, final UUID uuid, final Module module) {
-		super(sourceUUID, uuid);
+	/**
+	 * construct a new module info message. (should usually not be used, unless it is desired to produce an exact
+	 * duplication of an old message with equal UUIDs)
+	 * 
+	 * @param sourceMsgUuid
+	 *            the msgUuid this is a reply to.
+	 * @param msgUuid
+	 *            the uuid of this message.
+	 * @param module
+	 *            the module with the appropriate informations set.
+	 */
+	public ModuleInfoMessage(final UUID sourceMsgUuid, final UUID msgUuid, final Module module) {
+		super(sourceMsgUuid, msgUuid);
 		this.module = module;
 	}
 
+	/**
+	 * construct a new Module info message.
+	 * 
+	 * @param module
+	 *            the encapsulated module information.
+	 */
 	public ModuleInfoMessage(final Module module) {
 		this.module = module;
 	}
 
+	/**
+	 * @return the module with the encapsulated module information.
+	 */
 	public Module getModule() {
 		return this.module;
 	}

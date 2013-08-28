@@ -12,29 +12,47 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.annotations.SerializedName;
 
 /**
+ * TreeElement that wraps an allowed blocktype (can have children/ parents).
  * 
  * @author Marvin Marx
- * 
  */
 public class BlockTypeHolder {
-
+	/**
+	 * logger for this class.
+	 */
 	private static final Logger LOGGER = LogManager.getLogger(BlockTypeHolder.class);
 
-	public final String type;
-	/** allowed blocks of this type, <0 means infinity. */
+	/**
+	 * The type this blockTypeHolder gives the amount... for.
+	 */
+	private final String type;
+	/** allowed blocks of this type, < 0 means infinity. */
 	@SerializedName("amount")
 	private int amountAllowed = -1;
 	private int amountLeft = -1;
+	/** used during deploy to give exact position to run block on in case of doubt. */
 	private int idNumber = -1;
-	/** null if none */
+	/** null if none. */
 	private Set<BlockTypeHolder> children = null;
 
 	private transient BlockTypeHolder parent = null;
 
-	public BlockTypeHolder() {
+	/**
+	 * For Gson.
+	 */
+	@SuppressWarnings("unused")
+	private BlockTypeHolder() {
 		this((String) null, -1);
 	}
 
+	/**
+	 * constructs a new Blocktype holder as a leaf node of the tree.
+	 * 
+	 * @param type
+	 *            the type this leaf node referes to
+	 * @param amount
+	 *            the amount that must not be exceeded. (infinite if < 0)
+	 */
 	public BlockTypeHolder(String type, int amount) {
 		// leave node
 		this.type = type;
@@ -43,6 +61,14 @@ public class BlockTypeHolder {
 		this.amountLeft = amount;
 	}
 
+	/**
+	 * constructs a new non leaf node. Can not have a type however does have children. Children can also be added later.
+	 * 
+	 * @param childblocks
+	 *            the children of this block
+	 * @param amount
+	 *            the maximum amount allowed of all subnodes together. ( < 0 means no limits)
+	 */
 	public BlockTypeHolder(Set<BlockTypeHolder> childblocks, int amount) {
 		// non leave node
 		this.type = null;
@@ -51,7 +77,13 @@ public class BlockTypeHolder {
 		this.amountLeft = amount;
 	}
 
-	public BlockTypeHolder(int amount) {
+	/**
+	 * constructs a new non leave node with a maximum amount, yet no children. children can be added later.
+	 * 
+	 * @param amount
+	 *            the maximum amount allowed of all subnodes together. ( < 0 means no limits)
+	 */
+	public BlockTypeHolder(final int amount) {
 		// non leave node
 		this.type = null;
 		this.children = new HashSet<BlockTypeHolder>();
@@ -59,16 +91,34 @@ public class BlockTypeHolder {
 		this.amountLeft = amount;
 	}
 
-	public void addChild(BlockTypeHolder child) {
+	/**
+	 * adds a single child to a non leave node.
+	 * 
+	 * @param child
+	 *            the child to add.
+	 * @throws IllegalStateException
+	 *             if node is a leaf node.
+	 */
+	public void addChild(BlockTypeHolder child) throws IllegalStateException {
 		addChild(Arrays.asList(child));
 	}
 
-	public void addChild(Collection<BlockTypeHolder> children) {
-		if (type != null)
+	/**
+	 * add a collection of children to a non leaf node.
+	 * 
+	 * @param childrenToAdd
+	 *            a collection of children to add to this block.
+	 * @throws IllegalStateException
+	 *             if node is a leaf node.
+	 */
+	public void addChild(Collection<BlockTypeHolder> childrenToAdd) throws IllegalStateException {
+		if (type != null) {
 			throw new IllegalStateException("Node has type and is not a leave node.");
-		if (children == null)
+		}
+		if (children == null) {
 			children = new HashSet<BlockTypeHolder>();
-		this.children.addAll(children);
+		}
+		this.children.addAll(childrenToAdd);
 	}
 
 	/**
@@ -78,27 +128,56 @@ public class BlockTypeHolder {
 		return children;
 	}
 
+	/**
+	 * 
+	 * @return the parent of this BlockTypeHolder.
+	 */
 	public BlockTypeHolder getParent() {
 		return parent;
 	}
 
+	/**
+	 * set a new parent for this blockTypeHolder.
+	 * 
+	 * @param parent
+	 *            the parent to set.
+	 */
 	public void setParent(BlockTypeHolder parent) {
 		this.parent = parent;
 	}
 
+	/**
+	 * 
+	 * @return the amount that was allowed to run in when this holder was set up.
+	 */
 	public int getAmountAllowed() {
 		return amountAllowed;
 	}
 
+	/**
+	 * 
+	 * @return the amount that is still left to run of this blocktype (after the ones already running have been
+	 *         subtracted).
+	 */
 	public int getAmountLeft() {
 		return amountLeft;
 	}
 
+	/**
+	 * Set the amount that is left being allowed to run to the given number.
+	 * 
+	 * @param amountLeft
+	 *            the amount to set this to.
+	 */
 	public void setAmountLeft(int amountLeft) {
 		LOGGER.trace("setting amountLeft to {}", amountLeft);
 		this.amountLeft = amountLeft;
 	}
 
+	/**
+	 * 
+	 * @return the type of the block if a leaf node, null if not.
+	 */
 	public String getType() {
 		return this.type;
 	}
@@ -146,6 +225,10 @@ public class BlockTypeHolder {
 		}
 	}
 
+	/**
+	 * increase the amount left allowed to run on this block by one (not higher than amount allowed) and calls the
+	 * method recursively on it's parents.
+	 */
 	public synchronized void increase() {
 		if (amountLeft >= 0) {
 			if (amountLeft < amountAllowed) {
@@ -158,36 +241,47 @@ public class BlockTypeHolder {
 	}
 
 	/**
-	 * Returns a Map that tells which types of function blocks can run on this module and how many. Works if this
-	 * BlockTypeHolder is the parent of all BlockTypeHolders for this module. If not: incomplete.
+	 * Returns a Map that tells which types of functionBlocks and how many each are allowed to run according to this
+	 * node and all it's subnodes.
 	 * 
 	 * @return Map from Types to amount of available slots for function blocks of this type
 	 */
-	public HashMap<String, Integer> getTypes() {
+	public HashMap<String, Integer> getAllAllowedChildTypes() {
 		HashMap<String, Integer> types = new HashMap<String, Integer>();
-		mapType(types);
+		mapAllowedChildTypes(types);
 		return types;
 	}
 
-	private HashMap<String, Integer> mapType(HashMap<String, Integer> map) {
+	/**
+	 * recursively adds all allowed child types and their amount to the map given as parameter.
+	 * 
+	 * @param allowedChildren
+	 *            the map to fill with the allowed child types and their amount.
+	 * @return the now filled map.
+	 */
+	private HashMap<String, Integer> mapAllowedChildTypes(HashMap<String, Integer> allowedChildren) {
 		if (type != null && amountLeft > 0) {
-			if (map.containsKey(type)) {
-				int sum = map.get(type);
+			if (allowedChildren.containsKey(type)) {
+				int sum = allowedChildren.get(type);
 				sum += amountLeft;
-				map.remove(type);
-				map.put(type, sum);
+				allowedChildren.remove(type);
+				allowedChildren.put(type, sum);
 			} else {
-				map.put(type, amountLeft);
+				allowedChildren.put(type, amountLeft);
 			}
 		} else if (children != null) {
 			for (BlockTypeHolder child : children) {
-				map = child.mapType(map);
+				allowedChildren = child.mapAllowedChildTypes(allowedChildren);
 			}
 		}
-		return map;
+		return allowedChildren;
 	}
 
-	public boolean isLeave() {
+	/**
+	 * 
+	 * @return true iff this node is a leaf.
+	 */
+	public boolean isLeaf() {
 		return type != null;
 	}
 

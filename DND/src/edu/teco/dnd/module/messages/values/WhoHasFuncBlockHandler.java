@@ -10,11 +10,32 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * Triggers a check whether this application on this module is executing a given FunctionBlock. If so this is positively
+ * acknowledged (see blockFoundMessage). If not an empty reply is returned.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class WhoHasFuncBlockHandler implements MessageHandler<WhoHasBlockMessage> {
-	private transient static final Logger LOGGER = LogManager.getLogger(WhoHasFuncBlockHandler.class);
-	public final Application app;
-	public final UUID ownModUuid;
+	private static final transient Logger LOGGER = LogManager.getLogger(WhoHasFuncBlockHandler.class);
+	/**
+	 * The app this is in regard to.
+	 */
+	private final Application app;
+	/**
+	 * The UUID of the module this is executed upon.
+	 */
+	private final UUID ownModUuid;
 
+	/**
+	 * 
+	 * @param app
+	 *            The app this is in regard to.
+	 * @param ownModUuid
+	 *            The moduleId this is executed upon. If block found obviously also the id that is returned as having
+	 *            this block.
+	 */
 	public WhoHasFuncBlockHandler(Application app, UUID ownModUuid) {
 		this.app = app;
 		this.ownModUuid = ownModUuid;

@@ -7,9 +7,23 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * Handle JoinApp messages. Triggers Joining the application on the given ApplicationManager.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class JoinApplicationMessageHandler implements MessageHandler<JoinApplicationMessage> {
-	final ModuleApplicationManager appManager;
+	/**
+	 * ApplicationManager to issue the join on.
+	 */
+	private final ModuleApplicationManager appManager;
 
+	/**
+	 * 
+	 * @param appManager
+	 *            the AppManager to issue the join on.
+	 */
 	public JoinApplicationMessageHandler(ModuleApplicationManager appManager) {
 		this.appManager = appManager;
 

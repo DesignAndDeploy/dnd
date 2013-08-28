@@ -121,7 +121,7 @@ public class DistributionGenerator {
 
 			for (final Module module : modules) {
 				for (final BlockTypeHolder holder : new BlockTypeHolderIterator(module.getHolder())) {
-					if (holder.isLeave()) {
+					if (holder.isLeaf()) {
 						if (isAllowed(start, block, module, holder)) {
 							start.add(block, module, holder);
 							final int upperBound = strategy.upperBound(start, blockStack, modules);

@@ -10,23 +10,59 @@ import java.util.UUID;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
+/**
+ * Message informing a module that it is supposed to prepare a Block for starting in a given Application.
+ * 
+ */
 public class BlockMessage extends ApplicationSpecificMessage {
 
 	public static final String MESSAGE_TYPE = "block";
 
+	/**
+	 * Class of the block to be started.
+	 */
 	public final String blockClass;
 
+	/**
+	 * UUID the block is supposed to have after starting.
+	 */
 	public final UUID blockUUID;
 
+	/**
+	 * options the block is supposed to have after starting.
+	 */
 	public final Map<String, String> options;
 
+	/**
+	 * outputs the block is supposed to have after starting.
+	 */
 	public final Map<String, Collection<ValueDestination>> outputs;
-	
+
+	/**
+	 * place in the allowed block hierarchy this block is supposed to occupy.
+	 */
 	public int scheduleToId;
 
-	public BlockMessage(UUID uuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
+	/**
+	 * 
+	 * @param msgUuid
+	 *            UUID of this message.
+	 * @param appId
+	 *            ID of the application this message is to be sent to.
+	 * @param blockClass
+	 *            the Class of the block to be started.
+	 * @param blockUUID
+	 *            the UUID the block is supposed to have after starting.
+	 * @param options
+	 *            the options the block is supposed to have after starting.
+	 * @param outputs
+	 *            the outputs the block is supposed to have after starting.
+	 * @param scheduledToId
+	 *            place in the allowed block hierarchy this block is supposed to occupy.
+	 */
+	public BlockMessage(UUID msgUuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
 			Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
-		super(uuid, appId);
+		super(msgUuid, appId);
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
@@ -40,6 +76,21 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		this.scheduleToId = scheduledToId;
 	}
 
+	/**
+	 * 
+	 * @param appId
+	 *            ID of the application this message is to be sent to.
+	 * @param blockClass
+	 *            the Class of the block to be started.
+	 * @param blockUUID
+	 *            the UUID the block is supposed to have after starting.
+	 * @param options
+	 *            the options the block is supposed to have after starting.
+	 * @param outputs
+	 *            the outputs the block is supposed to have after starting.
+	 * @param scheduledToId
+	 *            place in the allowed block hierarchy this block is supposed to occupy.
+	 */
 	public BlockMessage(UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
 			Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
 		super(appId);
@@ -70,35 +121,47 @@ public class BlockMessage extends ApplicationSpecificMessage {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		BlockMessage other = (BlockMessage) obj;
 		if (blockClass == null) {
-			if (other.blockClass != null)
+			if (other.blockClass != null) {
 				return false;
-		} else if (!blockClass.equals(other.blockClass))
+			}
+		} else if (!blockClass.equals(other.blockClass)) {
 			return false;
+		}
 		if (blockUUID == null) {
-			if (other.blockUUID != null)
+			if (other.blockUUID != null) {
 				return false;
-		} else if (!blockUUID.equals(other.blockUUID))
+			}
+		} else if (!blockUUID.equals(other.blockUUID)) {
 			return false;
+		}
 		if (options == null) {
-			if (other.options != null)
+			if (other.options != null) {
 				return false;
-		} else if (!options.equals(other.options))
+			}
+		} else if (!options.equals(other.options)) {
 			return false;
+		}
 		if (outputs == null) {
-			if (other.outputs != null)
+			if (other.outputs != null) {
 				return false;
-		} else if (!outputs.equals(other.outputs))
+			}
+		} else if (!outputs.equals(other.outputs)) {
 			return false;
-		if (scheduleToId != other.scheduleToId)
+		}
+		if (scheduleToId != other.scheduleToId) {
 			return false;
+		}
 		return true;
 	}
 

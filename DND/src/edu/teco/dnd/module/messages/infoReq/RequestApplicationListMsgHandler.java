@@ -20,6 +20,14 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 	private final UUID moduleUUID;
 	private final ModuleApplicationManager applicationManager;
 
+	/**
+	 * create a new AppListMsgHandler.
+	 * 
+	 * @param moduleUUID
+	 *            UUID of the module this is running on.
+	 * @param applicationManager
+	 *            the applicationManager of the module this is running on. Needed to extract the running applications.
+	 */
 	public RequestApplicationListMsgHandler(final UUID moduleUUID, final ModuleApplicationManager applicationManager) {
 		this.moduleUUID = moduleUUID;
 		this.applicationManager = applicationManager;

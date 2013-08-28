@@ -4,12 +4,28 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * send when a value was successfully received.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ValueAck extends Response {
 
 	public static String MESSAGE_TYPE = "value ack";
 
-	public ValueAck(UUID appId) {
+	/**
+	 * ID of the application this is send by.
+	 */
+	public final UUID appId;
 
+	/**
+	 * 
+	 * @param appId
+	 *            ID of the application this is send by.
+	 */
+	public ValueAck(UUID appId) {
+		this.appId = appId;
 	}
 
 	/*

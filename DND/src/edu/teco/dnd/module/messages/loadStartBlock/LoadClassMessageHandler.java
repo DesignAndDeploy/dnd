@@ -3,17 +3,28 @@ package edu.teco.dnd.module.messages.loadStartBlock;
 import java.util.UUID;
 
 import edu.teco.dnd.module.Application;
-import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * triggers loading of a class into the classloader of an application.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class LoadClassMessageHandler implements MessageHandler<LoadClassMessage> {
-	final ModuleApplicationManager appManager;
-	final Application associatedApp;
+	/**
+	 * The application any arriving bytecode should be loaded into.
+	 */
+	private final Application associatedApp;
 
-	public LoadClassMessageHandler(ModuleApplicationManager appManager, Application associatedApp) {
-		this.appManager = appManager;
+	/**
+	 * 
+	 * @param associatedApp
+	 *            the application any arriving bytecode should be loaded into.
+	 */
+	public LoadClassMessageHandler(Application associatedApp) {
 		this.associatedApp = associatedApp;
 
 	}

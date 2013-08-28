@@ -4,17 +4,61 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * Response to let the block sending a value message know, that the retrieving of the value failed.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ValueNak extends Response {
+	/**
+	 * The reason the Value could not be delivered.
+	 * 
+	 * @author Marvin Marx
+	 * 
+	 */
 	public enum ErrorType {
-		WRONG_MODULE, INVALID_INPUT, OTHER;
+		/**
+		 * Value could not be delivered, because this Module does not know/execute the given FunctionBlock.
+		 */
+		WRONG_MODULE,
+		/**
+		 * The value could not be delivered because, although the module does execute the given Block, said Block does
+		 * not have an input of the given name.
+		 */
+		INVALID_INPUT,
+		/**
+		 * Some other error occurred, that is not covered by the above.
+		 */
+		OTHER;
 	}
 
 	public static String MESSAGE_TYPE = "value nak";
+	/**
+	 * UUID of the Block the Value was meant for.
+	 */
 	public final UUID blockId;
+	/**
+	 * Name of the Input the Value was meant for.
+	 */
 	public final String input;
 
+	/**
+	 * Type of error that occurred. See ErrorType.
+	 */
 	public final ErrorType errorType;
 
+	/**
+	 * 
+	 * @param appId
+	 *            ID of application sending/receiving this value.
+	 * @param errorType
+	 *            type of error that occurred.
+	 * @param blockId
+	 *            Id of block this value was meant for.
+	 * @param input
+	 *            name of input this value was meant for.
+	 */
 	public ValueNak(UUID appId, ErrorType errorType, UUID blockId, String input) {
 		if (errorType == null) {
 			errorType = ErrorType.OTHER;

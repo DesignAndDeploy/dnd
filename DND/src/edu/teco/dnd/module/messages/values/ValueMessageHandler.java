@@ -9,9 +9,23 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * triggers sending the value to the appropriate Application.FunctionBlock.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ValueMessageHandler implements MessageHandler<ValueMessage> {
-	final Application associatedApp;
+	/**
+	 * The application the FunctionBlock to retrieve the message is running on.
+	 */
+	private final Application associatedApp;
 
+	/**
+	 * 
+	 * @param associatedApp
+	 *            The application the FunctionBlock to retrieve the message is running on.
+	 */
 	public ValueMessageHandler(Application associatedApp) {
 		this.associatedApp = associatedApp;
 

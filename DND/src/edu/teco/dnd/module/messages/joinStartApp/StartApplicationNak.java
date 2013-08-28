@@ -5,7 +5,7 @@ import java.util.UUID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
- * send when a new Application is supposed to be started.
+ * send when a new Application was supposed to be started and it failed.
  * 
  * @author Marvin Marx
  * 
@@ -15,12 +15,25 @@ public class StartApplicationNak extends Response {
 
 	public static String MESSAGE_TYPE = "start application nak";
 
+	/**
+	 * UUID of the app supposed to be started.
+	 */
 	public UUID appId;
 
+	/**
+	 * 
+	 * @param appId
+	 *            the application supposed to be started.
+	 */
 	public StartApplicationNak(UUID appId) {
 		this.appId = appId;
 	}
 
+	/**
+	 * 
+	 * @param msg
+	 *            the message triggering this nak.
+	 */
 	public StartApplicationNak(StartApplicationMessage msg) {
 		this.appId = msg.getApplicationID();
 	}

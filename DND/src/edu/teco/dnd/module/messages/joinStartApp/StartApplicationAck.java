@@ -5,7 +5,7 @@ import java.util.UUID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
- * send when a new Application is supposed to be started.
+ * send by a module, when it was supposed to Start an application it joined before and succeed.
  * 
  * @author Marvin Marx
  * 
@@ -14,12 +14,25 @@ public class StartApplicationAck extends Response {
 
 	public static String MESSAGE_TYPE = "start application ack";
 
+	/**
+	 * UUID of the started App.
+	 */
 	public UUID appId;
 
+	/**
+	 * 
+	 * @param appId
+	 *            UUID of the started App.
+	 */
 	public StartApplicationAck(UUID appId) {
 		this.appId = appId;
 	}
 
+	/**
+	 * 
+	 * @param msg
+	 *            the message that triggered this reply.
+	 */
 	public StartApplicationAck(StartApplicationMessage msg) {
 		this.appId = msg.getApplicationID();
 	}

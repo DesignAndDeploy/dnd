@@ -4,10 +4,26 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
+/**
+ * Message send to request the position of a FunctionBlock if it is unknown to the module.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class WhoHasBlockMessage extends ApplicationSpecificMessage {
 	public static String MESSAGE_TYPE = "who has block";
+	/**
+	 * ID of the Block being searched for.
+	 */
 	public final UUID blockId;
 
+	/**
+	 * 
+	 * @param appId
+	 *            Id of the application executing the block.
+	 * @param blockId
+	 *            Id of the block being looked for.
+	 */
 	public WhoHasBlockMessage(UUID appId, UUID blockId) {
 		super(appId);
 		this.blockId = blockId;

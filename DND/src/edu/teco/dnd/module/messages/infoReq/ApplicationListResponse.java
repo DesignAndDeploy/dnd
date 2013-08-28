@@ -13,7 +13,6 @@ import edu.teco.dnd.network.messages.Response;
 /**
  * Contains the UUIDs and names of all running Applications.
  * 
- * @author Philipp Adolf
  */
 public class ApplicationListResponse extends Response {
 
@@ -38,6 +37,10 @@ public class ApplicationListResponse extends Response {
 	 * 
 	 * @param applicationNames
 	 *            the UUIDs of the running Applications mapped to their names
+	 * @param moduleUUID
+	 *            the UUID of the module sending this.
+	 * @param applicationBlocks
+	 *            the UUIDs of the running applications mapped to the Blocks they execute.
 	 */
 	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames,
 			Map<UUID, Collection<UUID>> applicationBlocks) {
@@ -73,7 +76,7 @@ public class ApplicationListResponse extends Response {
 	}
 
 	/**
-	 * Returns the UUIDs of all running Applications mapped to their name
+	 * Returns the UUIDs of all running Applications mapped to their name.
 	 * 
 	 * @return the UUIDs of all running Applications mapped to their name
 	 */
@@ -82,7 +85,7 @@ public class ApplicationListResponse extends Response {
 	}
 
 	/**
-	 * Returns the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
+	 * Returns the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>.
 	 * 
 	 * @return the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
 	 */

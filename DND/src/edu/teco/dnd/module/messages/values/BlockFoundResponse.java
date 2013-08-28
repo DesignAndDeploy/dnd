@@ -4,18 +4,25 @@ import java.util.UUID;
 
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * response message send, when a block a certain module was looking for happens to be on this module.
+ * 
+ * @author Philipp
+ * 
+ */
 public class BlockFoundResponse extends Response {
 
 	public static String MESSAGE_TYPE = "block found";
 
-	private final UUID moduleId;
+	public final UUID moduleId;
 
+	/**
+	 * The UUID of the module the block we were looking for is on.
+	 * 
+	 * @param moduleId
+	 */
 	public BlockFoundResponse(UUID moduleId) {
 		this.moduleId = moduleId;
-	}
-
-	public UUID getModuleUUID() {
-		return moduleId;
 	}
 
 	@Override
@@ -28,18 +35,23 @@ public class BlockFoundResponse extends Response {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		BlockFoundResponse other = (BlockFoundResponse) obj;
 		if (moduleId == null) {
-			if (other.moduleId != null)
+			if (other.moduleId != null) {
 				return false;
-		} else if (!moduleId.equals(other.moduleId))
+			}
+		} else if (!moduleId.equals(other.moduleId)) {
 			return false;
+		}
 		return true;
 	}
 

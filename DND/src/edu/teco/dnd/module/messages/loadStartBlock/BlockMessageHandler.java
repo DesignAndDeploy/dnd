@@ -7,9 +7,21 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * Triggers scheduling a block into a given application.
+ * 
+ */
 public class BlockMessageHandler implements MessageHandler<BlockMessage> {
-	final ModuleApplicationManager appManager;
+	/**
+	 * ApplicationManager to trigger the scheduling on.
+	 */
+	private final ModuleApplicationManager appManager;
 
+	/**
+	 * 
+	 * @param appManager
+	 *            ApplicationManager to trigger the scheduling on.
+	 */
 	public BlockMessageHandler(ModuleApplicationManager appManager) {
 		this.appManager = appManager;
 	}

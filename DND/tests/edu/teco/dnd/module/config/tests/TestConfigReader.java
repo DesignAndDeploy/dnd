@@ -94,7 +94,7 @@ public class TestConfigReader extends ConfigReader {
 		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children == null) {
-			blockQuickaccess.put(currentBlock.type, currentBlock);
+			blockQuickaccess.put(currentBlock.getType(), currentBlock);
 		} else {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);

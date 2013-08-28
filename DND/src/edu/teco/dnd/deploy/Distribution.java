@@ -244,7 +244,7 @@ public class Distribution {
 		 */
 		public int getDistributionUsage(final Distribution distribution) {
 			LOGGER.entry(distribution);
-			if (holder.isLeave()) {
+			if (holder.isLeaf()) {
 				Collection<FunctionBlockModel> targetCollection = distribution.targets.get(this);
 				if (targetCollection == null) {
 					LOGGER.exit(0);
@@ -318,7 +318,7 @@ public class Distribution {
 		 */
 		public boolean canAdd(final Distribution distribution, final FunctionBlockModel block) {
 			LOGGER.entry(distribution, block);
-			if (!holder.isLeave()) {
+			if (!holder.isLeaf()) {
 				LOGGER.exit(false);
 				return false;
 			}
@@ -372,7 +372,7 @@ public class Distribution {
 			final StringBuilder sb = new StringBuilder();
 			sb.append("BlockTypeHolder[module=");
 			sb.append(module.getUUID());
-			if (holder.isLeave()) {
+			if (holder.isLeaf()) {
 				sb.append(",type='");
 				sb.append(holder.getType());
 				sb.append("',amount=");

@@ -14,12 +14,25 @@ public class KillAppNak extends Response {
 
 	public static String MESSAGE_TYPE = "kill app nak";
 
+	/**
+	 * App UUID that was supposed to be stopped.
+	 */
 	public UUID appId;
 
+	/**
+	 * 
+	 * @param appId
+	 *            App UUID that was supposed to be stopped.
+	 */
 	public KillAppNak(UUID appId) {
 		this.appId = appId;
 	}
 
+	/**
+	 * 
+	 * @param msg
+	 *            Message triggering this reply.
+	 */
 	public KillAppNak(KillAppMessage msg) {
 		this.appId = msg.getApplicationID();
 	}

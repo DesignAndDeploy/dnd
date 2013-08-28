@@ -7,9 +7,23 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
+/**
+ * triggers stopping the appropriate application upon receipt.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class KillAppMessageHandler implements MessageHandler<KillAppMessage> {
-	final ModuleApplicationManager appManager;
+	/**
+	 * the ApplicationManager to trigger the stopping on.
+	 */
+	private final ModuleApplicationManager appManager;
 
+	/**
+	 * 
+	 * @param appManager
+	 *            the ApplicationManager to trigger the stopping on.
+	 */
 	public KillAppMessageHandler(ModuleApplicationManager appManager) {
 		this.appManager = appManager;
 

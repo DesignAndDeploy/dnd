@@ -7,17 +7,32 @@ import edu.teco.dnd.network.messages.Response;
 /**
  * send when a new Application is supposed to be started.
  * 
+ * @author Marvin Marx
+ * 
  */
 public class KillAppAck extends Response {
 
 	public static String MESSAGE_TYPE = "kill ack";
 
+	/**
+	 * UUID of the application that was supposed to be killed.
+	 */
 	public UUID appId;
 
+	/**
+	 * 
+	 * @param appId
+	 *            UUID of the application that was supposed to be killed.
+	 */
 	public KillAppAck(UUID appId) {
 		this.appId = appId;
 	}
 
+	/**
+	 * 
+	 * @param msg
+	 *            message that triggered this nak.
+	 */
 	public KillAppAck(KillAppMessage msg) {
 		this.appId = msg.getApplicationID();
 	}

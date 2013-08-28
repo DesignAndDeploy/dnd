@@ -6,16 +6,33 @@ import java.util.UUID;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
- * contains the bytecode of a class to be loaded.
+ * Contains bytecode of a class that is supposed to be loaded into an application by a module.
+ * 
+ * @author Marvin Marx
+ * 
  */
-
 public class LoadClassMessage extends ApplicationSpecificMessage {
 
 	public static String MESSAGE_TYPE = "load class";
 
+	/**
+	 * Name of the class to be loaded.
+	 */
 	public String className;
+	/**
+	 * bytecode of the class.
+	 */
 	public byte[] classByteCode;
 
+	/**
+	 * 
+	 * @param className
+	 *            Name of the class to be loaded.
+	 * @param classByteCode
+	 *            bytecode of said class
+	 * @param appId
+	 *            id of the application class is supposed to be loaded into.
+	 */
 	public LoadClassMessage(String className, byte[] classByteCode, UUID appId) {
 		super(appId);
 		this.className = className;

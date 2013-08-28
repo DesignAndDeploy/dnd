@@ -12,6 +12,13 @@ import com.google.gson.JsonParseException;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
+/**
+ * Adapter to deserialize a ModuleInfoMessage. Needed because it contains a BlockTypeHolder tree, which naturally has
+ * references to parent nodes, which however are not serialized to avoid infinite recursions. Restoring the values here.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMessage> {
 	@Override
 	public ModuleInfoMessage deserialize(final JsonElement json, final Type typeOfT,
@@ -33,8 +40,14 @@ public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMess
 		return new ModuleInfoMessage(sourceUUID, uuid, module);
 	}
 
+	/**
+	 * recursively set the parents of nodes in the tree.
+	 * 
+	 * @param blockTypeHolder
+	 *            the root of the tree (if called externally).
+	 */
 	private static void setParents(final BlockTypeHolder blockTypeHolder) {
-		if (!blockTypeHolder.isLeave()) {
+		if (!blockTypeHolder.isLeaf()) {
 			for (final BlockTypeHolder child : blockTypeHolder.getChildren()) {
 				child.setParent(blockTypeHolder);
 				setParents(child);
