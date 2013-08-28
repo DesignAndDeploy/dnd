@@ -189,7 +189,6 @@ public class ModuleApplicationManager {
 
 				app.scheduledToStart.add(block);
 			}
-			LOGGER.info("foo");
 			final Map<String, Output<? extends Serializable>> blockOutputs = block.getOutputs();
 			System.out.println(blockOutputs);
 			for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
