@@ -257,17 +257,12 @@ public class Application {
 		}
 	}
 
-	/**
-	 * called to indicate, that the application is being shut down. Quits the scheduling of it.
-	 * 
-	 */
 	public void shutdown() {
 		shutdownLock.writeLock().lock(); // will not be unlocked.
 		scheduledThreadPool.shutdown();
 		final Thread shutdownThread = new Thread(new Runnable() {
 			public void run() {
 				for (FunctionBlockSecurityDecorator fun : funcBlockById.values()) {
-					funcBlockById.remove(fun.getBlockUUID());
 					fun.shutdown();
 				}
 			}
@@ -335,5 +330,23 @@ public class Application {
 				sendValue(destination.getBlock(), destination.getInput(), value);
 			}
 		}
+	}
+
+	public void start() {
+		synchronized (scheduledToStart) {
+			if (isRunning) {
+				LOGGER.warn("tried to double start Application.");
+				throw new IllegalArgumentException("tried to double start Application.");
+			}
+			isRunning = true;
+
+			for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
+				startBlock(func);
+			}
+		}
+	}
+
+	public Class<?> loadClass(final String blockClass) throws ClassNotFoundException {
+		return classLoader.loadClass(blockClass);
 	}
 }

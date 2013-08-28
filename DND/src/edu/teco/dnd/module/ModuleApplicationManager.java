@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -80,35 +81,53 @@ public class ModuleApplicationManager {
 					return;
 				}
 
-				final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
-
-				final ThreadFactory fact = new ThreadFactory() {
-					private final ThreadFactory internalFactory = new IndexedThreadFactory("app-" + appId.toString()
-							+ "-");
-
-					@Override
-					public Thread newThread(Runnable r) {
-						final Thread appThread = internalFactory.newThread(r);
-						appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
-						return appThread;
-					}
-				};
-
-				ScheduledThreadPoolExecutor pool = new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, fact);
-				Application newApp = new Application(appId, name, pool, connMan, classLoader);
+				final Application newApp = createApplication(appId, name);
 				runningApps.put(appId, newApp);
-
-				connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, newApp), pool);
-				connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), pool);
-				connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), pool);
-				connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), pool);
-				connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(newApp), pool);
-				connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(newApp, localeModuleId));
+				
+				registerMessageHandlers(newApp);
 			}
 		} finally {
 			isShuttingDown.readLock().unlock();
 		}
+	}
 
+	private Application createApplication(final UUID appId, final String name) {
+		final ApplicationClassLoader classLoader = createApplicationClassLoader(appId);
+		final ScheduledThreadPoolExecutor executor = createApplicationExecutor(appId);
+		return new Application(appId, name, executor, connMan, classLoader);
+	}
+
+	private ApplicationClassLoader createApplicationClassLoader(final UUID appId) {
+		return new ApplicationClassLoader(connMan, appId);
+	}
+
+	private ScheduledThreadPoolExecutor createApplicationExecutor(final UUID appId) {
+		return new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, createApplicationThreadFactory(appId));
+	}
+
+	private ThreadFactory createApplicationThreadFactory(final UUID appId) {
+		final ApplicationClassLoader classLoader = createApplicationClassLoader(appId);
+		return new ThreadFactory() {
+			private final ThreadFactory internalFactory = new IndexedThreadFactory("app-" + appId.toString() + "-");
+
+			@Override
+			public Thread newThread(Runnable r) {
+				final Thread appThread = internalFactory.newThread(r);
+				appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
+				return appThread;
+			}
+		};
+	}
+	
+	private void registerMessageHandlers(final Application application) {
+		final UUID appId = application.getOwnAppId();
+		final Executor executor = application.getThreadPool();
+		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(this, application), executor);
+		connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), executor);
+		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), executor);
+		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), executor);
+		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(application), executor);
+		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(application, localeModuleId));
 	}
 
 	/**
@@ -128,7 +147,7 @@ public class ModuleApplicationManager {
 			final Application app = runningApps.get(appId);
 			Class<?> cls;
 			try {
-				cls = app.getClassLoader().loadClass(blockClass);
+				cls = app.loadClass(blockClass);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				return false;
@@ -213,6 +232,7 @@ public class ModuleApplicationManager {
 
 	}
 
+	// FIXME: Apps can be started after shutdownModule has been called
 	public void startApp(UUID appId) {
 		Application app = runningApps.get(appId);
 		if (app == null) {
@@ -222,17 +242,7 @@ public class ModuleApplicationManager {
 
 		isShuttingDown.readLock().lock();
 		try {
-			synchronized (app.scheduledToStart) {
-				if (app.isRunning == true) {
-					LOGGER.warn("tried to double start Application.");
-					throw new IllegalArgumentException("tried to double start Application.");
-				}
-				app.isRunning = true;
-
-				for (final FunctionBlockSecurityDecorator func : app.scheduledToStart) {
-					app.startBlock(func);
-				}
-			}
+			app.start();
 		} finally {
 			isShuttingDown.readLock().unlock();
 		}
@@ -267,28 +277,35 @@ public class ModuleApplicationManager {
 		LOGGER.entry(appId);
 		Collection<FunctionBlockSecurityDecorator> blocksKilled;
 		synchronized (runningApps) {
-
 			Application app = runningApps.get(appId);
 			if (app == null) {
 				return;
 			}
 
+			app.shutdown();
+
 			blocksKilled = app.getAllBlocks();
 
-			app.shutdown();
 			runningApps.remove(appId);
+		}
+		removeBlocks(blocksKilled);
+	}
 
+	private void removeBlocks(final Collection<FunctionBlockSecurityDecorator> blocks) {
+		for (final FunctionBlockSecurityDecorator block : blocks) {
+			removeBlock(block);
 		}
-		for (FunctionBlockSecurityDecorator block : blocksKilled) {
-			final UUID blockUUID = block.getBlockUUID();
-			BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockUUID));
-			if (holder != null) {
-				holder.increase();
-			} else {
-				LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
-			}
-			spotOccupiedByBlock.remove(blockUUID);
+	}
+
+	private void removeBlock(final FunctionBlockSecurityDecorator block) {
+		final UUID blockUUID = block.getBlockUUID();
+		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockUUID));
+		if (holder != null) {
+			holder.increase();
+		} else {
+			LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
 		}
+		spotOccupiedByBlock.remove(blockUUID);
 	}
 
 	/**
