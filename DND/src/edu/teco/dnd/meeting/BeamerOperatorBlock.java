@@ -1,5 +1,7 @@
 package edu.teco.dnd.meeting;
 
+import java.util.Map;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
@@ -37,7 +39,7 @@ public class BeamerOperatorBlock extends FunctionBlock {
 	 * Initializes BeamerOperatorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
 	}
 
 	/**

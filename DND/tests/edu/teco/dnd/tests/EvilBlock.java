@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -144,7 +145,7 @@ public class EvilBlock extends FunctionBlock {
 	 * Initializes the evil.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
 		doEvilStuff("INIT");
 	}
 

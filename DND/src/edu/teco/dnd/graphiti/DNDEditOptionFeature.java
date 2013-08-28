@@ -6,7 +6,6 @@ import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.impl.AbstractDirectEditingFeature;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.graphiti.model.OptionModel;
 
 /**

@@ -164,8 +164,10 @@ public abstract class FunctionBlock implements Serializable {
 
 	/**
 	 * This method is called when a FunctionBlock is started on a module.
+	 * 
+	 * @param options a Map from an Option's name to its value
 	 */
-	public abstract void init();
+	public abstract void init(final Map<String, String> options);
 
 	/**
 	 * Can be used to perform necessary operations upon block shutdown. Block will still be in a functional state,

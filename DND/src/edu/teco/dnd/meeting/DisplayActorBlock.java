@@ -3,6 +3,7 @@ package edu.teco.dnd.meeting;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -47,7 +48,7 @@ public class DisplayActorBlock extends FunctionBlock {
 	 * Initializes DisplayActorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
 	}
 
 	/**

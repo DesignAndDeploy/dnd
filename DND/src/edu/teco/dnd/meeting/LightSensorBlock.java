@@ -1,9 +1,9 @@
 package edu.teco.dnd.meeting;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.SensorException;
@@ -31,20 +31,19 @@ public class LightSensorBlock extends FunctionBlock {
 	public static final long BLOCK_UPDATE_INTERVAL = 1000L;
 
 	/**
-	 * Indicates brightness.
-	 */
-	private Output<Integer> lights;
-
-	/**
 	 * URL of the UPart. Default is already set; doesn't contain ID.
 	 */
-	private Option url;
-	// TODO: set default "http://cumulus.teco.edu:51525/sensor/entity/"
+	public static final String OPTION_URL = "http://cumulus.teco.edu:51525/sensor/entity/";
 
 	/**
 	 * ID of the UPart.
 	 */
-	private Option uPartID;
+	public static final String OPTION_UPART_ID = null;
+
+	/**
+	 * Indicates brightness.
+	 */
+	private Output<Integer> lights;
 
 	/**
 	 * Reads from the UPart.
@@ -55,11 +54,13 @@ public class LightSensorBlock extends FunctionBlock {
 	 * Initializes LightSensorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
+		final String url = options.get("URL");
+		final String uPartID = options.get("UPART_ID");
 		if (url == null || uPartID == null) {
 			return;
 		}
-		String fullURL = url.getValue() + uPartID.getValue();
+		String fullURL = url + uPartID;
 		try {
 			reader = new UPartReader(fullURL);
 		} catch (MalformedURLException e) {

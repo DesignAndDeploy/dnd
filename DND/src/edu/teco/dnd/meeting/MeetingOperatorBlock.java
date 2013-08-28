@@ -1,8 +1,9 @@
 package edu.teco.dnd.meeting;
 
+import java.util.Map;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.graphiti.BlockType;
 
@@ -20,6 +21,11 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	public static final String BLOCK_TYPE = "operator";
 
 	/**
+	 * Threshold to decide whether the light is bright enough to have a meeting or if it is to dark.
+	 */
+	public static final String OPTION_THRESHOLD = null;
+
+	/**
 	 * indicates brightness.
 	 */
 	private Input<Integer> lights;
@@ -29,22 +35,17 @@ public class MeetingOperatorBlock extends FunctionBlock {
 	 */
 	private Output<Boolean> meeting;
 
-	/**
-	 * Threshold to decide whether the light is bright enough to have a meeting or if it is to dark.
-	 */
-	private Option threshold;
-
-	private int _threshold;
+	private int threshold;
 
 	/**
 	 * Initializes MeetingOperatorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
 		try {
-			_threshold = Integer.parseInt(threshold.getValue());
+			threshold = Integer.parseInt(options.get("THRESHOLD"));
 		} catch (NumberFormatException e) {
-			_threshold = Integer.MIN_VALUE;
+			threshold = Integer.MIN_VALUE;
 		}
 	}
 
@@ -68,7 +69,7 @@ public class MeetingOperatorBlock extends FunctionBlock {
 		if (lightsValue == null) {
 			return;
 		}
-		meeting.setValue(lightsValue > _threshold);
+		meeting.setValue(lightsValue > threshold);
 	}
 
 }

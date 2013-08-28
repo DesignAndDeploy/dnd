@@ -11,7 +11,6 @@ import org.eclipse.graphiti.features.impl.AbstractDirectEditingFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
 /**

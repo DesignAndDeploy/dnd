@@ -1,5 +1,7 @@
 package edu.teco.dnd.meeting;
 
+import java.util.Map;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.graphiti.BlockType;
@@ -35,7 +37,7 @@ public class BeamerActorBlock extends FunctionBlock {
 	 * Initializes BeamerActorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
 		control = new BeamerControl();
 	}
 

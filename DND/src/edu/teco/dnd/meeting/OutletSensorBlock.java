@@ -1,9 +1,9 @@
 package edu.teco.dnd.meeting;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.OutletReader;
@@ -34,13 +34,12 @@ public class OutletSensorBlock extends FunctionBlock {
 	/**
 	 * URL of the Outlet. Default is already set; doesn't contain ID.
 	 */
-	private Option url;
-	// TODO: set default "http://cumulus.teco.edu:51525/sensor/entity/"
+	public static final String OPTION_URL = "http://cumulus.teco.edu:51525/sensor/entity/";
 
 	/**
 	 * ID of the outlet.
 	 */
-	private Option outletID;
+	public static final String OPTION_OUTLET_ID = null;
 
 	/**
 	 * Reads from the outlet.
@@ -51,11 +50,13 @@ public class OutletSensorBlock extends FunctionBlock {
 	 * Initializes OutletSensorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
+		final String url = options.get("URL");
+		final String outletID = options.get("OUTLET_ID");
 		if (url == null || outletID == null) {
 			return;
 		}
-		String fullURL = url.getValue() + outletID.getValue();
+		String fullURL = url + outletID;
 		try {
 			reader = new OutletReader(fullURL);
 		} catch (MalformedURLException e) {

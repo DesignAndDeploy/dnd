@@ -35,6 +35,7 @@ public class Application {
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
+	private final ConcurrentMap<UUID, Map<String, String>> blockOptions = new ConcurrentHashMap<UUID, Map<String,String>>();
 
 	/**
 	 * A Map from FunctionBlock UUID to matching ValueSender. Not used for local FunctionBlocks.
@@ -181,7 +182,7 @@ public class Application {
 			Runnable initRunnable = new Runnable() {
 				@Override
 				public void run() {
-					block.init();
+					block.init(blockOptions.get(block.getBlockUUID()));
 				}
 			};
 			Runnable updater = new Runnable() {

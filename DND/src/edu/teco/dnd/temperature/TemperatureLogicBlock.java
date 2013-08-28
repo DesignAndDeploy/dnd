@@ -1,8 +1,9 @@
 package edu.teco.dnd.temperature;
 
+import java.util.Map;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.graphiti.BlockType;
 
@@ -28,16 +29,16 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 * Value to compare the temperature to. If temperature is lower than threshold, activate heating. If it's bigger,
 	 * deactivate heating
 	 */
-	private Option threshold;
+	public static final String OPTION_THRESHOLD = null;
 
-	private int _threshold;
+	private int threshold;
 
 	/**
 	 * Temperature the user wants the heater to have. - set by user
 	 */
-	private Option temperature;
+	public static final String OPTION_TEMPERATURE = null;
 
-	private int _temperature;
+	private int temperature;
 
 	/**
 	 * The temperature the heater shall achieve. - sent to heater
@@ -48,16 +49,16 @@ public class TemperatureLogicBlock extends FunctionBlock {
 	 * Initializes TemperatureLogicBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
 		try {
-			_threshold = Integer.parseInt(threshold.getValue());
+			threshold = Integer.parseInt(options.get("THRESHOLD"));
 		} catch (NumberFormatException e) {
-			_threshold = Integer.MIN_VALUE;
+			threshold = Integer.MIN_VALUE;
 		}
 		try {
-			_temperature = Integer.parseInt(temperature.getValue());
+			temperature = Integer.parseInt(options.get("TEMPERATURE"));
 		} catch (NumberFormatException e) {
-			_temperature = Integer.MIN_VALUE;
+			temperature = Integer.MIN_VALUE;
 		}
 	}
 
@@ -84,10 +85,10 @@ public class TemperatureLogicBlock extends FunctionBlock {
 			}
 		}
 		if (roomTemp != null) {
-			if (roomTemp > _threshold + 1) {
+			if (roomTemp > threshold + 1) {
 				heaterTemperature.setValue(0);
-			} else if (roomTemp < _threshold) {
-				heaterTemperature.setValue(_temperature);
+			} else if (roomTemp < threshold) {
+				heaterTemperature.setValue(temperature);
 			}
 		}
 	}

@@ -1,10 +1,10 @@
 package edu.teco.dnd.temperature;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.HeaterControl;
 import edu.teco.dnd.uPart.SensorException;
@@ -30,28 +30,29 @@ public class TemperatureActorBlock extends FunctionBlock {
 	/**
 	 * URL of the heater. Default is already set; doesn't contain ID.
 	 */
-	private Option url;
-	// TODO: set default "http://cumulus.teco.edu:51525/actuator/entity/"
+	public static final String OPTION_URL = "http://cumulus.teco.edu:51525/actuator/entity/";
 
 	/**
 	 * ID of the heater.
 	 */
-	private Option heaterID;
+	public static final String OPTION_HEATER_ID = null;
 
 	/**
 	 * Used to control the heater.
 	 */
 	private HeaterControl control;
 
-	/**
+	/**w
 	 * Initializes TemperatureActorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
+		final String url = options.get("URL");
+		final String heaterID = options.get("HEATER_ID");
 		if (url == null || heaterID == null) {
 			return;
 		}
-		String fullURL = url.getValue() + heaterID.getValue();
+		String fullURL = url + heaterID;
 		try {
 			control = new HeaterControl(fullURL);
 		} catch (MalformedURLException e) {

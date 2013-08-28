@@ -48,9 +48,9 @@ public class FunctionBlockSecurityDecorator {
 		return LOGGER.exit(true);
 	}
 
-	public boolean init() {
+	public boolean init(final Map<String, String> options) {
 		try {
-			block.init();
+			block.init(options);
 		} catch (Throwable t) {
 			Thread.dumpStack();
 			LOGGER.warn("{} threw an exception in init()", block);

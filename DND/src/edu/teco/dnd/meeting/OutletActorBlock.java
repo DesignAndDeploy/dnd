@@ -1,8 +1,9 @@
 package edu.teco.dnd.meeting;
 
+import java.util.Map;
+
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.blocks.Option;
 import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.OutletControl;
 
@@ -20,20 +21,19 @@ public class OutletActorBlock extends FunctionBlock {
 	public static final String BLOCK_TYPE = "actorOutlet";
 
 	/**
-	 * tells BeamerActorBlock to turn on (true) or switch off (false) the beamer.
-	 */
-	private Input<Boolean> beamer;
-
-	/**
 	 * URL of the Outlet of the beamer. Default is already set; doesn't contain ID.
 	 */
-	private Option url;
-	// TODO: set default "http://cumulus.teco.edu:5000/plugwise/"
+	public static final String OPTION_URL = "http://cumulus.teco.edu:5000/plugwise/";
 
 	/**
 	 * ID of the outlet to control.
 	 */
-	private Option outletID;
+	public static final String OPTION_OUTLET_ID = null;
+
+	/**
+	 * tells BeamerActorBlock to turn on (true) or switch off (false) the beamer.
+	 */
+	private Input<Boolean> beamer;
 
 	/**
 	 * OutletControl to control the outlet of the beamer.
@@ -44,11 +44,13 @@ public class OutletActorBlock extends FunctionBlock {
 	 * Initializes BeamerActorBlock.
 	 */
 	@Override
-	public void init() {
+	public void init(final Map<String, String> options) {
+		final String url = options.get("URL");
+		final String outletID = options.get("OUTLET_ID");
 		if (url == null || outletID == null) {
 			return;
 		}
-		String fullURL = url.getValue() + outletID.getValue();
+		String fullURL = url + outletID;
 		this.outletControl = new OutletControl(fullURL);
 	}
 
