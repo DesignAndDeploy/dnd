@@ -22,9 +22,6 @@ import edu.teco.dnd.graphiti.BlockType;
 @SuppressWarnings("unused")
 @BlockType("EVIL")
 public class EvilBlock extends FunctionBlock {
-
-	// getType = operator
-
 	private static final boolean DO_DUMP_STACK = false;
 	private static final boolean DO_EVIL_ON_MODULE_ONLY = false;
 
@@ -125,20 +122,6 @@ public class EvilBlock extends FunctionBlock {
 		} catch (Exception e) {
 			System.err.println("Ragequitting viciously prevented");
 		}
-		// throw new Error();
-		// throw new RuntimeException();
-		// doEvilStuff(positionMarker); // Loop-a-loop
-		// try {
-		//
-		// for (;;) {
-		// if (DO_EVIL_SYSOUT_SPAM)
-		// System.err.println("" + positionMarker + ": Spammm EVVVIIIILLL!!!!");
-		// isEvil.setValue(true);
-		// }
-		//
-		// } finally {
-		// System.err.println("was kicked out of for-loop?");
-		// }
 	}
 
 	/**
