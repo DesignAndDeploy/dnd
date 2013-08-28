@@ -410,8 +410,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			}
 		});
 		
-		DeployViewProgress prog = new DeployViewProgress();
-		prog.startDeploying(appName.getText(), deploy, mapBlockToTarget);
+		DeployViewProgress.startDeploying(appName.getText(), deploy, mapBlockToTarget);
 		resetDeployment();
 		LOGGER.exit();
 	}

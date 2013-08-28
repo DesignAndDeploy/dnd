@@ -51,13 +51,15 @@ public class DeployJob extends Job {
 	 */
 	public static final int STEPS_PER_MODULE = STEPS_JOIN_MODULE + STEPS_LOAD_CLASSES + STEPS_LOAD_BLOCKS
 			+ STEPS_START_MODULE;
-	
+
 	private Module module;
+	private UUID id;
 	private Deploy deploy;
-	
+
 	public DeployJob(String name, Module m, Deploy d) {
-		super(name);
+		super("Deploying " + name + "...");
 		this.module = m;
+		this.id = m.getUUID();
 		this.deploy = d;
 	}
 
@@ -65,31 +67,38 @@ public class DeployJob extends Job {
 	protected IStatus run(final IProgressMonitor monitor) {
 
 		monitor.beginTask("Deploy on: " + module.getName() + " : " + module.getUUID().toString(), STEPS_PER_MODULE);
-		
-		deploy.addListener(new DeployListener() {
 
+		deploy.addListener(new DeployListener() {
 			@Override
 			public void moduleJoined(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} joined Application {}", moduleUUID, appId);
-				monitor.worked(STEPS_JOIN_MODULE);
+				if (id.equals(moduleUUID)) {
+					LOGGER.debug("Module {} joined Application {}", moduleUUID, appId);
+					monitor.worked(STEPS_JOIN_MODULE);
+				}
 			}
 
 			@Override
 			public void moduleLoadedClasses(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, appId);
-				monitor.worked(STEPS_LOAD_CLASSES);
+				if (id.equals(moduleUUID)) {
+					LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, appId);
+					monitor.worked(STEPS_LOAD_CLASSES);
+				}
 			}
 
 			@Override
 			public void moduleLoadedBlocks(UUID appId, UUID moduleUUID) {
-				LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
-				monitor.worked(STEPS_LOAD_BLOCKS);
+				if (id.equals(moduleUUID)) {
+					LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
+					monitor.worked(STEPS_LOAD_BLOCKS);
+				}
 			}
 
 			@Override
 			public void moduleStarted(final UUID appId, final UUID moduleUUID) {
-				LOGGER.debug("Module {} started the Application {}", moduleUUID, appId);
-				monitor.worked(STEPS_START_MODULE);
+				if (id.equals(moduleUUID)) {
+					LOGGER.debug("Module {} started the Application {}", moduleUUID, appId);
+					monitor.worked(STEPS_START_MODULE);
+				}
 			}
 
 			@Override
@@ -107,5 +116,4 @@ public class DeployJob extends Job {
 		}
 		return Status.OK_STATUS;
 	}
-
 }
