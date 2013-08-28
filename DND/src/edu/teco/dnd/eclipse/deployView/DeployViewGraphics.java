@@ -45,28 +45,27 @@ public class DeployViewGraphics {
 	 * Index of the Block Name in the deployment table.
 	 */
 	public static final int BLOCKNAME = 0;
-	
+
 	/**
 	 * Index of the module assigned by the user in the deployment table.
 	 */
 	public static final int USER_MODULE = 1;
-	
+
 	/**
 	 * Index of the location assigned by the user in the deployment table.
 	 */
 	public static final int USER_LOCATION = 2;
-	
+
 	/**
 	 * Index of the module assigned by the distribution in the deployment table.
 	 */
 	public static final int DIST_MODULE = 3;
-	
+
 	/**
 	 * Index of the location assigned by the distribution in the deployment table.
 	 */
 	public static final int DIST_LOCATION = 4;
-	
-	
+
 	private Composite parent;
 
 	private Label appNameLabel;
@@ -116,7 +115,7 @@ public class DeployViewGraphics {
 		parent.setLayout(layout);
 	}
 
-	protected void initializeWidgets(DeployView view) {
+	protected void initializeWidgets(final DeployView view) {
 		createAppNameLabel();
 		createServerButton();
 		createBlockModelSpecsLabel();
@@ -137,7 +136,7 @@ public class DeployViewGraphics {
 		createListeners(view);
 	}
 
-	protected Label createAppNameLabel() {
+	private Label createAppNameLabel() {
 		appNameLabel = new Label(parent, SWT.NONE);
 		appNameLabel.setText("Loading application...");
 		appNameLabel.pack();
@@ -148,11 +147,11 @@ public class DeployViewGraphics {
 		return appNameLabel.getText();
 	}
 
-	protected void setAppName(String name) {
+	protected void setAppName(final String name) {
 		appNameLabel.setText(name);
 	}
 
-	protected Button createServerButton() {
+	private Button createServerButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		serverButton = new Button(parent, SWT.NONE);
@@ -166,11 +165,11 @@ public class DeployViewGraphics {
 
 	}
 
-	protected void setServerButtonText(String text) {
+	protected void setServerButtonText(final String text) {
 		serverButton.setText(text);
 	}
 
-	protected Label createBlockModelSpecsLabel() {
+	private Label createBlockModelSpecsLabel() {
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
 		blockModelSpecsLabel = new Label(parent, SWT.NONE);
@@ -181,7 +180,7 @@ public class DeployViewGraphics {
 		return blockModelSpecsLabel;
 	}
 
-	protected Table createDeploymentTable() {
+	private Table createDeploymentTable() {
 		GridData data = new GridData();
 		data.verticalSpan = 5;
 		data.horizontalAlignment = SWT.FILL;
@@ -228,7 +227,8 @@ public class DeployViewGraphics {
 	 *            the model represented by the item.
 	 * @return the created item.
 	 */
-	protected TableItem createDeploymentItem(String blockName, String position, FunctionBlockModel model) {
+	protected TableItem createDeploymentItem(final String blockName, final String position,
+			final FunctionBlockModel model) {
 		TableItem item = new TableItem(deploymentTable, SWT.NONE);
 		item.setText(BLOCKNAME, blockName == null ? "" : blockName);
 		item.setText(USER_LOCATION, position == null ? "" : position);
@@ -246,7 +246,8 @@ public class DeployViewGraphics {
 	 * @param newPosition
 	 *            new Position (can be null / the old one)
 	 */
-	protected void replaceDeploymentItem(String newName, String newLocation, FunctionBlockModel oldModel, FunctionBlockModel newModel) {
+	protected void replaceBlock(final String newName, final String newLocation,
+			final FunctionBlockModel oldModel, final FunctionBlockModel newModel) {
 		TableItem item = blockToItem.get(oldModel);
 		item.setText(BLOCKNAME, newName == null ? "" : newName);
 		item.setText(USER_LOCATION, newLocation == null ? "" : newLocation);
@@ -254,49 +255,31 @@ public class DeployViewGraphics {
 		addItemAndModel(item, newModel);
 	}
 
-	protected void displayConstraints(String blockName, String module, String location){
+	protected void displayConstraints(final String blockName, final String module, final String location) {
 		selectedItem.setText(BLOCKNAME, blockName == null ? "" : blockName);
 		selectedItem.setText(USER_MODULE, module == null ? "" : module);
 		selectedItem.setText(USER_LOCATION, location == null ? "" : location);
 	}
-	
-	protected void modifyDistributionInfo(FunctionBlockModel model, String module, String location){
+
+	protected void modifyDistributionInfo(final FunctionBlockModel model, final String module, final String location) {
 		TableItem item = blockToItem.get(model);
 		item.setText(DIST_MODULE, module == null ? "" : module);
 		item.setText(DIST_LOCATION, location == null ? "" : location);
 	}
 
-	protected void removeIDfromItem(FunctionBlockModel model){
+	protected void removeIDfromItem(final FunctionBlockModel model) {
 		TableItem item = blockToItem.get(model);
 		item.setText(USER_MODULE, "");
 		item.setText(DIST_MODULE, "");
 	}
-	
-	protected void disposeDeploymentItem(TableItem item) {
-		FunctionBlockModel block = itemToBlock.get(item);
-		removeItemAndModel(item, block);
-		item.dispose();
-	}
-	
-	protected void disposeDeploymentItem(FunctionBlockModel model){
+
+	protected void disposeDeploymentItem(final FunctionBlockModel model) {
 		TableItem item = blockToItem.get(model);
 		removeItemAndModel(item, model);
 		item.dispose();
 	}
 
-	protected TableItem[] getDeploymentSelection() {
-		TableItem[] items = deploymentTable.getSelection();
-		if (items.length == 1){
-			selectedItem = items[0];
-		}
-		return deploymentTable.getSelection();
-	}
-
-	protected TableItem[] getDeploymentItems() {
-		return deploymentTable.getItems();
-	}
-
-	protected Button createUpdateModulesButton() {
+	private Button createUpdateModulesButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		updateModulesButton = new Button(parent, SWT.NONE);
@@ -307,18 +290,18 @@ public class DeployViewGraphics {
 		return updateModulesButton;
 	}
 
-	protected void setUpdateModulesButtonEnabled(boolean enabled) {
+	protected void setUpdateModulesButtonEnabled(final boolean enabled) {
 		updateModulesButton.setEnabled(enabled);
 	}
 
-	protected Label createBlockNameLabel() {
+	private Label createBlockNameLabel() {
 		blockNameLabel = new Label(parent, SWT.NONE);
 		blockNameLabel.setText("Name:");
 		blockNameLabel.pack();
 		return blockNameLabel;
 	}
 
-	protected Text createBlockNameText() {
+	private Text createBlockNameText() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		blockNameText = new Text(parent, SWT.NONE);
@@ -331,11 +314,11 @@ public class DeployViewGraphics {
 
 	}
 
-	protected void setBlockNameEnabled(boolean enable) {
+	protected void setBlockNameEnabled(final boolean enable) {
 		blockNameText.setEnabled(enable);
 	}
 
-	protected void setBlockNameText(String text) {
+	protected void setBlockNameText(final String text) {
 		blockNameText.setText(text);
 	}
 
@@ -343,7 +326,7 @@ public class DeployViewGraphics {
 		return blockNameText.getText();
 	}
 
-	protected Button createUpdateBlocksButton() {
+	private Button createUpdateBlocksButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		updateBlocksButton = new Button(parent, SWT.NONE);
@@ -354,7 +337,7 @@ public class DeployViewGraphics {
 		return updateBlocksButton;
 	}
 
-	protected Label createModuleLabel() {
+	private Label createModuleLabel() {
 		moduleLabel = new Label(parent, SWT.NONE);
 		moduleLabel.setText("Module:");
 		moduleLabel.setToolTipText(DeployViewTexts.SELECTMODULE_TOOLTIP);
@@ -362,7 +345,7 @@ public class DeployViewGraphics {
 		return moduleLabel;
 	}
 
-	protected Combo createModuleCombo() {
+	private Combo createModuleCombo() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
@@ -378,31 +361,31 @@ public class DeployViewGraphics {
 		return moduleCombo.getSelectionIndex();
 	}
 
-	protected String getItemFromModuleCombo(int index) {
+	protected String getItemFromModuleCombo(final int index) {
 		return moduleCombo.getItem(index);
 	}
 
-	protected void selectInModuleCombo(int index) {
+	protected void selectInModuleCombo(final int index) {
 		moduleCombo.select(index);
 	}
 
-	protected void setModuleComboEnabled(boolean enable) {
+	protected void setModuleComboEnabled(final boolean enable) {
 		moduleCombo.setEnabled(enable);
 	}
 
-	protected void addToModuleCombo(String text) {
+	protected void addToModuleCombo(final String text) {
 		moduleCombo.add(text);
 	}
 
-	protected void setItemToModuleCombo(int index, String text) {
+	protected void setItemToModuleCombo(final int index, final String text) {
 		moduleCombo.setItem(index, text);
 	}
 
-	protected void removeFromModuleCombo(int index) {
+	protected void removeFromModuleCombo(final int index) {
 		moduleCombo.remove(index);
 	}
 
-	protected Button createCreateButton() {
+	private Button createCreateButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		createButton = new Button(parent, SWT.NONE);
@@ -412,11 +395,11 @@ public class DeployViewGraphics {
 		return createButton;
 	}
 
-	protected void setCreateButtonEnabled(boolean enable) {
+	protected void setCreateButtonEnabled(final boolean enable) {
 		createButton.setEnabled(enable);
 	}
 
-	protected Label createPlaceLabel() {
+	private Label createPlaceLabel() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.verticalSpan = 2;
@@ -428,7 +411,7 @@ public class DeployViewGraphics {
 		return placeLabel;
 	}
 
-	protected Text createPlacesText() {
+	private Text createPlacesText() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
@@ -439,7 +422,7 @@ public class DeployViewGraphics {
 		return placesText;
 	}
 
-	protected void setPlacesTextEnabled(boolean enable) {
+	protected void setPlacesTextEnabled(final boolean enable) {
 		placesText.setEnabled(enable);
 	}
 
@@ -451,7 +434,7 @@ public class DeployViewGraphics {
 		return placesText.getText();
 	}
 
-	protected Button createDeployButton() {
+	private Button createDeployButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		data.verticalAlignment = SWT.BEGINNING;
@@ -463,11 +446,11 @@ public class DeployViewGraphics {
 		return deployButton;
 	}
 
-	protected void setDeployButtonEnabled(boolean enable) {
+	protected void setDeployButtonEnabled(final boolean enable) {
 		deployButton.setEnabled(enable);
 	}
 
-	protected Button createConstraintsButton() {
+	private Button createConstraintsButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		data.verticalAlignment = SWT.BEGINNING;
@@ -479,11 +462,11 @@ public class DeployViewGraphics {
 		return saveConstraintsButton;
 	}
 
-	protected void setConstraintsButtonEnabled(boolean enable) {
+	protected void setConstraintsButtonEnabled(final boolean enable) {
 		saveConstraintsButton.setEnabled(enable);
 	}
 
-	protected StyledText createInformationText() {
+	private StyledText createInformationText() {
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
 		data.horizontalAlignment = SWT.FILL;
@@ -495,15 +478,16 @@ public class DeployViewGraphics {
 		return infoText;
 	}
 
-	protected void addNewInfoText(String text) {
-		infoTexts.add(text);
-		text = text.concat("\n");
-		text = text.concat(infoText.getText());
-		infoText.setText(text);
+	protected void addNewInfoText(final String text) {
+		String newText = text;
+		infoTexts.add(newText);
+		newText = newText.concat("\n");
+		newText = newText.concat(infoText.getText());
+		infoText.setText(newText);
 		limitInfoText();
 	}
 
-	protected void replaceInfoText(String text) {
+	protected void replaceInfoText(final String text) {
 		infoTexts.clear();
 		infoTexts.add(text);
 		infoText.setText(text);
@@ -522,49 +506,48 @@ public class DeployViewGraphics {
 	 * From down here: Methods concerning more than one widget.
 	 */
 
-	protected void moduleRenamed(FunctionBlockModel model, String text){
+	protected void moduleRenamed(final FunctionBlockModel model, final String text) {
 		TableItem item = blockToItem.get(model);
 		item.setText(USER_MODULE, text);
 	}
-	
-	protected void resetDeployment(){
+
+	protected void resetDeployment() {
 		deployButton.setEnabled(false);
 		for (TableItem item : deploymentTable.getItems()) {
 			item.setText(DIST_MODULE, "");
 			item.setText(DIST_LOCATION, "");
 		}
 	}
-	
-	protected void blockSelected(){
+
+	protected void blockSelected() {
 		setPlacesTextEnabled(true);
 		setConstraintsButtonEnabled(true);
 		setBlockNameEnabled(true);
-		
+
 		TableItem[] items = deploymentTable.getSelection();
-		if (items.length == 1){
+		if (items.length == 1) {
 			selectedItem = items[0];
 		}
 	}
-	
-	protected void addItemAndModel(TableItem item, FunctionBlockModel model) {
+
+	private void addItemAndModel(final TableItem item, final FunctionBlockModel model) {
 		itemToBlock.put(item, model);
 		blockToItem.put(model, item);
 	}
-	
-	protected void removeItemAndModel(TableItem item, FunctionBlockModel model){
+
+	private void removeItemAndModel(final TableItem item, final FunctionBlockModel model) {
 		itemToBlock.remove(item);
 		blockToItem.remove(model);
 	}
-	
-	protected FunctionBlockModel getSelectedBlock(){
-		TableItem[] items = getDeploymentSelection();
-		FunctionBlockModel model = null;
-		if (items.length == 1) {
-			model = itemToBlock.get(items[0]);
+
+	protected FunctionBlockModel getSelectedBlock() {
+		if (selectedItem == null || !itemToBlock.containsKey(selectedItem)) {
+			return null;
 		}
+		FunctionBlockModel model = itemToBlock.get(selectedItem);
 		return model;
 	}
-	
+
 	protected void resetBlockSelection() {
 		selectedItem = null;
 		placesText.setText("");
@@ -599,7 +582,7 @@ public class DeployViewGraphics {
 		}
 	}
 
-	private void createListeners(DeployView view) {
+	private void createListeners(final DeployView view) {
 		serverButton.addSelectionListener(new DeploySelectionAdapter(view) {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

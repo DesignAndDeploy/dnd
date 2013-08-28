@@ -239,7 +239,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			placeConstraints.put(newBlock, newPosition);
 		}
 
-		graphicsManager.replaceDeploymentItem(newBlock.getBlockName(), newPosition, oldBlock, newBlock);
+		graphicsManager.replaceBlock(newBlock.getBlockName(), newPosition, oldBlock, newBlock);
 	}
 
 	private void removeBlock(FunctionBlockModel model) {
