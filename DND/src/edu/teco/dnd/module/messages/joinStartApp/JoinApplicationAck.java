@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class JoinApplicationAck extends Response {
 
-	public static String MESSAGE_TYPE = "join application ack";
+	public static final String MESSAGE_TYPE = "join application ack";
 
 	/**
 	 * UUID of the new Application.

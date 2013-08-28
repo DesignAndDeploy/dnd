@@ -7,5 +7,5 @@ import edu.teco.dnd.network.messages.Response;
  * 
  */
 public class BlockAck extends Response {
-	public static String MESSAGE_TYPE = "block ack";
+	public static final String MESSAGE_TYPE = "block ack";
 }

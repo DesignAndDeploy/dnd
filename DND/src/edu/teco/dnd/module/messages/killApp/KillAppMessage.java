@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 public class KillAppMessage extends ApplicationSpecificMessage {
 
-	public static String MESSAGE_TYPE = "kill";
+	public static final String MESSAGE_TYPE = "kill";
 
 	/**
 	 * 

@@ -15,7 +15,7 @@ public class MissingApplicationNak extends Response {
 	/**
 	 * Message Type.
 	 */
-	public static String MESSAGE_TYPE = "missing app nak";
+	public static final String MESSAGE_TYPE = "missing app nak";
 
 	/**
 	 * UUID that the original message was for.

@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.Response;
 
 public class JoinApplicationNak extends Response {
 
-	public static String MESSAGE_TYPE = "join application nak";
+	public static final String MESSAGE_TYPE = "join application nak";
 
 	/**
 	 * human readable name of the application.

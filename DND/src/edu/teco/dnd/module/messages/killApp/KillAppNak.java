@@ -12,7 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class KillAppNak extends Response {
 
-	public static String MESSAGE_TYPE = "kill app nak";
+	public static final String MESSAGE_TYPE = "kill app nak";
 
 	/**
 	 * App UUID that was supposed to be stopped.

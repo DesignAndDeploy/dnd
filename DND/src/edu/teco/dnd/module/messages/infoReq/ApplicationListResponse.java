@@ -16,7 +16,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class ApplicationListResponse extends Response {
 
-	public static String MESSAGE_TYPE = "application list";
+	public static final String MESSAGE_TYPE = "application list";
 
 	/**
 	 * The UUIDs of all running applications mapped to their names.

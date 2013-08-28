@@ -12,7 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class BlockFoundResponse extends Response {
 
-	public static String MESSAGE_TYPE = "block found";
+	public static final String MESSAGE_TYPE = "block found";
 
 	public final UUID moduleId;
 

@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class ModuleInfoMessage extends Response {
 
-	public static String MESSAGE_TYPE = "module info";
+	public static final String MESSAGE_TYPE = "module info";
 	/**
 	 * a Module class that encapsulates the information about the module.
 	 */

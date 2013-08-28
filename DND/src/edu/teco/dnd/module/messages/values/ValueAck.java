@@ -12,7 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class ValueAck extends Response {
 
-	public static String MESSAGE_TYPE = "value ack";
+	public static final String MESSAGE_TYPE = "value ack";
 
 	/**
 	 * ID of the application this is send by.

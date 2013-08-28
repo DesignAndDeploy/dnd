@@ -33,7 +33,7 @@ public class ValueNak extends Response {
 		OTHER;
 	}
 
-	public static String MESSAGE_TYPE = "value nak";
+	public static final String MESSAGE_TYPE = "value nak";
 	/**
 	 * UUID of the Block the Value was meant for.
 	 */

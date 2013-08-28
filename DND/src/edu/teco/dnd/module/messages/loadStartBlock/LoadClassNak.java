@@ -12,7 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class LoadClassNak extends Response {
 
-	public static String MESSAGE_TYPE = "load class nak";
+	public static final String MESSAGE_TYPE = "load class nak";
 
 	/**
 	 * Application the code was supposed to be loaded into.

@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
  */
 public class LoadClassMessage extends ApplicationSpecificMessage {
 
-	public static String MESSAGE_TYPE = "load class";
+	public static final String MESSAGE_TYPE = "load class";
 
 	/**
 	 * Name of the class to be loaded.

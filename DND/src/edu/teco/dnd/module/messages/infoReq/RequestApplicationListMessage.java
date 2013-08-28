@@ -8,7 +8,7 @@ import edu.teco.dnd.network.messages.Message;
  * @author Philipp Adolf
  */
 public class RequestApplicationListMessage extends Message {
-	public static String MESSAGE_TYPE = "application list request";
+	public static final String MESSAGE_TYPE = "application list request";
 
 	/*
 	 * (non-Javadoc)

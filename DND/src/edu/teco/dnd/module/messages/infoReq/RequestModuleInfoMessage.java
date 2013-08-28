@@ -9,7 +9,7 @@ import edu.teco.dnd.network.messages.Message;
  * 
  */
 public class RequestModuleInfoMessage extends Message {
-	public static String MESSAGE_TYPE = "request module info";
+	public static final String MESSAGE_TYPE = "request module info";
 
 	/*
 	 * (non-Javadoc)

@@ -12,7 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class StartApplicationAck extends Response {
 
-	public static String MESSAGE_TYPE = "start application ack";
+	public static final String MESSAGE_TYPE = "start application ack";
 
 	/**
 	 * UUID of the started App.

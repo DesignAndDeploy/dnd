@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.Message;
 
 public class JoinApplicationMessage extends Message {
 
-	public static String MESSAGE_TYPE = "join application";
+	public static final String MESSAGE_TYPE = "join application";
 
 	/**
 	 * UUID of the application to join in.

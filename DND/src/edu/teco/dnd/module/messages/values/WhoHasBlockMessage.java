@@ -11,7 +11,7 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
  * 
  */
 public class WhoHasBlockMessage extends ApplicationSpecificMessage {
-	public static String MESSAGE_TYPE = "who has block";
+	public static final String MESSAGE_TYPE = "who has block";
 	/**
 	 * ID of the Block being searched for.
 	 */

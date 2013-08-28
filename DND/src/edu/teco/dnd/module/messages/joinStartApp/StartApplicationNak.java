@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.Response;
 
 public class StartApplicationNak extends Response {
 
-	public static String MESSAGE_TYPE = "start application nak";
+	public static final String MESSAGE_TYPE = "start application nak";
 
 	/**
 	 * UUID of the app supposed to be started.

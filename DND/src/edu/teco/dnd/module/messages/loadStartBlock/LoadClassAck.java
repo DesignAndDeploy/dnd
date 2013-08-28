@@ -12,7 +12,7 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class LoadClassAck extends Response {
 
-	public static String MESSAGE_TYPE = "load class ack";
+	public static final String MESSAGE_TYPE = "load class ack";
 	/**
 	 * ID of the application the code was loaded on.
 	 */

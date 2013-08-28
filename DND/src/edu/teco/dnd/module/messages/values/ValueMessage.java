@@ -15,7 +15,7 @@ import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
  */
 public class ValueMessage extends ApplicationSpecificMessage {
 
-	public static String MESSAGE_TYPE = "value";
+	public static final String MESSAGE_TYPE = "value";
 	/**
 	 * ID of the block this is to be send to.
 	 */
