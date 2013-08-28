@@ -18,15 +18,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.OutputTarget;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.ConnectionManager;
 
 public class Application {
-
-	public static final long MODULE_LOCATION_REQUEST_DELAY = 500;
-	public static final int SEND_REPETITIONS_UPON_UNKNOWN_MODULE_LOCATION = 2;
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
 	public final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
