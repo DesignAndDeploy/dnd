@@ -8,16 +8,16 @@ import org.apache.bcel.util.Repository;
 import org.apache.bcel.util.SyntheticRepository;
 
 import edu.teco.dnd.temperature.TemperatureLogicBlock;
+import edu.teco.dnd.util.SynchronizedBCELRepository;
 
 public class FunctionBlockFactory {
-	// TODO: BCEL is not thread safe, wrap this repository
 	private final Repository repository;
 
 	private final ConcurrentMap<String, FunctionBlockClass> blocks =
 			new ConcurrentHashMap<String, FunctionBlockClass>();
 
 	public FunctionBlockFactory(final Repository repository) throws ClassNotFoundException {
-		this.repository = repository;
+		this.repository = new SynchronizedBCELRepository(repository);
 	}
 
 	public FunctionBlockFactory(final ClassPath classPath) throws ClassNotFoundException {
