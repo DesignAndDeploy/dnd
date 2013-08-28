@@ -26,21 +26,26 @@ import edu.teco.dnd.blocks.OutputTarget;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.ConnectionManager;
 
+/**
+ * This class represents a single application running on a module.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class Application {
-	private static final Logger LOGGER = LogManager.getLogger(Application.class);
-
-	public final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
-	public final Map<FunctionBlockSecurityDecorator, Map<String, String>> blockOptions =
-			new HashMap<FunctionBlockSecurityDecorator, Map<String, String>>();
-	public boolean isRunning = false;
 
 	private final UUID ownAppId;
 	private final String name;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
-
 	private final ModuleApplicationManager moduleApplicationManager;
+
+	private static final Logger LOGGER = LogManager.getLogger(Application.class);
+	private final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
+	private final Map<FunctionBlockSecurityDecorator, Map<String, String>> blockOptions =
+			new HashMap<FunctionBlockSecurityDecorator, Map<String, String>>();
+	private boolean isRunning = false;
 
 	/**
 	 * A Map from FunctionBlock UUID to matching ValueSender. Not used for local FunctionBlocks.
@@ -57,6 +62,27 @@ public class Application {
 	public Collection<FunctionBlockSecurityDecorator> getAllBlocks() {
 		return funcBlockById.values();
 	}
+
+	/**
+	 * 
+	 * @param appId
+	 *            UUID of this application
+	 * @param name
+	 *            Human readable name of this application
+	 * @param scheduledThreadPool
+	 *            a ThreadPool all tasks of this application will be sheduled in. Used to limit the amount of resources
+	 *            this App can allocate.
+	 * @param connMan
+	 *            ConnectionManager to send/receive messages.
+	 * @param classloader
+	 *            Class loader that will be used by this Application. Can be used to limit the privileges of this app.
+	 *            Also used to make loading classes over network possible.
+	 * @param moduleApplicationManager
+	 *            The module ApplicationManager used for callbacks to de/increase allowedBlockmaps
+	 * 
+	 */
+	// TODO: factor blockTypeholder mapping out of ModuleAppManager so as to not have to pass the whole class to this
+	// class.
 
 	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
 			ConnectionManager connMan, ApplicationClassLoader classloader,
@@ -78,7 +104,7 @@ public class Application {
 	 *            the receiving functionBlock.
 	 * @param input
 	 *            the input on the given block to receive the message.
-	 * @param val
+	 * @param value
 	 *            the value to be send.
 	 */
 	public void sendValue(final UUID funcBlock, final String input, final Serializable value) {
@@ -103,11 +129,11 @@ public class Application {
 	 * <b>Make sure to have doublecheck every Argument</b>
 	 * 
 	 * @param funcBlock
-	 * @see sendValue but sanitized
+	 *            see sendValue but sanitized
 	 * @param input
-	 * @see sendValue but sanitized
+	 *            see sendValue but sanitized
 	 * @param value
-	 * @see sendValue but sanitized
+	 *            see sendValue but sanitized
 	 */
 	private void sanitizedSendValue(final UUID funcBlock, final String input, final Serializable value) {
 
@@ -151,7 +177,7 @@ public class Application {
 	}
 
 	/**
-	 * loads a class into this app
+	 * loads a class into this app.
 	 * 
 	 * @param classname
 	 *            name of the class to load
@@ -173,12 +199,23 @@ public class Application {
 		}
 	}
 
+	/**
+	 * Schedules a block in this application to be executed, once Application.start() is called.
+	 * 
+	 * @param blockDescription
+	 *            which block to schedule.
+	 * @throws ClassNotFoundException
+	 *             if the class given is not known by the Classloader of this application
+	 * @throws UserSuppliedCodeException
+	 *             if some part of the code of the functionBlock (e.g. constructor) does throw an exception or otherwise
+	 *             misbehave (e.g. System.exit(),...)
+	 */
 	public void scheduleBlock(final BlockDescription blockDescription) throws ClassNotFoundException,
 			UserSuppliedCodeException {
 		final FunctionBlockSecurityDecorator securityDecorator =
 				createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
 		securityDecorator.doInit(blockDescription.blockUUID);
-	
+
 		synchronized (scheduledToStart) {
 			if (isRunning) {
 				throw new IllegalStateException("tried to schedule block " + securityDecorator
@@ -188,10 +225,22 @@ public class Application {
 			scheduledToStart.add(securityDecorator);
 			blockOptions.put(securityDecorator, blockDescription.options);
 		}
-	
+
 		initializeOutputs(securityDecorator, blockDescription.outputs);
 	}
 
+	/**
+	 * Wraps a functionBlock (given by name) into a security decorator (see FunctionBlockSecurityDecorator) for the
+	 * rationale.
+	 * 
+	 * @param className
+	 *            name of the class to wrap
+	 * @return a new FunctionBlockSecurityDecorator wrapping the given block.
+	 * @throws ClassNotFoundException
+	 *             if the classloader can not find a class with this name.
+	 * @throws UserSuppliedCodeException
+	 *             If the given class misbehaves during initialization (throws errors...)
+	 */
 	@SuppressWarnings("unchecked")
 	private FunctionBlockSecurityDecorator createFunctionBlockSecurityDecorator(final String className)
 			throws ClassNotFoundException, UserSuppliedCodeException {
@@ -199,10 +248,19 @@ public class Application {
 		cls = classLoader.loadClass(className);
 		if (!FunctionBlock.class.isAssignableFrom(cls)) {
 			throw new IllegalArgumentException("class " + className + " is not a FunctionBlock");
+			// FIXME: catch this somewhere!
 		}
 		return FunctionBlockSecurityDecorator.getDecorator((Class<? extends FunctionBlock>) cls);
 	}
 
+	/**
+	 * Initializes the outputs used for sending values on a functionBlock.
+	 * 
+	 * @param securityDecorator
+	 *            the SecurityDecorator holding the block with the outputs to set.
+	 * @param outputs
+	 *            the outputs to set on the Block.
+	 */
 	private void initializeOutputs(final FunctionBlockSecurityDecorator securityDecorator,
 			final Map<String, Collection<ValueDestination>> outputs) {
 		final Map<String, Output<? extends Serializable>> blockOutputs = securityDecorator.getOutputs();
@@ -233,7 +291,7 @@ public class Application {
 				public void run() {
 					Map<String, String> options = null;
 					synchronized (scheduledToStart) {
-						options = blockOptions.get(block);
+						options = blockOptions.remove(block);
 					}
 					try {
 						block.init(options);
@@ -274,11 +332,10 @@ public class Application {
 	 * 
 	 * @param funcBlockId
 	 *            Id of the block to pass the message to.
-	 * @param input
-	 *            input on the block receiving the message.
 	 * @param value
 	 *            the value to give to the input.
-	 * @return true iff value was successfully passed on.
+	 * @param inputName
+	 *            name of the input this value is directed to.
 	 * @throws NonExistentFunctionblockException
 	 *             If the FunctionBlock is not being executed by this module.
 	 * @throws NonExistentInputException
@@ -323,6 +380,9 @@ public class Application {
 		}
 	}
 
+	/**
+	 * Called when this application is shut down. Will call the appropriate methods on the executed functionBlocks.
+	 */
 	public void shutdown() {
 		shutdownLock.writeLock().lock(); // will not be unlocked.
 		scheduledThreadPool.shutdown();
@@ -348,6 +408,7 @@ public class Application {
 					shutdownThread.interrupt();
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
+					// Ignoring
 				}
 				shutdownThread.stop();
 				// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
@@ -358,22 +419,43 @@ public class Application {
 		watcherThread.start();
 	}
 
+	/**
+	 * 
+	 * @return the UUID of this application
+	 */
 	public UUID getOwnAppId() {
 		return ownAppId;
 	}
 
+	/**
+	 * 
+	 * @return the human readable name of this application.
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return the classloader this application uses.
+	 */
 	public ApplicationClassLoader getClassLoader() {
 		return classLoader;
 	}
 
+	/**
+	 * 
+	 * @return the threadpool this application uses.
+	 */
 	public ScheduledThreadPoolExecutor getThreadPool() {
 		return scheduledThreadPool;
 	}
 
+	/**
+	 * 
+	 * @return a map of FunctionBlockSecurityDecorators/FunctionBlocks this Application executes on this module. Mapped
+	 *         <BlockUUID, FuncBlockSecurityDecorator>
+	 */
 	public Map<UUID, FunctionBlockSecurityDecorator> getFuncBlockById() {
 		return new HashMap<UUID, FunctionBlockSecurityDecorator>(funcBlockById);
 	}
@@ -387,21 +469,9 @@ public class Application {
 		return funcBlockById.containsKey(blockId);
 	}
 
-	class ApplicationOutputTarget implements OutputTarget<Serializable> {
-		private final Set<ValueDestination> destinations;
-
-		public ApplicationOutputTarget(final Collection<ValueDestination> destinations) {
-			this.destinations = new HashSet<ValueDestination>(destinations);
-		}
-
-		@Override
-		public void setValue(Serializable value) {
-			for (final ValueDestination destination : destinations) {
-				sendValue(destination.getBlock(), destination.getInput(), value);
-			}
-		}
-	}
-
+	/**
+	 * starts this application, as in: starts executing the previously scheduled blocks.
+	 */
 	public void start() {
 		synchronized (scheduledToStart) {
 			if (isRunning) {
@@ -412,6 +482,27 @@ public class Application {
 
 			for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
 				startBlock(func);
+			}
+		}
+	}
+
+	// TODO insert javadoc here.
+	class ApplicationOutputTarget implements OutputTarget<Serializable> {
+		private final Set<ValueDestination> destinations;
+
+		/**
+		 * 
+		 * @param destinations
+		 *            places connected to this output. Where values are supposed to be send when they are send.
+		 */
+		public ApplicationOutputTarget(final Collection<ValueDestination> destinations) {
+			this.destinations = new HashSet<ValueDestination>(destinations);
+		}
+
+		@Override
+		public void setValue(Serializable value) {
+			for (final ValueDestination destination : destinations) {
+				sendValue(destination.getBlock(), destination.getInput(), value);
 			}
 		}
 	}
