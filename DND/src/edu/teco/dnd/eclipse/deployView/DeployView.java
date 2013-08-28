@@ -396,6 +396,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				display.asyncExec(new Runnable() {
 					@Override
 					public void run() {
+						updateModules();
 						if (LOGGER.isInfoEnabled()) {
 							LOGGER.info("deploy: {}", future.isSuccess());
 						}
