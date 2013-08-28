@@ -2,7 +2,9 @@ package edu.teco.dnd.module.messages.loadStartBlock;
 
 import java.util.UUID;
 
+import edu.teco.dnd.module.BlockDescription;
 import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
@@ -28,11 +30,14 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, BlockMessage message) {
-		if (appManager.scheduleBlock(message.getApplicationID(), message.blockClass, message.blockUUID,
-				message.options, message.outputs, message.scheduleToId)) {
-			return new BlockAck();
-		} else {
+		final BlockDescription blockDescription = new BlockDescription(message.blockClass, message.blockUUID, message.options, message.outputs, message.scheduleToId);
+		try {
+			appManager.scheduleBlock(message.getApplicationID(), blockDescription);
+		} catch (final ClassNotFoundException e) {
+			return new BlockNak();
+		} catch (final UserSuppliedCodeException e) {
 			return new BlockNak();
 		}
+		return new BlockAck();
 	}
 }

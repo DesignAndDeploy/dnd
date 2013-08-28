@@ -4,89 +4,62 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
 
 public class FunctionBlockSecurityDecorator {
-	private static final Logger LOGGER = LogManager.getLogger(FunctionBlockSecurityDecorator.class);
-
 	private final FunctionBlock block;
 
 	public FunctionBlockSecurityDecorator(final FunctionBlock block) {
 		this.block = block;
 	}
 
-	public static FunctionBlockSecurityDecorator getDecorator(final Class<? extends FunctionBlock> blockClass) {
+	public static FunctionBlockSecurityDecorator getDecorator(final Class<? extends FunctionBlock> blockClass) throws UserSuppliedCodeException {
 		final FunctionBlock realBlock;
 		try {
 			realBlock = (FunctionBlock) blockClass.getConstructor().newInstance();
 		} catch (Throwable e) {
-			Thread.dumpStack();
-			LOGGER.warn("{} threw an exception in constructor", blockClass);
-			return null;
+			// Throwing a new exception so no user supplied Throwable will be called later on
+			throw new UserSuppliedCodeException("Could not instantiate block of class " + blockClass);
 		}
 		return new FunctionBlockSecurityDecorator(realBlock);
 	}
 
-	public boolean doInit(final UUID blockUUID) {
+	public void doInit(final UUID blockUUID) throws UserSuppliedCodeException {
 		try {
 			this.block.doInit(blockUUID);
-		} catch (IllegalAccessException e) {
-			// do not access anything on e outside of another try/catch!
-			Thread.dumpStack();
-			LOGGER.warn("{} threw an exception in doInit()", block);
-			return LOGGER.exit(false);
 		} catch (Throwable e) {
-			// do not access anything on e outside of another try/catch!
-			Thread.dumpStack();
-			return LOGGER.exit(false);
+			// Throwing a new exception so no user supplied Throwable will be called later on
+			throw new UserSuppliedCodeException("an exception was thrown while calling doInit on block " + blockUUID);
 		}
-		return LOGGER.exit(true);
 	}
 
-	public boolean init(final Map<String, String> options) {
+	public void init(final Map<String, String> options) throws UserSuppliedCodeException {
 		try {
 			block.init(options);
 		} catch (Throwable t) {
-			Thread.dumpStack();
-			LOGGER.warn("{} threw an exception in init()", block);
-			return LOGGER.exit(false);
+			// Throwing a new exception so no user supplied Throwable will be called later on
+			throw new UserSuppliedCodeException("an exception was thrown while calling init on block " + block.getBlockUUID());
 		}
-		return true;
 	}
 
-	public boolean shutdown() {
+	public void shutdown() throws UserSuppliedCodeException {
 		try {
 			block.shutdown();
 		} catch (Throwable t) {
-			Thread.dumpStack();
-			LOGGER.warn("{} threw an exception in shutdown()", block);
-			return LOGGER.exit(false);
+			// Throwing a new exception so no user supplied Throwable will be called later on
+			throw new UserSuppliedCodeException("an exception was thrown while calling shutdown on block " + block.getBlockUUID());
 		}
-		return true;
 	}
 
-	public boolean update() {
+	public void update() throws UserSuppliedCodeException {
 		try {
 			block.update();
 		} catch (Throwable t) {
-			Thread.dumpStack();
-			return LOGGER.exit(false);
+			// Throwing a new exception so no user supplied Throwable will be called later on
+			throw new UserSuppliedCodeException("an exception was thrown while calling update on block " + block.getBlockUUID());
 		}
-		return true;
-	}
-
-	/**
-	 * Dangerous. Use with extreme care.
-	 * 
-	 * @return the insecure block.
-	 */
-	public FunctionBlock getRealBlock() {
-		return block;
 	}
 
 	/**

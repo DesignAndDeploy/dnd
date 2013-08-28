@@ -199,6 +199,22 @@ public class BlockTypeHolder {
 		}
 		this.idNumber = idNumber;
 	}
+	
+	/**
+	 * Tries to add a block of the given type to this BlockTypeHolder. For this to succeed the type of this holder has
+	 * to match the given type and there has to be a free slot in this BlockTypeHolder and all of its parents. Can be
+	 * called concurrently, but if not all blocks can be scheduled which ones are and which are not is nondeterministic.
+	 * 
+	 * @param blockType
+	 *            the type of block to schedule
+	 * @return true if the block was succesfully added, false otherwise
+	 */
+	public boolean tryAdd(final String blockType) {
+		if (blockType == null || !blockType.matches(type)) {
+			return false;
+		}
+		return tryDecrease();
+	}
 
 	/**
 	 * Recursively tries to decrease the values of amountLeft up to the parent-node. Returns true if every node had at
@@ -211,7 +227,7 @@ public class BlockTypeHolder {
 	 * 
 	 * @return true iff the action is possible false otherwise. see above!
 	 */
-	public synchronized boolean tryDecrease() {
+	private synchronized boolean tryDecrease() {
 		LOGGER.entry();
 		if (amountLeft != 0 && (parent == null || parent.tryDecrease())) {
 			if (amountLeft > 0) {

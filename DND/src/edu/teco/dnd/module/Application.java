@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
+import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.blocks.OutputTarget;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.network.ConnectionManager;
@@ -28,6 +30,8 @@ public class Application {
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
 	public final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
+	public final Map<FunctionBlockSecurityDecorator, Map<String, String>> blockOptions =
+			new HashMap<FunctionBlockSecurityDecorator, Map<String, String>>();
 	public boolean isRunning = false;
 
 	private final UUID ownAppId;
@@ -35,7 +39,8 @@ public class Application {
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
-	private final ConcurrentMap<UUID, Map<String, String>> blockOptions = new ConcurrentHashMap<UUID, Map<String,String>>();
+
+	private final ModuleApplicationManager moduleApplicationManager;
 
 	/**
 	 * A Map from FunctionBlock UUID to matching ValueSender. Not used for local FunctionBlocks.
@@ -54,13 +59,15 @@ public class Application {
 	}
 
 	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
-			ConnectionManager connMan, ApplicationClassLoader classloader) {
+			ConnectionManager connMan, ApplicationClassLoader classloader,
+			final ModuleApplicationManager moduleApplicationManager) {
 		this.ownAppId = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
 		this.classLoader = classloader;
 		this.funcBlockById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
+		this.moduleApplicationManager = moduleApplicationManager;
 	}
 
 	/**
@@ -166,6 +173,48 @@ public class Application {
 		}
 	}
 
+	public void scheduleBlock(final BlockDescription blockDescription) throws ClassNotFoundException,
+			UserSuppliedCodeException {
+		final FunctionBlockSecurityDecorator securityDecorator =
+				createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
+		securityDecorator.doInit(blockDescription.blockUUID);
+	
+		synchronized (scheduledToStart) {
+			if (isRunning) {
+				throw new IllegalStateException("tried to schedule block " + securityDecorator
+						+ " in already running application");
+			}
+			moduleApplicationManager.addToBlockTypeHolders(securityDecorator, blockDescription.blockTypeHolderID);
+			scheduledToStart.add(securityDecorator);
+			blockOptions.put(securityDecorator, blockDescription.options);
+		}
+	
+		initializeOutputs(securityDecorator, blockDescription.outputs);
+	}
+
+	@SuppressWarnings("unchecked")
+	private FunctionBlockSecurityDecorator createFunctionBlockSecurityDecorator(final String className)
+			throws ClassNotFoundException, UserSuppliedCodeException {
+		Class<?> cls = null;
+		cls = classLoader.loadClass(className);
+		if (!FunctionBlock.class.isAssignableFrom(cls)) {
+			throw new IllegalArgumentException("class " + className + " is not a FunctionBlock");
+		}
+		return FunctionBlockSecurityDecorator.getDecorator((Class<? extends FunctionBlock>) cls);
+	}
+
+	private void initializeOutputs(final FunctionBlockSecurityDecorator securityDecorator,
+			final Map<String, Collection<ValueDestination>> outputs) {
+		final Map<String, Output<? extends Serializable>> blockOutputs = securityDecorator.getOutputs();
+		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
+			if (!blockOutputs.containsKey(output.getKey())) {
+				continue;
+			}
+			final Output<? extends Serializable> blockOutput = blockOutputs.get(output.getKey());
+			blockOutput.setTarget(new ApplicationOutputTarget(output.getValue()));
+		}
+	}
+
 	/**
 	 * starts the given function block on the Module. Also triggers removing it from runnable blocks
 	 * 
@@ -182,13 +231,25 @@ public class Application {
 			Runnable initRunnable = new Runnable() {
 				@Override
 				public void run() {
-					block.init(blockOptions.get(block.getBlockUUID()));
+					Map<String, String> options = null;
+					synchronized (scheduledToStart) {
+						options = blockOptions.get(block);
+					}
+					try {
+						block.init(options);
+					} catch (UserSuppliedCodeException e) {
+						// TODO: handle malevolent block. Stop it, maybe?
+					}
 				}
 			};
 			Runnable updater = new Runnable() {
 				@Override
 				public void run() {
-					block.update();
+					try {
+						block.update();
+					} catch (UserSuppliedCodeException e) {
+						// TODO: handle malevolent block. Stop it, maybe?
+					}
 				}
 			};
 			scheduledThreadPool.execute(initRunnable);
@@ -244,7 +305,11 @@ public class Application {
 			Runnable updater = new Runnable() {
 				@Override
 				public void run() {
-					block.update();
+					try {
+						block.update();
+					} catch (UserSuppliedCodeException e) {
+						// TODO: handle malevolent block. Stop it, maybe?
+					}
 				}
 			};
 
@@ -264,7 +329,11 @@ public class Application {
 		final Thread shutdownThread = new Thread(new Runnable() {
 			public void run() {
 				for (FunctionBlockSecurityDecorator fun : funcBlockById.values()) {
-					fun.shutdown();
+					try {
+						fun.shutdown();
+					} catch (UserSuppliedCodeException e) {
+						// TODO: handle malevolent block. Stop it, maybe?
+					}
 				}
 			}
 		});
@@ -345,9 +414,5 @@ public class Application {
 				startBlock(func);
 			}
 		}
-	}
-
-	public Class<?> loadClass(final String blockClass) throws ClassNotFoundException {
-		return classLoader.loadClass(blockClass);
 	}
 }

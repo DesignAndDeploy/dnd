@@ -1,9 +1,7 @@
 package edu.teco.dnd.module;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -15,9 +13,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
@@ -94,7 +89,7 @@ public class ModuleApplicationManager {
 	private Application createApplication(final UUID appId, final String name) {
 		final ApplicationClassLoader classLoader = createApplicationClassLoader(appId);
 		final ScheduledThreadPoolExecutor executor = createApplicationExecutor(appId);
-		return new Application(appId, name, executor, connMan, classLoader);
+		return new Application(appId, name, executor, connMan, classLoader, this);
 	}
 
 	private ApplicationClassLoader createApplicationClassLoader(final UUID appId) {
@@ -139,83 +134,33 @@ public class ModuleApplicationManager {
 	 *            the UUID of the FunctionBlock
 	 * @param options
 	 *            the options for the FunctionBlock
+	 * @throws UserSuppliedCodeException 
+	 * @throws ClassNotFoundException 
 	 */
-	public boolean scheduleBlock(UUID appId, final String blockClass, final UUID blockUUID,
-			final Map<String, String> options, final Map<String, Collection<ValueDestination>> outputs, int scheduleToId) {
+	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException, UserSuppliedCodeException {
 		isShuttingDown.readLock().lock();
 		try {
 			final Application app = runningApps.get(appId);
-			Class<?> cls;
-			try {
-				cls = app.loadClass(blockClass);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				return false;
+			if (app == null) {
+				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockUUID + " for non-existant Application " + appId);
 			}
-			if (!FunctionBlock.class.isAssignableFrom(cls)) {
-				return false;
-			}
-			@SuppressWarnings("unchecked")
-			final FunctionBlockSecurityDecorator block =
-					FunctionBlockSecurityDecorator.getDecorator((Class<? extends FunctionBlock>) cls);
-			if (block == null) {
-				return false;
-			}
-			try {
-				block.doInit(blockUUID);
-			} catch (final IllegalArgumentException e) {
-				e.printStackTrace();
-				return false;
-			}
-			final String blockType = block.getBlockType();
-			BlockTypeHolder blockAllowed = null;
-			blockAllowed = moduleConfig.getAllowedBlocksById().get(scheduleToId);
-			if (blockAllowed == null) {
-				LOGGER.info("Id {} does not exist in App {}({})", scheduleToId, app, appId);
-				throw new IllegalArgumentException("Id does not exist in App");
-			}
-
-			if (!blockType.matches(blockAllowed.getType())) {
-				LOGGER.warn("given scheduleId ({}:{}) and Blocktype {} incompatible", scheduleToId,
-						blockAllowed.getType(), blockType);
-				throw new IllegalArgumentException("given scheduleId and Blocktype incompatible");
-			}
-
-			synchronized (app.scheduledToStart) {
-				if (app.isRunning == true) {
-					LOGGER.info("tried to schedule Block to already running application.");
-					throw new IllegalArgumentException("tried to schedule Block to already running application.");
-				}
-				if (!blockAllowed.tryDecrease()) {
-					LOGGER.info("Blockamount of {} exceeded. Not scheduling! (ID was:{})", blockType, scheduleToId);
-					throw new IllegalArgumentException("Blockamount exceeded. Not scheduling!");
-				}
-				spotOccupiedByBlock.put(block.getBlockUUID(), blockAllowed.getIdNumber());
-
-				app.scheduledToStart.add(block);
-			}
-			final Map<String, Output<? extends Serializable>> blockOutputs = block.getOutputs();
-			System.out.println(blockOutputs);
-			for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
-				System.out.println(output.getKey());
-				System.out.println(output.getValue());
-				final Output<? extends Serializable> out = blockOutputs.get(output.getKey());
-				if (out == null) {
-					if (LOGGER.isWarnEnabled()) {
-						LOGGER.warn("did not find Output {}", output.getKey());
-					}
-					continue;
-				}
-				out.setTarget(app.new ApplicationOutputTarget(output.getValue()));
-			}
-			spotOccupiedByBlock.put(block.getBlockUUID(), blockAllowed.getIdNumber());
-			app.scheduledToStart.add(block);
-			LOGGER.info("succesfully scheduled block {}, in App {}({})", block.getBlockType(), app, appId);
-			return true;
+			app.scheduleBlock(blockDescription);
 		} finally {
 			isShuttingDown.readLock().unlock();
 		}
 
+	}
+	
+	public void addToBlockTypeHolders(final FunctionBlockSecurityDecorator block, final int blockTypeHolderID) {
+		final BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(blockTypeHolderID);
+		if (holder == null) {
+			throw new IllegalArgumentException("There is no BlockTypeHolder with ID " + blockTypeHolderID);
+		}
+		if (!holder.tryAdd(block.getBlockType())) {
+			// Maybe a different kind of exception would be better
+			throw new IllegalArgumentException();
+		}
+		spotOccupiedByBlock.put(block.getBlockUUID(), blockTypeHolderID);
 	}
 
 	// FIXME: Apps can be started after shutdownModule has been called
