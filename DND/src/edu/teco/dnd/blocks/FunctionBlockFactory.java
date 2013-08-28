@@ -38,11 +38,4 @@ public class FunctionBlockFactory {
 		}
 		return blocks.get(className);
 	}
-
-	// FIXME: remove once no longer needed for testing
-	public static void main(final String[] args) throws ClassNotFoundException {
-		final FunctionBlockFactory factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
-		final FunctionBlockClass blockClass = factory.getFunctionBlockClass(TemperatureLogicBlock.class);
-		System.out.println(blockClass.getOptions());
-	}
 }
