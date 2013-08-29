@@ -43,11 +43,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.network.codecs.DatagramPacketWrapper;
-import edu.teco.dnd.network.codecs.GsonCodec;
-import edu.teco.dnd.network.codecs.MessageAdapter;
 import edu.teco.dnd.network.messages.BeaconMessage;
 import edu.teco.dnd.network.messages.BeaconMessageDeserializer;
 import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.tcp.GsonCodec;
+import edu.teco.dnd.network.tcp.MessageAdapter;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 
 /**
