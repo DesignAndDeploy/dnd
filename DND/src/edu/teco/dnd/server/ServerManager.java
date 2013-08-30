@@ -75,6 +75,8 @@ public class ServerManager {
 	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
 
 	private static ModuleManager moduleManager;
+	
+	private static ApplicationManager applicationManager;
 
 	public static ServerManager getDefault() {
 		if (serverManager == null) {
@@ -82,6 +84,7 @@ public class ServerManager {
 				if (serverManager == null) {
 					serverManager = new ServerManager();
 					moduleManager = new ModuleManager();
+					applicationManager = new ApplicationManager();
 				}
 			}
 		}
@@ -331,6 +334,10 @@ public class ServerManager {
 		LOGGER.exit();
 	}
 
+	public ApplicationManager getApplicationManager(){
+		return applicationManager;
+	}
+	
 	public ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}

@@ -35,7 +35,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	/**
 	 * All registered listeners.
 	 */
-	private final Set<ModuleManagerListener> moduleManagerListener = new HashSet<ModuleManagerListener>();
+	private final Set<ModuleManagerListener> moduleManagerListeners = new HashSet<ModuleManagerListener>();
 
 	/**
 	 * The currently running ConnectionManager.
@@ -63,7 +63,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	 *            the ModuleManagerListener to add
 	 */
 	public synchronized void addModuleManagerListener(final ModuleManagerListener listener) {
-		moduleManagerListener.add(listener);
+		moduleManagerListeners.add(listener);
 		if (connectionManager == null) {
 			listener.serverOffline();
 		} else {
@@ -80,7 +80,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	 *            the listener to remove
 	 */
 	public synchronized void removeModuleManagerListener(final ModuleManagerListener listener) {
-		moduleManagerListener.remove(listener);
+		moduleManagerListeners.remove(listener);
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 			query.getModuleInfo(id).addListener(this);
 		}
 
-		for (final ModuleManagerListener listener : moduleManagerListener) {
+		for (final ModuleManagerListener listener : moduleManagerListeners) {
 			listener.serverOnline(map);
 		}
 	}
@@ -111,7 +111,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 			connectionManager.removeConnectionListener(this);
 		}
 
-		for (final ModuleManagerListener listener : moduleManagerListener) {
+		for (final ModuleManagerListener listener : moduleManagerListeners) {
 			listener.serverOffline();
 		}
 		
@@ -123,7 +123,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 		map.put(uuid, null);
 		query.getModuleInfo(uuid).addListener(this);
 
-		for (final ModuleManagerListener listener : moduleManagerListener) {
+		for (final ModuleManagerListener listener : moduleManagerListeners) {
 			listener.moduleOnline(uuid);
 		}
 	}
@@ -133,7 +133,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 		Module mod = map.get(uuid);
 		map.remove(uuid);
 		
-		for (final ModuleManagerListener listener : moduleManagerListener) {
+		for (final ModuleManagerListener listener : moduleManagerListeners) {
 			listener.moduleOffline(uuid, mod);
 		}
 	}
@@ -144,7 +144,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 			Module module = future.getNow();
 			UUID id = module.getUUID();
 			map.put(id, module);
-			for (final ModuleManagerListener listener : moduleManagerListener) {
+			for (final ModuleManagerListener listener : moduleManagerListeners) {
 				listener.moduleResolved(id, module);
 			}
 		}
