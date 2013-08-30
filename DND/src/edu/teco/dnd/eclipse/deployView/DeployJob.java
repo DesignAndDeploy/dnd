@@ -23,22 +23,22 @@ public class DeployJob extends Job {
 	/**
 	 * Steps to join a module.
 	 */
-	public static final int STEPS_JOIN_MODULE = 10;
+	public static final int STEPS_JOIN_MODULE = 5;
 
 	/**
 	 * Steps to load all used classes to a module.
 	 */
-	public static final int STEPS_LOAD_CLASSES = 40;
+	public static final int STEPS_LOAD_CLASSES = 15;
 
 	/**
 	 * Steps to load all used blocks to a module.
 	 */
-	public static final int STEPS_LOAD_BLOCKS = 30;
+	public static final int STEPS_LOAD_BLOCKS = 25;
 
 	/**
 	 * Steps to start the module.
 	 */
-	public static final int STEPS_START_MODULE = 20;
+	public static final int STEPS_START_MODULE = 55;
 
 	/**
 	 * Total amount of steps for a module, depends on previously defined values.

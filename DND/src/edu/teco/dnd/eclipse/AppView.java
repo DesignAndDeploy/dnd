@@ -23,12 +23,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.discover.ApplicationInformation;
-import edu.teco.dnd.module.Application;
-import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
-import edu.teco.dnd.server.DNDServerStateListener;
 import edu.teco.dnd.server.ServerManager;
 
 /**
@@ -54,7 +50,6 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	private Table blockTable;
 	
 	private Display display;
-	private ApplicationInformation selectedApp;
 	private ApplicationManager appManager;
 	
 	/**
@@ -116,7 +111,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	private void initParent(final Composite parent) {
 		this.parent = parent;
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 3;
+		layout.numColumns = 4;
 		layout.horizontalSpacing = HORIZONTAL_SPACE;
 		layout.verticalSpacing = VERTICAL_SPACE;
 		this.parent.setLayout(layout);
@@ -128,6 +123,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		updateAppsButton = new Button(parent, SWT.NONE);
 		updateAppsButton.setLayoutData(data);
 		updateAppsButton.setText("Update Applications");
+		updateAppsButton.setEnabled(ServerManager.getDefault().isRunning());
 		updateAppsButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e){
@@ -154,6 +150,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	private void createSortButton(){
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.BEGINNING;
+		data.horizontalSpan = 2;
 		sortButton = new Button(parent, SWT.NONE);
 		sortButton.setText(SORT_APP);
 		sortButton.setEnabled(false);
@@ -165,17 +162,11 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		});
 	}
 	
-	private void createSelectedLabel(){
-		selectedLabel = new Label(parent, SWT.NONE);
-		selectedLabel.setText("<select application>");
-		selectedLabel.pack();
-	}
-	
 	private void createAppTable(){
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		data.verticalAlignment = SWT.FILL;
-		data.horizontalSpan = 2;
+		data.horizontalSpan = 3;
 		data.grabExcessHorizontalSpace = true;
 		data.grabExcessVerticalSpace = true;
 		appTable = new Table(parent, SWT.NONE);
@@ -207,10 +198,14 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		blockTable.setLinesVisible(true);
 		blockTable.setHeaderVisible(true);
 
-		TableColumn column = new TableColumn(blockTable, SWT.NONE);
-		column.setText("Running Function Blocks");
+		TableColumn column1 = new TableColumn(blockTable, SWT.NONE);
+		column1.setText("Running Function Blocks");
 		blockTable.setToolTipText("Currently running function blocks");
 		blockTable.getColumn(0).pack();
+		
+		TableColumn column2 = new TableColumn(blockTable, SWT.NONE);
+		column2.setText("On Module:");
+		blockTable.getColumn(1).pack();
 	}
 	
 	/**

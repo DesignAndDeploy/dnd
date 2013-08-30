@@ -22,6 +22,7 @@ public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUI
 	private Collection<ApplicationInformation> apps = new ArrayList<ApplicationInformation>();
 
 	protected ApplicationManager() {
+		ServerManager.getDefault().addServerStateListener(this);
 	}
 
 	public synchronized JoinedFutureNotifier<Map<UUID, ApplicationInformation>> updateAppInfo() {
