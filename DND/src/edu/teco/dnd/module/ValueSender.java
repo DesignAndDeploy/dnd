@@ -45,7 +45,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	private final UUID appId;
 
 	/**
-	 * The UUID of the FunctionBlock this object sends values to.0
+	 * The UUID of the FunctionBlock this object sends values to.
 	 */
 	private final UUID targetBlockID;
 
@@ -128,27 +128,27 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		}
 
 		// this part will only be reached if the Module UUID was not null in either one of the locked blocks above
-		sendValue0(uuid, targetInput, value);
+		sendValue(uuid, targetInput, value);
 		LOGGER.exit();
 	}
 
 	/**
 	 * Sends a ValueMessage to the given Module.
 	 * 
-	 * @param moduleUUID
+	 * @param modUUID
 	 *            the UUID of the Module the message should be send to
 	 * @param targetInput
 	 *            the name of the input of the FunctionBlock the value is for
 	 * @param value
 	 *            the value to send
 	 */
-	private void sendValue0(final UUID moduleUUID, final String targetInput, final Serializable value) {
+	private void sendValue(final UUID modUUID, final String targetInput, final Serializable value) {
 		try {
-			LOGGER.trace("sending value {} to {}:{}", UsercodeWrapper.getToString(value), moduleUUID, targetInput);
+			LOGGER.trace("sending value {} to {}:{}", UsercodeWrapper.getToString(value), modUUID, targetInput);
 		} catch (UserSuppliedCodeException e) {
 			// ignore.
 		}
-		connectionManager.sendMessage(moduleUUID, new ValueMessage(appId, targetBlockID, targetInput, value));
+		connectionManager.sendMessage(modUUID, new ValueMessage(appId, targetBlockID, targetInput, value));
 	}
 
 	/**
@@ -184,8 +184,8 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		final ModuleUUIDFutureNotifier futureNotifier = new ModuleUUIDFutureNotifier(modules.size());
 		futureNotifier.addListener(this);
 		final WhoHasBlockResponseListener blockFoundResponseListener = new WhoHasBlockResponseListener(futureNotifier);
-		for (final UUID moduleUUID : modules) {
-			connectionManager.sendMessage(moduleUUID, new WhoHasBlockMessage(appId, targetBlockID)).addListener(
+		for (final UUID modUUID : modules) {
+			connectionManager.sendMessage(modUUID, new WhoHasBlockMessage(appId, targetBlockID)).addListener(
 					blockFoundResponseListener);
 		}
 
@@ -225,7 +225,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		final Iterator<TargetedValue> iterator = new ReferenceIterator<TargetedValue>(pendingValues);
 		while (iterator.hasNext()) {
 			final TargetedValue value = iterator.next();
-			sendValue0(moduleUUID, value.getInputName(), value.getValue());
+			sendValue(moduleUUID, value.getInputName(), value.getValue());
 		}
 		pendingValues.clear();
 	}

@@ -1,12 +1,19 @@
 package edu.teco.dnd.util;
 
-
 /**
  * Provides utility methods for handling Strings.
  * 
  * @author Philipp Adolf
  */
-public class StringUtil {
+public final class StringUtil {
+
+	/**
+	 * Utility class.
+	 */
+	private StringUtil() {
+
+	}
+
 	/**
 	 * Joins an array of objects into a String. The objects will be separated by the given separator String. If null is
 	 * passed null is returned.
@@ -14,9 +21,8 @@ public class StringUtil {
 	 * @param array
 	 *            the objects to join. Method will return null if null is passed for this parameter
 	 * @param separator
-	 *            String to put between each object. Will
-	 *            <em>not<em> be added before the first or after the last object. If null nothing will be
-	 * 		put between the objects.
+	 *            String to put between each object. Will <em>not</em> be added before the first or after the last
+	 *            object. If null nothing will be put between the objects.
 	 * @return a concatenation of all objects separated by <code>separator</code> or null if null was passed for
 	 *         <code>array</code>
 	 */
@@ -50,7 +56,7 @@ public class StringUtil {
 	 *            the objects to join. Method will return null if null is passed for this parameter
 	 * @param separator
 	 *            String to put between each object. Will
-	 *            <em>not<em> be added before the first or after the last object. If null nothing will be
+	 *            <em>not</em> be added before the first or after the last object. If null nothing will be
 	 * 		put between the objects.
 	 * @return a concatenation of all objects separated by <code>separator</code> or null if null was passed for
 	 *         <code>array</code>

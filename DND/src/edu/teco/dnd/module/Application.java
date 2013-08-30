@@ -34,6 +34,10 @@ import edu.teco.dnd.network.ConnectionManager;
  */
 public class Application {
 
+	/** Time all shutdown hooks of an application have to run before being killed. */
+	public static final int TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL = 2000;
+	/** Additional time granted, for shutdownhooks after kill attempt, before thread is forcefully stopped. */
+	public static final int ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL = 500;
 	private final UUID ownAppId;
 	private final String name;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
@@ -221,7 +225,7 @@ public class Application {
 				throw new IllegalStateException("tried to schedule block " + securityDecorator
 						+ " in already running application");
 			}
-			moduleApplicationManager.addToBlockTypeHolders(securityDecorator, blockDescription.blockTypeHolderID);
+			moduleApplicationManager.addToBlockTypeHolders(securityDecorator, blockDescription.blockTypeHolderId);
 			scheduledToStart.add(securityDecorator);
 			blockOptions.put(securityDecorator, blockDescription.options);
 		}
@@ -250,7 +254,7 @@ public class Application {
 			throw new IllegalArgumentException("class " + className + " is not a FunctionBlock");
 			// FIXME: catch this somewhere!
 		}
-		return FunctionBlockSecurityDecorator.getDecorator((Class<? extends FunctionBlock>) cls);
+		return new FunctionBlockSecurityDecorator((Class<? extends FunctionBlock>) cls);
 	}
 
 	/**
@@ -403,10 +407,10 @@ public class Application {
 			public void run() {
 				shutdownThread.start();
 				try {
-					Thread.sleep(2000);// TODO make configurable.
+					Thread.sleep(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
 
 					shutdownThread.interrupt();
-					Thread.sleep(500);
+					Thread.sleep(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
 				} catch (InterruptedException e) {
 					// Ignoring
 				}

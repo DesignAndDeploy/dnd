@@ -20,7 +20,18 @@ import edu.teco.dnd.module.config.tests.TestConfigReader;
 import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.util.NetConnection;
 
+/**
+ * Starts multiple instances of moduleMain to see how they behave in parallel and for convenience of not having to start
+ * them manually each time.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ModuleMainTest {
+	/** Utility class. */
+	private ModuleMainTest() {
+
+	}
 
 	public static void main(final String[] args) throws SocketException {
 
@@ -71,6 +82,13 @@ public class ModuleMainTest {
 
 	}
 
+	/**
+	 * prepares a set of test configurations.
+	 * 
+	 * @return a set of testing configurations for the modules to use.
+	 * @throws SocketException
+	 *             if multicast interface can not be properly retrieved.
+	 */
 	private static Set<ConfigReader> getTestConfigs() throws SocketException {
 		Set<ConfigReader> configs = new HashSet<ConfigReader>();
 
@@ -90,7 +108,7 @@ public class ModuleMainTest {
 					new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getByName("lo"));
 
 			Set<BlockTypeHolder> secondLevelChild = new HashSet<BlockTypeHolder>();
-			secondLevelChild.add(new BlockTypeHolder("child1TYPE", 2));
+			secondLevelChild.add(new BlockTypeHolder("operator", 2));
 			secondLevelChild.add(new BlockTypeHolder("child2TYPE", 2));
 
 			Set<BlockTypeHolder> firstLevelChild = new HashSet<BlockTypeHolder>();
@@ -120,11 +138,11 @@ public class ModuleMainTest {
 					new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getByName("lo"));
 
 			Set<BlockTypeHolder> secondLevelChild = new HashSet<BlockTypeHolder>();
-			secondLevelChild.add(new BlockTypeHolder("child1TYPE", 2));
-			secondLevelChild.add(new BlockTypeHolder("child2TYPE", 2));
+			secondLevelChild.add(new BlockTypeHolder("operator", 2));
+			secondLevelChild.add(new BlockTypeHolder("child4TYPE", 2));
 
 			Set<BlockTypeHolder> firstLevelChild = new HashSet<BlockTypeHolder>();
-			firstLevelChild.add(new BlockTypeHolder("child2TYPE", 1));
+			firstLevelChild.add(new BlockTypeHolder("child4TYPE", 1));
 
 			firstLevelChild.add(new BlockTypeHolder(secondLevelChild, 1));
 			BlockTypeHolder allowedBlocks = new BlockTypeHolder(firstLevelChild, 0);

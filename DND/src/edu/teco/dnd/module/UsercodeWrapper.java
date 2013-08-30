@@ -1,19 +1,31 @@
 package edu.teco.dnd.module;
 
-import java.io.IOException;
-
-import edu.teco.dnd.util.Base64;
-
 /**
- * This class is used to wrap calls to certain standard functions. E.g. ashCode() or Equals() of objects that are not
+ * This class is used to wrap calls to certain standard functions. E.g. hashCode() or Equals() of objects that are not
  * trusted. Whenever this methods are used instead of the native calls, a certain amount of additional security is
  * applied.
  * 
  * @author Marvin Marx
  * 
  */
-public class UsercodeWrapper {
+public final class UsercodeWrapper {
+	/**
+	 * utility class. Should never be instantiated.
+	 */
+	private UsercodeWrapper() {
 
+	}
+
+	/**
+	 * returns obj.toString(). Should anything but a valid string be returned from this method (including, but not
+	 * limited to thrown exceptions) this will be caught and transformed into a harmless UserSuppliedCodeException.
+	 * 
+	 * @param obj
+	 *            the object to call toString on.
+	 * @return obj.toString()
+	 * @throws UserSuppliedCodeException
+	 *             if anything goes wrong while executing toString()
+	 */
 	public static String getToString(Object obj) throws UserSuppliedCodeException {
 		String toStr;
 		try {
@@ -28,12 +40,22 @@ public class UsercodeWrapper {
 			}
 		}
 		if (toStr == null) {
-			throw new UserSuppliedCodeException("Blocktype must not be null!");
+			throw new UserSuppliedCodeException("toString() returned null!");
 		} else {
 			return toStr;
 		}
 	}
 
+	/**
+	 * returns obj.hashCode(). Should anything but a valid int be returned from this method (read: thrown exceptions)
+	 * this will be caught and transformed into a harmless UserSuppliedCodeException.
+	 * 
+	 * @param obj
+	 *            the object to call hashCode on.
+	 * @return obj.hashCode()
+	 * @throws UserSuppliedCodeException
+	 *             if anything goes wrong while executing hashCode()
+	 */
 	public static int getHashCode(Object obj) throws UserSuppliedCodeException {
 		int hashCode;
 		try {
@@ -60,12 +82,12 @@ public class UsercodeWrapper {
 	 * @return the result of one.equals(two);
 	 * @throws UserSuppliedCodeException
 	 *             if there was an unexpected exception.
-	 * @throws NullPointerException
-	 *             if one ==null;
+	 * @throws IllegalArgumentException
+	 *             if one == null;
 	 */
-	public static boolean getEquals(Object one, Object two) throws UserSuppliedCodeException {
+	public static boolean getEquals(Object one, Object two) throws UserSuppliedCodeException, IllegalArgumentException {
 		if (one == null) {
-			throw new IllegalArgumentException("one must not be null");
+			throw new IllegalArgumentException("argument one must not be null");
 		}
 		boolean equal;
 		try {
@@ -80,35 +102,5 @@ public class UsercodeWrapper {
 			}
 		}
 		return equal;
-	}
-
-	public static Object base64DecodeToObject(String encodedObject, int options, final ClassLoader loader)
-			throws ClassNotFoundException, IOException, UserSuppliedCodeException {
-		Object obj;
-
-		// It's not beautiful, but otherwise throwing a subclass of CNFexception, overriding getMessage() to
-		// throw another exception (which has overridden functions) could leak rough code outside...
-		try {
-			obj = Base64.decodeToObject(encodedObject, options, loader);
-		} catch (ClassNotFoundException e) {
-			try {
-				throw new ClassNotFoundException(e.getMessage()); // Sanitizing
-			} catch (Throwable t) {
-				throw new UserSuppliedCodeException();
-			}
-		} catch (IOException e) {
-			try {
-				throw new IOException(e.getMessage());
-			} catch (Throwable t) {
-				throw new UserSuppliedCodeException();
-			}
-		} catch (Throwable t) {
-			try {
-				throw new UserSuppliedCodeException(t.getMessage());
-			} catch (Throwable t2) {
-				throw new UserSuppliedCodeException();
-			}
-		}
-		return obj;
 	}
 }

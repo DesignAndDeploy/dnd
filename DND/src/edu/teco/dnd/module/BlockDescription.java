@@ -20,10 +20,23 @@ public class BlockDescription {
 	public final UUID blockUUID;
 	public final Map<String, String> options;
 	public final Map<String, Collection<ValueDestination>> outputs;
-	public final int blockTypeHolderID;
+	public final int blockTypeHolderId;
 
+	/**
+	 * 
+	 * @param blockClassName
+	 *            fully qualified class name of the block.
+	 * @param blockUUID
+	 *            UUID this block will receive.
+	 * @param options
+	 *            options that should be set on ths block.
+	 * @param outputs
+	 *            the outputs this block sends values from.
+	 * @param blockTypeHolderId
+	 *            ID of the assigned BlockTypeHolder, aka where to decrease the allowed blocks count.
+	 */
 	public BlockDescription(final String blockClassName, final UUID blockUUID, final Map<String, String> options,
-			final Map<String, Collection<ValueDestination>> outputs, final int blockTypeHolderID) {
+			final Map<String, Collection<ValueDestination>> outputs, final int blockTypeHolderId) {
 		this.blockClassName = blockClassName;
 		this.blockUUID = blockUUID;
 		this.options = Collections.unmodifiableMap(new HashMap<String, String>(options));
@@ -34,6 +47,6 @@ public class BlockDescription {
 					Collections.unmodifiableCollection(new ArrayList<ValueDestination>(entry.getValue())));
 		}
 		this.outputs = Collections.unmodifiableMap(modifiableOutputs);
-		this.blockTypeHolderID = blockTypeHolderID;
+		this.blockTypeHolderId = blockTypeHolderId;
 	}
 }

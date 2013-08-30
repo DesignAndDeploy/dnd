@@ -18,6 +18,12 @@ import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.util.NetConnection;
 
+/**
+ * Mock ConfigReader used to simulate a real configuration for testing purposes.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class TestConfigReader extends ConfigReader {
 
 	private String name;
@@ -30,11 +36,31 @@ public class TestConfigReader extends ConfigReader {
 	private BlockTypeHolder allowedBlocks; // the rootBlock
 	private int currentBlockId = 0;
 
-	private static transient final Logger LOGGER = LogManager.getLogger(TestConfigReader.class);
+	private static final transient Logger LOGGER = LogManager.getLogger(TestConfigReader.class);
 
 	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
 	private transient Map<Integer, BlockTypeHolder> blockIdQuickaccess = new HashMap<Integer, BlockTypeHolder>();
 
+	/**
+	 * set up this mock according to parameters.
+	 * 
+	 * @param name
+	 *            moduleName (humanReadable)
+	 * @param moduleUuid
+	 *            moduleUUID...
+	 * @param maxAppthreads
+	 *            maximum allowed threads per application.
+	 * @param allowNIO
+	 *            whether to allow using JavaNIO
+	 * @param listen
+	 *            addresses to listen on for incoming other modules.
+	 * @param announce
+	 *            addresses to announce ones own presence on
+	 * @param multicast
+	 *            address to multicast announce ones own presence on
+	 * @param allowedBlocks
+	 *            Tree of blockTypes allowed to run (see BlockTypeHolder)
+	 */
 	public TestConfigReader(String name, UUID moduleUuid, int maxAppthreads, boolean allowNIO,
 			InetSocketAddress[] listen, InetSocketAddress[] announce, NetConnection[] multicast,
 			BlockTypeHolder allowedBlocks) {
@@ -58,6 +84,7 @@ public class TestConfigReader extends ConfigReader {
 	 * 
 	 * @return the TestConfigReader
 	 * @throws SocketException
+	 *             if the same is thrown while trying to get the multicast address.
 	 */
 	public static TestConfigReader getPredefinedReader() throws SocketException {
 		String name = "ConfReadName";
@@ -87,18 +114,27 @@ public class TestConfigReader extends ConfigReader {
 		return new TestConfigReader(name, moduleUuid, maxAppthreads, true, listen, announce, multicast, allowedBlocks);
 	}
 
-	private void fillTransientVariables(Map<String, BlockTypeHolder> blockQuickaccess,
+	/**
+	 * fill the internal transient variables of blockTypeHolder which are usually not filled in during storage (and its
+	 * more convenient than to paste it every time we need a mock).
+	 * 
+	 * @param currentBlockQuickaccess
+	 *            blockQuickaccess list. Used for easier retrieval of types.
+	 * @param currentBlock
+	 *            the root of the BlockTypeHolder tree if not called recursively.
+	 */
+	private void fillTransientVariables(Map<String, BlockTypeHolder> currentBlockQuickaccess,
 			final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
 		currentBlock.setIdNumber(++currentBlockId);
 		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children == null) {
-			blockQuickaccess.put(currentBlock.getType(), currentBlock);
+			currentBlockQuickaccess.put(currentBlock.getType(), currentBlock);
 		} else {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
-				fillTransientVariables(blockQuickaccess, child);
+				fillTransientVariables(currentBlockQuickaccess, child);
 			}
 		}
 

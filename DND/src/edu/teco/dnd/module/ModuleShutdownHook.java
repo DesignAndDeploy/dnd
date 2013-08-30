@@ -15,6 +15,10 @@ public class ModuleShutdownHook implements Runnable {
 
 	private final Set<EventLoopGroup> eventLoopGroups;
 
+	/**
+	 * @param eventLoopGroups
+	 *            the eventLoopGroups that will be "shutdownGracefully()", when the runnable is executed.
+	 */
 	public ModuleShutdownHook(final Set<EventLoopGroup> eventLoopGroups) {
 		this.eventLoopGroups = eventLoopGroups;
 	}

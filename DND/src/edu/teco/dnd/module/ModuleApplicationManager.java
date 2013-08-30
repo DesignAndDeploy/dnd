@@ -30,18 +30,35 @@ import edu.teco.dnd.module.messages.values.WhoHasFuncBlockHandler;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.util.IndexedThreadFactory;
 
+/**
+ * class responsible for handling all the applications that belong to a module. (e.g. storing them, managing
+ * shutdown...). Basically the main eventdriven "executable" of the modules.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ModuleApplicationManager {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleApplicationManager.class);
 
-	public final UUID localeModuleId;
-	public final ConfigReader moduleConfig;
-	public final int maxAllowedThreadsPerApp;
+	private final UUID localeModuleId;
+	private final ConfigReader moduleConfig;
+	private final int maxAllowedThreadsPerApp;
 	private final Map<UUID, Application> runningApps = new ConcurrentHashMap<UUID, Application>();
 	private final ConnectionManager connMan;
 	private final Runnable moduleShutdownHook;
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
 	private final Map<UUID, Integer> spotOccupiedByBlock = new ConcurrentHashMap<UUID, Integer>();
 
+	/**
+	 * 
+	 * @param moduleConfig
+	 *            Configuration this module has been given.
+	 * @param connMan
+	 *            the Manager for connections to other modules.
+	 * @param modShutdownHook
+	 *            A runnable that will be executed upon receipt of a KillMeassage before the applications are killed.
+	 *            Likely to shutdown the network cleanly.
+	 */
 	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan, Runnable modShutdownHook) {
 		this.moduleShutdownHook = modShutdownHook;
 		this.moduleConfig = moduleConfig;
@@ -50,6 +67,13 @@ public class ModuleApplicationManager {
 		this.connMan = connMan;
 	}
 
+	/**
+	 * 
+	 * @param moduleConfig
+	 *            Configuration this module has been given.
+	 * @param connMan
+	 *            the Manager for connections to other modules.
+	 */
 	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
 		this(moduleConfig, connMan, null);
 	}
@@ -86,22 +110,34 @@ public class ModuleApplicationManager {
 		}
 	}
 
+	/**
+	 * create a new Application with given UUID and name.
+	 * 
+	 * @param appId
+	 *            the uuid of the application to create
+	 * @param name
+	 *            Human readable name of the application
+	 * @return A reference to the new application object
+	 */
 	private Application createApplication(final UUID appId, final String name) {
-		final ApplicationClassLoader classLoader = createApplicationClassLoader(appId);
-		final ScheduledThreadPoolExecutor executor = createApplicationExecutor(appId);
+		final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
+		final ScheduledThreadPoolExecutor executor =
+				new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, createApplicationThreadFactory(appId,
+						classLoader));
 		return new Application(appId, name, executor, connMan, classLoader, this);
 	}
 
-	private ApplicationClassLoader createApplicationClassLoader(final UUID appId) {
-		return new ApplicationClassLoader(connMan, appId);
-	}
-
-	private ScheduledThreadPoolExecutor createApplicationExecutor(final UUID appId) {
-		return new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, createApplicationThreadFactory(appId));
-	}
-
-	private ThreadFactory createApplicationThreadFactory(final UUID appId) {
-		final ApplicationClassLoader classLoader = createApplicationClassLoader(appId);
+	/**
+	 * create a new Thread factory.
+	 * 
+	 * @param appId
+	 *            the application UUID, used for naming of threads.
+	 * @param classLoader
+	 *            classLoader set as contextClassLoader of the created threads. It is STRONGLY advised this be the same
+	 *            as the classLoader used to load the Application class.
+	 * @return a thread Factory that can be used for applications.
+	 */
+	private ThreadFactory createApplicationThreadFactory(final UUID appId, final ApplicationClassLoader classLoader) {
 		return new ThreadFactory() {
 			private final ThreadFactory internalFactory = new IndexedThreadFactory("app-" + appId.toString() + "-");
 
@@ -114,6 +150,12 @@ public class ModuleApplicationManager {
 		};
 	}
 
+	/**
+	 * registers the Message handlers for a new application.
+	 * 
+	 * @param application
+	 *            the application the message handlers are to be registered for.
+	 */
 	private void registerMessageHandlers(final Application application) {
 		final UUID appId = application.getOwnAppId();
 		final Executor executor = application.getThreadPool();
@@ -128,21 +170,25 @@ public class ModuleApplicationManager {
 	/**
 	 * Schedules a FunctionBlock to be started, when StartApp() is called.
 	 * 
-	 * @param blockClass
-	 *            the class of the FunctionBlock
-	 * @param blockUUID
-	 *            the UUID of the FunctionBlock
-	 * @param options
-	 *            the options for the FunctionBlock
-	 * @throws UserSuppliedCodeException 
-	 * @throws ClassNotFoundException 
+	 * @param appId
+	 *            the UUID of the application this block is to be scheduled on.
+	 * @param blockDescription
+	 *            the information about the block that schould be scheduled.
+	 * @throws UserSuppliedCodeException
+	 *             if the BlockDescriptor contains a block with invalid code.
+	 * @throws ClassNotFoundException
+	 *             if the Class described in blockDescription can not be loaded by the application class loader.
+	 * @throws IllegalArgumentException
+	 *             if the application does not exist.
 	 */
-	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException, UserSuppliedCodeException {
+	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException,
+			UserSuppliedCodeException, IllegalArgumentException {
 		isShuttingDown.readLock().lock();
 		try {
 			final Application app = runningApps.get(appId);
 			if (app == null) {
-				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockUUID + " for non-existant Application " + appId);
+				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockUUID
+						+ " for non-existant Application " + appId);
 			}
 			app.scheduleBlock(blockDescription);
 		} finally {
@@ -150,29 +196,42 @@ public class ModuleApplicationManager {
 		}
 
 	}
-	
-	public void addToBlockTypeHolders(final FunctionBlockSecurityDecorator block, final int blockTypeHolderID) {
-		final BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(blockTypeHolderID);
+
+	/**
+	 * decrease the amount of allowed blocks o this type to run, while also checking whether this block is allowed to
+	 * run at all.
+	 * 
+	 * @param block
+	 *            the block to put into the list.
+	 * @param blockTypeHolderId
+	 *            the ID of the blockTypeHolder to perform this on.
+	 */
+	public void addToBlockTypeHolders(final FunctionBlockSecurityDecorator block, final int blockTypeHolderId) {
+		final BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(blockTypeHolderId);
 		if (holder == null) {
-			throw new IllegalArgumentException("There is no BlockTypeHolder with ID " + blockTypeHolderID);
+			throw new IllegalArgumentException("There is no BlockTypeHolder with ID " + blockTypeHolderId);
 		}
 		if (!holder.tryAdd(block.getBlockType())) {
-			// Maybe a different kind of exception would be better
+			// TODO: Maybe a different kind of exception would be better
 			throw new IllegalArgumentException();
 		}
-		spotOccupiedByBlock.put(block.getBlockUUID(), blockTypeHolderID);
+		spotOccupiedByBlock.put(block.getBlockUUID(), blockTypeHolderId);
 	}
 
-	// FIXME: Apps can be started after shutdownModule has been called
+	/**
+	 * called when an app that was scheduled to start before is started. Then does what it says.
+	 * 
+	 * @param appId
+	 *            the UUID of the app to be started.
+	 */
 	public void startApp(UUID appId) {
-		Application app = runningApps.get(appId);
-		if (app == null) {
-			LOGGER.warn("Tried to start non existing app: {}", appId);
-			throw new IllegalArgumentException("tried to start app that does not exist.");
-		}
-
 		isShuttingDown.readLock().lock();
 		try {
+			Application app = runningApps.get(appId);
+			if (app == null) {
+				LOGGER.warn("Tried to start non existing app: {}", appId);
+				throw new IllegalArgumentException("tried to start app that does not exist.");
+			}
 			app.start();
 		} finally {
 			isShuttingDown.readLock().unlock();
@@ -198,11 +257,10 @@ public class ModuleApplicationManager {
 	}
 
 	/**
-	 * called to request stopping of a given application
+	 * called to request stopping of a given application.
 	 * 
 	 * @param appId
 	 *            the id of the app to be stopped
-	 * @return true iff successful
 	 */
 	public void stopApplication(UUID appId) {
 		// TODO deregister Message handlers
@@ -223,14 +281,26 @@ public class ModuleApplicationManager {
 		removeBlocks(blocksKilled);
 	}
 
+	/**
+	 * increase the amount of $type, of the blocks allowed to run, after the blocks have stopped executing.
+	 * 
+	 * @param blocks
+	 *            the blocks that stopped executing.
+	 */
 	private void removeBlocks(final Collection<FunctionBlockSecurityDecorator> blocks) {
-		for (final FunctionBlockSecurityDecorator block : blocks) {
-			removeBlock(block);
+		for (final FunctionBlockSecurityDecorator singleBlock : blocks) {
+			removeBlocks(singleBlock);
 		}
 	}
 
-	private void removeBlock(final FunctionBlockSecurityDecorator block) {
-		final UUID blockUUID = block.getBlockUUID();
+	/**
+	 * increase the amount of $type, of the blocks allowed to run, after the blocks have stopped executing.
+	 * 
+	 * @param blocks
+	 *            the blocks that stopped executing.
+	 */
+	private void removeBlocks(final FunctionBlockSecurityDecorator blocks) {
+		final UUID blockUUID = blocks.getBlockUUID();
 		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockUUID));
 		if (holder != null) {
 			holder.increase();
@@ -248,6 +318,8 @@ public class ModuleApplicationManager {
 	}
 
 	/**
+	 * @param appId
+	 *            UUID of the application to get the classloader of.
 	 * @return the class loader of an app. null if none.
 	 */
 	public ClassLoader getAppClassLoader(UUID appId) {

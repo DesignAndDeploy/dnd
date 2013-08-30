@@ -9,6 +9,13 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.network.ConnectionManager;
 
+/**
+ * Classloader used by Applications. Capable of loading classes whose bytecode has been handed in by the appropriate
+ * method beforehand. Might also do additional security checks to enforce some constraints.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class ApplicationClassLoader extends ClassLoader {
 
 	private static final Logger LOGGER = LogManager.getLogger(ApplicationClassLoader.class);
@@ -16,7 +23,21 @@ public class ApplicationClassLoader extends ClassLoader {
 	private Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	private Map<String, byte[]> classBytes = new HashMap<String, byte[]>();
 
+	/**
+	 * Instantiate a new classloader. Must obviously use the same instance for loading bytecode and then loading
+	 * classes.
+	 * 
+	 * @param connMan
+	 *            the connection Manager. Used for optional on demand class bytecode loading.
+	 * @param associatedAppId
+	 *            the Application associated with this classloader. Used for the same reason. (Note that this
+	 *            capabilities are currently not implemented.)
+	 */
 	public ApplicationClassLoader(ConnectionManager connMan, UUID associatedAppId) {
+	}
+
+	/** empty constructor, disable on demand class loading. */
+	public ApplicationClassLoader() {
 	}
 
 	@Override
@@ -62,6 +83,16 @@ public class ApplicationClassLoader extends ClassLoader {
 		}
 	}
 
+	/**
+	 * Load bytecode of a class into classloader so as to be able to load this exact class when a class of $name is
+	 * requested.
+	 * 
+	 * @param name
+	 *            when the class of name $name is requested, this bytecode will be loaded. Name must be unique. Else
+	 *            only the bytecode of the first invocation will be used.
+	 * @param classData
+	 *            The bytecode of the class to load.
+	 */
 	public void appLoadClass(String name, byte[] classData) {
 		if (name == null) {
 			throw new IllegalArgumentException("name must not be null");

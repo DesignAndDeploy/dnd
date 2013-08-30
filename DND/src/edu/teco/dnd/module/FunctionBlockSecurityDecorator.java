@@ -12,7 +12,7 @@ import edu.teco.dnd.blocks.Output;
  * Wrapper for a FunctionBlock. The idea is, that FunctionBlock code can not be trusted to work properly, yet must still
  * be executed. Thus every code executed on aFunctionBlock is wrapped by this. Not only does this give an easy way to
  * discern untrusted code on a stacktrace (as used in securityManagers) But it also limits the entry/exit points and
- * allows for mor cnscious wrapping and lessends the likelyhood of forgetten wrapping.
+ * allows for more conscious wrapping and lessens the likelihood of forgotten wrapping.
  * 
  * @author Marvin Marx
  * 
@@ -20,22 +20,37 @@ import edu.teco.dnd.blocks.Output;
 public class FunctionBlockSecurityDecorator {
 	private final FunctionBlock block;
 
-	public FunctionBlockSecurityDecorator(final FunctionBlock block) {
-		this.block = block;
-	}
-
-	public static FunctionBlockSecurityDecorator getDecorator(final Class<? extends FunctionBlock> blockClass)
+	/**
+	 * creates a new decorator wrapping the given block.
+	 * 
+	 * @param blockClass
+	 *            the block to be wrapped.
+	 * @throws UserSuppliedCodeException
+	 *             if an error occured while trying to instantiate the FunctionBlock.
+	 */
+	public FunctionBlockSecurityDecorator(final Class<? extends FunctionBlock> blockClass)
 			throws UserSuppliedCodeException {
 		final FunctionBlock realBlock;
 		try {
 			realBlock = (FunctionBlock) blockClass.getConstructor().newInstance();
+			if (realBlock == null) {
+				throw new NullPointerException();
+			}
 		} catch (Throwable e) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("Could not instantiate block of class " + blockClass);
 		}
-		return new FunctionBlockSecurityDecorator(realBlock);
+		this.block = realBlock;
 	}
 
+	/**
+	 * wrapper for doInit on FunctionBlocks. just wrapped for security.
+	 * 
+	 * @param blockUUID
+	 *            see FunctionBlock.doInit() .
+	 * @throws UserSuppliedCodeException
+	 *             if an error occurred in the block code.
+	 */
 	public void doInit(final UUID blockUUID) throws UserSuppliedCodeException {
 		try {
 			this.block.doInit(blockUUID);
@@ -45,6 +60,14 @@ public class FunctionBlockSecurityDecorator {
 		}
 	}
 
+	/**
+	 * wraps FunctionBlock.init() for security.
+	 * 
+	 * @param options
+	 *            see FunctionBlock.init()
+	 * @throws UserSuppliedCodeException
+	 *             if an error occurred in the block code.
+	 */
 	public void init(final Map<String, String> options) throws UserSuppliedCodeException {
 		try {
 			block.init(options);
@@ -55,6 +78,12 @@ public class FunctionBlockSecurityDecorator {
 		}
 	}
 
+	/**
+	 * wraps FunctionBlock.shutdown() for security.
+	 * 
+	 * @throws UserSuppliedCodeException
+	 *             if an error occurred in the block code.
+	 */
 	public void shutdown() throws UserSuppliedCodeException {
 		try {
 			block.shutdown();
@@ -65,6 +94,12 @@ public class FunctionBlockSecurityDecorator {
 		}
 	}
 
+	/**
+	 * wraps FunctionBlock.update() for security.
+	 * 
+	 * @throws UserSuppliedCodeException
+	 *             if an error occurred in the block code.
+	 */
 	public void update() throws UserSuppliedCodeException {
 		try {
 			block.update();
@@ -129,18 +164,23 @@ public class FunctionBlockSecurityDecorator {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		FunctionBlockSecurityDecorator other = (FunctionBlockSecurityDecorator) obj;
 		if (block == null) {
-			if (other.block != null)
+			if (other.block != null) {
 				return false;
-		} else if (!block.equals(other.block))
+			}
+		} else if (!block.equals(other.block)) {
 			return false;
+		}
 		return true;
 	}
 }

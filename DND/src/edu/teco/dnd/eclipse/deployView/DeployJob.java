@@ -1,9 +1,5 @@
 package edu.teco.dnd.eclipse.deployView;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,12 +7,10 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DeployListener;
-import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.module.Module;
 
 public class DeployJob extends Job {

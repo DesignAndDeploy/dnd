@@ -29,6 +29,11 @@ public class SerializableAdapter implements JsonSerializer<Serializable>, JsonDe
 	private static final Logger LOGGER = LogManager.getLogger(SerializableAdapter.class);
 	private final ClassLoader loader;
 
+	/**
+	 * 
+	 * @param loader
+	 *            classLoader used to deserialize given classes.
+	 */
 	public SerializableAdapter(ClassLoader loader) {
 		this.loader = loader;
 	}

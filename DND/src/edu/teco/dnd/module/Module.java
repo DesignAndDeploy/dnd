@@ -6,7 +6,7 @@ import java.util.UUID;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
- * Represents a Module
+ * Represents the configuration/setup of a Module. Used for transporting said information.
  * 
  * @author jung
  * 
@@ -42,6 +42,7 @@ public class Module {
 		return this.holder;
 	}
 
+	/** @return uuid of module represented by this. */
 	public UUID getUUID() {
 		return uuid;
 	}
@@ -55,11 +56,12 @@ public class Module {
 		return holder.getAllAllowedChildTypes();
 	}
 
-
+	/** @return human readable name of module. */
 	public String getName() {
 		return name;
 	}
 
+	/** @return location this module gives. used to limit blocks allowed to run on it. */
 	public String getLocation() {
 		return location;
 	}

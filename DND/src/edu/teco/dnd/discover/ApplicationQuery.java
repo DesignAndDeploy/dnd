@@ -22,21 +22,47 @@ import edu.teco.dnd.util.DefaultFutureNotifier;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
 
+/**
+ * class providing methods for querying information about all running applications and also for killing a running
+ * application on all Modules.
+ * 
+ */
 public class ApplicationQuery {
 	private static final Logger LOGGER = LogManager.getLogger(ApplicationQuery.class);
+
+	/** Maximum amount of time to wait before a kill attempt is assumed to have failed. */
 	public static final long MAX_PER_MODULE_KILL_WAIT_TIME = 1000; // (MilliSeconds)
 	private final ConnectionManager connectionManager;
 
+	/**
+	 * @param connectionManager
+	 *            The ConnectionManager that will be used to connect to other modules.
+	 */
 	public ApplicationQuery(final ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 	}
 
+	/**
+	 * get a FutureNotifier usable to retrieve a list of running applications (and information about them) from a single
+	 * Module.
+	 * 
+	 * @param module
+	 *            UUID of the module to query
+	 * @return a FutureNotifier usable to retrieve a list of running applications (and information about them)
+	 */
 	public ModuleApplicationListFutureNotifier getApplicationList(final UUID module) {
 		final ModuleApplicationListFutureNotifier notifier = new ModuleApplicationListFutureNotifier(module);
 		connectionManager.sendMessage(module, new RequestApplicationListMessage()).addListener(notifier);
 		return notifier;
 	}
 
+	/**
+	 * get a FutureNotifier usable to retrieve a list of running applications (and information about them) from all
+	 * connected Modules.
+	 * 
+	 * @return a FutureNotifier usable to retrieve a list of running applications (and information about them) of all
+	 *         modules.
+	 */
 	public ApplicationListFutureNotifier getApplicationList() {
 		final Collection<UUID> modules = connectionManager.getConnectedModules();
 		final ApplicationListFutureNotifier notifier = new ApplicationListFutureNotifier(modules.size());
@@ -127,12 +153,22 @@ public class ApplicationQuery {
 		}
 	}
 
+	/**
+	 * Future notifier used to retireve a list of all running applications.
+	 * 
+	 * @author Marvin Marx
+	 * 
+	 */
 	public static class ApplicationListFutureNotifier extends
 			DefaultFutureNotifier<Map<UUID/* appId */, ApplicationInformation>> implements
 			FutureListener<FutureNotifier<Response>> {
 		private final AtomicInteger waiting;
 		private final ConcurrentMap<UUID/* appId */, ApplicationInformation> appInfos;
 
+		/**
+		 * @param waiting
+		 *            the amount of returns we do expect. (Usually == the amount of requests we send, doh)
+		 */
 		public ApplicationListFutureNotifier(final int waiting) {
 			if (waiting == 0) {
 				this.waiting = null;

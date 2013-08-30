@@ -61,6 +61,14 @@ import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
 import edu.teco.dnd.util.NetConnectionAdapter;
 
+/**
+ * Test to check that classes are properly de/encoded with json. Does however not check json Syntax, just whether
+ * input== output. All tests are of the form: construct a message, encode it to JSon, decode it again, compare input to
+ * output.
+ * 
+ * @author Marvin Marx
+ * 
+ */
 public class MessageDeEnCodingTest implements Serializable {
 
 	private static final long serialVersionUID = -6437521431147083820L;
@@ -71,8 +79,8 @@ public class MessageDeEnCodingTest implements Serializable {
 	private static final UUID TEST_APP_UUID = UUID.fromString("11111111-9abc-def0-1234-56789abcdef0");
 	private static final UUID TEST_FUNBLOCK_UUID = UUID.fromString("99999999-9abc-def0-1234-56789abcdef0");
 
-	private static final Gson gson;
-	private static final MessageAdapter msgAdapter = new MessageAdapter();
+	private static final Gson GSON;
+	private static final MessageAdapter MSG_ADAPTER = new MessageAdapter();
 
 	static {
 
@@ -89,63 +97,63 @@ public class MessageDeEnCodingTest implements Serializable {
 
 		GsonBuilder builder = new GsonBuilder();
 		builder.setPrettyPrinting();
-		builder.registerTypeAdapter(Message.class, msgAdapter);
+		builder.registerTypeAdapter(Message.class, MSG_ADAPTER);
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		builder.registerTypeAdapter(byte[].class, new Base64Adapter());
 		builder.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
 		builder.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
-		gson = builder.create();
+		GSON = builder.create();
 	}
 
 	@Test
-	public void ApplicationListResponseTest() {
+	public void applicationListResponseTest() {
 
 		Map<UUID, String> modIds = new TreeMap<UUID, String>();
-		Map<UUID, Collection<UUID>> AppBlocksRunning = new TreeMap<UUID, Collection<UUID>>();
+		Map<UUID, Collection<UUID>> appBlocksRunning = new TreeMap<UUID, Collection<UUID>>();
 		Set<UUID> blockMap = new TreeSet<UUID>();
 		blockMap.add(TEST_FUNBLOCK_UUID);
-		AppBlocksRunning.put(TEST_APP_UUID, blockMap);
+		appBlocksRunning.put(TEST_APP_UUID, blockMap);
 
 		modIds.put(TEST_APP_UUID, "APP_1");
-		msgAdapter.addMessageType(ApplicationListResponse.class);
-		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds, AppBlocksRunning));
+		MSG_ADAPTER.addMessageType(ApplicationListResponse.class);
+		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds, appBlocksRunning));
 	}
 
 	@Test
-	public void RequestApplicationListMessageTest() {
+	public void requestApplicationListMessageTest() {
 
-		msgAdapter.addMessageType(RequestApplicationListMessage.class);
+		MSG_ADAPTER.addMessageType(RequestApplicationListMessage.class);
 		testEnDeCoding(new RequestApplicationListMessage());
 	}
 
 	@Test
-	public void ShutdownModuleMessageTest() {
-		msgAdapter.addMessageType(ShutdownModuleMessage.class);
+	public void shutdownModuleMessageTest() {
+		MSG_ADAPTER.addMessageType(ShutdownModuleMessage.class);
 		testEnDeCoding(new ShutdownModuleMessage());
 	}
 
 	@Test
-	public void ShutdownModuleNakTest() {
-		msgAdapter.addMessageType(ShutdownModuleNak.class);
+	public void shutdownModuleNakTest() {
+		MSG_ADAPTER.addMessageType(ShutdownModuleNak.class);
 		testEnDeCoding(new ShutdownModuleNak());
 	}
 
 	@Test
-	public void ShutdownModuleAckTest() {
-		msgAdapter.addMessageType(ShutdownModuleAck.class);
+	public void shutdownModuleAckTest() {
+		MSG_ADAPTER.addMessageType(ShutdownModuleAck.class);
 		testEnDeCoding(new ShutdownModuleAck());
 	}
 
 	@Test
-	public void MissingApplicationNakTest() {
-		msgAdapter.addMessageType(MissingApplicationNak.class);
+	public void missingApplicationNakTest() {
+		MSG_ADAPTER.addMessageType(MissingApplicationNak.class);
 		testEnDeCoding(new MissingApplicationNak(TEST_APP_UUID));
 	}
 
 	@Test
-	public void ModuleInfoMessageTest() {
-		msgAdapter.addMessageType(ModuleInfoMessage.class);
+	public void moduleInfoMessageTest() {
+		MSG_ADAPTER.addMessageType(ModuleInfoMessage.class);
 		try {
 			final ConfigReader configReader = TestConfigReader.getPredefinedReader();
 			testEnDeCoding(new ModuleInfoMessage(new Module(configReader.getUuid(), configReader.getName(),
@@ -158,76 +166,76 @@ public class MessageDeEnCodingTest implements Serializable {
 	}
 
 	@Test
-	public void RequestModuleInfoMessageTest() {
+	public void requestModuleInfoMessageTest() {
 
-		msgAdapter.addMessageType(RequestModuleInfoMessage.class);
+		MSG_ADAPTER.addMessageType(RequestModuleInfoMessage.class);
 		testEnDeCoding(new RequestModuleInfoMessage());
 	}
 
 	@Test
-	public void JoinApplicationMessageTest() {
+	public void joinApplicationMessageTest() {
 		JoinApplicationMessage jam = new JoinApplicationMessage("appName", TEST_APP_UUID);
-		msgAdapter.addMessageType(JoinApplicationMessage.class);
+		MSG_ADAPTER.addMessageType(JoinApplicationMessage.class);
 		testEnDeCoding(jam);
 	}
 
 	@Test
-	public void JoinApplicationAckTest() {
+	public void joinApplicationAckTest() {
 		JoinApplicationMessage jam = new JoinApplicationMessage("appName", TEST_APP_UUID);
-		msgAdapter.addMessageType(JoinApplicationAck.class);
+		MSG_ADAPTER.addMessageType(JoinApplicationAck.class);
 		testEnDeCoding(new JoinApplicationAck(jam));
 
 	}
 
 	@Test
-	public void JoinApplicationNakTest() {
+	public void joinApplicationNakTest() {
 		JoinApplicationMessage jam = new JoinApplicationMessage("appName", TEST_APP_UUID);
-		msgAdapter.addMessageType(JoinApplicationNak.class);
+		MSG_ADAPTER.addMessageType(JoinApplicationNak.class);
 		testEnDeCoding(new JoinApplicationNak(jam));
 
 	}
 
 	@Test
-	public void StartApplicationMessageTest() {
+	public void startApplicationMessageTest() {
 
-		msgAdapter.addMessageType(StartApplicationMessage.class);
+		MSG_ADAPTER.addMessageType(StartApplicationMessage.class);
 		testEnDeCoding(new StartApplicationMessage(TEST_APP_UUID));
 
 	}
 
 	@Test
-	public void KillAppMessageTest() {
+	public void killAppMessageTest() {
 		KillAppMessage kam = new KillAppMessage(TEST_APP_UUID);
 
-		msgAdapter.addMessageType(KillAppMessage.class);
+		MSG_ADAPTER.addMessageType(KillAppMessage.class);
 		testEnDeCoding(kam);
 	}
 
 	@Test
-	public void KillAppAckTest() {
+	public void killAppAckTest() {
 		KillAppMessage kam = new KillAppMessage(TEST_APP_UUID);
-		msgAdapter.addMessageType(KillAppAck.class);
+		MSG_ADAPTER.addMessageType(KillAppAck.class);
 		testEnDeCoding(new KillAppAck(kam));
 
 	}
 
 	@Test
-	public void KillAppNakTest() {
+	public void killAppNakTest() {
 		KillAppMessage kam = new KillAppMessage(TEST_APP_UUID);
-		msgAdapter.addMessageType(KillAppNak.class);
+		MSG_ADAPTER.addMessageType(KillAppNak.class);
 		testEnDeCoding(new KillAppNak(kam));
 
 	}
 
 	@Test
-	public void BlockAckTest() {
-		msgAdapter.addMessageType(BlockAck.class);
+	public void blockAckTest() {
+		MSG_ADAPTER.addMessageType(BlockAck.class);
 		testEnDeCoding(new BlockAck());
 
 	}
 
 	@Test
-	public void BlockMessageTest() {
+	public void blockMessageTest() {
 
 		Map<String, String> options = new TreeMap<String, String>();
 		options.put("Option_key", "option_val");
@@ -236,71 +244,71 @@ public class MessageDeEnCodingTest implements Serializable {
 		Map<String, Collection<ValueDestination>> outputs = new TreeMap<String, Collection<ValueDestination>>();
 		outputs.put("Outp_key", valueDest);
 
-		msgAdapter.addMessageType(BlockMessage.class);
+		MSG_ADAPTER.addMessageType(BlockMessage.class);
 		testEnDeCoding(new BlockMessage(TEST_APP_UUID, "BeamerActor", TEST_FUNBLOCK_UUID, options, outputs, 3));
 	}
 
 	@Test
-	public void BlockNakTest() {
+	public void blockNakTest() {
 
-		msgAdapter.addMessageType(BlockNak.class);
+		MSG_ADAPTER.addMessageType(BlockNak.class);
 		testEnDeCoding(new BlockNak());
 	}
 
 	@Test
-	public void LoadClassAckTest() {
+	public void loadClassAckTest() {
 
-		msgAdapter.addMessageType(LoadClassAck.class);
+		MSG_ADAPTER.addMessageType(LoadClassAck.class);
 		testEnDeCoding(new LoadClassAck("ClassName", TEST_APP_UUID));
 	}
 
 	@Test
-	public void LoadClassMessageTest() {
+	public void loadClassMessageTest() {
 		byte[] b = "Hello testing world".getBytes();
 
-		msgAdapter.addMessageType(LoadClassMessage.class);
+		MSG_ADAPTER.addMessageType(LoadClassMessage.class);
 		testEnDeCoding(new LoadClassMessage("ClassName", b, TEST_APP_UUID));
 	}
 
 	@Test
-	public void LoadClassNakTest() {
+	public void loadClassNakTest() {
 
-		msgAdapter.addMessageType(LoadClassNak.class);
+		MSG_ADAPTER.addMessageType(LoadClassNak.class);
 		testEnDeCoding(new LoadClassNak("ClassName", TEST_APP_UUID));
 	}
 
 	@Test
-	public void BlockFoundMessageTest() {
+	public void blockFoundMessageTest() {
 
-		msgAdapter.addMessageType(BlockFoundResponse.class);
+		MSG_ADAPTER.addMessageType(BlockFoundResponse.class);
 		testEnDeCoding(new BlockFoundResponse(TEST_MODULE_UUID));
 	}
 
 	@Test
-	public void ValueAckTest() {
+	public void valueAckTest() {
 
-		msgAdapter.addMessageType(ValueAck.class);
+		MSG_ADAPTER.addMessageType(ValueAck.class);
 		testEnDeCoding(new ValueAck(TEST_APP_UUID));
 	}
 
 	@Test
-	public void ValueNakTest() {
+	public void valueNakTest() {
 
-		msgAdapter.addMessageType(ValueNak.class);
+		MSG_ADAPTER.addMessageType(ValueNak.class);
 		testEnDeCoding(new ValueNak(TEST_APP_UUID, ValueNak.ErrorType.WRONG_MODULE, TEST_FUNBLOCK_UUID, "InputName"));
 
 	}
 
 	@Test
-	public void WhoHasBlockMessageTest() {
+	public void whoHasBlockMessageTest() {
 
-		msgAdapter.addMessageType(WhoHasBlockMessage.class);
+		MSG_ADAPTER.addMessageType(WhoHasBlockMessage.class);
 		testEnDeCoding(new WhoHasBlockMessage(TEST_APP_UUID, TEST_FUNBLOCK_UUID));
 
 	}
 
 	@Test
-	public void ValueMessageTest() { // gets special handling because we are dealing with serializables and they do not
+	public void valueMessageTest() { // gets special handling because we are dealing with serializables and they do not
 										// provide equals.
 
 		@SuppressWarnings({ "serial" })
@@ -318,20 +326,20 @@ public class MessageDeEnCodingTest implements Serializable {
 
 		Seri oldSeri = new Seri();
 
-		msgAdapter.addMessageType(ValueMessage.class);
+		MSG_ADAPTER.addMessageType(ValueMessage.class);
 		ValueMessage msg = new ValueMessage(TEST_APP_UUID, TEST_FUNBLOCK_UUID, "InputName", oldSeri);
 
 		String gsonHolder;
 		ValueMessage decodedMsg;
 
 		try {
-			gsonHolder = gson.toJson(msg, Message.class);
+			gsonHolder = GSON.toJson(msg, Message.class);
 		} catch (Exception ex) {
 			LOGGER.fatal("Encoding Error in MSG: {} .FAIL: {}", msg, msg.getClass());
 			throw new Error(ex);
 		}
 		try {
-			decodedMsg = (ValueMessage) gson.fromJson(gsonHolder, Message.class);
+			decodedMsg = (ValueMessage) GSON.fromJson(gsonHolder, Message.class);
 		} catch (Exception ex) {
 			LOGGER.fatal("{}\nDecoding Error.Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
 			throw new Error(ex);
@@ -360,18 +368,25 @@ public class MessageDeEnCodingTest implements Serializable {
 
 	}
 
-	public static void testEnDeCoding(Message msg) {
+	/**
+	 * The helper method doing the en-/decoding part for nearly all the tests. Takes a message, converts it to json and
+	 * back and compares the results.
+	 * 
+	 * @param msg
+	 *            the message to test encoding of.
+	 */
+	private static void testEnDeCoding(Message msg) {
 		String gsonHolder;
 		Message decodedMsg;
 
 		try {
-			gsonHolder = gson.toJson(msg, Message.class);
+			gsonHolder = GSON.toJson(msg, Message.class);
 		} catch (Exception ex) {
 			LOGGER.fatal("Encoding Error in MSG: {} .\nFAIL: {}", msg, msg.getClass());
 			throw new Error(ex);
 		}
 		try {
-			decodedMsg = gson.fromJson(gsonHolder, Message.class);
+			decodedMsg = GSON.fromJson(gsonHolder, Message.class);
 		} catch (Exception ex) {
 			LOGGER.fatal("{}\nDecoding Error.Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
 			throw new Error(ex);

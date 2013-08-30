@@ -7,7 +7,6 @@ import org.apache.bcel.util.ClassPath;
 import org.apache.bcel.util.Repository;
 import org.apache.bcel.util.SyntheticRepository;
 
-import edu.teco.dnd.temperature.TemperatureLogicBlock;
 import edu.teco.dnd.util.SynchronizedBCELRepository;
 
 public class FunctionBlockFactory {
