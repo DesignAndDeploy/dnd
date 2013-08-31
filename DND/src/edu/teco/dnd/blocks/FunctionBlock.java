@@ -12,7 +12,6 @@ import java.util.UUID;
  * 
  * @see Input
  * @see Output
- * @see Option
  */
 public abstract class FunctionBlock implements Serializable {
 	/**
@@ -192,20 +191,25 @@ public abstract class FunctionBlock implements Serializable {
 
 	@Override
 	public final boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		FunctionBlock other = (FunctionBlock) obj;
 		final UUID blockUUID = getBlockUUID();
 		final UUID otherBlockUUID = other.getBlockUUID();
 		if (blockUUID == null) {
-			if (otherBlockUUID != null)
+			if (otherBlockUUID != null) {
 				return false;
-		} else if (!blockUUID.equals(otherBlockUUID))
+			}
+		} else if (!blockUUID.equals(otherBlockUUID)) {
 			return false;
+		}
 		return true;
 	}
 
