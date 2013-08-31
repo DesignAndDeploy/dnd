@@ -3,7 +3,6 @@ package edu.teco.dnd.network;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
@@ -140,5 +139,5 @@ public interface ConnectionManager {
 	 * 
 	 * @return a Future that is done when the ConnectionManager has shut down
 	 */
-	public Future<Void> getShutdownFuture();
+	public FutureNotifier<Void> getShutdownFuture();
 }
