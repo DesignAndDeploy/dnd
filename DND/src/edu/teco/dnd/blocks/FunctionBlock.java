@@ -107,9 +107,6 @@ public abstract class FunctionBlock implements Serializable {
 	 * @return the UUID of this block or null if it hasn't been set yet
 	 */
 	public final synchronized UUID getBlockUUID() {
-		if (blockUUID == null) {
-			throw new IllegalStateException("doInit hasn't been called yet");
-		}
 		return this.blockUUID;
 	}
 
