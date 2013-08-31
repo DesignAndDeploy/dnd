@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import edu.teco.dnd.blocks.ValueDestination;
@@ -36,7 +37,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	/**
 	 * outputs the block is supposed to have after starting.
 	 */
-	public final Map<String, Collection<ValueDestination>> outputs;
+	public final Map<String, Set<ValueDestination>> outputs;
 
 	/**
 	 * place in the allowed block hierarchy this block is supposed to occupy.
@@ -66,7 +67,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
-		this.outputs = new HashMap<String, Collection<ValueDestination>>();
+		this.outputs = new HashMap<String, Set<ValueDestination>>();
 		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
 			final Collection<ValueDestination> destinations = output.getValue();
 			if (destinations != null) {
@@ -97,7 +98,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		this.blockClass = blockClass;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
-		this.outputs = new HashMap<String, Collection<ValueDestination>>();
+		this.outputs = new HashMap<String, Set<ValueDestination>>();
 		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
 			final Collection<ValueDestination> destinations = output.getValue();
 			if (destinations != null) {
