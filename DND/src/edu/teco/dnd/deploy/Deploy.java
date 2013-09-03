@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -699,6 +700,14 @@ public class Deploy {
 		}
 	}
 
+	private void killApplication() {
+		LOGGER.info("killing failed application");
+		for (final Module module : moduleMap.keySet()) {
+			final KillAppMessage killAppMsg = new KillAppMessage(appId);
+			connectionManager.sendMessage(module.getUUID(), killAppMsg);
+		}
+	}
+
 	/**
 	 * This class is used to provide a FutureNotifier for the deployment process.
 	 * 
@@ -720,17 +729,22 @@ public class Deploy {
 		 * @param cause
 		 *            the cause for the failure
 		 */
-		protected void setFailure0(final Throwable cause) {
+		protected boolean setFailure0(final Throwable cause) {
 			LOGGER.warn("setting failure, cause: {}", cause);
-			if (setFailure(cause)) {
-				LOGGER.info("killing failed application");
-				final KillAppMessage killAppMsg = new KillAppMessage(appId);
-				for (final Module module : moduleMap.keySet()) {
-					connectionManager.sendMessage(module.getUUID(), killAppMsg);
-				}
-
+			final boolean setFailureSucceeded = setFailure(cause);
+			if (setFailureSucceeded) {
+				killApplication();
 				informDeployFailed(cause);
 			}
+			return setFailureSucceeded;
+		}
+
+		@Override
+		public boolean cancel(boolean mayInterruptIfRunning) {
+			if (!mayInterruptIfRunning) {
+				return false;
+			}
+			return setFailure0(new CancellationException());
 		}
 	}
 }

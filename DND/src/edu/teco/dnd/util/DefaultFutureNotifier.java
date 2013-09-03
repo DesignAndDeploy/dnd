@@ -137,7 +137,6 @@ public abstract class DefaultFutureNotifier<V> extends AbstractFutureNotifier<V>
 
 	@Override
 	public boolean cancel(final boolean mayInterruptIfRunning) {
-		//TODO: implement this.
 		return false;
 	}
 
