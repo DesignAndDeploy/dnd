@@ -266,9 +266,9 @@ public class Application {
 	 *            the outputs to set on the Block.
 	 */
 	private void initializeOutputs(final FunctionBlockSecurityDecorator securityDecorator,
-			final Map<String, Collection<ValueDestination>> outputs) {
+			final Map<String, Set<ValueDestination>> outputs) {
 		final Map<String, Output<? extends Serializable>> blockOutputs = securityDecorator.getOutputs();
-		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
+		for (final Entry<String, Set<ValueDestination>> output : outputs.entrySet()) {
 			if (!blockOutputs.containsKey(output.getKey())) {
 				continue;
 			}

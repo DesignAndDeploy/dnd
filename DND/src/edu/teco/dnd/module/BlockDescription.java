@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import edu.teco.dnd.blocks.ValueDestination;
@@ -19,7 +21,7 @@ public class BlockDescription {
 	public final String blockClassName;
 	public final UUID blockUUID;
 	public final Map<String, String> options;
-	public final Map<String, Collection<ValueDestination>> outputs;
+	public final Map<String, Set<ValueDestination>> outputs;
 	public final int blockTypeHolderId;
 
 	/**
@@ -36,15 +38,15 @@ public class BlockDescription {
 	 *            ID of the assigned BlockTypeHolder, aka where to decrease the allowed blocks count.
 	 */
 	public BlockDescription(final String blockClassName, final UUID blockUUID, final Map<String, String> options,
-			final Map<String, Collection<ValueDestination>> outputs, final int blockTypeHolderId) {
+			final Map<String, Set<ValueDestination>> outputs, final int blockTypeHolderId) {
 		this.blockClassName = blockClassName;
 		this.blockUUID = blockUUID;
 		this.options = Collections.unmodifiableMap(new HashMap<String, String>(options));
-		final Map<String, Collection<ValueDestination>> modifiableOutputs =
-				new HashMap<String, Collection<ValueDestination>>();
-		for (final Entry<String, Collection<ValueDestination>> entry : outputs.entrySet()) {
+		final Map<String, Set<ValueDestination>> modifiableOutputs =
+				new HashMap<String, Set<ValueDestination>>();
+		for (final Entry<String, Set<ValueDestination>> entry : outputs.entrySet()) {
 			modifiableOutputs.put(entry.getKey(),
-					Collections.unmodifiableCollection(new ArrayList<ValueDestination>(entry.getValue())));
+					Collections.unmodifiableSet(new HashSet<ValueDestination>(entry.getValue())));
 		}
 		this.outputs = Collections.unmodifiableMap(modifiableOutputs);
 		this.blockTypeHolderId = blockTypeHolderId;
