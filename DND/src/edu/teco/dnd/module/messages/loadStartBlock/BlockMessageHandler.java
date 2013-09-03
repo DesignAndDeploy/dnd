@@ -37,6 +37,8 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 			return new BlockNak();
 		} catch (final UserSuppliedCodeException e) {
 			return new BlockNak();
+		} catch (final IllegalArgumentException e) {
+			return new BlockNak();
 		}
 		return new BlockAck();
 	}
