@@ -372,6 +372,8 @@ public class Distribution {
 			final StringBuilder sb = new StringBuilder();
 			sb.append("BlockTypeHolder[module=");
 			sb.append(module.getUUID());
+			sb.append(",id=");
+			sb.append(holder.getIdNumber());
 			if (holder.isLeaf()) {
 				sb.append(",type='");
 				sb.append(holder.getType());

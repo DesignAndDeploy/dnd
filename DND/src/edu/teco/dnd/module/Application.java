@@ -216,20 +216,30 @@ public class Application {
 	 */
 	public void scheduleBlock(final BlockDescription blockDescription) throws ClassNotFoundException,
 			UserSuppliedCodeException {
+		LOGGER.entry(blockDescription);
 		final FunctionBlockSecurityDecorator securityDecorator =
 				createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
+		LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
 		securityDecorator.doInit(blockDescription.blockUUID);
 
 		synchronized (scheduledToStart) {
 			if (isRunning) {
-				throw new IllegalStateException("tried to schedule block " + securityDecorator
-						+ " in already running application");
+				throw LOGGER.throwing(new IllegalStateException("tried to schedule block " + securityDecorator
+						+ " in already running application"));
+			}
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
 			moduleApplicationManager.addToBlockTypeHolders(securityDecorator, blockDescription.blockTypeHolderId);
+			LOGGER.trace("adding {} to scheduledToStart");
 			scheduledToStart.add(securityDecorator);
+			LOGGER.trace("saving block options");
 			blockOptions.put(securityDecorator, blockDescription.options);
 		}
 
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("initializing outputs {} on {}", blockDescription.outputs, securityDecorator);
+		}
 		initializeOutputs(securityDecorator, blockDescription.outputs);
 	}
 
