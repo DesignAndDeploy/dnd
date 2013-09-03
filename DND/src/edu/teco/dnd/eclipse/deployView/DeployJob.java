@@ -49,6 +49,7 @@ public class DeployJob extends Job {
 	private Module module;
 	private UUID id;
 	private Deploy deploy;
+	private IProgressMonitor m;
 
 	public DeployJob(String name, Module m, Deploy d) {
 		super("Deploying " + name + "...");
@@ -57,9 +58,15 @@ public class DeployJob extends Job {
 		this.deploy = d;
 	}
 
+	protected boolean cancelJob(){
+		//TODO: Doesn't work.
+		m.setCanceled(true);
+		return cancel();
+	}
+	
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
-
+		m = monitor;
 		monitor.beginTask("Deploy on: " + module.getName() + " : " + module.getUUID().toString(), STEPS_PER_MODULE);
 
 		deploy.addListener(new DeployListener() {
@@ -101,6 +108,7 @@ public class DeployJob extends Job {
 				monitor.setCanceled(true);
 			}
 		});
+		
 		while (!deploy.getDeployFutureNotifier().isDone()) {
 			try {
 				deploy.getDeployFutureNotifier().await();

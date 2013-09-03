@@ -176,8 +176,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				resetSelectedBlock();
 			} else {
 				selectedBlockModel = newIDs.get(selectedBlockModel.getID());
-				graphicsManager.setPlacesText(selectedBlockModel.getPosition());
-				graphicsManager.setBlockNameText(selectedBlockModel.getBlockName());
+				graphicsManager.updateBlockSelection(selectedBlockModel.getPosition(), selectedBlockModel.getBlockName(), -1);
 			}
 		}
 
@@ -211,8 +210,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		if (position != null && !position.isEmpty()) {
 			placeConstraints.put(model, position);
 		}
-
-		TableItem item = graphicsManager.createDeploymentItem(model.getBlockName(), position, model);
+		graphicsManager.createDeploymentItem(model.getBlockName(), position, model);
 	}
 
 	/**
@@ -278,9 +276,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		} catch (NoBlocksException e) {
 			warn("No blockModels to distribute");
 			LOGGER.exit();
+			return;
 		} catch (NoModulesException e) {
 			warn("No modules to deploy on");
 			LOGGER.exit();
+			return;
 		}
 
 		if (dist == null) {
@@ -290,10 +290,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			for (FunctionBlockModel block : mapBlockToTarget.keySet()) {
 				final Module m = mapBlockToTarget.get(block).getModule();
 				graphicsManager.modifyDistributionInfo(block, m.getName(), m.getLocation());
-				graphicsManager.setDeployButtonEnabled(true);
 				newConstraints = false;
 			}
-			graphicsManager.addNewInfoText("Deployment created.");
+			graphicsManager.distributionCreated();
 		}
 		LOGGER.exit();
 	}
@@ -338,17 +337,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 						if (LOGGER.isInfoEnabled()) {
 							LOGGER.info("deploy: {}", future.isSuccess());
 						}
-						if (future.isSuccess()) {
-							graphicsManager.addNewInfoText("Deployment complete.");
-						} else {
-							graphicsManager.addNewInfoText("Deployment failed.");
-						}
+						graphicsManager.deploymentFinished(future.isSuccess());
 					}
 				});
 			}
 		});
 
 		DeployViewProgress.startDeploying(graphicsManager.getAppName(), deploy, mapBlockToTarget);
+		graphicsManager.deploymentStarted();
 		resetDeployment();
 		LOGGER.exit();
 	}
@@ -357,20 +353,19 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 * Invoked whenever a Function BlockModel from the deploymentTable is selected.
 	 */
 	protected void blockModelSelected() {
-		if (!idList.isEmpty()) {
-			graphicsManager.setModuleComboEnabled(true);
-		}
-		graphicsManager.blockSelected();
+		graphicsManager.blockSelected(!idList.isEmpty());
 
 		selectedBlockModel = graphicsManager.getSelectedBlock();
-		graphicsManager.setBlockNameText(selectedBlockModel.getBlockName());
+		
+		String position = null;
+		
 		if (placeConstraints.containsKey(selectedBlockModel)) {
-			graphicsManager.setPlacesText(placeConstraints.get(selectedBlockModel));
-		} else {
-			graphicsManager.setPlacesText("");
+			position = placeConstraints.get(selectedBlockModel);
 		}
 		selectedIndex = idList.indexOf(moduleConstraints.get(selectedBlockModel)) + 1;
-		graphicsManager.selectInModuleCombo(selectedIndex);
+		
+		graphicsManager.updateBlockSelection(position, selectedBlockModel.getBlockName(), selectedIndex);
+		
 	}
 
 	/**
