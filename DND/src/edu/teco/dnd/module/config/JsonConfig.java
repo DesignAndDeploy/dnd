@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -117,7 +116,7 @@ public class JsonConfig extends ConfigReader {
 		FileReader reader = null;
 		try {
 			reader = new FileReader(path);
-			setTo((JsonConfig) GSON.fromJson(reader, this.getClass()));
+			setTo(GSON.fromJson(reader, this.getClass()));
 		} catch (FileNotFoundException e) {
 			LOGGER.catching(e);
 			throw e;
@@ -145,8 +144,8 @@ public class JsonConfig extends ConfigReader {
 	private void fillTransientVariables(final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
 		currentBlock.setIdNumber(++currentBlockId);
-		Set<BlockTypeHolder> children = currentBlock.getChildren();
-		if (children != null) {
+		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
+		if (!currentBlock.isLeaf()) {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
 				fillTransientVariables(child);
