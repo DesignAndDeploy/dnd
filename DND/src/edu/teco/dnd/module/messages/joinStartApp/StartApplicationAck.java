@@ -90,7 +90,7 @@ public class StartApplicationAck extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "JoinApplicationAck [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+		return "StartApplicationAck [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
 				+ getUUID() + "]";
 	}
 
