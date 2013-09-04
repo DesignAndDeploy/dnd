@@ -346,6 +346,7 @@ public class MockPipeline implements ChannelPipeline {
 			if (handlerType.isAssignableFrom(pipelineEntry.handler.getClass())) {
 				return index;
 			}
+			index++;
 		}
 		throw new NoSuchElementException(String.format("no ChannelHandler of class '%s' in this pipeline", handlerType));
 	}
