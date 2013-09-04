@@ -8,7 +8,7 @@ import edu.teco.dnd.module.tests.ModuleTests;
 import edu.teco.dnd.util.tests.UtilTests;
 
 @RunWith(Suite.class)
-@SuiteClasses({ UtilTests.class, ModuleTests.class, ContainsInOrderTest.class })
+@SuiteClasses({ UtilTests.class, ModuleTests.class, MatcherTests.class })
 public class AllTests {
 
 }
