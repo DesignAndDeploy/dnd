@@ -38,6 +38,7 @@ public class MockChannel {
 	public MockChannel() {
 		MockitoAnnotations.initMocks(this);
 		when(channelFutureNotifier.channel()).thenReturn(channel);
+		when(channel.close()).thenReturn(closeFuture);
 		when(channel.closeFuture()).thenReturn(closeFuture);
 		when(closeFuture.channel()).thenReturn(channel);
 		closeListenerHandler = new ChannelFutureListenerHandler(closeFuture);
