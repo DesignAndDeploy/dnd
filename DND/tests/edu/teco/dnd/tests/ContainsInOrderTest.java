@@ -1,22 +1,16 @@
 package edu.teco.dnd.tests;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertThat;
 import static edu.teco.dnd.tests.ContainsInOrder.containsInOrder;
+import static edu.teco.dnd.tests.MatcherTests.EMPTY_LIST;
+import static edu.teco.dnd.tests.MatcherTests.INTEGER_LIST;
+import static edu.teco.dnd.tests.MatcherTests.LIST_WITH_REPEATS;
+import static edu.teco.dnd.tests.MatcherTests.STRING_LIST;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
 public class ContainsInOrderTest {
-	private static final List<Object> EMPTY_LIST = Collections.emptyList();
-	private static final List<Integer> INTEGER_LIST = Collections.unmodifiableList(Arrays.asList(1, 2, 3, 4));
-	private static final List<String> STRING_LIST = Collections.unmodifiableList(Arrays.asList("foo", "bar", "foobar",
-			"baz", "foobaz"));
-	private static final List<Integer> LIST_WITH_REPEATS = Collections.unmodifiableList(Arrays.asList(1, 2, 1, 3, 2));
-
 	@Test
 	public void testEmptyExpected() {
 		assertThat(EMPTY_LIST, containsInOrder());
