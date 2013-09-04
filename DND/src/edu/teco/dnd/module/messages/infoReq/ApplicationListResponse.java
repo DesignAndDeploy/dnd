@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -26,6 +27,10 @@ public class ApplicationListResponse extends Response {
 	 * The UUIDs of all running applications mapped to the UUID of the blocks.
 	 */
 	private final Map<UUID, Collection<UUID>> applicationBlocks;
+	/**
+	 * Maps the UUID of a function block to its FunctionBlockSecurityDecorator.
+	 */
+	private final Map<UUID, String> uuidToBlockType;
 
 	/**
 	 * The UUID of the module this Response was generated on.
@@ -41,11 +46,14 @@ public class ApplicationListResponse extends Response {
 	 *            the UUID of the module sending this.
 	 * @param applicationBlocks
 	 *            the UUIDs of the running applications mapped to the Blocks they execute.
+	 * @param uuidToSecBlocks
+	 *            A Map from block UUIDs running on the specified module to their security decorators.
 	 */
 	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames,
-			Map<UUID, Collection<UUID>> applicationBlocks) {
+			Map<UUID, Collection<UUID>> applicationBlocks, final Map<UUID, String> uuidToBlocks) {
 		this.moduleUUID = moduleUUID;
 		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
+		this.uuidToBlockType = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlocks));
 		Map<UUID, Collection<UUID>> blocks = new HashMap<UUID, Collection<UUID>>();
 		for (final Entry<UUID, Collection<UUID>> entry : applicationBlocks.entrySet()) {
 			blocks.put(entry.getKey(), Collections.unmodifiableList(new ArrayList<UUID>(entry.getValue())));
@@ -64,6 +72,7 @@ public class ApplicationListResponse extends Response {
 		this.moduleUUID = null;
 		this.applicationNames = null;
 		this.applicationBlocks = null;
+		this.uuidToBlockType = null;
 	}
 
 	/**
@@ -85,6 +94,15 @@ public class ApplicationListResponse extends Response {
 	}
 
 	/**
+	 * Returns a Map from all UUIDs of function blocks running on this module to their Types.
+	 * 
+	 * @return Map from block UUID to their type.
+	 */
+	public Map<UUID, String> getBlockTypes() {
+		return this.uuidToBlockType;
+	}
+
+	/**
 	 * Returns the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>.
 	 * 
 	 * @return the UUIDs of all running Applications mapped to their running Map<BlockUUID,FunctionBlock>
@@ -103,6 +121,7 @@ public class ApplicationListResponse extends Response {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((applicationNames == null) ? 0 : applicationNames.hashCode());
+		result = prime * result + ((uuidToBlockType == null) ? 0 : uuidToBlockType.hashCode());
 		result = prime * result + ((moduleUUID == null) ? 0 : moduleUUID.hashCode());
 		return result;
 	}
@@ -129,6 +148,13 @@ public class ApplicationListResponse extends Response {
 				return false;
 			}
 		} else if (!applicationNames.equals(other.applicationNames)) {
+			return false;
+		}
+		if (uuidToBlockType == null) {
+			if (other.applicationNames != null) {
+				return false;
+			}
+		} else if (!uuidToBlockType.equals(other.uuidToBlockType)) {
 			return false;
 		}
 		if (moduleUUID == null) {

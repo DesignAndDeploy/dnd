@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.teco.dnd.module.Application;
+import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
@@ -37,12 +38,16 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 	public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
 			final RequestApplicationListMessage message) {
 		final Map<UUID, String> applicationNames = new HashMap<UUID, String>();
+		final Map<UUID, String> uuidToBlockType = new HashMap<UUID, String>();
 		final Map<UUID, Collection<UUID>> applicationBlocks = new HashMap<UUID, Collection<UUID>>();
 
 		for (final Application application : applicationManager.getRunningApps().values()) {
+			for (UUID id : application.getFuncBlockById().keySet()){
+				uuidToBlockType.put(id, application.getFuncBlockById().get(id).getBlockType());
+			}
 			applicationNames.put(application.getOwnAppId(), application.getName());
 			applicationBlocks.put(application.getOwnAppId(), application.getFuncBlockById().keySet());
 		}
-		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks);
+		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks, uuidToBlockType);
 	}
 }

@@ -1,10 +1,13 @@
 package edu.teco.dnd.discover;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
 
 public class ApplicationInformation {
 	private final UUID appId;
@@ -12,6 +15,7 @@ public class ApplicationInformation {
 	// private final Map<UUID/* BlockID */, UUID/* OnModuleID */> blocksRunningOn = new ConcurrentHashMap<UUID, UUID>();
 	private final Map<UUID/* ModuleId */, Collection<UUID>/* BlockId */> modulesRunningBlocks =
 			new ConcurrentHashMap<UUID, Collection<UUID>>();
+	private Map<UUID, String> blockToType = new HashMap<UUID, String>();
 
 	public ApplicationInformation(UUID appId, String name) {
 		this.appId = appId;
@@ -31,6 +35,10 @@ public class ApplicationInformation {
 		blocks.add(blockId);
 	}
 
+	public void addUUIDBlockPair(UUID blockID, String blockType) {
+		blockToType.put(blockID, blockType);
+	}
+
 	public void addAllBlockModulePairs(Map<UUID/* blockID */, UUID/* moduleId */> blockModuleMapping) {
 		for (Map.Entry<UUID, UUID> entr : blockModuleMapping.entrySet()) {
 			addBlockModulePair(entr.getKey(), entr.getValue());
@@ -42,6 +50,17 @@ public class ApplicationInformation {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * Returns the type of a FunctionBlock.
+	 * 
+	 * @param blockUUID
+	 *            UUID of the function block.
+	 * @return type of the function block.
+	 */
+	public String getBlockType(final UUID blockUUID) {
+		return blockToType.get(blockUUID);
 	}
 
 	/**

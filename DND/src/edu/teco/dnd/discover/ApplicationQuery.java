@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
@@ -190,6 +191,8 @@ public class ApplicationQuery {
 
 					Map<UUID, Collection<UUID>> appBlocks = applicationListResponse.getApplicationBlocks();
 					Map<UUID, String> appNames = applicationListResponse.getApplicationNames();
+					Map<UUID, String> uuidToBlockType =
+							applicationListResponse.getBlockTypes();
 					for (UUID appId : appNames.keySet()) {
 						ApplicationInformation currentAppInfo = appInfos.get(appId);
 						if (currentAppInfo == null) {
@@ -199,6 +202,7 @@ public class ApplicationQuery {
 						}
 						for (UUID blockId : appBlocks.get(appId)) {
 							currentAppInfo.addBlockModulePair(blockId, currentModId);
+							currentAppInfo.addUUIDBlockPair(blockId, uuidToBlockType.get(blockId));
 						}
 					}
 
