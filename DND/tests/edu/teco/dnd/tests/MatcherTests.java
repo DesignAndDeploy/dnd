@@ -9,7 +9,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ ContainsInOrderTest.class, HasItemThatTest.class })
+@SuiteClasses({ ContainsInOrderTest.class, HasItemThatTest.class, AfterMatcherTest.class })
 public class MatcherTests {
 	static final List<Object> EMPTY_LIST = Collections.emptyList();
 	static final List<Integer> INTEGER_LIST = Collections.unmodifiableList(Arrays.asList(1, 2, 3, 4));
