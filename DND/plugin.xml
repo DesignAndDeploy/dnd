@@ -38,7 +38,7 @@
       <view id="edu.teco.dnd.eclipse.ViewApp"
       		category="edu.teco.dnd.viewCategory"
             name="Applications"
-            class="edu.teco.dnd.eclipse.AppView"/>
+            class="edu.teco.dnd.eclipse.appView.AppView"/>
    </extension>
       <extension point="org.eclipse.ui.editors">
       <editor class="edu.teco.dnd.eclipse.deployView.DeployView"
