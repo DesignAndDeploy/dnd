@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.eclipse.core.runtime.jobs.Job;
 
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * This class displays the progress of deploying (later: also creating?) a distribution.
@@ -19,11 +19,10 @@ import edu.teco.dnd.module.Module;
  */
 public class DeployViewProgress {
 
-	private static Collection<DeployJob> jobs = new ArrayList<DeployJob>();
-
+	private static FutureNotifier<Void> n;
+	
 	public static void startDeploying(final String appName, final Deploy deploy,
 			final Map<FunctionBlockModel, BlockTarget> mapBlockToTarget) {
-		jobs.clear();
 		Collection<Module> modules = new ArrayList<Module>();
 		for (BlockTarget t : mapBlockToTarget.values()) {
 			Module m = t.getModule();
@@ -36,9 +35,9 @@ public class DeployViewProgress {
 			DeployJob deployJob = new DeployJob(appName, m, deploy);
 			deployJob.setUser(true);
 			deployJob.schedule();
-			jobs.add(deployJob);
 		}
 		deploy.deploy();
+		n = deploy.getDeployFutureNotifier();
 	}
 
 	/**
@@ -47,10 +46,8 @@ public class DeployViewProgress {
 	 * platform shutdown and allows the plugin to cancel the jobs itself.
 	 */
 	public static void cancelDeploying() {
-		for (DeployJob j : jobs) {
-			if (j != null) {
-				j.cancelJob();
-			}
+		if (n != null && !n.isDone()){
+			n.cancel(true);
 		}
 	}
 }
