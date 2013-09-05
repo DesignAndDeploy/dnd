@@ -235,12 +235,12 @@ public class Application {
 			scheduledToStart.add(securityDecorator);
 			LOGGER.trace("saving block options");
 			blockOptions.put(securityDecorator, blockDescription.options);
-		}
 
-		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("initializing outputs {} on {}", blockDescription.outputs, securityDecorator);
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("initializing outputs {} on {}", blockDescription.outputs, securityDecorator);
+			}
+			initializeOutputs(securityDecorator, blockDescription.outputs);
 		}
-		initializeOutputs(securityDecorator, blockDescription.outputs);
 	}
 
 	/**
