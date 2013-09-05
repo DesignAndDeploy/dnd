@@ -288,12 +288,29 @@ public class Application {
 	}
 
 	/**
+	 * starts this application, as in: starts executing the previously scheduled blocks.
+	 */
+	public void start() {
+		synchronized (scheduledToStart) {
+			if (isRunning) {
+				LOGGER.warn("tried to double start Application.");
+				throw new IllegalArgumentException("tried to double start Application.");
+			}
+			isRunning = true;
+	
+			for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
+				startBlock(func);
+			}
+		}
+	}
+
+	/**
 	 * starts the given function block on the Module. Also triggers removing it from runnable blocks
 	 * 
 	 * @param block
 	 *            the block to be started.
 	 */
-	public void startBlock(final FunctionBlockSecurityDecorator block) {
+	private void startBlock(final FunctionBlockSecurityDecorator block) {
 		if (!shutdownLock.readLock().tryLock()) {
 			return; // Already shutting down.
 		}
@@ -481,23 +498,6 @@ public class Application {
 	 */
 	public boolean isExecuting(UUID blockId) {
 		return funcBlockById.containsKey(blockId);
-	}
-
-	/**
-	 * starts this application, as in: starts executing the previously scheduled blocks.
-	 */
-	public void start() {
-		synchronized (scheduledToStart) {
-			if (isRunning) {
-				LOGGER.warn("tried to double start Application.");
-				throw new IllegalArgumentException("tried to double start Application.");
-			}
-			isRunning = true;
-
-			for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
-				startBlock(func);
-			}
-		}
 	}
 
 	// TODO insert javadoc here.
