@@ -27,6 +27,9 @@ import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.messages.killApp.KillAppMessage;
+import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
 import edu.teco.dnd.server.ModuleManager;
@@ -277,7 +280,14 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	 */
 	private void killApp() {
 		if (selectedApp != null) {
-			removeApp(selectedApp);
+			Collection<UUID> moduleIDs = selectedApp.getModules();
+			ConnectionManager connectionManager = ServerManager.getDefault().getConnectionManager();
+			for (final UUID module : moduleIDs) {
+				final KillAppMessage killAppMsg = new KillAppMessage(selectedApp.getAppId());
+				connectionManager.sendMessage(module, killAppMsg);
+			}
+			
+			appTable.remove(appTable.indexOf(removeAppAndItem(selectedApp)));
 			selectedApp = null;
 			blockTable.removeAll();
 			// TODO: Kill app, remove from table. update?
@@ -389,6 +399,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 				for (ApplicationInformation app : apps) {
 					TableItem item = new TableItem(appTable, SWT.NONE);
 					addAppAndItem(app, item);
+					System.out.println("Item added: " + app.getName());
 					item.setText(APP_INDEX, app.getName());
 					item.setText(UUID_INDEX, app.getAppId().toString());
 				}
@@ -402,9 +413,11 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		itemToApp.put(item, app);
 	}
 
-	private void removeApp(ApplicationInformation app) {
-		itemToApp.remove(appToItem.get(app));
+	private TableItem removeAppAndItem(ApplicationInformation app) {
+		TableItem item = appToItem.get(app);
+		itemToApp.remove(item);
 		appToItem.remove(app);
+		return item;
 	}
 
 	private void clearMaps() {
