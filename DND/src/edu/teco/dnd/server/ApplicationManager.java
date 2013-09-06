@@ -22,7 +22,8 @@ public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUI
 	private ApplicationQuery query;
 	private final Set<ApplicationManagerListener> listeners = new HashSet<ApplicationManagerListener>();
 	private Collection<ApplicationInformation> apps = new ArrayList<ApplicationInformation>();
-
+	private Map<UUID, ApplicationInformation> idToApp = new HashMap<UUID, ApplicationInformation>();
+	
 	private Map<UUID, Collection<ApplicationInformation>> moduleToApp =
 			new HashMap<UUID, Collection<ApplicationInformation>>();
 
@@ -60,11 +61,27 @@ public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUI
 		return moduleToApp;
 	}
 
+	/**
+	 * Returns a list of currently running Applications, represented by ApplicationInformation.
+	 * @return List of currently running applications.
+	 */
+	public Collection<ApplicationInformation> getApps(){
+		return apps;
+	}
+	
+	/**
+	 * Returns a map that tells you which application belongs to which UUID.
+	 * @return Map from UUID of an application to the ApplicationInformation for the application.
+	 */
+	public Map<UUID, ApplicationInformation> getMap(){
+		return idToApp;
+	}
+	
 	@Override
 	public void operationComplete(FutureNotifier<Map<UUID, ApplicationInformation>> future) throws Exception {
 		if (future.isSuccess()) {
-			Map<UUID, ApplicationInformation> map = future.getNow();
-			for (ApplicationInformation app : map.values()){
+			idToApp = future.getNow();
+			for (ApplicationInformation app : idToApp.values()){
 				apps.add(app);
 				for (UUID id : app.getModules()){
 					Collection<ApplicationInformation> info = moduleToApp.get(id);

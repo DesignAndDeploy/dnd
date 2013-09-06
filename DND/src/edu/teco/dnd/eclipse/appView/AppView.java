@@ -1,6 +1,5 @@
 package edu.teco.dnd.eclipse.appView;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,14 +10,13 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -29,7 +27,6 @@ import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
 import edu.teco.dnd.server.ModuleManager;
@@ -47,16 +44,6 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(AppView.class);
-
-	/**
-	 * Horizontal space between cells.
-	 */
-	public static final int HORIZONTAL_SPACE = 10;
-
-	/**
-	 * Vertical space between cells.
-	 */
-	public static final int VERTICAL_SPACE = 5;
 
 	public static final String SORT_APP = "Sort by Apps";
 
@@ -82,11 +69,19 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	 */
 	public static final int UUID_INDEX = 1;
 
-	private Composite parent;
+	/**
+	 * Index of the Block column in the blockTable.
+	 */
+	public static final int BLOCK_INDEX = 0;
+
+	/**
+	 * Index of the column for informatino on the block, either an application or a module, in the blockTable.
+	 */
+	public static final int BLOCK_INFO_INDEX = 1;
 
 	private Label selectedLabel;
 	private Label selectedInfoLabel;
-	private Button updateAppsButton;
+	private Button updateButton;
 	private Button killAppButton;
 	private Button sortButton; // Sort by App or Module
 	private Table appTable;
@@ -94,9 +89,11 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 
 	private Display display;
 	private ApplicationManager appManager;
+	private AppViewGraphics graphicsManager;
 
-	private Map<TableItem, ApplicationInformation> itemToApp;
-	private Map<ApplicationInformation, TableItem> appToItem;
+	private Map<TableItem, UUID> itemToUUID;
+	private Map<UUID, TableItem> uuidToItem;
+	private Map<TableItem, ApplicationInformation> blockTableItemToApp;
 	private ApplicationInformation selectedApp;
 	private int sorted;
 
@@ -125,8 +122,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		appManager = ServerManager.getDefault().getApplicationManager();
 		appManager.addApplicationListener(this);
 
-		itemToApp = new HashMap<TableItem, ApplicationInformation>();
-		appToItem = new HashMap<ApplicationInformation, TableItem>();
+		itemToUUID = new HashMap<TableItem, UUID>();
+		uuidToItem = new HashMap<UUID, TableItem>();
+		blockTableItemToApp = new HashMap<TableItem, ApplicationInformation>();
 		sorted = SORTED_BY_APPS;
 		LOGGER.exit();
 	}
@@ -137,142 +135,67 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	}
 
 	public void createPartControl(Composite parent) {
-		initParent(parent);
+		graphicsManager = new AppViewGraphics();
 
-		createUpdateAppsButton();
-		createKillAppButton();
-		createSortButton();
-		createSelectedLabel();
-		createSelectedInfoLabel();
-		createAppTable();
-		createBlockTable();
+		graphicsManager.initParent(parent);
+
+		updateButton = graphicsManager.createUpdateAppsButton();
+		killAppButton = graphicsManager.createKillAppButton();
+		sortButton = graphicsManager.createSortButton();
+		selectedLabel = graphicsManager.createSelectedLabel();
+		selectedInfoLabel = graphicsManager.createSelectedInfoLabel();
+		appTable = graphicsManager.createAppTable();
+		blockTable = graphicsManager.createBlockTable();
+
+		createListeners();
 	}
 
-	private void initParent(final Composite parent) {
-		this.parent = parent;
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 5;
-		layout.horizontalSpacing = HORIZONTAL_SPACE;
-		layout.verticalSpacing = VERTICAL_SPACE;
-		this.parent.setLayout(layout);
-	}
-
-	private void createUpdateAppsButton() {
-		GridData data = new GridData();
-		data.horizontalAlignment = SWT.FILL;
-		updateAppsButton = new Button(parent, SWT.NONE);
-		updateAppsButton.setLayoutData(data);
-		updateAppsButton.setText("Update Applications");
-		updateAppsButton.setEnabled(ServerManager.getDefault().isRunning());
-		updateAppsButton.addSelectionListener(new SelectionAdapter() {
+	private void createListeners() {
+		updateButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				AppView.this.updateAppList();
 			}
 		});
-	}
-
-	private void createKillAppButton() {
-		GridData data = new GridData();
-		data.horizontalAlignment = SWT.BEGINNING;
-		killAppButton = new Button(parent, SWT.NONE);
-		killAppButton.setLayoutData(data);
-		killAppButton.setText("Kill Application");
-		killAppButton.setEnabled(false);
 		killAppButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				AppView.this.killApp();
 			}
 		});
-	}
-
-	private void createSortButton() {
-		GridData data = new GridData();
-		data.horizontalAlignment = SWT.BEGINNING;
-		data.horizontalSpan = 2;
-		sortButton = new Button(parent, SWT.NONE);
-		sortButton.setText(SORT_MOD);
-		sortButton.setEnabled(false);
 		sortButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AppView.this.sort();
+				AppView.this.sort(true);
 			}
 		});
-	}
-
-	private void createSelectedLabel() {
-		selectedLabel = new Label(parent, SWT.NONE);
-		selectedLabel.setText("Application:");
-	}
-
-	private void createSelectedInfoLabel() {
-		GridData data = new GridData();
-		data.horizontalAlignment = SWT.BEGINNING;
-		selectedInfoLabel = new Label(parent, SWT.NONE);
-		selectedInfoLabel.setText("<select application>");
-	}
-
-	private void createAppTable() {
-		GridData data = new GridData();
-		data.horizontalAlignment = SWT.FILL;
-		data.verticalAlignment = SWT.FILL;
-		data.horizontalSpan = 3;
-		data.grabExcessHorizontalSpace = true;
-		data.grabExcessVerticalSpace = true;
-		appTable = new Table(parent, SWT.NONE);
-		appTable.setHeaderVisible(true);
-		appTable.setLinesVisible(true);
-		appTable.setLayoutData(data);
-		TableColumn column0 = new TableColumn(appTable, SWT.NONE);
-		column0.setText("Applications:");
-		appTable.getColumn(APP_INDEX).pack();
-		TableColumn column1 = new TableColumn(appTable, SWT.NONE);
-		column1.setText("UUID:");
-		appTable.getColumn(UUID_INDEX).pack();
-
 		appTable.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AppView.this.appSelected();
+				if (sorted == SORTED_BY_APPS) {
+					AppView.this.appSelected();
+				} else if (sorted == SORTED_BY_MODULES) {
+					AppView.this.moduleSelected();
+				} else {
+					warn("Something went wrong with sorting the applications. Please try to restart the view.");
+				}
 			}
 		});
-	}
-
-	private void createBlockTable() {
-		GridData data = new GridData();
-		data.horizontalSpan = 2;
-		data.horizontalAlignment = SWT.FILL;
-		data.verticalAlignment = SWT.FILL;
-		data.grabExcessHorizontalSpace = true;
-		data.grabExcessVerticalSpace = true;
-
-		blockTable = new Table(parent, 0);
-		blockTable.setLayoutData(data);
-		blockTable.setLinesVisible(true);
-		blockTable.setHeaderVisible(true);
-
-		TableColumn column1 = new TableColumn(blockTable, SWT.NONE);
-		column1.setText("Running Function Blocks");
-		blockTable.setToolTipText("Currently running function blocks");
-		blockTable.getColumn(0).pack();
-
-		TableColumn column2 = new TableColumn(blockTable, SWT.NONE);
-		column2.setText("On Module:");
-		blockTable.getColumn(1).pack();
+		blockTable.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (sorted == SORTED_BY_MODULES) {
+					AppView.this.blocktableAppSelected();
+				}
+			}
+		});
 	}
 
 	/**
 	 * Updates Information on which applications are running on a module.
 	 */
 	private synchronized void updateAppList() {
-		clearMaps();
-		appTable.removeAll();
-		blockTable.removeAll();
 		appManager.updateAppInfo();
-		sorted = SORTED_BY_APPS;
-		sortButton.setText(SORT_MOD);
 	}
 
 	/**
@@ -286,50 +209,94 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 				final KillAppMessage killAppMsg = new KillAppMessage(selectedApp.getAppId());
 				connectionManager.sendMessage(module, killAppMsg);
 			}
-			
-			appTable.remove(appTable.indexOf(removeAppAndItem(selectedApp)));
+
+			appTable.remove(appTable.indexOf(removeUUIDAndItem(selectedApp.getAppId())));
 			selectedApp = null;
 			blockTable.removeAll();
-			// TODO: Kill app, remove from table. update?
 		}
 	}
 
-	private void sort() {
-		if (sorted == SORTED_BY_APPS) {
-			sortButton.setText(SORT_APP);
-			sorted = SORTED_BY_MODULES;
-			Map<UUID, Collection<ApplicationInformation>> maap = appManager.getModulesToApps();
-			for (UUID id : maap.keySet()) {
-				Map<UUID, Module> idToModule = ServerManager.getDefault().getModuleManager().getMap();
-				if (idToModule.containsKey(id)){
-					System.out.println("Module: " + idToModule.get(id).getName());
-				}
-				else{
-					System.out.println("Module: ");
-				}
-				for (ApplicationInformation info : maap.get(id)) {
-					System.out.println(info.getName());
-				}
+	/**
+	 * Sorts the tables by applications or modules
+	 * 
+	 * @param toggleSortMode
+	 *            Indicates whether to toggle the sort mode (from modules to applications / applications to modules) or
+	 *            re-sort according to the current mode.
+	 */
+	private void sort(boolean toggleSortMode) {
+		clearTables();
+		selectedApp = null;
+		killAppButton.setEnabled(false);
+		selectedInfoLabel.setText("<select on the left>");
+
+		if (toggleSortMode) {
+			if (sorted == SORTED_BY_APPS){
+				sorted = SORTED_BY_MODULES;
 			}
-		} else if (sorted == SORTED_BY_MODULES) {
-			sorted = SORTED_BY_APPS;
-			sortButton.setText(SORT_MOD);
+			else if (sorted == SORTED_BY_MODULES){
+				sorted = SORTED_BY_APPS;
+			}
+			updateAppList();
+		} else {
+			if (sorted == SORTED_BY_APPS) {
+				sortByApps();
+			}
+			if (sorted == SORTED_BY_MODULES) {
+				sortByModules();
+			}
 		}
+	}
+	
+	private synchronized void sortByModules() {
+		selectedLabel.setText("Module:");
+		appTable.getColumn(APP_INDEX).setText("Modules:");
+		blockTable.getColumn(BLOCK_INFO_INDEX).setText("Application:");
+		sortButton.setText(SORT_APP);
+		sorted = SORTED_BY_MODULES;
 
-		// TODO: Sort by Application / Module.
-		/**
-		 * If sorted by app: Table on the left displays all applications. If one selected: show modules and Blocks. If
-		 * sorted by module: Table on the left displays all modules. If one selected: show all apps and Blocks.
-		 */
+		blockTableItemToApp.clear();
+		Map<UUID, Collection<ApplicationInformation>> modToApp = appManager.getModulesToApps();
+		Map<UUID, Module> idToMod = ServerManager.getDefault().getModuleManager().getMap();
+		for (UUID id : modToApp.keySet()) {
+			TableItem item = new TableItem(appTable, SWT.NONE);
+			if (idToMod.containsKey(id)) {
+				item.setText(APP_INDEX, idToMod.get(id).getName());
+			}
+			item.setText(UUID_INDEX, id.toString());
+			addUUIDAndItem(id, item);
+		}
 	}
 
+	private synchronized void sortByApps() {
+		selectedLabel.setText("Application:");
+		appTable.getColumn(APP_INDEX).setText("Applications:");
+		blockTable.getColumn(BLOCK_INFO_INDEX).setText("On Module:");
+		sortButton.setText(SORT_MOD);
+		sorted = SORTED_BY_APPS;
+
+		for (ApplicationInformation app : appManager.getApps()) {
+			TableItem item = new TableItem(appTable, SWT.NONE);
+			item.setText(APP_INDEX, app.getName());
+			item.setText(UUID_INDEX, app.getAppId().toString());
+			addUUIDAndItem(app.getAppId(), item);
+		}
+	}
+
+	/**
+	 * To be invoked whenever an application of the left table was selected AND the tables are sorted by applications.
+	 * Check before calling whether the tables are currently sorted by applications or modules.
+	 */
 	private void appSelected() {
+		if (sorted != SORTED_BY_APPS) {
+			warn("Something went terribly wrong. Please restart the Application View or retry sorting.");
+			return;
+		}
 		blockTable.removeAll();
 
 		TableItem[] items = appTable.getSelection();
 		if (items.length == 1) {
 			TableItem selectedItem = items[0];
-			selectedApp = itemToApp.get(selectedItem);
+			selectedApp = appManager.getMap().get(itemToUUID.get(selectedItem));
 			selectedInfoLabel.setText(selectedApp.getName());
 			ModuleManager m = ServerManager.getDefault().getModuleManager();
 			Map<UUID, Module> uuidToModule = m.getMap();
@@ -344,18 +311,70 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 				for (UUID block : modToBlocks.get(module)) {
 					TableItem item = new TableItem(blockTable, SWT.NONE);
 					item.setText(
-							0,
+							BLOCK_INDEX,
 							selectedApp.getBlockType(block) == null ? block.toString() : selectedApp
 									.getBlockType(block));
-					item.setText(1, moduleText);
+					item.setText(BLOCK_INFO_INDEX, moduleText);
 				}
 			}
-
-			// TODO: Resolve Block UUIDs to Function Blocks to be able to access their names - or is the type
-			// sufficient?
-
 			killAppButton.setEnabled(true);
 		}
+	}
+
+	/**
+	 * To be invoked whenever a module of the left table was selected AND the tables are sorted by modules. Check before
+	 * calling whether the tables are currently sorted by applications or modules.
+	 */
+	private void moduleSelected() {
+		if (sorted != SORTED_BY_MODULES) {
+			warn("Something went terribly wrong. Please restart the Application View or retry sorting.");
+			return;
+		}
+		blockTable.removeAll();
+		blockTableItemToApp.clear();
+		killAppButton.setEnabled(false);
+		selectedApp = null;
+
+		TableItem[] items = appTable.getSelection();
+		if (items.length == 1) {
+			TableItem selectedItem = items[0];
+			UUID moduleUUID = itemToUUID.get(selectedItem);
+			Module selectedModule = ServerManager.getDefault().getModuleManager().getMap().get(moduleUUID);
+			if (selectedModule == null) {
+				warn("The module hasn't been resolved yet.");
+				return;
+			}
+			selectedLabel.setText("Module:");
+			selectedInfoLabel.setText(selectedModule.getName());
+
+			Map<UUID, Collection<ApplicationInformation>> moduleToApps = appManager.getModulesToApps();
+			Collection<ApplicationInformation> apps = moduleToApps.get(moduleUUID);
+			for (ApplicationInformation app : apps) {
+				String appText = app.getName();
+				appText = appText.concat(" : " + app.getAppId());
+				for (UUID block : app.getBlocksRunningOn().get(moduleUUID)) {
+					TableItem item = new TableItem(blockTable, SWT.NONE);
+					item.setText(BLOCK_INDEX,
+							app.getBlockType(block) == null ? block.toString() : app.getBlockType(block));
+					item.setText(BLOCK_INFO_INDEX, appText);
+					blockTableItemToApp.put(item, app);
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * To be invoked whenever the tables are sorted by modules and an application is selected in the blockTable.
+	 */
+	private void blocktableAppSelected() {
+		TableItem[] items = blockTable.getSelection();
+		if (items.length == 1) {
+			selectedApp = blockTableItemToApp.get(items[0]);
+			selectedLabel.setText("Application selected:");
+			selectedInfoLabel.setText(selectedApp.getName());
+		}
+		killAppButton.setEnabled(true);
 	}
 
 	@Override
@@ -364,8 +383,8 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (updateAppsButton != null) {
-					updateAppsButton.setEnabled(true);
+				if (updateButton != null) {
+					updateButton.setEnabled(true);
 					sortButton.setEnabled(true);
 					updateAppList();
 				}
@@ -381,10 +400,10 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 			@Override
 			public void run() {
 				killAppButton.setEnabled(false);
-				updateAppsButton.setEnabled(false);
+				updateButton.setEnabled(false);
 				sortButton.setEnabled(false);
-				appToItem.clear();
-				itemToApp.clear();
+				uuidToItem.clear();
+				itemToUUID.clear();
 			}
 		});
 		LOGGER.exit();
@@ -396,32 +415,75 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				for (ApplicationInformation app : apps) {
-					TableItem item = new TableItem(appTable, SWT.NONE);
-					addAppAndItem(app, item);
-					System.out.println("Item added: " + app.getName());
-					item.setText(APP_INDEX, app.getName());
-					item.setText(UUID_INDEX, app.getAppId().toString());
-				}
+				sort(false);
 			}
 		});
 		LOGGER.exit();
 	}
 
-	private void addAppAndItem(ApplicationInformation app, TableItem item) {
-		appToItem.put(app, item);
-		itemToApp.put(item, app);
+	/**
+	 * Adds a UUID and a TableItem to the maps to connect them.
+	 * 
+	 * The UUID can be used both for ApplicationInformations and Modules. Be careful to use only one of them
+	 * simultaneously throughout the maps and clear the maps whenever you wish to switch from ApplicationInformations to
+	 * Modules or otherwise. The current status is indicated by the sorted field: whenever it is set to SORTED_BY_APPS,
+	 * the maps should contain information on TableItems and ApplicationInformations. Whenever sorted is set to
+	 * SORTED_BY_MODULES, the maps should contain information on TableItems and Modules.
+	 * 
+	 * @param id
+	 *            UUID of the Application or Module to connect to a TableItem
+	 * @param item
+	 *            the TableItem to connect to the UUID of an Application or module
+	 */
+	private void addUUIDAndItem(UUID id, TableItem item) {
+		uuidToItem.put(id, item);
+		itemToUUID.put(item, id);
 	}
 
-	private TableItem removeAppAndItem(ApplicationInformation app) {
-		TableItem item = appToItem.get(app);
-		itemToApp.remove(item);
-		appToItem.remove(app);
+	/**
+	 * Removes a UUID and the corresponding TableItem from the Maps linking the two together.
+	 * 
+	 * The UUID can be used both for ApplicationInformations and Modules. Be careful to use only one of them
+	 * simultaneously throughout the maps and clear the maps whenever you wish to switch from ApplicationInformations to
+	 * Modules or otherwise. The current status is indicated by the sorted field: whenever it is set to SORTED_BY_APPS,
+	 * the maps should contain information on TableItems and ApplicationInformations. Whenever sorted is set to
+	 * SORTED_BY_MODULES, the maps should contain information on TableItems and Modules.
+	 * 
+	 * @param id
+	 *            UUID of the application / module to remove from the connecting maps.
+	 * @return TableItem previously linked to the application / module.
+	 */
+	private TableItem removeUUIDAndItem(UUID id) {
+		TableItem item = uuidToItem.get(id);
+		itemToUUID.remove(item);
+		uuidToItem.remove(id);
 		return item;
 	}
 
-	private void clearMaps() {
-		appToItem.clear();
-		itemToApp.clear();
+	/**
+	 * Clears all tables and maps containing information on items of the tables.
+	 */
+	private void clearTables() {
+		blockTableItemToApp.clear();
+		uuidToItem.clear();
+		itemToUUID.clear();
+		appTable.removeAll();
+		blockTable.removeAll();
+	}
+
+	/**
+	 * Opens a warning window displaying the given message.
+	 * 
+	 * @param message
+	 *            Warning message
+	 * @return int representing the choice of the user.
+	 */
+	private int warn(String message) {
+		Display display = Display.getCurrent();
+		Shell shell = new Shell(display);
+		MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
+		dialog.setText("Warning");
+		dialog.setMessage(message);
+		return dialog.open();
 	}
 }
