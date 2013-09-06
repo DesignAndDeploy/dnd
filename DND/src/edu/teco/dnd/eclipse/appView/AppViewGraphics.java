@@ -83,6 +83,7 @@ public class AppViewGraphics {
 	protected Label createSelectedInfoLabel() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.BEGINNING;
+		data.grabExcessHorizontalSpace = true;
 		Label selectedInfoLabel = new Label(parent, SWT.NONE);
 		selectedInfoLabel.setText("<select on the left>");
 		return selectedInfoLabel;

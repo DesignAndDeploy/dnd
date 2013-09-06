@@ -1,5 +1,6 @@
 package edu.teco.dnd.eclipse.appView;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,10 +28,14 @@ import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ServerManager;
+import edu.teco.dnd.util.FutureListener;
+import edu.teco.dnd.util.FutureNotifier;
+import edu.teco.dnd.util.JoinedFutureNotifier;
 
 /**
  * View for the applications / running function blocks.
@@ -38,7 +43,8 @@ import edu.teco.dnd.server.ServerManager;
  * @author jung
  * 
  */
-public class AppView extends ViewPart implements ApplicationManagerListener {
+public class AppView extends ViewPart implements ApplicationManagerListener,
+		FutureListener<FutureNotifier<Collection<Response>>> {
 
 	/**
 	 * The logger for this class.
@@ -94,6 +100,8 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	private Map<TableItem, UUID> itemToUUID;
 	private Map<UUID, TableItem> uuidToItem;
 	private Map<TableItem, ApplicationInformation> blockTableItemToApp;
+	private Map<TableItem, UUID> blockTableItemToModule;
+	private Module selectedModule;
 	private ApplicationInformation selectedApp;
 	private int sorted;
 
@@ -125,6 +133,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		itemToUUID = new HashMap<TableItem, UUID>();
 		uuidToItem = new HashMap<UUID, TableItem>();
 		blockTableItemToApp = new HashMap<TableItem, ApplicationInformation>();
+		blockTableItemToModule = new HashMap<TableItem, UUID>();
 		sorted = SORTED_BY_APPS;
 		LOGGER.exit();
 	}
@@ -186,6 +195,8 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 			public void widgetSelected(SelectionEvent e) {
 				if (sorted == SORTED_BY_MODULES) {
 					AppView.this.blocktableAppSelected();
+				} else if (sorted == SORTED_BY_APPS) {
+					AppView.this.blocktableModuleSelected();
 				}
 			}
 		});
@@ -205,14 +216,26 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		if (selectedApp != null) {
 			Collection<UUID> moduleIDs = selectedApp.getModules();
 			ConnectionManager connectionManager = ServerManager.getDefault().getConnectionManager();
+			final Collection<FutureNotifier<? extends Response>> futures =
+					new ArrayList<FutureNotifier<? extends Response>>();
+
 			for (final UUID module : moduleIDs) {
 				final KillAppMessage killAppMsg = new KillAppMessage(selectedApp.getAppId());
-				connectionManager.sendMessage(module, killAppMsg);
+				futures.add(connectionManager.sendMessage(module, killAppMsg));
 			}
-
-			appTable.remove(appTable.indexOf(removeUUIDAndItem(selectedApp.getAppId())));
+			JoinedFutureNotifier<Response> joined = new JoinedFutureNotifier<Response>(futures);
+			joined.addListener(this);
+			if (sorted == SORTED_BY_APPS) {
+				appTable.remove(appTable.indexOf(removeUUIDAndItem(selectedApp.getAppId())));
+				blockTable.removeAll();
+			} else if (sorted == SORTED_BY_MODULES) {
+				for (TableItem item : blockTable.getItems()) {
+					if (selectedApp.getAppId().equals(blockTableItemToApp.get(item).getAppId())) {
+						blockTable.remove(blockTable.indexOf(item));
+					}
+				}
+			}
 			selectedApp = null;
-			blockTable.removeAll();
 		}
 	}
 
@@ -225,15 +248,13 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 	 */
 	private void sort(boolean toggleSortMode) {
 		clearTables();
-		selectedApp = null;
 		killAppButton.setEnabled(false);
 		selectedInfoLabel.setText("<select on the left>");
 
 		if (toggleSortMode) {
-			if (sorted == SORTED_BY_APPS){
+			if (sorted == SORTED_BY_APPS) {
 				sorted = SORTED_BY_MODULES;
-			}
-			else if (sorted == SORTED_BY_MODULES){
+			} else if (sorted == SORTED_BY_MODULES) {
 				sorted = SORTED_BY_APPS;
 			}
 			updateAppList();
@@ -246,8 +267,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 			}
 		}
 	}
-	
+
 	private synchronized void sortByModules() {
+		selectedApp = null;
 		selectedLabel.setText("Module:");
 		appTable.getColumn(APP_INDEX).setText("Modules:");
 		blockTable.getColumn(BLOCK_INFO_INDEX).setText("Application:");
@@ -265,9 +287,16 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 			item.setText(UUID_INDEX, id.toString());
 			addUUIDAndItem(id, item);
 		}
+
+		if (selectedModule != null) {
+			System.out.println("Selected Module nciht null");
+			appTable.setSelection(uuidToItem.get(selectedModule.getUUID()));
+			moduleSelected();
+		}
 	}
 
 	private synchronized void sortByApps() {
+		selectedModule = null;
 		selectedLabel.setText("Application:");
 		appTable.getColumn(APP_INDEX).setText("Applications:");
 		blockTable.getColumn(BLOCK_INFO_INDEX).setText("On Module:");
@@ -279,6 +308,11 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 			item.setText(APP_INDEX, app.getName());
 			item.setText(UUID_INDEX, app.getAppId().toString());
 			addUUIDAndItem(app.getAppId(), item);
+		}
+		if (selectedApp != null) {
+			System.out.println("Selected App nicht null");
+			appTable.setSelection(uuidToItem.get(selectedApp.getAppId()));
+			appSelected();
 		}
 	}
 
@@ -292,29 +326,32 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 			return;
 		}
 		blockTable.removeAll();
+		selectedModule = null;
 
 		TableItem[] items = appTable.getSelection();
 		if (items.length == 1) {
 			TableItem selectedItem = items[0];
 			selectedApp = appManager.getMap().get(itemToUUID.get(selectedItem));
-			selectedInfoLabel.setText(selectedApp.getName());
+			selectedInfoLabel.setText(selectedApp.getName() + " : " + selectedApp.getAppId().toString());
 			ModuleManager m = ServerManager.getDefault().getModuleManager();
 			Map<UUID, Module> uuidToModule = m.getMap();
 
 			Map<UUID, Collection<UUID>> modToBlocks = selectedApp.getBlocksRunningOn();
 
-			for (UUID module : modToBlocks.keySet()) {
-				String moduleText = module.toString();
-				if (uuidToModule.containsKey(module)) {
-					moduleText = uuidToModule.get(module).getName().concat(" : " + moduleText);
+			for (UUID moduleID : modToBlocks.keySet()) {
+				String moduleText = moduleID.toString();
+
+				if (uuidToModule.containsKey(moduleID)) {
+					moduleText = uuidToModule.get(moduleID).getName().concat(" : " + moduleText);
 				}
-				for (UUID block : modToBlocks.get(module)) {
+				for (UUID block : modToBlocks.get(moduleID)) {
 					TableItem item = new TableItem(blockTable, SWT.NONE);
 					item.setText(
 							BLOCK_INDEX,
 							selectedApp.getBlockType(block) == null ? block.toString() : selectedApp
 									.getBlockType(block));
 					item.setText(BLOCK_INFO_INDEX, moduleText);
+					blockTableItemToModule.put(item, moduleID);
 				}
 			}
 			killAppButton.setEnabled(true);
@@ -339,7 +376,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		if (items.length == 1) {
 			TableItem selectedItem = items[0];
 			UUID moduleUUID = itemToUUID.get(selectedItem);
-			Module selectedModule = ServerManager.getDefault().getModuleManager().getMap().get(moduleUUID);
+			selectedModule = ServerManager.getDefault().getModuleManager().getMap().get(moduleUUID);
 			if (selectedModule == null) {
 				warn("The module hasn't been resolved yet.");
 				return;
@@ -372,9 +409,19 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		if (items.length == 1) {
 			selectedApp = blockTableItemToApp.get(items[0]);
 			selectedLabel.setText("Application selected:");
-			selectedInfoLabel.setText(selectedApp.getName());
+			selectedInfoLabel.setText(selectedApp.getName() + " : " + selectedApp.getAppId().toString());
 		}
 		killAppButton.setEnabled(true);
+	}
+
+	private void blocktableModuleSelected() {
+		TableItem[] items = blockTable.getSelection();
+		if (items.length == 1) {
+			Map<UUID, Module> map = ServerManager.getDefault().getModuleManager().getMap();
+			if (map.containsKey(blockTableItemToModule.get(items[0]))) {
+				selectedModule = map.get(blockTableItemToModule.get(items[0]));
+			}
+		}
 	}
 
 	@Override
@@ -485,5 +532,13 @@ public class AppView extends ViewPart implements ApplicationManagerListener {
 		dialog.setText("Warning");
 		dialog.setMessage(message);
 		return dialog.open();
+	}
+
+	@Override
+	public void operationComplete(FutureNotifier<Collection<Response>> future) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("App killed.");
+		updateAppList();
+
 	}
 }
