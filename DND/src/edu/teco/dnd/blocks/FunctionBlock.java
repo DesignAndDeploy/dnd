@@ -20,18 +20,23 @@ public abstract class FunctionBlock implements Serializable {
 	private static final long serialVersionUID = 7444744469990667015L;
 
 	/**
-	 * The UUID of the block. Will be set in {@link #doInit(UUID)}. Is used as an indicator to see if doInit has been
-	 * called.
+	 * The UUID of the block. Will be set in {@link #doInit(UUID, String)}. Is used as an indicator to see if doInit has
+	 * been called.
 	 */
 	private UUID blockUUID = null;
 
 	/**
-	 * The type of the block. Set in {@link #doInit(UUID)}.
+	 * The type of the block. Set in {@link #doInit(UUID, String)}.
 	 */
 	private String blockType = null;
 
 	/**
-	 * The time between scheduled updates of the block. Set in {@link #doInit(UUID)}.
+	 * The name of the block. Set in {@link #doInit(UUID, String)}.
+	 */
+	private String blockName = null;
+
+	/**
+	 * The time between scheduled updates of the block. Set in {@link #doInit(UUID, String)}.
 	 */
 	private Long updateInterval = null;
 
@@ -51,13 +56,16 @@ public abstract class FunctionBlock implements Serializable {
 	 * 
 	 * @param blockUUID
 	 *            the UUID of the block. Will be stored so that it can be queried later with {@link #getBlockUUID()}.
+	 * @param blockName
+	 *            the Name of the block. Will be stored so that it can be queried later with {@link #getBlockName()}.
 	 * @throws IllegalAccessException
 	 *             if quering a field using reflection fails
 	 */
-	public final synchronized void doInit(final UUID blockUUID) throws IllegalAccessException {
+	public final synchronized void doInit(final UUID blockUUID, final String blockName) throws IllegalAccessException {
 		if (this.blockUUID != null) {
 			return;
 		}
+		this.blockName = blockName;
 
 		if (blockUUID == null) {
 			this.blockUUID = UUID.randomUUID();
@@ -102,7 +110,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the UUID of this block. {@link #doInit(UUID)} must be called first.
+	 * Returns the UUID of this block. {@link #doInit(UUID, String)} must be called first.
 	 * 
 	 * @return the UUID of this block or null if it hasn't been set yet
 	 */
@@ -111,7 +119,16 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all Outputs of the block mapped from their name. {@link #doInit(UUID)} must be called first.
+	 * Returns the name of this block. {@link #doInit(UUID, String)} must be called first.
+	 * 
+	 * @return the name of this block or null if it hasn't been set yet.
+	 */
+	public final synchronized String getBlockName() {
+		return this.blockName;
+	}
+
+	/**
+	 * Returns all Outputs of the block mapped from their name. {@link #doInit(UUID, String)} must be called first.
 	 * 
 	 * @return the Outputs of the block mapped from their name
 	 */
@@ -123,7 +140,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all Inputs of the block mapped from their name. {@link #doInit(UUID)} must be called first.
+	 * Returns all Inputs of the block mapped from their name. {@link #doInit(UUID, String)} must be called first.
 	 * 
 	 * @return the Inputs of the block mapped from their name
 	 */
@@ -135,7 +152,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the type of the block. {@link #doInit(UUID)} must be called first.
+	 * Returns the type of the block. {@link #doInit(UUID, String)} must be called first.
 	 * 
 	 * @return
 	 */
@@ -147,7 +164,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the update interval for the block. {@link #doInit(UUID)} must be called first.
+	 * Returns the update interval for the block. {@link #doInit(UUID, String)} must be called first.
 	 * 
 	 * @return the update interval for the block
 	 */
@@ -161,7 +178,8 @@ public abstract class FunctionBlock implements Serializable {
 	/**
 	 * This method is called when a FunctionBlock is started on a module.
 	 * 
-	 * @param options a Map from an Option's name to its value
+	 * @param options
+	 *            a Map from an Option's name to its value
 	 */
 	public abstract void init(final Map<String, String> options);
 

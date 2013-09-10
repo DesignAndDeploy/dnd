@@ -16,6 +16,7 @@ public class ApplicationInformation {
 	private final Map<UUID/* ModuleId */, Collection<UUID>/* BlockId */> modulesRunningBlocks =
 			new ConcurrentHashMap<UUID, Collection<UUID>>();
 	private Map<UUID, String> blockToType = new HashMap<UUID, String>();
+	private Map<UUID, String> blockToName = new HashMap<UUID, String>();
 
 	public ApplicationInformation(UUID appId, String name) {
 		this.appId = appId;
@@ -35,10 +36,14 @@ public class ApplicationInformation {
 		blocks.add(blockId);
 	}
 
-	public void addUUIDBlockPair(UUID blockID, String blockType) {
+	public void addUUIDBlockTypePair(UUID blockID, String blockType) {
 		blockToType.put(blockID, blockType);
 	}
 
+	public void addUUIDBlockNamePair(UUID blockID, String blockName){
+		blockToName.put(blockID, blockName);
+	}
+	
 	public void addAllBlockModulePairs(Map<UUID/* blockID */, UUID/* moduleId */> blockModuleMapping) {
 		for (Map.Entry<UUID, UUID> entr : blockModuleMapping.entrySet()) {
 			addBlockModulePair(entr.getKey(), entr.getValue());
@@ -61,6 +66,17 @@ public class ApplicationInformation {
 	 */
 	public String getBlockType(final UUID blockUUID) {
 		return blockToType.get(blockUUID);
+	}
+	
+	/**
+	 * Returns the name of a FunctionBlock.
+	 * 
+	 * @param blockUUID
+	 *            UUID of the function block.
+	 * @return name of the function block.
+	 */
+	public String getBlockName(final UUID blockUUID){
+		return blockToName.get(blockUUID);
 	}
 
 	/**

@@ -30,7 +30,7 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 
 	@Override
 	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, BlockMessage message) {
-		final BlockDescription blockDescription = new BlockDescription(message.blockClass, message.blockUUID, message.options, message.outputs, message.scheduleToId);
+		final BlockDescription blockDescription = new BlockDescription(message.blockClass, message.blockName, message.blockUUID, message.options, message.outputs, message.scheduleToId);
 		try {
 			appManager.scheduleBlock(message.getApplicationID(), blockDescription);
 		} catch (final ClassNotFoundException e) {

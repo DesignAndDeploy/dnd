@@ -25,6 +25,11 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	public final String blockClass;
 
 	/**
+	 * Name of the block to be started.
+	 */
+	public final String blockName;
+
+	/**
 	 * UUID the block is supposed to have after starting.
 	 */
 	public final UUID blockUUID;
@@ -52,6 +57,8 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 *            ID of the application this message is to be sent to.
 	 * @param blockClass
 	 *            the Class of the block to be started.
+	 * @param blockName
+	 *            the name of the block to be started.
 	 * @param blockUUID
 	 *            the UUID the block is supposed to have after starting.
 	 * @param options
@@ -61,10 +68,11 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * @param scheduledToId
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
-	public BlockMessage(UUID msgUuid, UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
-			Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
+	public BlockMessage(UUID msgUuid, UUID appId, String blockClass, String blockName, UUID blockUUID,
+			Map<String, String> options, Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
 		super(msgUuid, appId);
 		this.blockClass = blockClass;
+		this.blockName = blockName;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
 		this.outputs = new HashMap<String, Set<ValueDestination>>();
@@ -83,6 +91,8 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 *            ID of the application this message is to be sent to.
 	 * @param blockClass
 	 *            the Class of the block to be started.
+	 * @param blockName
+	 *            the name of the block to be started.
 	 * @param blockUUID
 	 *            the UUID the block is supposed to have after starting.
 	 * @param options
@@ -92,10 +102,11 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * @param scheduledToId
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
-	public BlockMessage(UUID appId, String blockClass, UUID blockUUID, Map<String, String> options,
+	public BlockMessage(UUID appId, String blockClass, String blockName, UUID blockUUID, Map<String, String> options,
 			Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
 		super(appId);
 		this.blockClass = blockClass;
+		this.blockName = blockName;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
 		this.outputs = new HashMap<String, Set<ValueDestination>>();

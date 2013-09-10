@@ -48,12 +48,14 @@ public class FunctionBlockSecurityDecorator {
 	 * 
 	 * @param blockUUID
 	 *            see FunctionBlock.doInit() .
+	 * @param blockName
+	 *            see FunctionBlock.doInit().
 	 * @throws UserSuppliedCodeException
 	 *             if an error occurred in the block code.
 	 */
-	public void doInit(final UUID blockUUID) throws UserSuppliedCodeException {
+	public void doInit(final UUID blockUUID, final String blockName) throws UserSuppliedCodeException {
 		try {
-			this.block.doInit(blockUUID);
+			this.block.doInit(blockUUID, blockName);
 		} catch (Throwable e) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling doInit on block " + blockUUID);
@@ -116,6 +118,10 @@ public class FunctionBlockSecurityDecorator {
 	 */
 	public String getBlockType() {
 		return block.getBlockType();
+	}
+	
+	public String getBlockName(){
+		return block.getBlockName();
 	}
 
 	/**

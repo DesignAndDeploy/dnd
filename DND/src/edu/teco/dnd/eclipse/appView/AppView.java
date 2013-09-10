@@ -76,14 +76,19 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	public static final int UUID_INDEX = 1;
 
 	/**
-	 * Index of the Block column in the blockTable.
+	 * Index of the Block Name column in the blockTable.
 	 */
 	public static final int BLOCK_INDEX = 0;
 
 	/**
+	 * Index of the Block Type column in the blockTable.
+	 */
+	public static final int TYPE_INDEX = 1;
+
+	/**
 	 * Index of the column for information on the block, either an application or a module, in the blockTable.
 	 */
-	public static final int BLOCK_INFO_INDEX = 1;
+	public static final int BLOCK_INFO_INDEX = 2;
 
 	private Label selectedLabel;
 	private Label selectedInfoLabel;
@@ -348,8 +353,10 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 					TableItem item = new TableItem(blockTable, SWT.NONE);
 					item.setText(
 							BLOCK_INDEX,
-							selectedApp.getBlockType(block) == null ? block.toString() : selectedApp
-									.getBlockType(block));
+							selectedApp.getBlockName(block) == null ? block.toString() : selectedApp
+									.getBlockName(block));
+					item.setText(TYPE_INDEX,
+							selectedApp.getBlockType(block) == null ? "" : selectedApp.getBlockType(block));
 					item.setText(BLOCK_INFO_INDEX, moduleText);
 					blockTableItemToModule.put(item, moduleID);
 				}
@@ -392,7 +399,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 				for (UUID block : app.getBlocksRunningOn().get(moduleUUID)) {
 					TableItem item = new TableItem(blockTable, SWT.NONE);
 					item.setText(BLOCK_INDEX,
-							app.getBlockType(block) == null ? block.toString() : app.getBlockType(block));
+							app.getBlockName(block) == null ? block.toString() : app.getBlockName(block));
+					item.setText(TYPE_INDEX,
+							app.getBlockType(block) == null ? "" : app.getBlockType(block));
 					item.setText(BLOCK_INFO_INDEX, appText);
 					blockTableItemToApp.put(item, app);
 				}
@@ -449,8 +458,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 				killAppButton.setEnabled(false);
 				updateButton.setEnabled(false);
 				sortButton.setEnabled(false);
-				uuidToItem.clear();
-				itemToUUID.clear();
+				selectedApp = null;
+				selectedModule = null;
+				clearTables();
 			}
 		});
 		LOGGER.exit();
@@ -512,6 +522,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	 */
 	private void clearTables() {
 		blockTableItemToApp.clear();
+		blockTableItemToModule.clear();
 		uuidToItem.clear();
 		itemToUUID.clear();
 		appTable.removeAll();
@@ -537,10 +548,10 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	/**
 	 * Gets called whenever an application was killed.
 	 */
-	
+
 	@Override
 	public void operationComplete(FutureNotifier<Collection<Response>> future) throws Exception {
-		if (!future.isSuccess()){
+		if (!future.isSuccess()) {
 			warn("Something went wrong while cancelling the application.");
 		}
 		System.out.println("App killed.");

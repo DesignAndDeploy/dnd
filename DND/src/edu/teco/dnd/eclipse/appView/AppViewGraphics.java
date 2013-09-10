@@ -122,14 +122,18 @@ public class AppViewGraphics {
 		blockTable.setLinesVisible(true);
 		blockTable.setHeaderVisible(true);
 
-		TableColumn column1 = new TableColumn(blockTable, SWT.NONE);
-		column1.setText("Running Function Blocks");
+		TableColumn column0 = new TableColumn(blockTable, SWT.NONE);
+		column0.setText("Function Block:");
 		blockTable.setToolTipText("Currently running function blocks");
-		blockTable.getColumn(0).pack();
+		blockTable.getColumn(AppView.BLOCK_INDEX).pack();
+		
+		TableColumn column1 = new TableColumn(blockTable, SWT.NONE);
+		column1.setText("Type:");
+		blockTable.getColumn(AppView.TYPE_INDEX).pack();
 
 		TableColumn column2 = new TableColumn(blockTable, SWT.NONE);
 		column2.setText("On Module:");
-		blockTable.getColumn(1).pack();
+		blockTable.getColumn(AppView.BLOCK_INFO_INDEX).pack();
 		return blockTable;
 	}
 }

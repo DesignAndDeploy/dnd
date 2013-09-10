@@ -28,9 +28,14 @@ public class ApplicationListResponse extends Response {
 	 */
 	private final Map<UUID, Collection<UUID>> applicationBlocks;
 	/**
-	 * Maps the UUID of a function block to its FunctionBlockSecurityDecorator.
+	 * Maps the UUID of a function block to its type.
 	 */
 	private final Map<UUID, String> uuidToBlockType;
+
+	/**
+	 * Maps the UUID of a function block to its name.
+	 */
+	private final Map<UUID, String> uuidToBlockName;
 
 	/**
 	 * The UUID of the module this Response was generated on.
@@ -46,14 +51,22 @@ public class ApplicationListResponse extends Response {
 	 *            the UUID of the module sending this.
 	 * @param applicationBlocks
 	 *            the UUIDs of the running applications mapped to the Blocks they execute.
-	 * @param uuidToSecBlocks
-	 *            A Map from block UUIDs running on the specified module to their security decorators.
+	 * @param uuidToBlockType
+	 *            A Map from block UUIDs running on the specified module to their type.
 	 */
 	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames,
-			Map<UUID, Collection<UUID>> applicationBlocks, final Map<UUID, String> uuidToBlocks) {
+			Map<UUID, Collection<UUID>> applicationBlocks, final Map<UUID, String> uuidToBlockType,
+			final Map<UUID, String> uuidToBlockName) {
 		this.moduleUUID = moduleUUID;
 		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
-		this.uuidToBlockType = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlocks));
+		this.uuidToBlockType = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlockType));
+		this.uuidToBlockName = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlockName));
+		
+		System.out.println("Namen in uuidToBlockName in ApplistResp");
+		for (String text : uuidToBlockName.values()){
+			System.out.println(text);
+		}
+		
 		Map<UUID, Collection<UUID>> blocks = new HashMap<UUID, Collection<UUID>>();
 		for (final Entry<UUID, Collection<UUID>> entry : applicationBlocks.entrySet()) {
 			blocks.put(entry.getKey(), Collections.unmodifiableList(new ArrayList<UUID>(entry.getValue())));
@@ -73,6 +86,7 @@ public class ApplicationListResponse extends Response {
 		this.applicationNames = null;
 		this.applicationBlocks = null;
 		this.uuidToBlockType = null;
+		this.uuidToBlockName = null;
 	}
 
 	/**
@@ -100,6 +114,15 @@ public class ApplicationListResponse extends Response {
 	 */
 	public Map<UUID, String> getBlockTypes() {
 		return this.uuidToBlockType;
+	}
+	
+	/**
+	 * Returns a Map from all UUIDs of function blocks running on this module to their names.
+	 * 
+	 * @return Map from block UUID to their name.
+	 */
+	public Map<UUID, String> getBlockNames(){
+		return this.uuidToBlockName;
 	}
 
 	/**

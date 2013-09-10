@@ -19,6 +19,7 @@ import edu.teco.dnd.blocks.ValueDestination;
  */
 public class BlockDescription {
 	public final String blockClassName;
+	public final String blockName;
 	public final UUID blockUUID;
 	public final Map<String, String> options;
 	public final Map<String, Set<ValueDestination>> outputs;
@@ -37,9 +38,10 @@ public class BlockDescription {
 	 * @param blockTypeHolderId
 	 *            ID of the assigned BlockTypeHolder, aka where to decrease the allowed blocks count.
 	 */
-	public BlockDescription(final String blockClassName, final UUID blockUUID, final Map<String, String> options,
+	public BlockDescription(final String blockClassName, final String blockName, final UUID blockUUID, final Map<String, String> options,
 			final Map<String, Set<ValueDestination>> outputs, final int blockTypeHolderId) {
 		this.blockClassName = blockClassName;
+		this.blockName = blockName;
 		this.blockUUID = blockUUID;
 		this.options = Collections.unmodifiableMap(new HashMap<String, String>(options));
 		final Map<String, Set<ValueDestination>> modifiableOutputs =

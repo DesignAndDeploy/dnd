@@ -220,7 +220,7 @@ public class Application {
 		final FunctionBlockSecurityDecorator securityDecorator =
 				createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
 		LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
-		securityDecorator.doInit(blockDescription.blockUUID);
+		securityDecorator.doInit(blockDescription.blockUUID, blockDescription.blockName);
 
 		synchronized (scheduledToStart) {
 			if (isRunning) {
