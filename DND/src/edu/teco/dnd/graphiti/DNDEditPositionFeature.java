@@ -119,6 +119,10 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 				(FunctionBlockModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
 		block.setPosition(value);
 		updatePictogramElement(pe);
+
+		DNDFeatureProvider provider = (DNDFeatureProvider) getFeatureProvider();
+		provider.updateEMFResourcePosition(block.getID(), value);
+		
 		LOGGER.exit();
 	}
 }

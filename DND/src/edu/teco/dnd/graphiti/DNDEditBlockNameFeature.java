@@ -119,6 +119,10 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 				(FunctionBlockModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
 		block.setBlockName(value);
 		updatePictogramElement(pe);
+		
+		DNDFeatureProvider provider = (DNDFeatureProvider) getFeatureProvider();
+		provider.updateEMFResourceName(block.getID(), value);
+		
 		LOGGER.exit();
 	}
 }

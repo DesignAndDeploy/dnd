@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.ClassPath;
@@ -92,7 +93,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * Feature factory for block create features.
 	 */
 	private final DNDCreateFeatureFactory createFeatureFactory = new DNDCreateFeatureFactory();
-	
+
 	/**
 	 * Used to inspect classes (including loading through {@link #blockFactory}.
 	 */
@@ -366,7 +367,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	}
 
 	/**
-	 * Updates the contents (FunctionBlockModels) of its resource. This can be invoked whenever @getEMFResource()
+	 * Updates the contents (FunctionBlockModels) of its resource. This can be invoked whenever @emfResourceChanged()
 	 * returns true, but also works in case nothing changed. This method updates the BlockName and Position of all
 	 * FunctionBlockModel in the resource to be consistent with changes made outside the resource.
 	 */
@@ -379,7 +380,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 				oldModels.add((FunctionBlockModel) obj);
 			}
 		}
-		
+
 		for (EObject obj : newResource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
@@ -388,6 +389,62 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 						oldModel.setPosition(newModel.getPosition());
 						oldModel.setBlockName(newModel.getBlockName());
 					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Updates the BlockName of one FunctionBlockModel in the resource to be consistent with changes made outside the
+	 * resource.
+	 * 
+	 * @param blockID
+	 *            UUID of the FunctionBlockModel that changed its name
+	 * @param newName
+	 *            new blockName of the FunctionBlockModel
+	 */
+	public synchronized void updateEMFResourceName(UUID blockID, String newName) {
+		FunctionBlockModel model;
+		Resource newResource = getNewEMFResource();
+		for (EObject obj : newResource.getContents()) {
+			if (obj instanceof FunctionBlockModel) {
+				model = (FunctionBlockModel) obj;
+				if (model.getID().equals(blockID)) {
+					model.setBlockName(newName);
+					try {
+						newResource.save(null);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					return;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Updates the Position of one FunctionBlockModel in the resource to be consistent with changes made outside the
+	 * resource.
+	 * 
+	 * @param blockID
+	 *            UUID of the FunctionBlockModel that changed its name
+	 * @param newPosition
+	 *            new position of the FunctionBlockModel
+	 */
+	public synchronized void updateEMFResourcePosition(UUID blockID, String newPosition) {
+		FunctionBlockModel model;
+		Resource newResource = getNewEMFResource();
+		for (EObject obj : newResource.getContents()) {
+			if (obj instanceof FunctionBlockModel) {
+				model = (FunctionBlockModel) obj;
+				if (model.getID().equals(blockID)) {
+					model.setPosition(newPosition);
+					try {
+						newResource.save(null);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					return;
 				}
 			}
 		}
@@ -408,7 +465,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 				oldModels.add((FunctionBlockModel) obj);
 			}
 		}
-		
+
 		for (EObject obj : newResource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
