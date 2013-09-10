@@ -44,7 +44,13 @@ public class DeployViewTexts {
 	public static final String INFORM_CONSTRAINTS =
 			"The Algorithm that creates possible distributions will only provide a valid distribution, if the module you selected is at the given place. If the module's location is somewhere else or none at all, no valid deployment will be found.";
 
-	public static final String NO_DEPLOYMENT_YET = "No deployment created yet";
+	public static final String NO_DIST_YET = "No distribution created yet.";
+	
+	public static final String NO_BLOCKS = "No blocks to distribute.";
+	
+	public static final String NO_MODULES = "No modules to deploy on.";
+	
+	public static final String NO_VALID_DIST = "No valid distribution exists";
 
 	public static final String NEWCONSTRAINTS =
 			"You changed some constraints on your function blocks after the current deployment was created. Keep in mind that this deployment might not fullfill your constraints anymore.\n\n Press OK to deploy anyway. Close this window to abort.";

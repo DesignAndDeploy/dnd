@@ -274,17 +274,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		try {
 			dist = DistributionCreator.createDistribution(functionBlocks, constraints);
 		} catch (NoBlocksException e) {
-			warn("No blockModels to distribute");
+			warn(DeployViewTexts.NO_BLOCKS);
 			LOGGER.exit();
 			return;
 		} catch (NoModulesException e) {
-			warn("No modules to deploy on");
+			warn(DeployViewTexts.NO_MODULES);
 			LOGGER.exit();
 			return;
 		}
 
 		if (dist == null) {
-			warn("No valid deployment exists");
+			warn(DeployViewTexts.NO_VALID_DIST);
 		} else {
 			mapBlockToTarget = dist.getMapping();
 			for (FunctionBlockModel block : mapBlockToTarget.keySet()) {
@@ -311,7 +311,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		if (mapBlockToTarget.isEmpty()) {
-			warn(DeployViewTexts.NO_DEPLOYMENT_YET);
+			warn(DeployViewTexts.NO_DIST_YET);
 			LOGGER.exit();
 			return;
 		}

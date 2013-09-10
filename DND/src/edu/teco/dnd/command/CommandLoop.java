@@ -125,7 +125,7 @@ public class CommandLoop {
 
 	private void deployDistribution(Distribution dist) {
 		if (dist.getMapping().isEmpty()) {
-			System.out.println(DeployViewTexts.NO_DEPLOYMENT_YET);
+			System.out.println(DeployViewTexts.NO_DIST_YET);
 			return;
 		}
 		final Dependencies dependencies =

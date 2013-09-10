@@ -81,7 +81,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	public static final int BLOCK_INDEX = 0;
 
 	/**
-	 * Index of the column for informatino on the block, either an application or a module, in the blockTable.
+	 * Index of the column for information on the block, either an application or a module, in the blockTable.
 	 */
 	public static final int BLOCK_INFO_INDEX = 1;
 
@@ -534,9 +534,15 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 		return dialog.open();
 	}
 
+	/**
+	 * Gets called whenever an application was killed.
+	 */
+	
 	@Override
 	public void operationComplete(FutureNotifier<Collection<Response>> future) throws Exception {
-		// TODO Auto-generated method stub
+		if (!future.isSuccess()){
+			warn("Something went wrong while cancelling the application.");
+		}
 		System.out.println("App killed.");
 		updateAppList();
 
