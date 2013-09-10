@@ -544,7 +544,7 @@ public class Deploy {
 		//TODO: Whenever a function block model is deployed, a new block is created WITH THE SAME ID as the block model.
 		//That means that there are several function blocks with the same UUID. I don't think this is good, I'd rather
 		//assign each block a new and unique UUID.
-		final BlockMessage blockMsg = new BlockMessage(appId, block.getBlockClass(), block.getBlockName(), block.getID(), options, outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
+		final BlockMessage blockMsg = new BlockMessage(appId, block.getBlockClass(), block.getBlockName(), UUID.randomUUID(), options, outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
 		return connectionManager.sendMessage(moduleUUID, blockMsg);
 	}
 
