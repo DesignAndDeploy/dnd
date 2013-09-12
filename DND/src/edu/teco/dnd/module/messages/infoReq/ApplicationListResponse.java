@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import edu.teco.dnd.module.BlockID;
 import edu.teco.dnd.network.messages.Response;
 
 /**

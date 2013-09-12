@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.module.BlockID;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
+import edu.teco.dnd.module.messages.infoReq.BlockID;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.network.ConnectionManager;

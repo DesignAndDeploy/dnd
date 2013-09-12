@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.teco.dnd.module.BlockID;
+import edu.teco.dnd.module.messages.infoReq.BlockID;
 
 public class ApplicationInformation {
 	private final UUID appId;
@@ -77,7 +77,7 @@ public class ApplicationInformation {
 	 * @return the Name the function block has in this application.
 	 */
 	public String getBlockName(final UUID blockUUID) {
-		return blockToName.get(new BlockID(blockUUID, this.appId));
+		return blockToName.get(blockUUID);
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package edu.teco.dnd.module;
+package edu.teco.dnd.module.messages.infoReq;
 
 import java.util.UUID;
 
@@ -27,6 +27,14 @@ public class BlockID{
 		this.appID = appID;
 	}
 
+	public UUID getBlockUUID(){
+		return this.blockID;
+	}
+	
+	public UUID getAppID(){
+		return this.appID;
+	}
+	
 	@Override
 	public String toString(){
 		return "blablubb";

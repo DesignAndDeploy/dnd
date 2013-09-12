@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.teco.dnd.module.Application;
-import edu.teco.dnd.module.BlockID;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
