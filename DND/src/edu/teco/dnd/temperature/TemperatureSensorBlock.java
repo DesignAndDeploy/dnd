@@ -19,7 +19,7 @@ public class TemperatureSensorBlock extends FunctionBlock {
 	/**
 	 * Type of this block.
 	 */
-	public static final String BLOCK_TYPE = "temperatureSensor";
+	public static final String BLOCK_TYPE = "sensorTemperature";
 
 	/**
 	 * Time between updates.
