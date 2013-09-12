@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
+import edu.teco.dnd.module.BlockID;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
@@ -192,19 +192,18 @@ public class ApplicationQuery {
 					Map<UUID, Collection<UUID>> appBlocks = applicationListResponse.getApplicationBlocks();
 					Map<UUID, String> appNames = applicationListResponse.getApplicationNames();
 					Map<UUID, String> uuidToBlockType = applicationListResponse.getBlockTypes();
-					Map<UUID, String> uuidToBlockName = applicationListResponse.getBlockNames();
-					for (UUID appId : appNames.keySet()) {
-						ApplicationInformation currentAppInfo = appInfos.get(appId);
+					Map<BlockID, String> blockIDToBlockName = applicationListResponse.getBlockNames();
+					for (UUID appID : appNames.keySet()) {
+						ApplicationInformation currentAppInfo = appInfos.get(appID);
 						if (currentAppInfo == null) {
 							// application is not yet known
-							currentAppInfo = new ApplicationInformation(appId, appNames.get(appId));
-							appInfos.put(appId, currentAppInfo);
+							currentAppInfo = new ApplicationInformation(appID, appNames.get(appID));
+							appInfos.put(appID, currentAppInfo);
 						}
-						for (UUID blockId : appBlocks.get(appId)) {
-							currentAppInfo.addBlockModulePair(blockId, currentModId);
-							currentAppInfo.addUUIDBlockTypePair(blockId, uuidToBlockType.get(blockId));
-							currentAppInfo.addUUIDBlockNamePair(blockId, uuidToBlockName.get(blockId));
-							System.out.println(uuidToBlockName.get(blockId));
+						for (UUID blockUUID : appBlocks.get(appID)) {
+							currentAppInfo.addBlockModulePair(blockUUID, currentModId);
+							currentAppInfo.addUUIDBlockTypePair(blockUUID, uuidToBlockType.get(blockUUID));
+							currentAppInfo.addBlockIDNamePair(blockUUID, blockIDToBlockName.get(new BlockID(blockUUID, appID)));
 						}
 					}
 

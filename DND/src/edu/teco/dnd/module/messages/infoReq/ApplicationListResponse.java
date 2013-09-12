@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
+import edu.teco.dnd.module.BlockID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -33,9 +33,9 @@ public class ApplicationListResponse extends Response {
 	private final Map<UUID, String> uuidToBlockType;
 
 	/**
-	 * Maps the UUID of a function block to its name.
+	 * Maps the BlockID of a function block to its name.
 	 */
-	private final Map<UUID, String> uuidToBlockName;
+	private final Map<BlockID, String> blockIDToBlockName;
 
 	/**
 	 * The UUID of the module this Response was generated on.
@@ -51,19 +51,19 @@ public class ApplicationListResponse extends Response {
 	 *            the UUID of the module sending this.
 	 * @param applicationBlocks
 	 *            the UUIDs of the running applications mapped to the Blocks they execute.
-	 * @param uuidToBlockType
-	 *            A Map from block UUIDs running on the specified module to their type.
+	 * @param blockIDToBlockType
+	 *            A Map from BlockIDs of blocks running on the specified module to their type.
 	 */
 	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames,
 			Map<UUID, Collection<UUID>> applicationBlocks, final Map<UUID, String> uuidToBlockType,
-			final Map<UUID, String> uuidToBlockName) {
+			final Map<BlockID, String> blockIDToBlockName) {
 		this.moduleUUID = moduleUUID;
 		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
 		this.uuidToBlockType = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlockType));
-		this.uuidToBlockName = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlockName));
+		this.blockIDToBlockName = Collections.unmodifiableMap(new HashMap<BlockID, String>(blockIDToBlockName));
 		
 		System.out.println("Namen in uuidToBlockName in ApplistResp");
-		for (String text : uuidToBlockName.values()){
+		for (String text : blockIDToBlockName.values()){
 			System.out.println(text);
 		}
 		
@@ -86,7 +86,7 @@ public class ApplicationListResponse extends Response {
 		this.applicationNames = null;
 		this.applicationBlocks = null;
 		this.uuidToBlockType = null;
-		this.uuidToBlockName = null;
+		this.blockIDToBlockName = null;
 	}
 
 	/**
@@ -117,12 +117,12 @@ public class ApplicationListResponse extends Response {
 	}
 	
 	/**
-	 * Returns a Map from all UUIDs of function blocks running on this module to their names.
+	 * Returns a Map from all BlockIDs of function blocks running on this module to their names.
 	 * 
-	 * @return Map from block UUID to their name.
+	 * @return Map from block BlockID to the name of the block.
 	 */
-	public Map<UUID, String> getBlockNames(){
-		return this.uuidToBlockName;
+	public Map<BlockID, String> getBlockNames(){
+		return this.blockIDToBlockName;
 	}
 
 	/**

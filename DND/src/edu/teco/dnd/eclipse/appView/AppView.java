@@ -349,14 +349,14 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 				if (uuidToModule.containsKey(moduleID)) {
 					moduleText = uuidToModule.get(moduleID).getName().concat(" : " + moduleText);
 				}
-				for (UUID block : modToBlocks.get(moduleID)) {
+				for (UUID blockUUID : modToBlocks.get(moduleID)) {
 					TableItem item = new TableItem(blockTable, SWT.NONE);
 					item.setText(
 							BLOCK_INDEX,
-							selectedApp.getBlockName(block) == null ? block.toString() : selectedApp
-									.getBlockName(block));
+							selectedApp.getBlockName(blockUUID) == null ? blockUUID.toString() : selectedApp
+									.getBlockName(blockUUID));
 					item.setText(TYPE_INDEX,
-							selectedApp.getBlockType(block) == null ? "" : selectedApp.getBlockType(block));
+							selectedApp.getBlockType(blockUUID) == null ? "" : selectedApp.getBlockType(blockUUID));
 					item.setText(BLOCK_INFO_INDEX, moduleText);
 					blockTableItemToModule.put(item, moduleID);
 				}

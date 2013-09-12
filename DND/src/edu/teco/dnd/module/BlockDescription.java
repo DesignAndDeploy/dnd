@@ -1,7 +1,5 @@
 package edu.teco.dnd.module;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +30,7 @@ public class BlockDescription {
 	 * @param blockUUID
 	 *            UUID this block will receive.
 	 * @param options
-	 *            options that should be set on ths block.
+	 *            options that should be set on this block.
 	 * @param outputs
 	 *            the outputs this block sends values from.
 	 * @param blockTypeHolderId
