@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
+import edu.teco.dnd.module.BlockID;
 
 public class ApplicationInformation {
 	private final UUID appId;
@@ -40,10 +40,10 @@ public class ApplicationInformation {
 		blockToType.put(blockID, blockType);
 	}
 
-	public void addUUIDBlockNamePair(UUID blockID, String blockName){
-		blockToName.put(blockID, blockName);
+	public void addBlockIDNamePair(UUID blockUUID, String blockName) {
+		blockToName.put(blockUUID, blockName);
 	}
-	
+
 	public void addAllBlockModulePairs(Map<UUID/* blockID */, UUID/* moduleId */> blockModuleMapping) {
 		for (Map.Entry<UUID, UUID> entr : blockModuleMapping.entrySet()) {
 			addBlockModulePair(entr.getKey(), entr.getValue());
@@ -67,16 +67,17 @@ public class ApplicationInformation {
 	public String getBlockType(final UUID blockUUID) {
 		return blockToType.get(blockUUID);
 	}
-	
+
 	/**
-	 * Returns the name of a FunctionBlock.
+	 * Returns the name the function block with the given UUID has within this application.
 	 * 
 	 * @param blockUUID
-	 *            UUID of the function block.
-	 * @return name of the function block.
+	 *            UUID of the function block. Although there may be several blocks with the same UUID on the modules,
+	 *            within one application the UUID of a function block is unique.
+	 * @return the Name the function block has in this application.
 	 */
-	public String getBlockName(final UUID blockUUID){
-		return blockToName.get(blockUUID);
+	public String getBlockName(final UUID blockUUID) {
+		return blockToName.get(new BlockID(blockUUID, this.appId));
 	}
 
 	/**
