@@ -85,6 +85,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	private boolean newConstraints;
 
+	private boolean widgetsInitialized = false;
 	private int selectedIndex; // Index of selected field of moduleCombo
 								// = index in idList + 1
 	private UUID selectedID;
@@ -125,6 +126,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		graphicsManager.initializeWidgets(this);
 
 		loadBlockModels(getEditorInput());
+		widgetsInitialized = true;
 		LOGGER.exit();
 	}
 
@@ -373,6 +375,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		selectedIndex = graphicsManager.getModuleComboIndex();
 	}
 
+	/**
+	 * Invoked whenever the saveConstraints button is selected or "Enter" is pressed while the focus is set to one of
+	 * the constraint text fields.
+	 */
 	protected void saveConstraints() {
 		String location = graphicsManager.getPlacesText();
 
@@ -611,7 +617,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				addID(id);
+				if (widgetsInitialized) {
+					addID(id);
+				}
 			}
 		});
 		LOGGER.exit();
@@ -623,7 +631,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				removeID(id);
+				if (widgetsInitialized) {
+					removeID(id);
+				}
 			}
 		});
 		LOGGER.exit();
@@ -635,24 +645,26 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (!idList.contains(id)) {
-					LOGGER.entry(id);
-					LOGGER.trace("id {} is new, adding", id);
-					idList.add(id);
-					LOGGER.exit();
-				}
+				if (widgetsInitialized) {
+					if (!idList.contains(id)) {
+						LOGGER.entry(id);
+						LOGGER.trace("id {} is new, adding", id);
+						idList.add(id);
+						LOGGER.exit();
+					}
 
-				int comboIndex = idList.indexOf(id) + 1;
-				String text = "";
-				if (module.getName() != null) {
-					text = module.getName();
-				}
-				text = text.concat(" : ");
-				text = text.concat(id.toString());
-				graphicsManager.setItemToModuleCombo(comboIndex, text);
-				if (moduleConstraints.containsValue(id)) {
-					for (FunctionBlockModel blockModel : moduleConstraints.keySet()) {
-						graphicsManager.moduleRenamed(blockModel, text);
+					int comboIndex = idList.indexOf(id) + 1;
+					String text = "";
+					if (module.getName() != null) {
+						text = module.getName();
+					}
+					text = text.concat(" : ");
+					text = text.concat(id.toString());
+					graphicsManager.setItemToModuleCombo(comboIndex, text);
+					if (moduleConstraints.containsValue(id)) {
+						for (FunctionBlockModel blockModel : moduleConstraints.keySet()) {
+							graphicsManager.moduleRenamed(blockModel, text);
+						}
 					}
 				}
 			}
@@ -664,15 +676,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				graphicsManager.serverOnline();
+				if (widgetsInitialized){
+					graphicsManager.serverOnline();
 
-				synchronized (DeployView.this) {
-					while (!idList.isEmpty()) {
-						removeID(idList.get(0)); // TODO: Unschön, aber geht
-													// hoffentlich?
-					}
-					for (UUID moduleID : modules.keySet()) {
-						addID(moduleID);
+					synchronized (DeployView.this) {
+						while (!idList.isEmpty()) {
+							removeID(idList.get(0)); // TODO: Unschön, aber geht
+														// hoffentlich?
+						}
+						for (UUID moduleID : modules.keySet()) {
+							addID(moduleID);
+						}
 					}
 				}
 			}
@@ -684,12 +698,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				graphicsManager.serverOffline();
-				resetDeployment();
-				synchronized (DeployView.this) {
-					while (!idList.isEmpty()) {
-						removeID(idList.get(0)); // TODO: Unschön, aber geht
-													// hoffentlich?
+				if (widgetsInitialized){
+					graphicsManager.serverOffline();
+					resetDeployment();
+					synchronized (DeployView.this) {
+						while (!idList.isEmpty()) {
+							removeID(idList.get(0)); // TODO: Unschön, aber geht
+														// hoffentlich?
+						}
 					}
 				}
 			}
