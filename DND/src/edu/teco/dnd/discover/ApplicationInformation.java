@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.teco.dnd.module.messages.infoReq.BlockID;
-
 public class ApplicationInformation {
 	private final UUID appId;
 	private final String name;
