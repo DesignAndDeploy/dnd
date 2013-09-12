@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -97,7 +96,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	@Override
 	public void setFocus() {
-
 	}
 
 	@Override
@@ -176,7 +174,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				resetSelectedBlock();
 			} else {
 				selectedBlockModel = newIDs.get(selectedBlockModel.getID());
-				graphicsManager.updateBlockSelection(selectedBlockModel.getPosition(), selectedBlockModel.getBlockName(), -1);
+				graphicsManager.updateBlockSelection(selectedBlockModel.getPosition(),
+						selectedBlockModel.getBlockName(), -1);
 			}
 		}
 
@@ -226,7 +225,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		UUID module = moduleConstraints.get(oldBlock);
 		moduleConstraints.remove(oldBlock);
 		placeConstraints.remove(oldBlock);
-
 
 		if (module != null) {
 			moduleConstraints.put(newBlock, module);
@@ -356,16 +354,16 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		graphicsManager.blockSelected(!idList.isEmpty());
 
 		selectedBlockModel = graphicsManager.getSelectedBlock();
-		
+
 		String position = null;
-		
+
 		if (placeConstraints.containsKey(selectedBlockModel)) {
 			position = placeConstraints.get(selectedBlockModel);
 		}
 		selectedIndex = idList.indexOf(moduleConstraints.get(selectedBlockModel)) + 1;
-		
+
 		graphicsManager.updateBlockSelection(position, selectedBlockModel.getBlockName(), selectedIndex);
-		
+
 	}
 
 	/**
