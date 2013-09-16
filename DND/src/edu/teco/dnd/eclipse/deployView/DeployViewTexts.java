@@ -55,6 +55,8 @@ public class DeployViewTexts {
 	public static final String NEWCONSTRAINTS =
 			"You changed some constraints on your function blocks after the current deployment was created. Keep in mind that this deployment might not fullfill your constraints anymore.\n\n Press OK to deploy anyway. Close this window to abort.";
 
+	public static final String CONSTRAINTS_BLOCK_REMOVED = "The block you want to constrain has been removed from the graphiti diagram.";
+	
 	public static final String CONSTRAINTS_TOOLTIP =
 			"Constrain on which module and / or place your function block should run.";
 

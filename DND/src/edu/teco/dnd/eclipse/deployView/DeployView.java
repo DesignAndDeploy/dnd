@@ -148,6 +148,52 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 */
 	protected void updateBlocks() {
 		LOGGER.entry();
+		updateBlockList();
+		if (selectedBlockModel != null) {
+			for (FunctionBlockModel newModel : functionBlocks) {
+				if (newModel.getID().equals(selectedBlockModel.getID())) {
+					selectedBlockModel = newModel;
+					graphicsManager.updateBlockSelection(selectedBlockModel.getPosition(),
+							selectedBlockModel.getBlockName(), -1);
+					graphicsManager.addNewInfoText("Block update complete.");
+					LOGGER.exit();
+					return;
+				}
+			}
+			resetSelectedBlock();
+		}
+		graphicsManager.addNewInfoText("Block update complete.");
+		LOGGER.exit();
+	}
+
+	/**
+	 * To be invoked before constraints are saved. This method does basically the same things like updateBlocks(), but
+	 * doesn't change the text fields for name, place and module to be assigned to a block. Therefore, whatever the user
+	 * entered in these fields will still be available after the update and not be changed to the name and position the
+	 * block has within the graphiti diagram, so the constraints can still be saved for the selected block.
+	 */
+	private void updateBlocksForConstraints() {
+		LOGGER.entry();
+		updateBlockList();
+		if (selectedBlockModel != null) {
+			for (FunctionBlockModel newModel : functionBlocks) {
+				if (newModel.getID().equals(selectedBlockModel.getID())) {
+					selectedBlockModel = newModel;
+					LOGGER.exit();
+					return;
+				}
+			}
+			resetSelectedBlock();
+		}
+		LOGGER.exit();
+	}
+
+	/**
+	 * Updates the Blocks of DeployView.
+	 * 
+	 * @return Map from UUID of new Blocks to the Model.
+	 */
+	private void updateBlockList() {
 		Collection<FunctionBlockModel> newBlockModels = new ArrayList<FunctionBlockModel>();
 		Map<UUID, FunctionBlockModel> newIDs = new HashMap<UUID, FunctionBlockModel>();
 		Map<UUID, FunctionBlockModel> oldIDs = new HashMap<UUID, FunctionBlockModel>();
@@ -171,16 +217,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 		resetDeployment();
 
-		if (selectedBlockModel != null) {
-			if (!newIDs.keySet().contains(selectedBlockModel.getID())) {
-				resetSelectedBlock();
-			} else {
-				selectedBlockModel = newIDs.get(selectedBlockModel.getID());
-				graphicsManager.updateBlockSelection(selectedBlockModel.getPosition(),
-						selectedBlockModel.getBlockName(), -1);
-			}
-		}
-
 		for (FunctionBlockModel oldModel : functionBlocks) {
 			if (newIDs.containsKey(oldModel.getID())) {
 				FunctionBlockModel newModel = newIDs.get(oldModel.getID());
@@ -196,8 +232,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			}
 		}
 		functionBlocks = newBlockModels;
-		graphicsManager.addNewInfoText("Block update complete.");
-		LOGGER.exit();
 	}
 
 	/**
@@ -380,6 +414,12 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 * the constraint text fields.
 	 */
 	protected void saveConstraints() {
+		updateBlocksForConstraints();
+		if (selectedBlockModel == null) {
+			warn(DeployViewTexts.CONSTRAINTS_BLOCK_REMOVED);
+			return;
+		}
+
 		String location = graphicsManager.getPlacesText();
 
 		if (selectedIndex > 0) {
@@ -418,12 +458,12 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 		try {
 			resource.save(Collections.EMPTY_MAP);
-			resource.setModified(true);
+			resource.setModified(true); // not sure if this does sth.
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		firePropertyChange(IEditorPart.PROP_DIRTY);
+		firePropertyChange(IEditorPart.PROP_DIRTY); // not sure if this does sth.
 
 		graphicsManager.addNewInfoText("Constrains saved.");
 
@@ -676,7 +716,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (widgetsInitialized){
+				if (widgetsInitialized) {
 					graphicsManager.serverOnline();
 
 					synchronized (DeployView.this) {
@@ -698,7 +738,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (widgetsInitialized){
+				if (widgetsInitialized) {
 					graphicsManager.serverOffline();
 					resetDeployment();
 					synchronized (DeployView.this) {
