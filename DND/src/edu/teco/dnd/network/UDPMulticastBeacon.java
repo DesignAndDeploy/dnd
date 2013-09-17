@@ -382,7 +382,6 @@ public class UDPMulticastBeacon {
 	 * Sends a beacon. This will be automatically called at a fixed interval.
 	 */
 	public void sendBeacon() {
-		System.out.println("Sending beacon...");
 		final BeaconMessage msg = beacon.get();
 		channelLock.readLock().lock();
 		try {
