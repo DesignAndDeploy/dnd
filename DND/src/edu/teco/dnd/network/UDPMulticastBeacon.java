@@ -42,6 +42,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.eclipse.prefs.PreferencesNetwork;
 import edu.teco.dnd.network.codecs.DatagramPacketWrapper;
 import edu.teco.dnd.network.codecs.GsonCodec;
 import edu.teco.dnd.network.codecs.MessageAdapter;
@@ -172,7 +174,8 @@ public class UDPMulticastBeacon {
 	}
 
 	/**
-	 * Creates a new UDPMulticastBeacon. Beacons will be send at intervals defined by {@link #DEFAULT_INTERVAL} and
+	 * Creates a new UDPMulticastBeacon. Beacons will be send at intervals defined by the value set in the network
+	 * Preferences, the default interval is {@link #DEFAULT_INTERVAL}. The time unit is given by and
 	 * {@link #DEFAULT_INTERVAL_UNIT}.
 	 * 
 	 * @param factory
@@ -186,7 +189,8 @@ public class UDPMulticastBeacon {
 	 */
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
 			final EventExecutorGroup executor, final UUID uuid) {
-		this(factory, group, executor, uuid, DEFAULT_INTERVAL, DEFAULT_INTERVAL_UNIT);
+		this(factory, group, executor, uuid, Activator.getDefault().getPreferenceStore()
+				.getInt(PreferencesNetwork.BEACON_INTERVAL), DEFAULT_INTERVAL_UNIT);
 	}
 
 	/**
@@ -378,6 +382,7 @@ public class UDPMulticastBeacon {
 	 * Sends a beacon. This will be automatically called at a fixed interval.
 	 */
 	public void sendBeacon() {
+		System.out.println("Sending beacon...");
 		final BeaconMessage msg = beacon.get();
 		channelLock.readLock().lock();
 		try {

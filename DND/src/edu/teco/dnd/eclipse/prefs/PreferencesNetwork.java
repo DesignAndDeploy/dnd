@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -14,15 +15,22 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 
 /**
  * This class manages the network preferences for the DND eclipse plugin.
  */
 public class PreferencesNetwork extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+	/**
+	 * String defining the name of the preference that stores the beacon interval in seconds.
+	 */
+	public static final String BEACON_INTERVAL = "beaconInterval";
+
 	PrefList addrAndPorts;
 	PrefList multi;
 	PrefList announce;
+	int beaconInterval;
 
 	public PreferencesNetwork() {
 		super(GRID);
@@ -39,6 +47,7 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		multi = initMulticast(parent);
 		announce = initMultiContent(parent);
 
+		addField(initBeaconInterval(parent));
 		addField(addrAndPorts);
 		addField(multi);
 		addField(announce);
@@ -153,6 +162,13 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		prefList.setPreferenceStore(getPreferenceStore());
 
 		return prefList;
+	}
+
+	private IntegerFieldEditor initBeaconInterval(Composite parent) {
+		IntegerFieldEditor editor = new IntegerFieldEditor(BEACON_INTERVAL, "Beacon Interval", parent);
+		editor.setPreferenceStore(getPreferenceStore());
+		getPreferenceStore().setDefault(BEACON_INTERVAL, UDPMulticastBeacon.DEFAULT_INTERVAL);
+		return editor;
 	}
 
 }
