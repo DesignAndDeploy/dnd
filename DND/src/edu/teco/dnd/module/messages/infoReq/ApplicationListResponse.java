@@ -60,12 +60,6 @@ public class ApplicationListResponse extends Response {
 		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
 		this.uuidToBlockType = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlockType));
 		this.blockIDToBlockName = Collections.unmodifiableMap(new HashMap<BlockID, String>(blockIDToBlockName));
-		
-		System.out.println("Namen in uuidToBlockName in ApplistResp");
-		for (String text : blockIDToBlockName.values()){
-			System.out.println(text);
-		}
-		
 		Map<UUID, Collection<UUID>> blocks = new HashMap<UUID, Collection<UUID>>();
 		for (final Entry<UUID, Collection<UUID>> entry : applicationBlocks.entrySet()) {
 			blocks.put(entry.getKey(), Collections.unmodifiableList(new ArrayList<UUID>(entry.getValue())));

@@ -193,9 +193,6 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 			LOGGER.exit(null);
 			return null;
 		}
-		if (type.equals("application list")){
-			System.out.println("jetzt " + type + json.toString());
-		}
 		final Message message = context.deserialize(json, cls);
 		LOGGER.exit(message);
 		return message;
@@ -207,10 +204,6 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 		typeLock.readLock().lock();
 		final String type = clss.get(src.getClass());
 		typeLock.readLock().unlock();
-		
-		System.out.println("Message: " + type + " Inhalt: " + src.toString());
-		System.out.println("Context: " + context.toString());
-		
 		if (type == null) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("{} has class {} which was not registered", src, src.getClass());
@@ -223,9 +216,6 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 			LOGGER.warn("got {} for {}, which is not a JsonObject", element, src);
 			LOGGER.exit(null);
 			return null;
-		}
-		if (type.equals("application list")){
-			System.out.println("JSon created: " + element.toString());
 		}
 		final JsonObject object = (JsonObject) element;
 		object.addProperty(typeFieldName, type);
