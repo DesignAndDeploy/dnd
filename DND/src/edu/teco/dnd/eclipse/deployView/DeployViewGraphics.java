@@ -334,6 +334,7 @@ public class DeployViewGraphics {
 	}
 
 	protected void setItemToModuleCombo(final int index, final String text) {
+		System.out.println("Text: " + text + " Index: " + index);
 		moduleCombo.setItem(index, text);
 	}
 
