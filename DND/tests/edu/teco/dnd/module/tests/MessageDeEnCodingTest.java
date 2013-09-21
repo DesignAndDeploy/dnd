@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
+import edu.teco.dnd.module.BlockDescription;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
@@ -111,13 +113,18 @@ public class MessageDeEnCodingTest implements Serializable {
 
 		Map<UUID, String> modIds = new TreeMap<UUID, String>();
 		Map<UUID, Collection<UUID>> appBlocksRunning = new TreeMap<UUID, Collection<UUID>>();
+		Map<UUID, String> uuidToBlockType = new HashMap<UUID, String>();
+		Map<String, String> uBlockIDToBlockName = new HashMap<String, String>();
 		Set<UUID> blockMap = new TreeSet<UUID>();
 		blockMap.add(TEST_FUNBLOCK_UUID);
 		appBlocksRunning.put(TEST_APP_UUID, blockMap);
+		uuidToBlockType.put(TEST_FUNBLOCK_UUID, "testOperator");
+		uBlockIDToBlockName.put(BlockDescription.getUniqueBlockID(TEST_APP_UUID, TEST_FUNBLOCK_UUID), "block1Name");
 
 		modIds.put(TEST_APP_UUID, "APP_1");
 		MSG_ADAPTER.addMessageType(ApplicationListResponse.class);
-		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds, appBlocksRunning));
+		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds, appBlocksRunning, uuidToBlockType,
+				uBlockIDToBlockName));
 	}
 
 	@Test
@@ -245,7 +252,8 @@ public class MessageDeEnCodingTest implements Serializable {
 		outputs.put("Outp_key", valueDest);
 
 		MSG_ADAPTER.addMessageType(BlockMessage.class);
-		testEnDeCoding(new BlockMessage(TEST_APP_UUID, "BeamerActor", TEST_FUNBLOCK_UUID, options, outputs, 3));
+		testEnDeCoding(new BlockMessage(TEST_APP_UUID, "BeamerActor", "Block2Name", TEST_FUNBLOCK_UUID, options,
+				outputs, 3));
 	}
 
 	@Test
@@ -341,7 +349,7 @@ public class MessageDeEnCodingTest implements Serializable {
 		try {
 			decodedMsg = (ValueMessage) GSON.fromJson(gsonHolder, Message.class);
 		} catch (Exception ex) {
-			LOGGER.fatal("{}\nDecoding Error.Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
+			LOGGER.fatal("{}\nDecoding Error. Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
 			throw new Error(ex);
 		}
 		boolean isEqual = true;
@@ -388,7 +396,7 @@ public class MessageDeEnCodingTest implements Serializable {
 		try {
 			decodedMsg = GSON.fromJson(gsonHolder, Message.class);
 		} catch (Exception ex) {
-			LOGGER.fatal("{}\nDecoding Error.Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
+			LOGGER.fatal("{}\nDecoding Error. Encoded Gson: \n\n{}\nFAIL: {}", msg, gsonHolder, msg.getClass());
 			throw new Error(ex);
 		}
 
