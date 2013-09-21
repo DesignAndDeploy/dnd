@@ -34,7 +34,7 @@ public class ApplicationListResponse extends Response {
 	/**
 	 * Maps the BlockID of a function block to its name.
 	 */
-	private final Map<BlockID, String> blockIDToBlockName;
+	private final Map<String/*uBlockId*/, String> uBlockIDToBlockName;
 
 	/**
 	 * The UUID of the module this Response was generated on.
@@ -55,11 +55,11 @@ public class ApplicationListResponse extends Response {
 	 */
 	public ApplicationListResponse(final UUID moduleUUID, final Map<UUID, String> applicationNames,
 			Map<UUID, Collection<UUID>> applicationBlocks, final Map<UUID, String> uuidToBlockType,
-			final Map<BlockID, String> blockIDToBlockName) {
+			final Map<String/*uBlockId*/, String> uBlockIDToBlockName) {
 		this.moduleUUID = moduleUUID;
 		this.applicationNames = Collections.unmodifiableMap(new HashMap<UUID, String>(applicationNames));
 		this.uuidToBlockType = Collections.unmodifiableMap(new HashMap<UUID, String>(uuidToBlockType));
-		this.blockIDToBlockName = Collections.unmodifiableMap(new HashMap<BlockID, String>(blockIDToBlockName));
+		this.uBlockIDToBlockName = Collections.unmodifiableMap(new HashMap<String, String>(uBlockIDToBlockName));
 		Map<UUID, Collection<UUID>> blocks = new HashMap<UUID, Collection<UUID>>();
 		for (final Entry<UUID, Collection<UUID>> entry : applicationBlocks.entrySet()) {
 			blocks.put(entry.getKey(), Collections.unmodifiableList(new ArrayList<UUID>(entry.getValue())));
@@ -79,7 +79,7 @@ public class ApplicationListResponse extends Response {
 		this.applicationNames = null;
 		this.applicationBlocks = null;
 		this.uuidToBlockType = null;
-		this.blockIDToBlockName = null;
+		this.uBlockIDToBlockName = null;
 	}
 
 	/**
@@ -112,10 +112,10 @@ public class ApplicationListResponse extends Response {
 	/**
 	 * Returns a Map from all BlockIDs of function blocks running on this module to their names.
 	 * 
-	 * @return Map from block BlockID to the name of the block.
+	 * @return Map from block uBlockID to the name of the block.
 	 */
-	public Map<BlockID, String> getBlockNames(){
-		return this.blockIDToBlockName;
+	public Map<String, String> getBlockNames(){
+		return this.uBlockIDToBlockName;
 	}
 
 	/**

@@ -26,8 +26,6 @@ import edu.teco.dnd.module.messages.generalModule.MissingApplicationHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
-import edu.teco.dnd.module.messages.infoReq.BlockID;
-import edu.teco.dnd.module.messages.infoReq.BlockIDAdapter;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
@@ -229,7 +227,6 @@ public final class ModuleMain {
 		tcpConnMan.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		tcpConnMan.registerTypeAdapter(byte[].class, new Base64Adapter());
 		tcpConnMan.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
-		tcpConnMan.registerTypeAdapter(BlockID.class, new BlockIDAdapter());
 
 		tcpConnMan.addMessageType(JoinApplicationMessage.class);
 		tcpConnMan.addMessageType(JoinApplicationAck.class);
