@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
-import edu.teco.dnd.module.BlockDescription;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
@@ -33,6 +32,7 @@ import edu.teco.dnd.module.messages.generalModule.ShutdownModuleAck;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleNak;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
+import edu.teco.dnd.module.messages.infoReq.BlockID;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
@@ -99,6 +99,7 @@ public class MessageDeEnCodingTest implements Serializable {
 
 		GsonBuilder builder = new GsonBuilder();
 		builder.setPrettyPrinting();
+		builder.enableComplexMapKeySerialization();
 		builder.registerTypeAdapter(Message.class, MSG_ADAPTER);
 		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
 		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
@@ -114,17 +115,17 @@ public class MessageDeEnCodingTest implements Serializable {
 		Map<UUID, String> modIds = new TreeMap<UUID, String>();
 		Map<UUID, Collection<UUID>> appBlocksRunning = new TreeMap<UUID, Collection<UUID>>();
 		Map<UUID, String> uuidToBlockType = new HashMap<UUID, String>();
-		Map<String, String> uBlockIDToBlockName = new HashMap<String, String>();
+		Map<BlockID, String> blockIDToBlockName = new HashMap<BlockID, String>();
 		Set<UUID> blockMap = new TreeSet<UUID>();
 		blockMap.add(TEST_FUNBLOCK_UUID);
 		appBlocksRunning.put(TEST_APP_UUID, blockMap);
 		uuidToBlockType.put(TEST_FUNBLOCK_UUID, "testOperator");
-		uBlockIDToBlockName.put(BlockDescription.getUniqueBlockID(TEST_APP_UUID, TEST_FUNBLOCK_UUID), "block1Name");
+		blockIDToBlockName.put(new BlockID(TEST_FUNBLOCK_UUID, TEST_APP_UUID), "block1Name");
 
 		modIds.put(TEST_APP_UUID, "APP_1");
 		MSG_ADAPTER.addMessageType(ApplicationListResponse.class);
 		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds, appBlocksRunning, uuidToBlockType,
-				uBlockIDToBlockName));
+				blockIDToBlockName));
 	}
 
 	@Test
