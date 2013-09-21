@@ -36,39 +36,19 @@ public class BlockDescription {
 	 * @param blockTypeHolderId
 	 *            ID of the assigned BlockTypeHolder, aka where to decrease the allowed blocks count.
 	 */
-	public BlockDescription(final String blockClassName, final String blockName, final UUID blockUUID,
-			final Map<String, String> options, final Map<String, Set<ValueDestination>> outputs,
-			final int blockTypeHolderId) {
+	public BlockDescription(final String blockClassName, final String blockName, final UUID blockUUID, final Map<String, String> options,
+			final Map<String, Set<ValueDestination>> outputs, final int blockTypeHolderId) {
 		this.blockClassName = blockClassName;
 		this.blockName = blockName;
 		this.blockUUID = blockUUID;
 		this.options = Collections.unmodifiableMap(new HashMap<String, String>(options));
-		final Map<String, Set<ValueDestination>> modifiableOutputs = new HashMap<String, Set<ValueDestination>>();
+		final Map<String, Set<ValueDestination>> modifiableOutputs =
+				new HashMap<String, Set<ValueDestination>>();
 		for (final Entry<String, Set<ValueDestination>> entry : outputs.entrySet()) {
 			modifiableOutputs.put(entry.getKey(),
 					Collections.unmodifiableSet(new HashSet<ValueDestination>(entry.getValue())));
 		}
 		this.outputs = Collections.unmodifiableMap(modifiableOutputs);
 		this.blockTypeHolderId = blockTypeHolderId;
-	}
-
-	/**
-	 * as blocks are not uniquely identified by their blockId, a combination of appId and blockId is needed.
-	 * 
-	 * @param appId
-	 *            appId the block belongs to.
-	 * @param blockId
-	 *            the id of the block
-	 * @return a unique identifier for a block calculated from it's appId and blockId.
-	 */
-	public static String getUniqueBlockID(UUID appId, UUID blockId) {
-		// FIXME: put function where it belongs, this seems to be the wrong place.
-		/*
-		 * Note: We can not have nonString Keys in Maps we transmit (except with a nasty MapAsArrayTypeAdapter provided
-		 * by google, making the Json very ugly). As thus we use this string, which should be unique enough and avoids
-		 * the need for an object as key.
-		 */
-		return "APPID:" + appId + "+++BLOCKID:" + blockId;
-
 	}
 }

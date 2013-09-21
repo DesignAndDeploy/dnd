@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.teco.dnd.module.Application;
-import edu.teco.dnd.module.BlockDescription;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
@@ -39,19 +38,17 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 			final RequestApplicationListMessage message) {
 		final Map<UUID, String> applicationNames = new HashMap<UUID, String>();
 		final Map<UUID, String> uuidToBlockType = new HashMap<UUID, String>();
-		final Map<String/* uBlockId */, String> uBlockIDToBlockName = new HashMap<String, String>();
+		final Map<BlockID, String> blockIDToBlockName = new HashMap<BlockID, String>();
 		final Map<UUID, Collection<UUID>> applicationBlocks = new HashMap<UUID, Collection<UUID>>();
 
 		for (final Application application : applicationManager.getRunningApps().values()) {
-			for (UUID id : application.getFuncBlockById().keySet()) {
+			for (UUID id : application.getFuncBlockById().keySet()){
 				uuidToBlockType.put(id, application.getFuncBlockById().get(id).getBlockType());
-				uBlockIDToBlockName.put(BlockDescription.getUniqueBlockID(application.getOwnAppId(), id), application
-						.getFuncBlockById().get(id).getBlockName());
+				blockIDToBlockName.put(new BlockID(id, application.getOwnAppId()), application.getFuncBlockById().get(id).getBlockName());
 			}
 			applicationNames.put(application.getOwnAppId(), application.getName());
 			applicationBlocks.put(application.getOwnAppId(), application.getFuncBlockById().keySet());
 		}
-		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks, uuidToBlockType,
-				uBlockIDToBlockName);
+		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks, uuidToBlockType, blockIDToBlockName);
 	}
 }
