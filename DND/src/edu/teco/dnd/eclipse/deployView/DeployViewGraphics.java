@@ -516,6 +516,7 @@ public class DeployViewGraphics {
 			item.setText(DIST_MODULE, "");
 			item.setText(DIST_LOCATION, "");
 		}
+		deployButton.setEnabled(false);
 	}
 
 	protected void moduleRenamed(final FunctionBlockModel model, final String text) {

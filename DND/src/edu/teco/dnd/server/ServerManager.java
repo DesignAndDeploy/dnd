@@ -31,6 +31,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.eclipse.prefs.PreferencesNetwork;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;
@@ -153,6 +155,11 @@ public class ServerManager {
 			ModuleMain.globalRegisterMessageAdapterType(connectionManager);
 			this.connectionManager = connectionManager;
 
+			int interval = Activator.getDefault().getPreferenceStore().getInt(PreferencesNetwork.BEACON_INTERVAL);
+			System.out.println("Int: " + interval);
+			interval = Activator.getDefault().getPreferenceStore().getDefaultInt(PreferencesNetwork.BEACON_INTERVAL);
+			System.out.println("Default im Prefstore: " + interval);
+			
 			beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
 				@Override
 				public OioDatagramChannel newChannel() {

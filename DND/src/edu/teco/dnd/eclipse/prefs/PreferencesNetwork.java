@@ -164,10 +164,11 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		return prefList;
 	}
 
-	private IntegerFieldEditor initBeaconInterval(Composite parent) {
-		IntegerFieldEditor editor = new IntegerFieldEditor(BEACON_INTERVAL, "Beacon Interval", parent);
+	private IntervalEditor initBeaconInterval(Composite parent) {
+		IntervalEditor editor = new IntervalEditor(BEACON_INTERVAL, "Beacon Interval", parent);
 		editor.setPreferenceStore(getPreferenceStore());
 		getPreferenceStore().setDefault(BEACON_INTERVAL, UDPMulticastBeacon.DEFAULT_INTERVAL);
+		System.out.println("Im Prefstore: " + getPreferenceStore().getInt(BEACON_INTERVAL));
 		return editor;
 	}
 
