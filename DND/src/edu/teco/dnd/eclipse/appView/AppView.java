@@ -241,6 +241,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 				}
 			}
 			selectedApp = null;
+			selectedModule = null;
 		}
 	}
 
@@ -294,7 +295,6 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 		}
 
 		if (selectedModule != null) {
-			System.out.println("Selected Module nciht null");
 			appTable.setSelection(uuidToItem.get(selectedModule.getUUID()));
 			moduleSelected();
 		}
