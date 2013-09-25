@@ -28,7 +28,7 @@ public class LightSensorBlock extends FunctionBlock {
 	/**
 	 * Time between updates.
 	 */
-	public static final long BLOCK_UPDATE_INTERVAL = 1000L;
+	public static final Long BLOCK_UPDATE_INTERVAL = 1000L;
 
 	/**
 	 * URL of the UPart. Default is already set; doesn't contain ID.
