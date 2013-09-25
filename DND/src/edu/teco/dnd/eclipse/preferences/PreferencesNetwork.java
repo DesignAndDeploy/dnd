@@ -1,11 +1,10 @@
-package edu.teco.dnd.eclipse.prefs;
+package edu.teco.dnd.eclipse.preferences;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;

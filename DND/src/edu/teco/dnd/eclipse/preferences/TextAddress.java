@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.prefs;
+package edu.teco.dnd.eclipse.preferences;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

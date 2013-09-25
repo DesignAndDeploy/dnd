@@ -33,7 +33,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.eclipse.Activator;
-import edu.teco.dnd.eclipse.prefs.PreferencesNetwork;
+import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.TCPConnectionManager;

@@ -10,7 +10,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import edu.teco.dnd.eclipse.prefs.PreferencesNetwork;
+import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;

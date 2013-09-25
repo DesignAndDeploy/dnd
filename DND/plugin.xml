@@ -48,11 +48,11 @@
    </extension>
    <extension point="org.eclipse.ui.preferencePages">
       <page
-            class="edu.teco.dnd.eclipse.prefs.Preferences"
+            class="edu.teco.dnd.eclipse.preferences.Preferences"
             id="DND preferences"
             name="DND"/>
       <page
-            class="edu.teco.dnd.eclipse.prefs.PreferencesNetwork"
+            class="edu.teco.dnd.eclipse.preferences.PreferencesNetwork"
             id="DND network preferences"
             name="Network"
             category="DND preferences"/>

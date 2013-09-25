@@ -43,7 +43,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.eclipse.Activator;
-import edu.teco.dnd.eclipse.prefs.PreferencesNetwork;
+import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
 import edu.teco.dnd.network.codecs.DatagramPacketWrapper;
 import edu.teco.dnd.network.codecs.GsonCodec;
 import edu.teco.dnd.network.codecs.MessageAdapter;

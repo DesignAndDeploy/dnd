@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.prefs;
+package edu.teco.dnd.eclipse.preferences;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;

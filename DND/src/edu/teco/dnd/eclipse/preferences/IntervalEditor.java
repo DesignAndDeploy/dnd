@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.prefs;
+package edu.teco.dnd.eclipse.preferences;
 
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
