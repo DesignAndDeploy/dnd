@@ -137,7 +137,7 @@ public class DeployViewGraphics {
 
 	private Label createAppNameLabel() {
 		appNameLabel = new Label(parent, SWT.NONE);
-		appNameLabel.setText("Loading application...");
+		appNameLabel.setText(Messages.DEPLOYGRAPHICS_LOADING_APPLICATION);
 		appNameLabel.pack();
 		return appNameLabel;
 	}
@@ -165,18 +165,18 @@ public class DeployViewGraphics {
 		deploymentTable.setLayoutData(data);
 
 		TableColumn column0 = new TableColumn(deploymentTable, SWT.None);
-		column0.setText("Function Block");
+		column0.setText(Messages.DEPLOYGRAPHICS_FUNCTIONBLOCK);
 		TableColumn column1 = new TableColumn(deploymentTable, SWT.NONE);
-		column1.setText("Module");
+		column1.setText(Messages.DEPLOYGRAPHICS_MODULE);
 		column1.setToolTipText(Messages.DEPLOY_COLUMN1_TOOLTIP);
 		TableColumn column2 = new TableColumn(deploymentTable, SWT.NONE);
-		column2.setText("Place");
+		column2.setText(Messages.DEPLOYGRAPHICS_PLACE);
 		column2.setToolTipText(Messages.DEPLOY_COLUMN2_TOOLTIP);
 		TableColumn column3 = new TableColumn(deploymentTable, SWT.NONE);
-		column3.setText("Deployed on:");
+		column3.setText(Messages.DEPLOYGRAPHICS_DEPLOYED_ON);
 		column3.setToolTipText(Messages.DEPLOY_COLUMN3_TOOLTIP);
 		TableColumn column4 = new TableColumn(deploymentTable, SWT.NONE);
-		column4.setText("Deployed at:");
+		column4.setText(Messages.DEPLOYGRAPHICS_DEPLOYED_AT);
 		column4.setToolTipText(Messages.DEPLOY_COLUMN4_TOOLTIP);
 
 		deploymentTable.getColumn(BLOCKNAME).pack();
@@ -196,9 +196,9 @@ public class DeployViewGraphics {
 		serverButton = new Button(parent, SWT.NONE);
 		serverButton.setLayoutData(data);
 		if (ServerManager.getDefault().isRunning()) {
-			serverButton.setText("Stop server");
+			serverButton.setText(Messages.DEPLOYGRAPHICS_STOP_SERVER);
 		} else {
-			serverButton.setText("Start server");
+			serverButton.setText(Messages.DEPLOYGRAPHICS_START_SERVER);
 		}
 		return serverButton;
 
@@ -211,7 +211,7 @@ public class DeployViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		updateBlocksButton = new Button(parent, SWT.NONE);
 		updateBlocksButton.setLayoutData(data);
-		updateBlocksButton.setText("Update Blocks");
+		updateBlocksButton.setText(Messages.DEPLOYGRAPHICS_UPDATE_BLOCKS);
 		updateBlocksButton.setToolTipText(Messages.DEPLOY_UPDATEBLOCKS_TOOLTIP);
 		updateBlocksButton.pack();
 		return updateBlocksButton;
@@ -224,7 +224,7 @@ public class DeployViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		updateModulesButton = new Button(parent, SWT.NONE);
 		updateModulesButton.setLayoutData(data);
-		updateModulesButton.setText("Update Modules");
+		updateModulesButton.setText(Messages.DEPLOYGRAPHICS_UPDATE_MODULES);
 		updateModulesButton.setToolTipText(Messages.DEPLOY_UPDATEMODULES_TOOLTIP);
 		updateModulesButton.pack();
 		return updateModulesButton;
@@ -237,7 +237,7 @@ public class DeployViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		createButton = new Button(parent, SWT.NONE);
 		createButton.setLayoutData(data);
-		createButton.setText("Create Deployment");
+		createButton.setText(Messages.DEPLOYGRAPHICS_CREATE_DEPLOYMENT);
 		createButton.setToolTipText(Messages.DEPLOY_CREATEDISTRIBUTION_TOOLTIP);
 		return createButton;
 	}
@@ -250,7 +250,7 @@ public class DeployViewGraphics {
 		data.verticalAlignment = SWT.BEGINNING;
 		data.verticalSpan = 3;
 		deployButton = new Button(parent, SWT.NONE);
-		deployButton.setText("Deploy");
+		deployButton.setText(Messages.DEPLOYGRAPHICS_DEPLOYBUTTON_TEXT);
 		deployButton.setToolTipText(Messages.DEPLOY_DEPLOYDISTRIBUTION_TOOLTIP);
 		deployButton.setEnabled(false);
 		deployButton.setLayoutData(data);
@@ -263,7 +263,7 @@ public class DeployViewGraphics {
 		GridData data = new GridData();
 		data.horizontalSpan = 2;
 		blockModelSpecsLabel = new Label(parent, SWT.NONE);
-		blockModelSpecsLabel.setText("Block Specifications:");
+		blockModelSpecsLabel.setText(Messages.DEPLOYGRAPHICS_BLOCK_SPECS);
 		blockModelSpecsLabel.setToolTipText(Messages.DEPLOY_CONSTRAINTS_TOOLTIP);
 		blockModelSpecsLabel.setLayoutData(data);
 		blockModelSpecsLabel.pack();
@@ -272,7 +272,7 @@ public class DeployViewGraphics {
 
 	private Label createBlockNameLabel() {
 		blockNameLabel = new Label(parent, SWT.NONE);
-		blockNameLabel.setText("Name:");
+		blockNameLabel.setText(Messages.DEPLOYGRAPHICS_BLOCK_NAME);
 		blockNameLabel.pack();
 		return blockNameLabel;
 	}
@@ -282,7 +282,7 @@ public class DeployViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		blockNameText = new Text(parent, SWT.NONE);
 		blockNameText.setLayoutData(data);
-		blockNameText.setText("<select block on the left>");
+		blockNameText.setText(Messages.DEPLOYGRAPHICS_SELECT_BLOCK);
 		blockNameText.setToolTipText(Messages.DEPLOY_RENAMEBLOCK_TOOLTIP);
 		blockNameText.setEnabled(false);
 		blockNameText.pack();
@@ -298,7 +298,7 @@ public class DeployViewGraphics {
 
 	private Label createModuleLabel() {
 		moduleLabel = new Label(parent, SWT.NONE);
-		moduleLabel.setText("Module:");
+		moduleLabel.setText(Messages.DEPLOYGRAPHICS_MODULE); //$NON-NLS-1$
 		moduleLabel.setToolTipText(Messages.DEPLOY_SELECTMODULE_TOOLTIP);
 		moduleLabel.pack();
 		return moduleLabel;
@@ -311,7 +311,7 @@ public class DeployViewGraphics {
 		moduleCombo = new Combo(parent, SWT.NONE);
 		moduleCombo.setLayoutData(data);
 		moduleCombo.setToolTipText(Messages.DEPLOY_SELECTMODULE_TOOLTIP);
-		moduleCombo.add("");
+		moduleCombo.add(Messages.DEPLOYGRAPHICS_EMPTYSTRING);
 		moduleCombo.setEnabled(false);
 		return moduleCombo;
 	}
@@ -348,7 +348,7 @@ public class DeployViewGraphics {
 		data.verticalSpan = 2;
 		placeLabel = new Label(parent, SWT.NONE);
 		placeLabel.setLayoutData(data);
-		placeLabel.setText("Place:");
+		placeLabel.setText(Messages.DEPLOYGRAPHICS_PLACE); //$NON-NLS-1$
 		placeLabel.setToolTipText(Messages.DEPLOY_SELECTPLACE_TOOLTIP);
 		placeLabel.pack();
 		return placeLabel;
@@ -377,7 +377,7 @@ public class DeployViewGraphics {
 		data.verticalAlignment = SWT.BEGINNING;
 		saveConstraintsButton = new Button(parent, SWT.NONE);
 		saveConstraintsButton.setLayoutData(data);
-		saveConstraintsButton.setText("Save constraints");
+		saveConstraintsButton.setText(Messages.DEPLOYGRAPHICS_SAVE_CONSTRAINTS);
 		saveConstraintsButton.setEnabled(false);
 		saveConstraintsButton.pack();
 		return saveConstraintsButton;
@@ -400,7 +400,7 @@ public class DeployViewGraphics {
 	protected void addNewInfoText(final String text) {
 		String newText = text;
 		infoTexts.add(newText);
-		newText = newText.concat("\n");
+		newText = newText.concat(Messages.DEPLOYGRAPHICS_NEWLINE);
 		newText = newText.concat(infoText.getText());
 		infoText.setText(newText);
 		limitInfoText();
@@ -439,8 +439,8 @@ public class DeployViewGraphics {
 	protected TableItem createDeploymentItem(final String blockName, final String position,
 			final FunctionBlockModel model) {
 		TableItem item = new TableItem(deploymentTable, SWT.NONE);
-		item.setText(BLOCKNAME, blockName == null ? "" : blockName);
-		item.setText(USER_LOCATION, position == null ? "" : position);
+		item.setText(BLOCKNAME, blockName == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : blockName); //$NON-NLS-1$
+		item.setText(USER_LOCATION, position == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : position); //$NON-NLS-1$
 		addItemAndModel(item, model);
 		return item;
 	}
@@ -464,31 +464,31 @@ public class DeployViewGraphics {
 	protected void replaceBlock(final String newName, final String newLocation, final FunctionBlockModel oldModel,
 			final FunctionBlockModel newModel) {
 		TableItem item = blockToItem.get(oldModel);
-		item.setText(BLOCKNAME, newName == null ? "" : newName);
-		item.setText(USER_LOCATION, newLocation == null ? "" : newLocation);
+		item.setText(BLOCKNAME, newName == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : newName); //$NON-NLS-1$
+		item.setText(USER_LOCATION, newLocation == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : newLocation); //$NON-NLS-1$
 		removeItemAndModel(item, oldModel);
 		addItemAndModel(item, newModel);
 	}
 
 	protected void displayConstraints(final String blockName, final String module, final String location) {
-		selectedItem.setText(BLOCKNAME, blockName == null ? "" : blockName);
-		selectedItem.setText(USER_MODULE, module == null ? "" : module);
-		selectedItem.setText(USER_LOCATION, location == null ? "" : location);
+		selectedItem.setText(BLOCKNAME, blockName == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : blockName); //$NON-NLS-1$
+		selectedItem.setText(USER_MODULE, module == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : module); //$NON-NLS-1$
+		selectedItem.setText(USER_LOCATION, location == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : location); //$NON-NLS-1$
 	}
 
 	protected void modifyDistributionInfo(final FunctionBlockModel model, final String module, final String location) {
 		TableItem item = blockToItem.get(model);
-		item.setText(DIST_MODULE, module == null ? "" : module);
-		item.setText(DIST_LOCATION, location == null ? "" : location);
+		item.setText(DIST_MODULE, module == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : module); //$NON-NLS-1$
+		item.setText(DIST_LOCATION, location == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : location); //$NON-NLS-1$
 	}
 
 	protected void distributionCreated() {
 		deployButton.setEnabled(true);
-		addNewInfoText("Deployment created.");
+		addNewInfoText(Messages.DEPLOYGRAPHICS_DISTRIBUTION_CREATED);
 	}
 
 	protected void deploymentStarted() {
-		deployButton.setText("Cancel Deployment");
+		deployButton.setText(Messages.DEPLOYGRAPHICS_CANCEL_DEPLOYMENT);
 		cancelDeploy = true;
 	}
 
@@ -500,19 +500,19 @@ public class DeployViewGraphics {
 	 */
 	protected void deploymentFinished(final boolean success) {
 		if (success) {
-			addNewInfoText("Deployment complete.");
+			addNewInfoText(Messages.DEPLOYGRAPHICS_DEPLOYMENT_COMPLETE);
 		} else {
-			addNewInfoText("Deployment failed.");
+			addNewInfoText(Messages.DEPLOYGRAPHICS_DEPLOYMENT_FAILED);
 		}
 		cancelDeploy = false;
 		deployButton.setEnabled(false);
-		deployButton.setText("Deploy");
+		deployButton.setText(Messages.DEPLOYGRAPHICS_DEPLOYBUTTON_TEXT); //$NON-NLS-1$
 	}
 
 	protected void resetDeployment() {
 		for (TableItem item : deploymentTable.getItems()) {
-			item.setText(DIST_MODULE, "");
-			item.setText(DIST_LOCATION, "");
+			item.setText(DIST_MODULE, Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
+			item.setText(DIST_LOCATION, Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
 		}
 		deployButton.setEnabled(false);
 	}
@@ -545,8 +545,8 @@ public class DeployViewGraphics {
 	}
 
 	protected void updateBlockSelection(final String newPosition, final String newBlockName, final int moduleSelection) {
-		placesText.setText(newPosition == null ? "" : newPosition);
-		blockNameText.setText(newBlockName == null ? "" : newBlockName);
+		placesText.setText(newPosition == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : newPosition); //$NON-NLS-1$
+		blockNameText.setText(newBlockName == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : newBlockName); //$NON-NLS-1$
 		if (moduleSelection > -1) {
 			selectInModuleCombo(moduleSelection);
 		}
@@ -554,8 +554,8 @@ public class DeployViewGraphics {
 
 	protected void resetBlockSelection() {
 		selectedItem = null;
-		placesText.setText("");
-		blockNameText.setText("<select block on the left>");
+		placesText.setText(Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
+		blockNameText.setText(Messages.DEPLOYGRAPHICS_SELECT_BLOCK); //$NON-NLS-1$
 		blockNameText.setEnabled(false);
 		moduleCombo.setEnabled(false);
 		placesText.setEnabled(false);
@@ -564,25 +564,25 @@ public class DeployViewGraphics {
 
 	protected void serverOnline() {
 		if (serverButton != null) {
-			serverButton.setText("Stop Server");
+			serverButton.setText(Messages.DEPLOYGRAPHICS_STOP_SERVER); //$NON-NLS-1$
 		}
 		updateModulesButton.setEnabled(true);
 		createButton.setEnabled(true);
-		moduleCombo.setToolTipText("");
+		moduleCombo.setToolTipText(Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
 		if (infoText != null && infoTexts != null) {
-			addNewInfoText("Server online.");
+			addNewInfoText(Messages.DEPLOYGRAPHICS_SERVER_ONLINE);
 		}
 	}
 
 	protected void serverOffline() {
 		if (serverButton != null) {
-			serverButton.setText("Start Server");
+			serverButton.setText(Messages.DEPLOYGRAPHICS_START_SERVER); //$NON-NLS-1$
 		}
 		updateModulesButton.setEnabled(false);
 		createButton.setEnabled(false);
 		moduleCombo.setToolTipText(Messages.DEPLOY_SELECTMODULEOFFLINE_TOOLTIP);
 		if (infoText != null && infoTexts != null) {
-			addNewInfoText("Server offline.");
+			addNewInfoText(Messages.DEPLOYGRAPHICS_SERVER_OFFLINE);
 		}
 	}
 

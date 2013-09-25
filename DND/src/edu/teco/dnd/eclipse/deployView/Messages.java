@@ -25,6 +25,30 @@ public class Messages extends NLS {
 	public static String DEPLOY_SELECTPLACE_TOOLTIP;
 	public static String DEPLOY_UPDATEBLOCKS_TOOLTIP;
 	public static String DEPLOY_UPDATEMODULES_TOOLTIP;
+	public static String DEPLOYGRAPHICS_BLOCK_NAME;
+	public static String DEPLOYGRAPHICS_BLOCK_SPECS;
+	public static String DEPLOYGRAPHICS_CANCEL_DEPLOYMENT;
+	public static String DEPLOYGRAPHICS_CREATE_DEPLOYMENT;
+	public static String DEPLOYGRAPHICS_DEPLOYBUTTON_TEXT;
+	public static String DEPLOYGRAPHICS_DEPLOYED_AT;
+	public static String DEPLOYGRAPHICS_DEPLOYED_ON;
+	public static String DEPLOYGRAPHICS_DEPLOYMENT_COMPLETE;
+	public static String DEPLOYGRAPHICS_DEPLOYMENT_FAILED;
+	public static String DEPLOYGRAPHICS_DISTRIBUTION_CREATED;
+	public static String DEPLOYGRAPHICS_EMPTYSTRING;
+	public static String DEPLOYGRAPHICS_FUNCTIONBLOCK;
+	public static String DEPLOYGRAPHICS_LOADING_APPLICATION;
+	public static String DEPLOYGRAPHICS_MODULE;
+	public static String DEPLOYGRAPHICS_NEWLINE;
+	public static String DEPLOYGRAPHICS_PLACE;
+	public static String DEPLOYGRAPHICS_SAVE_CONSTRAINTS;
+	public static String DEPLOYGRAPHICS_SELECT_BLOCK;
+	public static String DEPLOYGRAPHICS_SERVER_OFFLINE;
+	public static String DEPLOYGRAPHICS_SERVER_ONLINE;
+	public static String DEPLOYGRAPHICS_START_SERVER;
+	public static String DEPLOYGRAPHICS_STOP_SERVER;
+	public static String DEPLOYGRAPHICS_UPDATE_BLOCKS;
+	public static String DEPLOYGRAPHICS_UPDATE_MODULES;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

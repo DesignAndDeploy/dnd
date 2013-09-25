@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
-import edu.teco.dnd.eclipse.deployView.DeployViewTexts;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.server.DistributionCreator;
@@ -125,7 +124,7 @@ public class CommandLoop {
 
 	private void deployDistribution(Distribution dist) {
 		if (dist.getMapping().isEmpty()) {
-			System.out.println(DeployViewTexts.NO_DIST_YET);
+			System.out.println("NO valid distribution");
 			return;
 		}
 		final Dependencies dependencies =
