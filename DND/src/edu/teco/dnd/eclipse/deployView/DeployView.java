@@ -257,7 +257,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 * @param newBlock
 	 *            new Block.
 	 */
-	private void replaceBlock(FunctionBlockModel oldBlock, FunctionBlockModel newBlock) {
+	private synchronized void replaceBlock(FunctionBlockModel oldBlock, FunctionBlockModel newBlock) {
 		UUID module = moduleConstraints.get(oldBlock);
 		moduleConstraints.remove(oldBlock);
 		placeConstraints.remove(oldBlock);
@@ -274,7 +274,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		graphicsManager.replaceBlock(newBlock.getBlockName(), newPosition, oldBlock, newBlock);
 	}
 
-	private void removeBlock(FunctionBlockModel model) {
+	private synchronized void removeBlock(FunctionBlockModel model) {
 		moduleConstraints.remove(model);
 		placeConstraints.remove(model);
 		graphicsManager.disposeDeploymentItem(model);
@@ -302,7 +302,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	protected void create() {
 		LOGGER.entry();
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
-		constraints.add(new UserConstraints(moduleConstraints, placeConstraints));
+		synchronized (this){
+			constraints.add(new UserConstraints(new HashMap<FunctionBlockModel, UUID>(moduleConstraints), placeConstraints));
+		}
 
 		Distribution dist = null;
 		try {
@@ -413,7 +415,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 * Invoked whenever the saveConstraints button is selected or "Enter" is pressed while the focus is set to one of
 	 * the constraint text fields.
 	 */
-	protected void saveConstraints() {
+	protected synchronized void saveConstraints() {
 		updateBlocksForConstraints();
 		if (selectedBlockModel == null) {
 			warn(DeployViewTexts.CONSTRAINTS_BLOCK_REMOVED);
@@ -684,7 +686,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 		display.asyncExec(new Runnable() {
 			@Override
-			public void run() {
+			public synchronized void run() {
 				if (widgetsInitialized) {
 					if (!idList.contains(id)) {
 						addID(id);
