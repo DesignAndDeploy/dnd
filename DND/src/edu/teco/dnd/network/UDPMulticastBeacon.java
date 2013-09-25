@@ -174,9 +174,8 @@ public class UDPMulticastBeacon {
 	}
 
 	/**
-	 * Creates a new UDPMulticastBeacon. Beacons will be send at intervals defined by the value set in the network
-	 * Preferences, the default interval is {@link #DEFAULT_INTERVAL}. The time unit is given by and
-	 * {@link #DEFAULT_INTERVAL_UNIT}.
+	 * Creates a new UDPMulticastBeacon. Beacons will be sent at intervals defined by the default interval
+	 * {@link #DEFAULT_INTERVAL}. The time unit is given by {@link #DEFAULT_INTERVAL_UNIT}.
 	 * 
 	 * @param factory
 	 *            a ChannelFactory
@@ -189,8 +188,7 @@ public class UDPMulticastBeacon {
 	 */
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
 			final EventExecutorGroup executor, final UUID uuid) {
-		this(factory, group, executor, uuid, Activator.getDefault().getPreferenceStore()
-				.getInt(PreferencesNetwork.BEACON_INTERVAL), DEFAULT_INTERVAL_UNIT);
+		this(factory, group, executor, uuid, DEFAULT_INTERVAL, DEFAULT_INTERVAL_UNIT);
 	}
 
 	/**

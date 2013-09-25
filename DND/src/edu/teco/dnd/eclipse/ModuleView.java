@@ -24,6 +24,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
+import edu.teco.dnd.eclipse.prefs.PreferencesNetwork;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ModuleManagerListener;

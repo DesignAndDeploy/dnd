@@ -10,7 +10,9 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import edu.teco.dnd.eclipse.prefs.PreferencesNetwork;
 import edu.teco.dnd.module.ModuleMain;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.ServerManager;
 
@@ -78,7 +80,8 @@ public class Activator extends AbstractUIPlugin {
 		String multicastAddress = getAddress("multicast", 3);
 		String listenAddress = getAddress("listen", 2);
 		String announceAddress = getAddress("announce", 2);
-		serverManager.startServer(multicastAddress, listenAddress, announceAddress);
+		int interval = getPreferenceStore().getInt(PreferencesNetwork.BEACON_INTERVAL);
+		serverManager.startServer(multicastAddress, listenAddress, announceAddress, interval);
 	}
 
 	public void shutdownServer() {
@@ -90,6 +93,7 @@ public class Activator extends AbstractUIPlugin {
 		store.setDefault("listen", "");
 		store.setDefault("multicast", "");
 		store.setDefault("announce", "");
+		store.setDefault(PreferencesNetwork.BEACON_INTERVAL, UDPMulticastBeacon.DEFAULT_INTERVAL);
 	}
 
 	private String getAddress(String type, int split) {

@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -57,6 +58,11 @@ public class ServerManager {
 	 */
 	public static final int DEFAULT_LISTEN_PORT = 5000;
 
+	/**
+	 * Unit for the Intervals for the UDPMulticastBeacon to send.
+	 */
+	public static final TimeUnit timeUnit = TimeUnit.SECONDS;
+	
 	/**
 	 * The default address used for multicast.
 	 */
@@ -108,8 +114,9 @@ public class ServerManager {
 	 * @param multicastAddress
 	 * @param listenAddress
 	 * @param announceAddress
+	 * @param interval: Interval for the UDPMulticastBeacons to send out.
 	 */
-	public void startServer(String multicastAddress, String listenAddress, String announceAddress) {
+	public void startServer(String multicastAddress, String listenAddress, String announceAddress, int interval) {
 		LOGGER.entry();
 		serverStateLock.readLock().lock();
 		try {
@@ -155,17 +162,12 @@ public class ServerManager {
 			ModuleMain.globalRegisterMessageAdapterType(connectionManager);
 			this.connectionManager = connectionManager;
 
-			int interval = Activator.getDefault().getPreferenceStore().getInt(PreferencesNetwork.BEACON_INTERVAL);
-			System.out.println("Int: " + interval);
-			interval = Activator.getDefault().getPreferenceStore().getDefaultInt(PreferencesNetwork.BEACON_INTERVAL);
-			System.out.println("Default im Prefstore: " + interval);
-			
 			beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
 				@Override
 				public OioDatagramChannel newChannel() {
 					return new OioDatagramChannel();
 				}
-			}, oioEventLoopGroup, networkEventLoopGroup, uuid);
+			}, oioEventLoopGroup, networkEventLoopGroup, uuid, interval, timeUnit);
 
 			for (final DNDServerStateListener listener : serverStateListener) {
 				listener.serverStarted(connectionManager, beacon);

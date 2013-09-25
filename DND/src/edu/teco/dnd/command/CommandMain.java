@@ -12,6 +12,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.ModelPackage;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.ServerManager;
 
@@ -78,6 +79,7 @@ public class CommandMain {
 	private static String multicast;
 	private static String announce;
 	private static String listen;
+	private static int default_interval = 5;
 	private static String createOrDeploy;
 
 	private static Collection<FunctionBlockModel> functionBlocks;
@@ -115,7 +117,7 @@ public class CommandMain {
 		blockLoader.loadBlocks();
 		functionBlocks = blockLoader.getBlocks();
 
-		ServerManager.getDefault().startServer(multicast, listen, announce);
+		ServerManager.getDefault().startServer(multicast, listen, announce, default_interval);
 
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
 		ServerManager.getDefault().getModuleManager().addModuleManagerListener(moduleRegistrator);
