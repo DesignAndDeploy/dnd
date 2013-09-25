@@ -290,7 +290,7 @@ public class ModuleApplicationManager {
 	 */
 	private void removeBlocks(final UUID appId, final Collection<FunctionBlockSecurityDecorator> blocks) {
 		for (final FunctionBlockSecurityDecorator singleBlock : blocks) {
-			removeBlocks(appId, singleBlock);
+			removeBlock(appId, singleBlock);
 		}
 	}
 
@@ -300,7 +300,7 @@ public class ModuleApplicationManager {
 	 * @param blocks
 	 *            the blocks that stopped executing.
 	 */
-	private void removeBlocks(final UUID appId, final FunctionBlockSecurityDecorator blocks) {
+	private void removeBlock(final UUID appId, final FunctionBlockSecurityDecorator blocks) {
 		final UUID blockUUID = blocks.getBlockUUID();
 		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(new BlockID(blockUUID, appId)));
 		if (holder != null) {
