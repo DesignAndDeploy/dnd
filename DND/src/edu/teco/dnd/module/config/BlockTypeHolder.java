@@ -248,7 +248,9 @@ public class BlockTypeHolder {
 	public synchronized void increase() {
 		if (amountLeft >= 0) {
 			if (amountLeft < amountAllowed) {
-				parent.increase();
+				if (parent != null) {
+					parent.increase();
+				}
 				amountLeft++;
 			} else {
 				LOGGER.warn("more block=>{} freed than marked as in use.", type);
