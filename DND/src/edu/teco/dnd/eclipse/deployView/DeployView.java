@@ -310,17 +310,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		try {
 			dist = DistributionCreator.createDistribution(functionBlocks, constraints);
 		} catch (NoBlocksException e) {
-			warn(DeployViewTexts.NO_BLOCKS);
+			warn(Messages.DEPLOY_NO_BLOCKS);
 			LOGGER.exit();
 			return;
 		} catch (NoModulesException e) {
-			warn(DeployViewTexts.NO_MODULES);
+			warn(Messages.DEPLOY_NO_MODULES);
 			LOGGER.exit();
 			return;
 		}
 
 		if (dist == null) {
-			warn(DeployViewTexts.NO_VALID_DIST);
+			warn(Messages.DEPLOY_NO_VALID_DISTRIBUTION);
 		} else {
 			mapBlockToTarget = dist.getMapping();
 			for (FunctionBlockModel block : mapBlockToTarget.keySet()) {
@@ -339,7 +339,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	protected void deploy() {
 		LOGGER.entry();
 		if (newConstraints) {
-			int cancel = warn(DeployViewTexts.NEWCONSTRAINTS);
+			int cancel = warn(Messages.DEPLOY_CONSTRAINTS_NEW);
 			if (cancel == -4) {
 				LOGGER.exit();
 				return;
@@ -347,7 +347,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		if (mapBlockToTarget.isEmpty()) {
-			warn(DeployViewTexts.NO_DIST_YET);
+			warn(Messages.DEPLOY_NO_DIST_YET);
 			LOGGER.exit();
 			return;
 		}
@@ -418,7 +418,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	protected synchronized void saveConstraints() {
 		updateBlocksForConstraints();
 		if (selectedBlockModel == null) {
-			warn(DeployViewTexts.CONSTRAINTS_BLOCK_REMOVED);
+			warn(Messages.DEPLOY_CONSTRAINTS_BLOCK_REMOVED);
 			return;
 		}
 
@@ -431,8 +431,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		if (!location.isEmpty() && selectedID != null) {
-			graphicsManager.replaceInfoText(DeployViewTexts.INFORM_CONSTRAINTS);
-			int cancel = warn(DeployViewTexts.WARN_CONSTRAINTS);
+			graphicsManager.replaceInfoText(Messages.DEPLOY_CONSTRAINTS_INFORM);
+			int cancel = warn(Messages.DEPLOY_CONSTRAINTS_WARN);
 			if (cancel == -4) {
 				graphicsManager.addNewInfoText("Constrains not saved.");
 				return;

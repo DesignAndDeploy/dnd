@@ -168,16 +168,16 @@ public class DeployViewGraphics {
 		column0.setText("Function Block");
 		TableColumn column1 = new TableColumn(deploymentTable, SWT.NONE);
 		column1.setText("Module");
-		column1.setToolTipText(DeployViewTexts.COLUMN1_TOOLTIP);
+		column1.setToolTipText(Messages.DEPLOY_COLUMN1_TOOLTIP);
 		TableColumn column2 = new TableColumn(deploymentTable, SWT.NONE);
 		column2.setText("Place");
-		column2.setToolTipText(DeployViewTexts.COLUMN2_TOOLTIP);
+		column2.setToolTipText(Messages.DEPLOY_COLUMN2_TOOLTIP);
 		TableColumn column3 = new TableColumn(deploymentTable, SWT.NONE);
 		column3.setText("Deployed on:");
-		column3.setToolTipText(DeployViewTexts.COLUMN3_TOOLTIP);
+		column3.setToolTipText(Messages.DEPLOY_COLUMN3_TOOLTIP);
 		TableColumn column4 = new TableColumn(deploymentTable, SWT.NONE);
 		column4.setText("Deployed at:");
-		column4.setToolTipText(DeployViewTexts.COLUMN4_TOOLTIP);
+		column4.setToolTipText(Messages.DEPLOY_COLUMN4_TOOLTIP);
 
 		deploymentTable.getColumn(BLOCKNAME).pack();
 		deploymentTable.getColumn(USER_MODULE).pack();
@@ -212,7 +212,7 @@ public class DeployViewGraphics {
 		updateBlocksButton = new Button(parent, SWT.NONE);
 		updateBlocksButton.setLayoutData(data);
 		updateBlocksButton.setText("Update Blocks");
-		updateBlocksButton.setToolTipText(DeployViewTexts.UPDATEBLOCKS_TOOLTIP);
+		updateBlocksButton.setToolTipText(Messages.DEPLOY_UPDATEBLOCKS_TOOLTIP);
 		updateBlocksButton.pack();
 		return updateBlocksButton;
 	}
@@ -225,7 +225,7 @@ public class DeployViewGraphics {
 		updateModulesButton = new Button(parent, SWT.NONE);
 		updateModulesButton.setLayoutData(data);
 		updateModulesButton.setText("Update Modules");
-		updateModulesButton.setToolTipText(DeployViewTexts.UPDATEMODULES_TOOLTIP);
+		updateModulesButton.setToolTipText(Messages.DEPLOY_UPDATEMODULES_TOOLTIP);
 		updateModulesButton.pack();
 		return updateModulesButton;
 	}
@@ -238,7 +238,7 @@ public class DeployViewGraphics {
 		createButton = new Button(parent, SWT.NONE);
 		createButton.setLayoutData(data);
 		createButton.setText("Create Deployment");
-		createButton.setToolTipText(DeployViewTexts.CREATE_TOOLTIP);
+		createButton.setToolTipText(Messages.DEPLOY_CREATEDISTRIBUTION_TOOLTIP);
 		return createButton;
 	}
 
@@ -251,7 +251,7 @@ public class DeployViewGraphics {
 		data.verticalSpan = 3;
 		deployButton = new Button(parent, SWT.NONE);
 		deployButton.setText("Deploy");
-		deployButton.setToolTipText(DeployViewTexts.DEPLOY_TOOLTIP);
+		deployButton.setToolTipText(Messages.DEPLOY_DEPLOYDISTRIBUTION_TOOLTIP);
 		deployButton.setEnabled(false);
 		deployButton.setLayoutData(data);
 		return deployButton;
@@ -264,7 +264,7 @@ public class DeployViewGraphics {
 		data.horizontalSpan = 2;
 		blockModelSpecsLabel = new Label(parent, SWT.NONE);
 		blockModelSpecsLabel.setText("Block Specifications:");
-		blockModelSpecsLabel.setToolTipText(DeployViewTexts.CONSTRAINTS_TOOLTIP);
+		blockModelSpecsLabel.setToolTipText(Messages.DEPLOY_CONSTRAINTS_TOOLTIP);
 		blockModelSpecsLabel.setLayoutData(data);
 		blockModelSpecsLabel.pack();
 		return blockModelSpecsLabel;
@@ -283,7 +283,7 @@ public class DeployViewGraphics {
 		blockNameText = new Text(parent, SWT.NONE);
 		blockNameText.setLayoutData(data);
 		blockNameText.setText("<select block on the left>");
-		blockNameText.setToolTipText(DeployViewTexts.RENAMEBLOCK_TOOLTIP);
+		blockNameText.setToolTipText(Messages.DEPLOY_RENAMEBLOCK_TOOLTIP);
 		blockNameText.setEnabled(false);
 		blockNameText.pack();
 		return blockNameText;
@@ -299,7 +299,7 @@ public class DeployViewGraphics {
 	private Label createModuleLabel() {
 		moduleLabel = new Label(parent, SWT.NONE);
 		moduleLabel.setText("Module:");
-		moduleLabel.setToolTipText(DeployViewTexts.SELECTMODULE_TOOLTIP);
+		moduleLabel.setToolTipText(Messages.DEPLOY_SELECTMODULE_TOOLTIP);
 		moduleLabel.pack();
 		return moduleLabel;
 	}
@@ -310,7 +310,7 @@ public class DeployViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		moduleCombo = new Combo(parent, SWT.NONE);
 		moduleCombo.setLayoutData(data);
-		moduleCombo.setToolTipText(DeployViewTexts.SELECTMODULE_TOOLTIP);
+		moduleCombo.setToolTipText(Messages.DEPLOY_SELECTMODULE_TOOLTIP);
 		moduleCombo.add("");
 		moduleCombo.setEnabled(false);
 		return moduleCombo;
@@ -349,7 +349,7 @@ public class DeployViewGraphics {
 		placeLabel = new Label(parent, SWT.NONE);
 		placeLabel.setLayoutData(data);
 		placeLabel.setText("Place:");
-		placeLabel.setToolTipText(DeployViewTexts.SELECTPLACE_TOOLTIP);
+		placeLabel.setToolTipText(Messages.DEPLOY_SELECTPLACE_TOOLTIP);
 		placeLabel.pack();
 		return placeLabel;
 	}
@@ -359,7 +359,7 @@ public class DeployViewGraphics {
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
 		placesText = new Text(parent, SWT.NONE);
-		placesText.setToolTipText(DeployViewTexts.SELECTPLACE_TOOLTIP);
+		placesText.setToolTipText(Messages.DEPLOY_SELECTPLACE_TOOLTIP);
 		placesText.setLayoutData(data);
 		placesText.setEnabled(false);
 		return placesText;
@@ -580,7 +580,7 @@ public class DeployViewGraphics {
 		}
 		updateModulesButton.setEnabled(false);
 		createButton.setEnabled(false);
-		moduleCombo.setToolTipText(DeployViewTexts.SELECTMODULEOFFLINE_TOOLTIP);
+		moduleCombo.setToolTipText(Messages.DEPLOY_SELECTMODULEOFFLINE_TOOLTIP);
 		if (infoText != null && infoTexts != null) {
 			addNewInfoText("Server offline.");
 		}
