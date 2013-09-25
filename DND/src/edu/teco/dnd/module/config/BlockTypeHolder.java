@@ -209,7 +209,7 @@ public class BlockTypeHolder {
 	 *            the type of block to schedule
 	 * @return true if the block was succesfully added, false otherwise
 	 */
-	public boolean tryAdd(final String blockType) {
+	public synchronized boolean tryAdd(final String blockType) {
 		if (blockType == null || !blockType.matches(type)) {
 			return false;
 		}
