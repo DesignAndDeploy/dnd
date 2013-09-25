@@ -65,7 +65,7 @@ import edu.teco.dnd.meeting.MeetingOperatorBlock;
 import edu.teco.dnd.meeting.OutletActorBlock;
 import edu.teco.dnd.meeting.OutletSensorBlock;
 import edu.teco.dnd.temperature.TemperatureActorBlock;
-import edu.teco.dnd.temperature.TemperatureLogicBlock;
+import edu.teco.dnd.temperature.TemperatureOperatorBlock;
 import edu.teco.dnd.temperature.TemperatureSensorBlock;
 import edu.teco.dnd.util.ClassScanner;
 import edu.teco.dnd.util.StringUtil;
@@ -86,7 +86,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 */
 	private static final Class<?>[] DEFAULT_TYPES = new Class<?>[] { OutletActorBlock.class, BeamerOperatorBlock.class,
 			DisplayActorBlock.class, DisplayOperatorBlock.class, LightSensorBlock.class, MeetingOperatorBlock.class,
-			OutletSensorBlock.class, TemperatureActorBlock.class, TemperatureLogicBlock.class,
+			OutletSensorBlock.class, TemperatureActorBlock.class, TemperatureOperatorBlock.class,
 			TemperatureSensorBlock.class, BeamerActorBlock.class };
 
 	/**
