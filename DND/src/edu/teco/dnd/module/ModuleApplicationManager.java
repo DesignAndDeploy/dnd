@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.messages.infoReq.BlockID;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessageHandler;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
@@ -47,7 +48,7 @@ public class ModuleApplicationManager {
 	private final ConnectionManager connMan;
 	private final Runnable moduleShutdownHook;
 	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
-	private final Map<UUID, Integer> spotOccupiedByBlock = new ConcurrentHashMap<UUID, Integer>();
+	private final Map<BlockID, Integer> spotOccupiedByBlock = new ConcurrentHashMap<BlockID, Integer>();
 
 	/**
 	 * 
@@ -206,7 +207,7 @@ public class ModuleApplicationManager {
 	 * @param blockTypeHolderId
 	 *            the ID of the blockTypeHolder to perform this on.
 	 */
-	public void addToBlockTypeHolders(final FunctionBlockSecurityDecorator block, final int blockTypeHolderId) {
+	public void addToBlockTypeHolders(final UUID appId, final FunctionBlockSecurityDecorator block, final int blockTypeHolderId) {
 		final BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(blockTypeHolderId);
 		if (holder == null) {
 			throw new IllegalArgumentException("There is no BlockTypeHolder with ID " + blockTypeHolderId);
@@ -215,7 +216,7 @@ public class ModuleApplicationManager {
 			// TODO: Maybe a different kind of exception would be better
 			throw new IllegalArgumentException();
 		}
-		spotOccupiedByBlock.put(block.getBlockUUID(), blockTypeHolderId);
+		spotOccupiedByBlock.put(new BlockID(block.getBlockUUID(), appId), blockTypeHolderId);
 	}
 
 	/**
@@ -278,7 +279,7 @@ public class ModuleApplicationManager {
 
 			runningApps.remove(appId);
 		}
-		removeBlocks(blocksKilled);
+		removeBlocks(appId, blocksKilled);
 	}
 
 	/**
@@ -287,9 +288,9 @@ public class ModuleApplicationManager {
 	 * @param blocks
 	 *            the blocks that stopped executing.
 	 */
-	private void removeBlocks(final Collection<FunctionBlockSecurityDecorator> blocks) {
+	private void removeBlocks(final UUID appId, final Collection<FunctionBlockSecurityDecorator> blocks) {
 		for (final FunctionBlockSecurityDecorator singleBlock : blocks) {
-			removeBlocks(singleBlock);
+			removeBlocks(appId, singleBlock);
 		}
 	}
 
@@ -299,9 +300,9 @@ public class ModuleApplicationManager {
 	 * @param blocks
 	 *            the blocks that stopped executing.
 	 */
-	private void removeBlocks(final FunctionBlockSecurityDecorator blocks) {
+	private void removeBlocks(final UUID appId, final FunctionBlockSecurityDecorator blocks) {
 		final UUID blockUUID = blocks.getBlockUUID();
-		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockUUID));
+		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(new BlockID(blockUUID, appId)));
 		if (holder != null) {
 			holder.increase();
 		} else {

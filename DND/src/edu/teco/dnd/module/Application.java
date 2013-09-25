@@ -230,7 +230,7 @@ public class Application {
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
-			moduleApplicationManager.addToBlockTypeHolders(securityDecorator, blockDescription.blockTypeHolderId);
+			moduleApplicationManager.addToBlockTypeHolders(ownAppId, securityDecorator, blockDescription.blockTypeHolderId);
 			LOGGER.trace("adding {} to scheduledToStart");
 			scheduledToStart.add(securityDecorator);
 			LOGGER.trace("saving block options");
