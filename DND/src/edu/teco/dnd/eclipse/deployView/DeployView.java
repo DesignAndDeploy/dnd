@@ -687,10 +687,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			public void run() {
 				if (widgetsInitialized) {
 					if (!idList.contains(id)) {
-						LOGGER.entry(id);
-						LOGGER.trace("id {} is new, adding", id);
-						idList.add(id);
-						LOGGER.exit();
+						addID(id);
 					}
 
 					int comboIndex = idList.indexOf(id) + 1;

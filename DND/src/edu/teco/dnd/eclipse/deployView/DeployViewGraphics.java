@@ -98,7 +98,6 @@ public class DeployViewGraphics {
 	private Map<FunctionBlockModel, TableItem> blockToItem;
 	private List<String> infoTexts;
 
-	
 	public DeployViewGraphics(Composite parent) {
 		this.parent = parent;
 		cancelDeploy = false;
@@ -334,7 +333,6 @@ public class DeployViewGraphics {
 	}
 
 	protected void setItemToModuleCombo(final int index, final String text) {
-		System.out.println("Text: " + text + " Index: " + index);
 		moduleCombo.setItem(index, text);
 	}
 
