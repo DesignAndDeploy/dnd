@@ -80,7 +80,6 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 
 	@Override
 	public boolean update(IUpdateContext context) {
-		System.out.println("Update wurde aufgerufen");
 		LOGGER.entry(context);
 		boolean changeNeeded = ((DNDFeatureProvider) getFeatureProvider()).emfResourceChanged();
 		((DNDFeatureProvider) getFeatureProvider()).updateEMFResource();

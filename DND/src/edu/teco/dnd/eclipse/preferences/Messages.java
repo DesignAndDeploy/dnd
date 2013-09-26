@@ -5,7 +5,6 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "edu.teco.dnd.eclipse.preferences.messages"; //$NON-NLS-1$
 	public static String Preferences_GENERAL_SETTINGS;
-	public static String PreferencesNetwork_5;
 	public static String PreferencesNetwork_ADDRESS_ANNOUNCE;
 	public static String PreferencesNetwork_ADDRESS_FOR_ECLIPSE;
 	public static String PreferencesNetwork_ADDRESS_FOR_MULTICASTS;

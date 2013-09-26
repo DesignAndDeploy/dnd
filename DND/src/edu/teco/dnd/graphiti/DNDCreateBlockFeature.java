@@ -34,9 +34,8 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 *            the type of FunctionBlocks to create
 	 */
 	public DNDCreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
-		super(fp, blockClass == null ? "null" : blockClass.getClassName(),
-				Messages.DNDCreateBlockFeature_CreatesFunBlockOfTpe_Info
-						+ (blockClass == null ? "null" : blockClass.getClassName()));
+		super(fp, blockClass == null ? "null" : blockClass.getClassName(), "Creates FunctionBlocks of the type"
+				+ (blockClass == null ? "null" : blockClass.getClassName()));
 		if (blockClass == null) {
 			throw new IllegalArgumentException("blockClass must not be null");
 		}
@@ -70,10 +69,10 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 		} catch (final ClassNotFoundException e) {
 			return null;
 		}
-		
+
 		Resource resource = ((DNDFeatureProvider) getFeatureProvider()).getEMFResource();
 		resource.getContents().add(newBlock);
-		
+
 		addGraphicalRepresentation(context, newBlock);
 
 		/**
@@ -90,15 +89,16 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 
 		return new Object[] { newBlock };
 	}
-	
+
 	/**
-	 * Tries to create a TransactionalEditingDomain. This is a workaround to support both versions of Graphiti &lt;0.9.0 and &gt;=0.9.0.
+	 * Tries to create a TransactionalEditingDomain. This is a workaround to support both versions of Graphiti &lt;0.9.0
+	 * and &gt;=0.9.0.
 	 * 
-	 *  @return a TransactionalEditingDomain or null if creating one failed
+	 * @return a TransactionalEditingDomain or null if creating one failed
 	 */
 	private static final TransactionalEditingDomain createEditingDomain() {
 		final ClassLoader loader = DNDCreateBlockFeature.class.getClassLoader();
-		
+
 		// version for Graphiti <0.9.0. Calls DiagramEditorFactory.createResourceSetAndEditingDomain()
 		Class<?> diagramEditorFactoryClass = null;
 		try {
@@ -108,7 +108,8 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 		if (diagramEditorFactoryClass != null) {
 			Method createResourceSetAndEditingDomainMethod = null;
 			try {
-				createResourceSetAndEditingDomainMethod = diagramEditorFactoryClass.getDeclaredMethod("createResourceSetAndEditingDomain");
+				createResourceSetAndEditingDomainMethod =
+						diagramEditorFactoryClass.getDeclaredMethod("createResourceSetAndEditingDomain");
 			} catch (SecurityException e) {
 			} catch (NoSuchMethodException e) {
 			}
@@ -121,7 +122,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 				}
 			}
 		}
-		
+
 		// we only get here if we failed to create an EditingDomain via DiagramEditorFactory
 		// version for Graphiti >=0.9.0. Calls GraphitiUiInternal.getEmfService().createResourceSetAndEditingDomain()
 		Class<?> graphitiUiInternalClass = null;
@@ -148,7 +149,8 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 			Method createResourceSetAndEditingDomainMethod = null;
 			if (emfService != null) {
 				try {
-					createResourceSetAndEditingDomainMethod = emfService.getClass().getDeclaredMethod("createResourceSetAndEditingDomain");
+					createResourceSetAndEditingDomainMethod =
+							emfService.getClass().getDeclaredMethod("createResourceSetAndEditingDomain");
 				} catch (SecurityException e) {
 				} catch (NoSuchMethodException e) {
 				}
@@ -162,7 +164,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 				}
 			}
 		}
-		
+
 		return null;
 	}
 

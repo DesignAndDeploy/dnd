@@ -98,7 +98,7 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 		try {
 			Pattern.compile(value);
 		} catch (PatternSyntaxException e) {
-			return Messages.NotARegex_Info;
+			return "Not a regex";
 		}
 		return null;
 	}
