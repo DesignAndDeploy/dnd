@@ -554,8 +554,9 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 		/**
 		 * Initializes a new TCPConnectionChannelInitializer.
 		 * 
-		 * @param executorGroup
-		 *            the EventExecutorGroup that should be used for application code
+		 * @param executorGroupfinal
+		 *            ConnectionManager connectionManager, the EventExecutorGroup that should be used for application
+		 *            code
 		 * @param handler
 		 *            the application level handler for new channels
 		 * @param maxFrameLength
@@ -696,9 +697,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			if (messageHandler instanceof TCPMessageHandler<?>) {
 				response = ((TCPMessageHandler<Message>) messageHandler).handleMessage(ctx, msg);
 			} else {
-				response =
-						((MessageHandler<Message>) messageHandler).handleMessage(TCPConnectionManager.this, remoteUUID,
-								msg);
+				response = ((MessageHandler<Message>) messageHandler).handleMessage(remoteUUID, msg);
 			}
 			if (response == null) {
 				response = new DefaultResponse();
@@ -759,7 +758,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	private static abstract class AbstractTCPMessageHandler<T extends Message> implements TCPMessageHandler<T> {
-		public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID, final T msg) {
+		public Response handleMessage(final UUID remoteUUID, final T msg) {
 			throw new IllegalAccessError("tried to call handleMessage(UUID, Message) on AbstractTCPMessageHandler");
 		}
 	}

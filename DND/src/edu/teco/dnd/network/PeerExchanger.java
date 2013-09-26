@@ -101,8 +101,7 @@ public class PeerExchanger implements ConnectionListener, MessageHandler<PeerMes
 	}
 
 	@Override
-	public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
-			final PeerMessage message) {
+	public Response handleMessage(final UUID remoteUUID, final PeerMessage message) {
 		LOGGER.entry(connectionManager, remoteUUID, message);
 		if (addModules(message.getModules())) {
 			final PeerMessage newMessage = peerMessage.get();
