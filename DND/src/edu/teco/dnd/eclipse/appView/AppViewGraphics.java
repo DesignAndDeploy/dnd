@@ -47,7 +47,7 @@ public class AppViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		Button updateAppsButton = new Button(parent, SWT.NONE);
 		updateAppsButton.setLayoutData(data);
-		updateAppsButton.setText("Update");
+		updateAppsButton.setText(Messages.AppViewGraphics_UPDATE);
 		updateAppsButton.setEnabled(ServerManager.getDefault().isRunning());
 		return updateAppsButton;
 	}
@@ -57,7 +57,7 @@ public class AppViewGraphics {
 		data.horizontalAlignment = SWT.BEGINNING;
 		Button killAppButton = new Button(parent, SWT.NONE);
 		killAppButton.setLayoutData(data);
-		killAppButton.setText("Kill Application");
+		killAppButton.setText(Messages.AppViewGraphics_KILL_APPLICATION);
 		killAppButton.setEnabled(false);
 		return killAppButton;
 
@@ -76,7 +76,7 @@ public class AppViewGraphics {
 
 	protected Label createSelectedLabel() {
 		Label selectedLabel = new Label(parent, SWT.NONE);
-		selectedLabel.setText("Application:");
+		selectedLabel.setText(Messages.AppView_APPLICATION);
 		return selectedLabel;
 	}
 
@@ -85,7 +85,7 @@ public class AppViewGraphics {
 		data.horizontalAlignment = SWT.BEGINNING;
 		data.grabExcessHorizontalSpace = true;
 		Label selectedInfoLabel = new Label(parent, SWT.NONE);
-		selectedInfoLabel.setText("<select on the left>");
+		selectedInfoLabel.setText(Messages.AppViewGraphics_DO_SELECT);
 		return selectedInfoLabel;
 	}
 
@@ -101,10 +101,10 @@ public class AppViewGraphics {
 		appTable.setLinesVisible(true);
 		appTable.setLayoutData(data);
 		TableColumn column0 = new TableColumn(appTable, SWT.NONE);
-		column0.setText("Applications:");
+		column0.setText(Messages.AppView_APPLICATIONS);
 		appTable.getColumn(AppView.APP_INDEX).pack();
 		TableColumn column1 = new TableColumn(appTable, SWT.NONE);
-		column1.setText("UUID:");
+		column1.setText(Messages.AppViewGraphics_UUID);
 		appTable.getColumn(AppView.UUID_INDEX).pack();
 		return appTable;
 	}
@@ -123,16 +123,16 @@ public class AppViewGraphics {
 		blockTable.setHeaderVisible(true);
 
 		TableColumn column0 = new TableColumn(blockTable, SWT.NONE);
-		column0.setText("Function Block:");
-		blockTable.setToolTipText("Currently running function blocks");
+		column0.setText(Messages.AppViewGraphics_FUNCTION_BLOCK);
+		blockTable.setToolTipText(Messages.AppViewGraphics_CURRENTLY_RUNNING_BLOCKS);
 		blockTable.getColumn(AppView.BLOCK_INDEX).pack();
 		
 		TableColumn column1 = new TableColumn(blockTable, SWT.NONE);
-		column1.setText("Type:");
+		column1.setText(Messages.AppViewGraphics_TYPE);
 		blockTable.getColumn(AppView.TYPE_INDEX).pack();
 
 		TableColumn column2 = new TableColumn(blockTable, SWT.NONE);
-		column2.setText("On Module:");
+		column2.setText(Messages.AppView_ON_MODULE);
 		blockTable.getColumn(AppView.BLOCK_INFO_INDEX).pack();
 		return blockTable;
 	}

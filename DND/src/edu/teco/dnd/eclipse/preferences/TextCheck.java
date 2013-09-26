@@ -68,7 +68,7 @@ public class TextCheck {
 		Display display = Display.getCurrent();
 		Shell shell = new Shell(display);
 		MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
-		dialog.setText("Warning");
+		dialog.setText(Messages.TextCheck_WARNING);
 		dialog.setMessage(warnMessage);
 		dialog.open();
 	}

@@ -28,7 +28,7 @@ public class TextPort extends TextCheck {
 	 *            Text Field to be checked later
 	 */
 	public TextPort(Text port) {
-		super(port, "Invalid Port Number");
+		super(port, Messages.TextCheck_INVALID_PORT_NUMBER);
 	}
 
 	@Override

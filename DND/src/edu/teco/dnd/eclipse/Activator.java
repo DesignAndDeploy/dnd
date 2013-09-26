@@ -77,10 +77,10 @@ public class Activator extends AbstractUIPlugin {
 	 * somewhere else.
 	 */
 	public void startServer() {
-		String multicastAddress = getAddress("multicast", 3);
-		String listenAddress = getAddress("listen", 2);
-		String announceAddress = getAddress("announce", 2);
-		int interval = getPreferenceStore().getInt(PreferencesNetwork.BEACON_INTERVAL);
+		String multicastAddress = getAddress(PreferencesNetwork.MULTICAST_PREFERENCE, 3);
+		String listenAddress = getAddress(PreferencesNetwork.LISTEN_PREFERENCE, 2);
+		String announceAddress = getAddress(PreferencesNetwork.ANNOUNCE_PREFERENCE, 2);
+		int interval = getPreferenceStore().getInt(PreferencesNetwork.BEACON_PREFERENCE);
 		serverManager.startServer(multicastAddress, listenAddress, announceAddress, interval);
 	}
 
@@ -90,10 +90,10 @@ public class Activator extends AbstractUIPlugin {
 
 	@Override
 	protected void initializeDefaultPreferences(IPreferenceStore store) {
-		store.setDefault("listen", "");
-		store.setDefault("multicast", "");
-		store.setDefault("announce", "");
-		store.setDefault(PreferencesNetwork.BEACON_INTERVAL, UDPMulticastBeacon.DEFAULT_INTERVAL);
+		store.setDefault(PreferencesNetwork.LISTEN_PREFERENCE, "");
+		store.setDefault(PreferencesNetwork.MULTICAST_PREFERENCE, "");
+		store.setDefault(PreferencesNetwork.ANNOUNCE_PREFERENCE, "");
+		store.setDefault(PreferencesNetwork.BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
 	}
 
 	private String getAddress(String type, int split) {

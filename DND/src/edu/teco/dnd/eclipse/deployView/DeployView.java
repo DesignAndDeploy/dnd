@@ -109,7 +109,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		manager = serverManager.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
-			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
+			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display); //$NON-NLS-1$
 		}
 		manager.addModuleManagerListener(this);
 		mapBlockToTarget = new HashMap<FunctionBlockModel, BlockTarget>();
@@ -138,8 +138,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			FutureNotifier<Collection<Module>> notifier = manager.updateModuleInfo();
 			notifier.addListener(this);
 		} else {
-			warn("Server not running");
-			graphicsManager.addNewInfoText("As long as there is no server, no modules can be accessed.");
+			warn(Messages.DEPLOY_SERVER_NOT_RUNNING);
+			graphicsManager.addNewInfoText(Messages.DEPLOY_SERVER_NOT_RUNNING_INFO);
 		}
 	}
 
@@ -155,14 +155,14 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 					selectedBlockModel = newModel;
 					graphicsManager.updateBlockSelection(selectedBlockModel.getPosition(),
 							selectedBlockModel.getBlockName(), -1);
-					graphicsManager.addNewInfoText("Block update complete.");
+					graphicsManager.addNewInfoText(Messages.DEPLOY_BLOCKUPDATE_COMPLETE);
 					LOGGER.exit();
 					return;
 				}
 			}
 			resetSelectedBlock();
 		}
-		graphicsManager.addNewInfoText("Block update complete.");
+		graphicsManager.addNewInfoText(Messages.DEPLOY_BLOCKUPDATE_COMPLETE); //$NON-NLS-1$
 		LOGGER.exit();
 	}
 
@@ -205,7 +205,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				LOGGER.catching(e);
 			}
 		} else {
-			LOGGER.error("Input is not a FileEditorInput {}", getEditorInput());
+			LOGGER.error(Messages.DEPLOY_INPUT_INCORRECT, getEditorInput());
 		}
 
 		for (FunctionBlockModel model : newBlockModels) {
@@ -353,10 +353,10 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		final Dependencies dependencies =
-				new Dependencies(StringUtil.joinArray(classPath, ":"), Arrays.asList(Pattern.compile("java\\..*"),
-						Pattern.compile("edu\\.teco\\.dnd\\..*"), Pattern.compile("com\\.google\\.gson\\..*"),
-						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"),
-						Pattern.compile("org\\.apache\\.logging\\.log4j")));
+				new Dependencies(StringUtil.joinArray(classPath, Messages.DEPLOY_COLON), Arrays.asList(Pattern.compile("java\\..*"), //$NON-NLS-2$
+						Pattern.compile("edu\\.teco\\.dnd\\..*"), Pattern.compile("com\\.google\\.gson\\..*"), //$NON-NLS-1$ //$NON-NLS-2$
+						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"), //$NON-NLS-1$ //$NON-NLS-2$
+						Pattern.compile("org\\.apache\\.logging\\.log4j"))); //$NON-NLS-1$
 		final Deploy deploy =
 				new Deploy(serverManager.getConnectionManager(), mapBlockToTarget, graphicsManager.getAppName(),
 						dependencies);
@@ -371,7 +371,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 					public void run() {
 						updateModules();
 						if (LOGGER.isInfoEnabled()) {
-							LOGGER.info("deploy: {}", future.isSuccess());
+							LOGGER.info("deploy: {}", future.isSuccess()); //$NON-NLS-1$
 						}
 						graphicsManager.deploymentFinished(future.isSuccess());
 					}
@@ -434,7 +434,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			graphicsManager.replaceInfoText(Messages.DEPLOY_CONSTRAINTS_INFORM);
 			int cancel = warn(Messages.DEPLOY_CONSTRAINTS_WARN);
 			if (cancel == -4) {
-				graphicsManager.addNewInfoText("Constrains not saved.");
+				graphicsManager.addNewInfoText(Messages.DEPLOY_CONSTRAINTS_NOT_SAVED);
 				return;
 			}
 		}
@@ -467,7 +467,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 		firePropertyChange(IEditorPart.PROP_DIRTY); // not sure if this does sth.
 
-		graphicsManager.addNewInfoText("Constrains saved.");
+		graphicsManager.addNewInfoText(Messages.DEPLOY_CONSTRAINTS_SAVED);
 
 		newConstraints = true;
 	}
@@ -481,12 +481,12 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private synchronized void addID(final UUID id) {
 		LOGGER.entry(id);
 		if (!idList.contains(id)) {
-			LOGGER.trace("id {} is new, adding", id);
+			LOGGER.trace("id {} is new, adding", id); //$NON-NLS-1$
 			graphicsManager.addToModuleCombo(id.toString());
 			idList.add(id);
 
 		} else {
-			LOGGER.debug("trying to add existing id {}", id);
+			LOGGER.debug("trying to add existing id {}", id); //$NON-NLS-1$
 		}
 		LOGGER.exit();
 	}
@@ -507,12 +507,12 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			for (FunctionBlockModel model : moduleConstraints.keySet()) {
 				if (moduleConstraints.get(model).equals(id)) {
 					moduleConstraints.remove(model);
-					graphicsManager.moduleRenamed(model, "");
+					graphicsManager.moduleRenamed(model, Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
 				}
 			}
-			LOGGER.trace("found combo entry for id {}", id);
+			LOGGER.trace("found combo entry for id {}", id); //$NON-NLS-1$
 		} else {
-			LOGGER.debug("trying to remove nonexistant id {}", id);
+			LOGGER.debug("trying to remove nonexistant id {}", id); //$NON-NLS-1$
 		}
 		LOGGER.exit();
 	}
@@ -540,7 +540,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				LOGGER.catching(e);
 			}
 		} else {
-			LOGGER.error("Input is not a FileEditorInput {}", input);
+			LOGGER.error("Input is not a FileEditorInput {}", input); //$NON-NLS-1$
 		}
 		for (FunctionBlockModel blockModel : functionBlocks) {
 			addBlock(blockModel);
@@ -556,7 +556,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			} catch (final MalformedURLException e) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.catching(Level.DEBUG, e);
-					LOGGER.debug("Not adding path {} to class path", path);
+					LOGGER.debug("Not adding path {} to class path", path); //$NON-NLS-1$
 				}
 			}
 		}
@@ -576,7 +576,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private Collection<FunctionBlockModel> loadInput(final FileEditorInput input) throws IOException {
 		LOGGER.entry(input);
 		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
-		graphicsManager.setAppName(input.getFile().getName().replaceAll("\\.blocks", ""));
+		graphicsManager.setAppName(input.getFile().getName().replaceAll("\\.blocks", Messages.DEPLOYGRAPHICS_EMPTYSTRING)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		resource = new XMIResourceImpl(uri);
@@ -584,7 +584,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		resource.load(null);
 		for (EObject object : resource.getContents()) {
 			if (object instanceof FunctionBlockModel) {
-				LOGGER.trace("found FunctionBlockModel {}", object);
+				LOGGER.trace("found FunctionBlockModel {}", object); //$NON-NLS-1$
 				FunctionBlockModel blockmodel = (FunctionBlockModel) object;
 				blockModelList.add(blockmodel);
 			}
@@ -603,7 +603,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		Display display = Display.getCurrent();
 		Shell shell = new Shell(display);
 		MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
-		dialog.setText("Warning");
+		dialog.setText(Messages.DEPLOY_WARNING);
 		dialog.setMessage(message);
 		return dialog.open();
 	}
@@ -693,11 +693,11 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 					}
 
 					int comboIndex = idList.indexOf(id) + 1;
-					String text = "";
+					String text = Messages.DEPLOYGRAPHICS_EMPTYSTRING; //$NON-NLS-1$
 					if (module.getName() != null) {
 						text = module.getName();
 					}
-					text = text.concat(" : ");
+					text = text.concat(Messages.DEPLOY_COLON); //$NON-NLS-1$
 					text = text.concat(id.toString());
 					graphicsManager.setItemToModuleCombo(comboIndex, text);
 					if (moduleConstraints.containsValue(id)) {
@@ -761,9 +761,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			@Override
 			public void run() {
 				if (future.isSuccess()) {
-					graphicsManager.addNewInfoText("Module update complete.");
+					graphicsManager.addNewInfoText(Messages.DEPLOY_MODULEUPDATE_COMPLETE);
 				} else {
-					graphicsManager.addNewInfoText("Module update failed.");
+					graphicsManager.addNewInfoText(Messages.DEPLOY_MODULEUPDATE_FAILED);
 				}
 			}
 		});

@@ -4,6 +4,8 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "edu.teco.dnd.eclipse.deployView.messages"; //$NON-NLS-1$
+	public static String DEPLOY_BLOCKUPDATE_COMPLETE;
+	public static String DEPLOY_COLON;
 	public static String DEPLOY_COLUMN1_TOOLTIP;
 	public static String DEPLOY_COLUMN2_TOOLTIP;
 	public static String DEPLOY_COLUMN3_TOOLTIP;
@@ -11,10 +13,15 @@ public class Messages extends NLS {
 	public static String DEPLOY_CONSTRAINTS_BLOCK_REMOVED;
 	public static String DEPLOY_CONSTRAINTS_INFORM;
 	public static String DEPLOY_CONSTRAINTS_NEW;
+	public static String DEPLOY_CONSTRAINTS_NOT_SAVED;
+	public static String DEPLOY_CONSTRAINTS_SAVED;
 	public static String DEPLOY_CONSTRAINTS_TOOLTIP;
 	public static String DEPLOY_CONSTRAINTS_WARN;
 	public static String DEPLOY_CREATEDISTRIBUTION_TOOLTIP;
 	public static String DEPLOY_DEPLOYDISTRIBUTION_TOOLTIP;
+	public static String DEPLOY_INPUT_INCORRECT;
+	public static String DEPLOY_MODULEUPDATE_COMPLETE;
+	public static String DEPLOY_MODULEUPDATE_FAILED;
 	public static String DEPLOY_NO_BLOCKS;
 	public static String DEPLOY_NO_DIST_YET;
 	public static String DEPLOY_NO_MODULES;
@@ -23,8 +30,11 @@ public class Messages extends NLS {
 	public static String DEPLOY_SELECTMODULE_TOOLTIP;
 	public static String DEPLOY_SELECTMODULEOFFLINE_TOOLTIP;
 	public static String DEPLOY_SELECTPLACE_TOOLTIP;
+	public static String DEPLOY_SERVER_NOT_RUNNING;
+	public static String DEPLOY_SERVER_NOT_RUNNING_INFO;
 	public static String DEPLOY_UPDATEBLOCKS_TOOLTIP;
 	public static String DEPLOY_UPDATEMODULES_TOOLTIP;
+	public static String DEPLOY_WARNING;
 	public static String DEPLOYGRAPHICS_BLOCK_NAME;
 	public static String DEPLOYGRAPHICS_BLOCK_SPECS;
 	public static String DEPLOYGRAPHICS_CANCEL_DEPLOYMENT;

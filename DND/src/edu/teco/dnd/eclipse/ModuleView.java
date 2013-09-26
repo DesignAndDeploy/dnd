@@ -72,7 +72,7 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 		manager = serverManager.getModuleManager();
 		if (display == null) {
 			display = Display.getDefault();
-			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
+			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display); //$NON-NLS-1$
 		}
 		manager.addModuleManagerListener(this);
 		LOGGER.exit();
@@ -104,19 +104,19 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 	private void createStartButton() {
 		button = new Button(parent, SWT.NONE);
 		if (serverManager.isRunning()) {
-			button.setText("Stop Server");
+			button.setText(Messages.ModuleView_STOP_SERVER);
 		} else {
-			button.setText("Start Server");
+			button.setText(Messages.ModuleView_START_SERVER);
 		}
-		button.setToolTipText("Start / Stop the server. duh.");
+		button.setToolTipText(Messages.ModuleView_START_SERVER_TOOLTIP);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (ServerManager.getDefault().isRunning()) {
-					ModuleView.this.serverStatus.setText("Stopping server…");
+					ModuleView.this.serverStatus.setText(Messages.ModuleView_STOPPING_SERVER);
 					ModuleView.this.activator.shutdownServer();
 				} else {
-					ModuleView.this.serverStatus.setText("Starting server…");
+					ModuleView.this.serverStatus.setText(Messages.ModuleView_STARTING_SERVER);
 					ModuleView.this.activator.startServer();
 				}
 			}
@@ -131,9 +131,9 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 
 		serverStatus = new Label(parent, 0);
 		if (serverManager.isRunning()) {
-			serverStatus.setText("Server running");
+			serverStatus.setText(Messages.ModuleView_SERVER_RUNNING);
 		} else {
-			serverStatus.setText("Server down");
+			serverStatus.setText(Messages.ModuleView_SERVER_DOWN);
 		}
 		serverStatus.setLayoutData(gridData);
 	}
@@ -158,12 +158,12 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 		moduleTable.setLayoutData(grid);
 
 		TableColumn column1 = new TableColumn(moduleTable, SWT.None);
-		column1.setText("Module ID");
+		column1.setText(Messages.ModuleView_MODULE_ID);
 		TableColumn column2 = new TableColumn(moduleTable, SWT.None);
-		column2.setText("Name");
+		column2.setText(Messages.ModuleView_MODULE_NAME);
 		TableColumn column3 = new TableColumn(moduleTable, SWT.None);
-		column3.setText("Location");
-		moduleTable.setToolTipText("Currently available modules");
+		column3.setText(Messages.ModuleView_LOCATION);
+		moduleTable.setToolTipText(Messages.ModuleView_CURRENTLY_AVAILABLE_MODULES);
 		/**
 		 * Collection<UUID> modules = getModules();
 		 * 
@@ -183,13 +183,13 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 	private synchronized void addID(final UUID id) {
 		LOGGER.entry(id);
 		if (!map.containsKey(id)) {
-			LOGGER.trace("id {} is new, adding", id);
+			LOGGER.trace("id {} is new, adding", id); //$NON-NLS-1$
 			TableItem item = new TableItem(moduleTable, SWT.NONE);
 			item.setText(0, id.toString());
 			map.put(id, item);
 
 		} else {
-			LOGGER.debug("trying to add existing id {}", id);
+			LOGGER.debug("trying to add existing id {}", id); //$NON-NLS-1$
 		}
 		LOGGER.exit();
 	}
@@ -204,11 +204,11 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 		LOGGER.entry(id);
 		TableItem item = map.get(id);
 		if (item != null) {
-			LOGGER.trace("found item {} for id {}", item, id);
+			LOGGER.trace("found item {} for id {}", item, id); //$NON-NLS-1$
 			moduleTable.remove(moduleTable.indexOf(item));
 			map.remove(id);
 		} else {
-			LOGGER.debug("trying to remove nonexistant id {}", id);
+			LOGGER.debug("trying to remove nonexistant id {}", id); //$NON-NLS-1$
 		}
 		LOGGER.exit();
 	}
@@ -264,8 +264,8 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 			@Override
 			public void run() {
 				if (serverStatus != null && button != null) {
-					serverStatus.setText("Server running");
-					button.setText("Stop Server");
+					serverStatus.setText(Messages.ModuleView_SERVER_RUNNING); //$NON-NLS-1$
+					button.setText(Messages.ModuleView_STOP_SERVER); //$NON-NLS-1$
 				}
 
 				synchronized (ModuleView.this) {
@@ -292,8 +292,8 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 					}
 				}
 				if (serverStatus != null && button != null) {
-					serverStatus.setText("Server down");
-					button.setText("Start Server");
+					serverStatus.setText(Messages.ModuleView_SERVER_DOWN); //$NON-NLS-1$
+					button.setText(Messages.ModuleView_START_SERVER); //$NON-NLS-1$
 				}
 			}
 		});

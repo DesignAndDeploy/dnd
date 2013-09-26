@@ -23,8 +23,35 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 
 	/**
 	 * String defining the name of the preference that stores the beacon interval in seconds.
+	 * 
+	 * These Strings are only used internally and never displayed to the user, therefore they are hard coded here and
+	 * weren't moved to the messages.propterties files.
 	 */
-	public static final String BEACON_INTERVAL = "beaconInterval";
+	public static final String BEACON_PREFERENCE = "beaconInterval";
+
+	/**
+	 * String defining the name of the preference that stores the listen configurations.
+	 * 
+	 * These Strings are only used internally and never displayed to the user, therefore they are hard coded here and
+	 * weren't moved to the messages.propterties files.
+	 */
+	public static final String LISTEN_PREFERENCE = "listen";
+
+	/**
+	 * String defining the name of the preference that stores the multicast configurations.
+	 * 
+	 * These Strings are only used internally and never displayed to the user, therefore they are hard coded here and
+	 * weren't moved to the messages.propterties files.
+	 */
+	public static final String MULTICAST_PREFERENCE = "multicast";
+
+	/**
+	 * String defining the name of the preference that stores the announce configurations.
+	 * 
+	 * These Strings are only used internally and never displayed to the user, therefore they are hard coded here and
+	 * weren't moved to the messages.propterties files.
+	 */
+	public static final String ANNOUNCE_PREFERENCE = "announce";
 
 	PrefList addrAndPorts;
 	PrefList multi;
@@ -55,7 +82,7 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-		setDescription("Set your Network Preferences here");
+		setDescription(Messages.PreferencesNetwork_DESCRIPTION);
 	}
 
 	@Override
@@ -72,22 +99,20 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		data2.grabExcessHorizontalSpace = true;
 
 		Label lAddr = new Label(parent, NONE);
-		lAddr.setText("Address for Eclipse:");
+		lAddr.setText(Messages.PreferencesNetwork_ADDRESS_FOR_ECLIPSE);
 		Text addr = new Text(parent, NONE);
-		addr.setToolTipText("Address for Eclipse");
 		addr.setLayoutData(data1);
 
 		Label lPort = new Label(parent, NONE);
-		lPort.setText("Port for Eclipse:");
+		lPort.setText(Messages.PreferencesNetwork_PORT_FOR_ECLIPSE);
 		Text port = new Text(parent, NONE);
-		port.setToolTipText("Port for Eclipse");
 		port.setLayoutData(data2);
 
 		List<TextCheck> addrAndPorts = new ArrayList<TextCheck>();
 		addrAndPorts.add(new TextAddress(addr));
 		addrAndPorts.add(new TextPort(port));
 
-		PrefList prefList = new PrefList("listen", "", parent, addrAndPorts);
+		PrefList prefList = new PrefList(LISTEN_PREFERENCE, "", parent, addrAndPorts); //$NON-NLS-1$ //$NON-NLS-2$
 		prefList.setPreferenceStore(getPreferenceStore());
 
 		return prefList;
@@ -105,21 +130,19 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		data3.grabExcessHorizontalSpace = true;
 
 		Label lAddr = new Label(parent, NONE);
-		lAddr.setText("Address for Multicast");
+		lAddr.setText(Messages.PreferencesNetwork_ADDRESS_FOR_MULTICASTS);
 		Text addr = new Text(parent, NONE);
-		addr.setToolTipText("Address for multicasts");
 		addr.setLayoutData(data1);
 
 		Label lPort = new Label(parent, NONE);
-		lPort.setText("Port for Multicast:");
+		lPort.setText(Messages.PreferencesNetwork_PORT_FOR_MULTICASTS);
 		Text port = new Text(parent, NONE);
-		port.setToolTipText("Port for multicasts");
 		port.setLayoutData(data2);
 
 		Label lNetwork = new Label(parent, NONE);
-		lNetwork.setText("Network for Multicast");
+		lNetwork.setText(Messages.PreferencesNetwork_NETWORK_FOR_MULTICASTS);
 		Text network = new Text(parent, NONE);
-		network.setToolTipText("Network interface");
+		network.setToolTipText(Messages.PreferencesNetwork_NETWORK_INTERFACE);
 		network.setLayoutData(data3);
 
 		List<TextCheck> multi = new ArrayList<TextCheck>();
@@ -127,7 +150,7 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		multi.add(new TextPort(port));
 		multi.add(new TextNetwork(network));
 
-		PrefList prefList = new PrefList("multicast", "", parent, multi);
+		PrefList prefList = new PrefList(MULTICAST_PREFERENCE, "", parent, multi); //$NON-NLS-1$ //$NON-NLS-2$
 		prefList.setPreferenceStore(getPreferenceStore());
 
 		return prefList;
@@ -142,32 +165,30 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		data2.grabExcessHorizontalSpace = true;
 
 		Label lAddr = new Label(parent, NONE);
-		lAddr.setText("Address to send via multicast:");
+		lAddr.setText(Messages.PreferencesNetwork_ADDRESS_ANNOUNCE);
 		Text addr = new Text(parent, NONE);
-		addr.setToolTipText("Address for Eclipse");
 		addr.setLayoutData(data1);
 
 		Label lPort = new Label(parent, NONE);
-		lPort.setText("Port to send via multicast:");
+		lPort.setText(Messages.PreferencesNetwork_PORT_ANNOUNCE);
 		Text port = new Text(parent, NONE);
-		port.setToolTipText("Port for Eclipse");
 		port.setLayoutData(data2);
 
 		List<TextCheck> content = new ArrayList<TextCheck>();
 		content.add(new TextAddress(addr));
 		content.add(new TextPort(port));
 
-		PrefList prefList = new PrefList("announce", "", parent, content);
+		PrefList prefList = new PrefList(ANNOUNCE_PREFERENCE, "", parent, content); //$NON-NLS-1$ //$NON-NLS-2$
 		prefList.setPreferenceStore(getPreferenceStore());
 
 		return prefList;
 	}
 
 	private IntervalEditor initBeaconInterval(Composite parent) {
-		IntervalEditor editor = new IntervalEditor(BEACON_INTERVAL, "Beacon Interval", parent);
+		IntervalEditor editor =
+				new IntervalEditor(BEACON_PREFERENCE, Messages.PreferencesNetwork_BEACON_INTERVAL, parent); //$NON-NLS-1$
 		editor.setPreferenceStore(getPreferenceStore());
-		getPreferenceStore().setDefault(BEACON_INTERVAL, UDPMulticastBeacon.DEFAULT_INTERVAL);
-		System.out.println("Im Prefstore: " + getPreferenceStore().getInt(BEACON_INTERVAL));
+		getPreferenceStore().setDefault(BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
 		return editor;
 	}
 

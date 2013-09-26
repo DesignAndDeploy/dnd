@@ -15,7 +15,7 @@ public class Preferences extends FieldEditorPreferencePage implements IWorkbench
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-		setDescription("General settings");
+		setDescription(Messages.Preferences_GENERAL_SETTINGS);
 	}
 
 	@Override

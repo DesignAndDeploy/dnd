@@ -19,7 +19,7 @@ public class TextNetwork extends TextCheck {
 	 *            Text Field to be checked later
 	 */
 	public TextNetwork(Text text) {
-		super(text, "Invalid Network Interface");
+		super(text, Messages.TextCheck_INVALID_NETWORK_INTERFACE);
 	}
 
 	@Override

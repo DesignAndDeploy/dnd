@@ -20,7 +20,7 @@ public class TextAddress extends TextCheck {
 	 *            Text Field to be checked later
 	 */
 	public TextAddress(Text text) {
-		super(text, "Invalid IP Address");
+		super(text, Messages.TextCheck_INVALID_IP_ADDRESS);
 	}
 
 	@Override

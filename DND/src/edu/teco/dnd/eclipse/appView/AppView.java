@@ -51,9 +51,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(AppView.class);
 
-	public static final String SORT_APP = "Sort by Apps";
+	public static final String SORT_APP = Messages.AppView_SORT_BY_APPS;
 
-	public static final String SORT_MOD = "Sort by Modules";
+	public static final String SORT_MOD = Messages.AppView_SORT_BY_MODS;
 
 	/**
 	 * Indicates that the applications are currently sorted by themselves.
@@ -130,7 +130,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 		display = Display.getCurrent();
 		if (display == null) {
 			display = Display.getDefault();
-			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display);
+			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display); //$NON-NLS-1$
 		}
 		appManager = ServerManager.getDefault().getApplicationManager();
 		appManager.addApplicationListener(this);
@@ -191,7 +191,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 				} else if (sorted == SORTED_BY_MODULES) {
 					AppView.this.moduleSelected();
 				} else {
-					warn("Something went wrong with sorting the applications. Please try to restart the view.");
+					warn(Messages.AppView_SORT_WARNING);
 				}
 			}
 		});
@@ -255,7 +255,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	private void sort(boolean toggleSortMode) {
 		clearTables();
 		killAppButton.setEnabled(false);
-		selectedInfoLabel.setText("<select on the left>");
+		selectedInfoLabel.setText(Messages.AppViewGraphics_DO_SELECT); //$NON-NLS-1$
 
 		if (toggleSortMode) {
 			if (sorted == SORTED_BY_APPS) {
@@ -276,9 +276,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 
 	private synchronized void sortByModules() {
 		selectedApp = null;
-		selectedLabel.setText("Module:");
-		appTable.getColumn(APP_INDEX).setText("Modules:");
-		blockTable.getColumn(BLOCK_INFO_INDEX).setText("Application:");
+		selectedLabel.setText(Messages.AppView_MODULE);
+		appTable.getColumn(APP_INDEX).setText(Messages.AppView_MODULES);
+		blockTable.getColumn(BLOCK_INFO_INDEX).setText(Messages.AppView_APPLICATION);
 		sortButton.setText(SORT_APP);
 		sorted = SORTED_BY_MODULES;
 
@@ -302,9 +302,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 
 	private synchronized void sortByApps() {
 		selectedModule = null;
-		selectedLabel.setText("Application:");
-		appTable.getColumn(APP_INDEX).setText("Applications:");
-		blockTable.getColumn(BLOCK_INFO_INDEX).setText("On Module:");
+		selectedLabel.setText(Messages.AppView_APPLICATION); //$NON-NLS-1$
+		appTable.getColumn(APP_INDEX).setText(Messages.AppView_APPLICATIONS);
+		blockTable.getColumn(BLOCK_INFO_INDEX).setText(Messages.AppView_ON_MODULE);
 		sortButton.setText(SORT_MOD);
 		sorted = SORTED_BY_APPS;
 
@@ -315,7 +315,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 			addUUIDAndItem(app.getAppId(), item);
 		}
 		if (selectedApp != null) {
-			System.out.println("Selected App nicht null");
+			System.out.println("Selected App nicht null"); //$NON-NLS-1$
 			appTable.setSelection(uuidToItem.get(selectedApp.getAppId()));
 			appSelected();
 		}
@@ -327,7 +327,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	 */
 	private void appSelected() {
 		if (sorted != SORTED_BY_APPS) {
-			warn("Something went terribly wrong. Please restart the Application View or retry sorting.");
+			warn(Messages.AppView_WARN_RESTART);
 			return;
 		}
 		blockTable.removeAll();
@@ -337,7 +337,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 		if (items.length == 1) {
 			TableItem selectedItem = items[0];
 			selectedApp = appManager.getMap().get(itemToUUID.get(selectedItem));
-			selectedInfoLabel.setText(selectedApp.getName() + " : " + selectedApp.getAppId().toString());
+			selectedInfoLabel.setText(selectedApp.getName() + Messages.AppView_COLON + selectedApp.getAppId().toString());
 			ModuleManager m = ServerManager.getDefault().getModuleManager();
 			Map<UUID, Module> uuidToModule = m.getMap();
 
@@ -347,7 +347,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 				String moduleText = moduleID.toString();
 
 				if (uuidToModule.containsKey(moduleID)) {
-					moduleText = uuidToModule.get(moduleID).getName().concat(" : " + moduleText);
+					moduleText = uuidToModule.get(moduleID).getName().concat(Messages.AppView_COLON + moduleText); //$NON-NLS-1$
 				}
 				for (UUID blockUUID : modToBlocks.get(moduleID)) {
 					TableItem item = new TableItem(blockTable, SWT.NONE);
@@ -356,7 +356,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 							selectedApp.getBlockName(blockUUID) == null ? blockUUID.toString() : selectedApp
 									.getBlockName(blockUUID));
 					item.setText(TYPE_INDEX,
-							selectedApp.getBlockType(blockUUID) == null ? "" : selectedApp.getBlockType(blockUUID));
+							selectedApp.getBlockType(blockUUID) == null ? Messages.AppView_EMPTYSTRING : selectedApp.getBlockType(blockUUID));
 					item.setText(BLOCK_INFO_INDEX, moduleText);
 					blockTableItemToModule.put(item, moduleID);
 				}
@@ -371,7 +371,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	 */
 	private void moduleSelected() {
 		if (sorted != SORTED_BY_MODULES) {
-			warn("Something went terribly wrong. Please restart the Application View or retry sorting.");
+			warn(Messages.AppView_WARN_RESTART); //$NON-NLS-1$
 			return;
 		}
 		blockTable.removeAll();
@@ -385,23 +385,23 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 			UUID moduleUUID = itemToUUID.get(selectedItem);
 			selectedModule = ServerManager.getDefault().getModuleManager().getMap().get(moduleUUID);
 			if (selectedModule == null) {
-				warn("The module hasn't been resolved yet.");
+				warn(Messages.AppView_MODULE_NOT_RESOLVED);
 				return;
 			}
-			selectedLabel.setText("Module:");
+			selectedLabel.setText(Messages.AppView_MODULE); //$NON-NLS-1$
 			selectedInfoLabel.setText(selectedModule.getName());
 
 			Map<UUID, Collection<ApplicationInformation>> moduleToApps = appManager.getModulesToApps();
 			Collection<ApplicationInformation> apps = moduleToApps.get(moduleUUID);
 			for (ApplicationInformation app : apps) {
 				String appText = app.getName();
-				appText = appText.concat(" : " + app.getAppId());
+				appText = appText.concat(Messages.AppView_COLON + app.getAppId()); //$NON-NLS-1$
 				for (UUID block : app.getBlocksRunningOn().get(moduleUUID)) {
 					TableItem item = new TableItem(blockTable, SWT.NONE);
 					item.setText(BLOCK_INDEX,
 							app.getBlockName(block) == null ? block.toString() : app.getBlockName(block));
 					item.setText(TYPE_INDEX,
-							app.getBlockType(block) == null ? "" : app.getBlockType(block));
+							app.getBlockType(block) == null ? Messages.AppView_EMPTYSTRING : app.getBlockType(block)); //$NON-NLS-1$
 					item.setText(BLOCK_INFO_INDEX, appText);
 					blockTableItemToApp.put(item, app);
 				}
@@ -417,8 +417,8 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 		TableItem[] items = blockTable.getSelection();
 		if (items.length == 1) {
 			selectedApp = blockTableItemToApp.get(items[0]);
-			selectedLabel.setText("Application selected:");
-			selectedInfoLabel.setText(selectedApp.getName() + " : " + selectedApp.getAppId().toString());
+			selectedLabel.setText(Messages.AppView_APP_SELECTED);
+			selectedInfoLabel.setText(selectedApp.getName() + Messages.AppView_COLON + selectedApp.getAppId().toString()); //$NON-NLS-1$
 		}
 		killAppButton.setEnabled(true);
 	}
@@ -540,7 +540,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 		Display display = Display.getCurrent();
 		Shell shell = new Shell(display);
 		MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
-		dialog.setText("Warning");
+		dialog.setText(Messages.AppView_WARNING);
 		dialog.setMessage(message);
 		return dialog.open();
 	}
@@ -552,9 +552,9 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	@Override
 	public void operationComplete(FutureNotifier<Collection<Response>> future) throws Exception {
 		if (!future.isSuccess()) {
-			warn("Something went wrong while cancelling the application.");
+			warn(Messages.AppView_CANCEL_ERROR);
 		}
-		System.out.println("App killed.");
+		System.out.println(Messages.AppView_APP_KILLED);
 		updateAppList();
 
 	}
