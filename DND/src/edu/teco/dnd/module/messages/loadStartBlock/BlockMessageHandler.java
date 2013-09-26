@@ -5,7 +5,6 @@ import java.util.UUID;
 import edu.teco.dnd.module.BlockDescription;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.UserSuppliedCodeException;
-import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -29,7 +28,7 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 	}
 
 	@Override
-	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, BlockMessage message) {
+	public Response handleMessage(UUID remoteUUID, BlockMessage message) {
 		final BlockDescription blockDescription = new BlockDescription(message.blockClass, message.blockName, message.blockUUID, message.options, message.outputs, message.scheduleToId);
 		try {
 			appManager.scheduleBlock(message.getApplicationID(), blockDescription);

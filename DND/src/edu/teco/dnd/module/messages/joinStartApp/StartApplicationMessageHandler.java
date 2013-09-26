@@ -3,7 +3,6 @@ package edu.teco.dnd.module.messages.joinStartApp;
 import java.util.UUID;
 
 import edu.teco.dnd.module.ModuleApplicationManager;
-import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -29,7 +28,7 @@ public class StartApplicationMessageHandler implements MessageHandler<StartAppli
 	}
 
 	@Override
-	public Response handleMessage(ConnectionManager connectionManager, UUID remoteUUID, StartApplicationMessage message) {
+	public Response handleMessage(UUID remoteUUID, StartApplicationMessage message) {
 		try {
 			appManager.startApp(message.getApplicationID());
 		} catch (IllegalArgumentException e) {

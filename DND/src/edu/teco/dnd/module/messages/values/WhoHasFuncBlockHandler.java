@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.Application;
-import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -42,8 +41,8 @@ public class WhoHasFuncBlockHandler implements MessageHandler<WhoHasBlockMessage
 	}
 
 	@Override
-	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, WhoHasBlockMessage message) {
-		LOGGER.entry(connMan, remoteUUID, message);
+	public Response handleMessage(UUID remoteUUID, WhoHasBlockMessage message) {
+		LOGGER.entry(remoteUUID, message);
 		if (app.isExecuting(message.blockId)) {
 			return new BlockFoundResponse(ownModUuid);
 		} else {

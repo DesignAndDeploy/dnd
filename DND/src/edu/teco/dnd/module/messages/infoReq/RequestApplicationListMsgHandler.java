@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ModuleApplicationManager;
-import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -34,7 +33,7 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 	}
 
 	@Override
-	public Response handleMessage(final ConnectionManager connectionManager, final UUID remoteUUID,
+	public Response handleMessage(final UUID remoteUUID,
 			final RequestApplicationListMessage message) {
 		final Map<UUID, String> applicationNames = new HashMap<UUID, String>();
 		final Map<UUID, String> uuidToBlockType = new HashMap<UUID, String>();

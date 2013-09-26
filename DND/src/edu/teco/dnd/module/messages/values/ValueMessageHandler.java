@@ -5,7 +5,6 @@ import java.util.UUID;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.NonExistentFunctionblockException;
 import edu.teco.dnd.module.NonExistentInputException;
-import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -32,7 +31,7 @@ public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 	}
 
 	@Override
-	public Response handleMessage(ConnectionManager connMan, UUID remoteUUID, ValueMessage message) {
+	public Response handleMessage(UUID remoteUUID, ValueMessage message) {
 		Response returnMsg = null;
 		try {
 			associatedApp.receiveValue(message.blockId, message.input, message.value);
