@@ -25,6 +25,8 @@ public class Messages extends NLS {
 	public static String DEPLOY_NO_BLOCKS;
 	public static String DEPLOY_NO_DIST_YET;
 	public static String DEPLOY_NO_MODULES;
+	public static String DEPLOY_NO_REGEX_NAME;
+	public static String DEPLOY_NO_REGEX_PLACE;
 	public static String DEPLOY_NO_VALID_DISTRIBUTION;
 	public static String DEPLOY_RENAMEBLOCK_TOOLTIP;
 	public static String DEPLOY_SELECTMODULE_TOOLTIP;

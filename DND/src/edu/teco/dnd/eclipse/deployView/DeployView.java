@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -353,7 +354,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		final Dependencies dependencies =
-				new Dependencies(StringUtil.joinArray(classPath, Messages.DEPLOY_COLON), Arrays.asList(Pattern.compile("java\\..*"), //$NON-NLS-2$
+				new Dependencies(StringUtil.joinArray(classPath, Messages.DEPLOY_COLON), Arrays.asList(Pattern.compile("java\\..*"), //$NON-NLS-2$ //$NON-NLS-1$
 						Pattern.compile("edu\\.teco\\.dnd\\..*"), Pattern.compile("com\\.google\\.gson\\..*"), //$NON-NLS-1$ //$NON-NLS-2$
 						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"), //$NON-NLS-1$ //$NON-NLS-2$
 						Pattern.compile("org\\.apache\\.logging\\.log4j"))); //$NON-NLS-1$
@@ -423,7 +424,23 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		String location = graphicsManager.getPlacesText();
-
+		String newName = graphicsManager.getBlockNameText();
+		try {
+			Pattern.compile(location);
+		} catch (PatternSyntaxException e) {
+			warn(Messages.DEPLOY_NO_REGEX_PLACE);
+			graphicsManager.addNewInfoText(Messages.DEPLOY_CONSTRAINTS_NOT_SAVED);
+			return;
+		}
+		try {
+			Pattern.compile(newName);
+		} catch (PatternSyntaxException e){
+			warn(Messages.DEPLOY_NO_REGEX_NAME);
+			graphicsManager.addNewInfoText(Messages.DEPLOY_CONSTRAINTS_NOT_SAVED);
+			return;
+			
+		}
+		
 		if (selectedIndex > 0) {
 			selectedID = idList.get(selectedIndex - 1);
 		} else {
@@ -453,8 +470,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		} else {
 			moduleConstraints.remove(selectedBlockModel);
 		}
-
-		String newName = graphicsManager.getBlockNameText();
 		selectedBlockModel.setBlockName(newName);
 		graphicsManager.displayConstraints(newName, module, location);
 
