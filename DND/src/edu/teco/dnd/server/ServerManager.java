@@ -86,16 +86,14 @@ public class ServerManager {
 	private static ApplicationManager applicationManager;
 
 	public static ServerManager getDefault() {
-		if (serverManager == null) {
-			synchronized (ServerManager.class) {
-				if (serverManager == null) {
-					serverManager = new ServerManager();
-					moduleManager = new ModuleManager();
-					applicationManager = new ApplicationManager();
-				}
+		synchronized (ServerManager.class) {
+			if (serverManager == null) {
+				serverManager = new ServerManager();
+				moduleManager = new ModuleManager();
+				applicationManager = new ApplicationManager();
 			}
+			return serverManager;
 		}
-		return serverManager;
 	}
 
 	private ServerManager() {
