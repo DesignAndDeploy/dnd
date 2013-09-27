@@ -45,7 +45,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	@Override
 	public IPaletteCompartmentEntry[] getPalette() {
 		List<IPaletteCompartmentEntry> palette = new ArrayList<IPaletteCompartmentEntry>();
-		PaletteCompartmentEntry connections = new PaletteCompartmentEntry(Messages.Graphiti_CONNECTIONS, null);
+		PaletteCompartmentEntry connections = new PaletteCompartmentEntry(Messages.Graphiti_PALETTE_CONNECTIONS, null);
 		palette.add(connections);
 		DNDCreateDataConnectionFeature dataConnectionFeature =
 				new DNDCreateDataConnectionFeature((DNDFeatureProvider) getFeatureProvider());
@@ -56,7 +56,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		connectionCreationToolEntry.addCreateConnectionFeature(dataConnectionFeature);
 		Map<String, List<ICreateFeature>> categories = new HashMap<String, List<ICreateFeature>>();
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
-			String category = Messages.Graphiti_OTHER;
+			String category = Messages.Graphiti_PALETTE_BLOCKS;
 			if (cf instanceof DNDCreateBlockFeature) {
 				// TODO: implement categories
 				if (!categories.containsKey(category)) {
