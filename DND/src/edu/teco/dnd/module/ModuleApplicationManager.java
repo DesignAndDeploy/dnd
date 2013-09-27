@@ -283,10 +283,10 @@ public class ModuleApplicationManager {
 	}
 
 	/**
-	 * increase the amount of $type, of the blocks allowed to run, after the blocks have stopped executing.
+	 * Removes FunctionBlocks from the BlockTypeHolders they are occupying.
 	 * 
 	 * @param blocks
-	 *            the blocks that stopped executing.
+	 *            the blocks to remove
 	 */
 	private void removeBlocks(final UUID appId, final Collection<FunctionBlockSecurityDecorator> blocks) {
 		for (final FunctionBlockSecurityDecorator singleBlock : blocks) {
@@ -295,13 +295,13 @@ public class ModuleApplicationManager {
 	}
 
 	/**
-	 * increase the amount of $type, of the blocks allowed to run, after the blocks have stopped executing.
+	 * Removes a FunctionBlock from the BlockTypeHolder it is occupying.
 	 * 
-	 * @param blocks
-	 *            the blocks that stopped executing.
+	 * @param block
+	 *            the block to remove
 	 */
-	private void removeBlock(final UUID appId, final FunctionBlockSecurityDecorator blocks) {
-		final BlockID blockID = new BlockID(blocks.getBlockUUID(), appId);
+	private void removeBlock(final UUID appId, final FunctionBlockSecurityDecorator block) {
+		final BlockID blockID = new BlockID(block.getBlockUUID(), appId);
 		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockID));
 		if (holder != null) {
 			holder.increase();
