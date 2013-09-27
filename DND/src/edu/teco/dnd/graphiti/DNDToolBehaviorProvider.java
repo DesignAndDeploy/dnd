@@ -16,6 +16,7 @@ import org.eclipse.graphiti.palette.IPaletteCompartmentEntry;
 import org.eclipse.graphiti.palette.impl.ConnectionCreationToolEntry;
 import org.eclipse.graphiti.palette.impl.ObjectCreationToolEntry;
 import org.eclipse.graphiti.palette.impl.PaletteCompartmentEntry;
+import org.eclipse.graphiti.palette.impl.StackEntry;
 import org.eclipse.graphiti.tb.DefaultToolBehaviorProvider;
 import org.eclipse.graphiti.tb.IContextButtonPadData;
 
@@ -54,9 +55,14 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 						dataConnectionFeature.getDescription(), null, null);
 		connections.addToolEntry(connectionCreationToolEntry);
 		connectionCreationToolEntry.addCreateConnectionFeature(dataConnectionFeature);
+		
 		Map<String, List<ICreateFeature>> categories = new HashMap<String, List<ICreateFeature>>();
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
 			String category = Messages.Graphiti_PALETTE_BLOCKS;
+			String[] classname = cf.getName().split("\\.");			
+			if (classname.length >= 2){
+				category = classname[classname.length - 2];
+			}
 			if (cf instanceof DNDCreateBlockFeature) {
 				// TODO: implement categories
 				if (!categories.containsKey(category)) {
