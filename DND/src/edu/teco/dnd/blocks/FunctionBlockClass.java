@@ -216,6 +216,15 @@ public class FunctionBlockClass {
 	public String getClassName() {
 		return blockClass.getClassName();
 	}
+	
+	public String getSimplifiedClassName(){
+		String className = blockClass.getClassName();
+		try {
+			className = className.substring(className.lastIndexOf(".") + 1);
+		} catch (NullPointerException e) {
+		}
+		return className;
+	}
 
 	@Override
 	public int hashCode() {

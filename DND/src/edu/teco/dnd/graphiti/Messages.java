@@ -11,7 +11,6 @@ public class Messages extends NLS {
 	public static String Graphiti_BRACE_RIGHT;
 	public static String Graphiti_CREATE_CONNECTION;
 	public static String Graphiti_CREATE_CONNECTION_DESCRIPTION;
-	public static String Graphiti_createBlock_BLOCK_CLASS_NULL;
 	public static String Graphiti_createBlock_CREATE_DESCRIPTION;
 	public static String Graphiti_DEBUG;
 	public static String Graphiti_DEBUG_DESCRIPTION;
@@ -19,6 +18,7 @@ public class Messages extends NLS {
 	public static String Graphiti_NOT_A_REGEX;
 	public static String Graphiti_PALETTE_BLOCKS;
 	public static String Graphiti_PALETTE_CONNECTIONS;
+	public static String Graphiti_PALETTE_OTHER;
 	public static String Graphiti_SPACE;
 	public static String Graphiti_UPDATE_CUSTOM;
 	public static String Graphiti_UPDATE_CUSTOM_DESCRIPTION;

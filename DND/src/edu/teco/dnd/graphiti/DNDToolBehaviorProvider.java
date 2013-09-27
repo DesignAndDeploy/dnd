@@ -55,19 +55,19 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 						dataConnectionFeature.getDescription(), null, null);
 		connections.addToolEntry(connectionCreationToolEntry);
 		connectionCreationToolEntry.addCreateConnectionFeature(dataConnectionFeature);
-		
+
 		Map<String, List<ICreateFeature>> categories = new HashMap<String, List<ICreateFeature>>();
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
-			String category = Messages.Graphiti_PALETTE_BLOCKS;
-			String[] classname = cf.getName().split("\\.");			
-			if (classname.length >= 2){
-				category = classname[classname.length - 2];
-			}
+			String category = Messages.Graphiti_PALETTE_OTHER;
 			if (cf instanceof DNDCreateBlockFeature) {
-				// TODO: implement categories
-				if (!categories.containsKey(category)) {
-					categories.put(category, new ArrayList<ICreateFeature>());
+				category = Messages.Graphiti_PALETTE_BLOCKS;
+				String[] classname = ((DNDCreateBlockFeature) cf).getBlockClass().getClassName().split("\\.");
+				if (classname.length >= 2) {
+					category = classname[classname.length - 2];
 				}
+			}
+			if (!categories.containsKey(category)) {
+				categories.put(category, new ArrayList<ICreateFeature>());
 			}
 			categories.get(category).add(cf);
 		}
@@ -86,6 +86,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 				pce.addToolEntry(new ObjectCreationToolEntry(cf.getName(), cf.getDescription(), null, null, cf));
 			}
 			palette.add(pce);
+
 		}
 		return palette.toArray(new IPaletteCompartmentEntry[0]);
 	}
@@ -109,10 +110,14 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 			}
 		} else if (bo instanceof OutputModel) {
 			OutputModel output = (OutputModel) bo;
-			name = output.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT + simplifyName(output.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$
+			name =
+					output.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT
+							+ simplifyName(output.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (bo instanceof InputModel) {
 			InputModel input = (InputModel) bo;
-			name = input.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT + simplifyName(input.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			name =
+					input.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT
+							+ simplifyName(input.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} else if (ga instanceof Text) {
 			name = ((Text) ga).getValue();
 		}

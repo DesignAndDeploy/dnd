@@ -34,11 +34,9 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 *            the type of FunctionBlocks to create
 	 */
 	public DNDCreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
-		super(fp, blockClass == null ? Messages.Graphiti_createBlock_BLOCK_CLASS_NULL : blockClass.getClassName(), Messages.Graphiti_createBlock_CREATE_DESCRIPTION
-				+ (blockClass == null ? Messages.Graphiti_createBlock_BLOCK_CLASS_NULL : blockClass.getClassName())); //$NON-NLS-1$
-		if (blockClass == null) {
-			throw new IllegalArgumentException("blockClass must not be null"); //$NON-NLS-1$
-		}
+		super(fp, blockClass == null ? "null" : blockClass.getSimplifiedClassName(), Messages.Graphiti_createBlock_CREATE_DESCRIPTION
+				+ (blockClass == null ? "null" : blockClass.getClassName())); //$NON-NLS-1$
+		
 		this.blockClass = blockClass;
 	}
 
