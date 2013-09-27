@@ -45,7 +45,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	@Override
 	public IPaletteCompartmentEntry[] getPalette() {
 		List<IPaletteCompartmentEntry> palette = new ArrayList<IPaletteCompartmentEntry>();
-		PaletteCompartmentEntry connections = new PaletteCompartmentEntry("Connections", null);
+		PaletteCompartmentEntry connections = new PaletteCompartmentEntry(Messages.Graphiti_CONNECTIONS, null);
 		palette.add(connections);
 		DNDCreateDataConnectionFeature dataConnectionFeature =
 				new DNDCreateDataConnectionFeature((DNDFeatureProvider) getFeatureProvider());
@@ -56,7 +56,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		connectionCreationToolEntry.addCreateConnectionFeature(dataConnectionFeature);
 		Map<String, List<ICreateFeature>> categories = new HashMap<String, List<ICreateFeature>>();
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
-			String category = "Other";
+			String category = Messages.Graphiti_OTHER;
 			if (cf instanceof DNDCreateBlockFeature) {
 				// TODO: implement categories
 				if (!categories.containsKey(category)) {
@@ -103,10 +103,10 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 			}
 		} else if (bo instanceof OutputModel) {
 			OutputModel output = (OutputModel) bo;
-			name = output.getName() + " (" + simplifyName(output.getType()) + ")";
+			name = output.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT + simplifyName(output.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (bo instanceof InputModel) {
 			InputModel input = (InputModel) bo;
-			name = input.getName() + " (" + simplifyName(input.getType()) + ")";
+			name = input.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT + simplifyName(input.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} else if (ga instanceof Text) {
 			name = ((Text) ga).getValue();
 		}
@@ -114,7 +114,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 			return name;
 		}
 		final Object superTip = super.getToolTip(ga);
-		return superTip instanceof String ? (String) superTip : "";
+		return superTip instanceof String ? (String) superTip : Messages.Graphiti_EMPTYSTRING; //$NON-NLS-1$
 	}
 
 	/**

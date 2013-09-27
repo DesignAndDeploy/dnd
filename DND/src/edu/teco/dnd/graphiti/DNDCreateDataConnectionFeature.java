@@ -24,6 +24,10 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(DNDCreateDataConnectionFeature.class);
 
+	private String name;
+	
+	private String description;
+	
 	/**
 	 * Passes the feature provider to the super constructor.
 	 * 
@@ -31,7 +35,9 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 	 *            the feature provider
 	 */
 	public DNDCreateDataConnectionFeature(final DNDFeatureProvider fp) {
-		super(fp, "Create connection", "Creates data connections");
+		super(fp, Messages.Graphiti_CREATE_CONNECTION, Messages.Graphiti_CREATE_CONNECTION_DESCRIPTION);
+		this.name = Messages.Graphiti_CREATE_CONNECTION;
+		this.description = Messages.Graphiti_CREATE_CONNECTION_DESCRIPTION;
 	}
 
 	/**
@@ -95,17 +101,25 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 		OutputModel output = (OutputModel) getBusinessObjectForPictogramElement(sourceAnchor);
 		InputModel input = (InputModel) getBusinessObjectForPictogramElement(targetAnchor);
 		if (input.getOutput() != null) {
-			LOGGER.info("Removing old connection");
+			LOGGER.info("Removing old connection"); //$NON-NLS-1$
 			IRemoveContext removeContext = new RemoveContext(targetAnchor.getIncomingConnections().get(0));
 			IRemoveFeature removeFeature = new DNDRemoveDataConnectionFeature(getFeatureProvider());
 			if (removeFeature.canExecute(removeContext)) {
 				removeFeature.execute(removeContext);
 			} else {
-				LOGGER.warn("could not remove");
+				LOGGER.warn("could not remove"); //$NON-NLS-1$
 			}
 		}
 		input.setOutput(output);
 		AddConnectionContext addContext = new AddConnectionContext(sourceAnchor, targetAnchor);
 		return (Connection) getFeatureProvider().addIfPossible(addContext);
+	}
+	
+	public String getName(){
+		return this.name;
+	}
+
+	public String getDescription(){
+		return this.description;
 	}
 }

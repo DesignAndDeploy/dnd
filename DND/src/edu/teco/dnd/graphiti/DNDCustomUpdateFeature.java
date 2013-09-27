@@ -28,12 +28,12 @@ public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 
 	@Override
 	public String getName() {
-		return "Update Block";
+		return Messages.Graphiti_UPDATE_CUSTOM;
 	}
 
 	@Override
 	public String getDescription() {
-		return "Update information (name and position) of this block.";
+		return Messages.Graphiti_UPDATE_CUSTOM_DESCRIPTION;
 	}
 
 	@Override

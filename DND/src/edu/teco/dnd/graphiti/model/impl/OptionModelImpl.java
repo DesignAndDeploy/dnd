@@ -204,7 +204,7 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 		if (newFunctionBlock != eInternalContainer()
 				|| (eContainerFeatureID() != ModelPackage.OPTION_MODEL__FUNCTION_BLOCK && newFunctionBlock != null)) {
 			if (EcoreUtil.isAncestor(this, newFunctionBlock))
-				throw new IllegalArgumentException("Recursive containment not allowed for " + toString());
+				throw new IllegalArgumentException("Recursive containment not allowed for " + toString()); //$NON-NLS-1$
 			NotificationChain msgs = null;
 			if (eInternalContainer() != null)
 				msgs = eBasicRemoveFromContainer(msgs);
@@ -364,11 +364,11 @@ public class OptionModelImpl extends EObjectImpl implements OptionModel {
 			return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (type: ");
+		result.append(Messages.OPTION_TOSTRING_TYPE);
 		result.append(type);
-		result.append(", value: ");
+		result.append(Messages.OPTION_TOSTRING_VALUE);
 		result.append(value);
-		result.append(", name: ");
+		result.append(Messages.OPTION_TOSTRING_NAME);
 		result.append(name);
 		result.append(')');
 		return result.toString();

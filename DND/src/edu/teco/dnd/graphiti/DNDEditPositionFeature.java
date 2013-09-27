@@ -98,7 +98,7 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 		try {
 			Pattern.compile(value);
 		} catch (PatternSyntaxException e) {
-			return "Not a regex";
+			return Messages.Graphiti_NOT_A_REGEX;
 		}
 		return null;
 	}

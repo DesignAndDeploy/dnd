@@ -159,7 +159,7 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 		if (newFunctionBlock != eInternalContainer()
 				|| (eContainerFeatureID() != ModelPackage.OUTPUT_MODEL__FUNCTION_BLOCK && newFunctionBlock != null)) {
 			if (EcoreUtil.isAncestor(this, newFunctionBlock))
-				throw new IllegalArgumentException("Recursive containment not allowed for " + toString());
+				throw new IllegalArgumentException("Recursive containment not allowed for " + toString()); //$NON-NLS-1$
 			NotificationChain msgs = null;
 			if (eInternalContainer() != null)
 				msgs = eBasicRemoveFromContainer(msgs);
@@ -361,9 +361,9 @@ public class OutputModelImpl extends EObjectImpl implements OutputModel {
 			return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (name: ");
+		result.append(Messages.Graphiti_impl_OUTPUT_TOSTRING_NAME);
 		result.append(name);
-		result.append(", type: ");
+		result.append(Messages.Graphiti_impl_OUTPUT_TOSTRING_TYPE);
 		result.append(type);
 		result.append(')');
 		return result.toString();

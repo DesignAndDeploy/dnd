@@ -155,7 +155,7 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 		if (newFunctionBlock != eInternalContainer()
 				|| (eContainerFeatureID() != ModelPackage.INPUT_MODEL__FUNCTION_BLOCK && newFunctionBlock != null)) {
 			if (EcoreUtil.isAncestor(this, newFunctionBlock))
-				throw new IllegalArgumentException("Recursive containment not allowed for " + toString());
+				throw new IllegalArgumentException("Recursive containment not allowed for " + toString()); //$NON-NLS-1$
 			NotificationChain msgs = null;
 			if (eInternalContainer() != null)
 				msgs = eBasicRemoveFromContainer(msgs);
@@ -417,9 +417,9 @@ public class InputModelImpl extends EObjectImpl implements InputModel {
 			return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (name: ");
+		result.append(Messages.INPUT_TOSTRING_NAME);
 		result.append(name);
-		result.append(", type: ");
+		result.append(Messages.INPUT_TOSTRING_TYPE);
 		result.append(type);
 		result.append(')');
 		return result.toString();

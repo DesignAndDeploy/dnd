@@ -34,12 +34,12 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 
 	@Override
 	public String getName() {
-		return "Debug";
+		return Messages.Graphiti_DEBUG;
 	}
 
 	@Override
 	public String getDescription() {
-		return "Logs debug information";
+		return Messages.Graphiti_DEBUG_DESCRIPTION;
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	@Override
 	public void execute(final ICustomContext context) {
 		if (!LOGGER.isDebugEnabled()) {
-			LOGGER.warn("debuging is not enabled");
+			LOGGER.warn("debuging is not enabled"); //$NON-NLS-1$
 			return;
 		}
 		for (PictogramElement pe : context.getPictogramElements()) {
@@ -90,7 +90,7 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	private void logConnection(final Connection connection) {
 		OutputModel output = (OutputModel) getBusinessObjectForPictogramElement(connection.getStart());
 		InputModel input = (InputModel) getBusinessObjectForPictogramElement(connection.getEnd());
-		LOGGER.debug("Connecting {}({}):{} to {}({}):{}", output.getFunctionBlock().getID(), output.getFunctionBlock()
+		LOGGER.debug("Connecting {}({}):{} to {}({}):{}", output.getFunctionBlock().getID(), output.getFunctionBlock() //$NON-NLS-1$
 				.getType(), output.getName(), input.getFunctionBlock().getID(), input.getFunctionBlock().getType(),
 				input.getName());
 	}
@@ -102,7 +102,7 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	 *            the FunctionBlock to inspect
 	 */
 	private void logFunctionBlock(final FunctionBlockModel block) {
-		LOGGER.debug("FunctionBlock {} of type {}", block.getID(), block.getType());
+		LOGGER.debug("FunctionBlock {} of type {}", block.getID(), block.getType()); //$NON-NLS-1$
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	 *            the Output to inspect
 	 */
 	private void logOutput(final OutputModel output) {
-		LOGGER.debug("Output {} of {} of type {}", output.getName(), output.getFunctionBlock().getType(),
+		LOGGER.debug("Output {} of {} of type {}", output.getName(), output.getFunctionBlock().getType(), //$NON-NLS-1$
 				output.getType());
 	}
 
@@ -123,6 +123,6 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	 *            the Input to inspect
 	 */
 	private void logInput(final InputModel input) {
-		LOGGER.debug("Input {} of {} of type {}", input.getName(), input.getFunctionBlock().getType(), input.getType());
+		LOGGER.debug("Input {} of {} of type {}", input.getName(), input.getFunctionBlock().getType(), input.getType()); //$NON-NLS-1$
 	}
 }

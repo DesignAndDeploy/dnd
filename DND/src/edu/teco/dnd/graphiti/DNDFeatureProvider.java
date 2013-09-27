@@ -82,6 +82,13 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	private Resource resource = null;
 
 	/**
+	 * Extension for the files the blocks are stored in. This file can be used to deploy the blocks after they've been
+	 * assembled in a .diagram file. This should be the same for all languages and therefore wasn't moved to the
+	 * Messages.
+	 */
+	public static final String BLOCKS_FILE_EXTENSION = "blocks";
+
+	/**
 	 * Default FunctionBlocks.
 	 */
 	private static final Class<?>[] DEFAULT_TYPES = new Class<?>[] { OutletActorBlock.class, BeamerOperatorBlock.class,
@@ -345,7 +352,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			URI uri = d.eResource().getURI();
 			uri = uri.trimFragment();
 			uri = uri.trimFileExtension();
-			uri = uri.appendFileExtension("blocks");
+			uri = uri.appendFileExtension(BLOCKS_FILE_EXTENSION);
 
 			ResourceSet rSet = d.eResource().getResourceSet();
 			final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -361,7 +368,6 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			}
 			resource = rSet.getResource(uri, true);
 			resource.setTrackingModification(true);
-			System.out.println("Resource vom Featureprovider erstellt. Trackt? " + resource.isTrackingModification());
 		}
 		return resource;
 	}
@@ -495,7 +501,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		URI uri = d.eResource().getURI();
 		uri = uri.trimFragment();
 		uri = uri.trimFileExtension();
-		uri = uri.appendFileExtension("blocks");
+		uri = uri.appendFileExtension(BLOCKS_FILE_EXTENSION);
 
 		Resource newResource = new XMIResourceImpl(uri);
 		try {

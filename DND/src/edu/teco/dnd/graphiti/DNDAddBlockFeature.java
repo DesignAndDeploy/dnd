@@ -38,17 +38,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 	/**
 	 * Key to distinguish between text fields.
 	 */
-	public static final String TEXT_KEY = "text-id";
-
-	/**
-	 * Value for the blockName text field.
-	 */
-	public static final String BLOCKNAME_TEXT = "blockName";
-
-	/**
-	 * Value for the position text field.
-	 */
-	public static final String POSITION_TEXT = "position";
+	public static final String TEXT_KEY = "text-id"; //$NON-NLS-1$
 
 	/**
 	 * Default width of a new block.
@@ -118,7 +108,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 	/**
 	 * Used to mark texts that show the name of an in- or output.
 	 */
-	public static final String CONNECTION_KEY = "connection";
+	public static final String CONNECTION_KEY = "connection"; //$NON-NLS-1$
 
 	/**
 	 * Used to mark texts that show the name of an in- or output.
@@ -133,15 +123,15 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 	/**
 	 * Color of the BackgroundSensor.
 	 */
-	public static final IColorConstant BACKGROUND_SENSOR = new ColorConstant("238BC2");
+	public static final IColorConstant BACKGROUND_SENSOR = new ColorConstant("238BC2"); //$NON-NLS-1$
 	/**
 	 * Color of the BackgroundActor.
 	 */
-	public static final IColorConstant BACKGROUND_ACTOR = new ColorConstant("BC80FF");
+	public static final IColorConstant BACKGROUND_ACTOR = new ColorConstant("BC80FF"); //$NON-NLS-1$
 	/**
 	 * Color of the other background.
 	 */
-	public static final IColorConstant BACKGROUND_OTHER = new ColorConstant("AAAAAA");
+	public static final IColorConstant BACKGROUND_OTHER = new ColorConstant("AAAAAA"); //$NON-NLS-1$
 
 	/**
 	 * Color of the text.
@@ -156,12 +146,12 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 	/**
 	 * Color of the inputs.
 	 */
-	public static final IColorConstant INPUT = new ColorConstant("FFFF00");
+	public static final IColorConstant INPUT = new ColorConstant("FFFF00"); //$NON-NLS-1$
 
 	/**
 	 * Color of the outputs.
 	 */
-	public static final IColorConstant OUTPUT = new ColorConstant("41DB00");
+	public static final IColorConstant OUTPUT = new ColorConstant("41DB00"); //$NON-NLS-1$
 
 	/**
 	 * Passes the feature provider to the super constructor.
@@ -201,7 +191,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		LOGGER.entry(context);
 		FunctionBlockModel addedBlock = (FunctionBlockModel) context.getNewObject();
 		Diagram targetDiagram = (Diagram) context.getTargetContainer();
-		LOGGER.debug("Adding {} to {}", addedBlock, targetDiagram);
+		LOGGER.debug("Adding {} to {}", addedBlock, targetDiagram); //$NON-NLS-1$
 
 		IPeCreateService peCreateService = Graphiti.getPeCreateService();
 		ContainerShape containerShape = peCreateService.createContainerShape(targetDiagram, true);
@@ -210,7 +200,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		RoundedRectangle roundedRectangle;
 
 		{
-			LOGGER.debug("creating outer rectangle");
+			LOGGER.debug("creating outer rectangle"); //$NON-NLS-1$
 			roundedRectangle = gaService.createRoundedRectangle(containerShape, CORNER_RADIUS, CORNER_RADIUS);
 			if (addedBlock.isSensor()) {
 				roundedRectangle.setBackground(manageColor(BACKGROUND_SENSOR));
@@ -234,7 +224,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		}
 
 		{
-			LOGGER.debug("adding separator");
+			LOGGER.debug("adding separator"); //$NON-NLS-1$
 			Shape shape = peCreateService.createShape(containerShape, false);
 
 			Polyline polyline =
@@ -244,22 +234,22 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		}
 
 		{
-			LOGGER.debug("adding name");
+			LOGGER.debug("adding name"); //$NON-NLS-1$
 			Shape shape = peCreateService.createShape(containerShape, false);
 
 			Text text = gaService.createText(shape, addedBlock.getTypeName());
 			text.setForeground(manageColor(TEXT));
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
-			text.setFont(gaService.manageFont(getDiagram(), "Arial", FONT_SIZE, false, true));
+			text.setFont(gaService.manageFont(getDiagram(), Messages.Graphiti_addBlock_FONTNAME, FONT_SIZE, false, true));
 			gaService.setLocationAndSize(text, 0, 0, DEFAULT_WIDTH, SEPARATOR_Y);
 
 			link(shape, addedBlock);
 		}
 
 		{
-			LOGGER.debug("adding blockName field");
+			LOGGER.debug("adding blockName field"); //$NON-NLS-1$
 			Shape nameShape = peCreateService.createShape(containerShape, false);
-			Text nameText = gaService.createText(nameShape, "Name:");
+			Text nameText = gaService.createText(nameShape, Messages.Graphiti_addBlock_NAME);
 			nameText.setForeground(manageColor(TEXT));
 			nameText.setHorizontalAlignment(Orientation.ALIGNMENT_LEFT);
 			gaService.setLocationAndSize(nameText, OPTION_EXTRA, BLOCKNAME_OFFSET - BLOCKNAME_SIZE / 2, DEFAULT_WIDTH
@@ -268,7 +258,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			Shape valueShape = peCreateService.createShape(containerShape, false);
 			String blockName = addedBlock.getBlockName();
 			if (blockName == null) {
-				blockName = "";
+				blockName = Messages.Graphiti_EMPTYSTRING;
 			}
 			Text valueText = gaService.createText(valueShape, blockName);
 			valueText.setForeground(manageColor(TEXT));
@@ -280,9 +270,9 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		}
 
 		{
-			LOGGER.debug("adding position");
+			LOGGER.debug("adding position"); //$NON-NLS-1$
 			Shape nameShape = peCreateService.createShape(containerShape, false);
-			Text nameText = gaService.createText(nameShape, "Position:");
+			Text nameText = gaService.createText(nameShape, Messages.Graphiti_addBlock_POSITION);
 			nameText.setForeground(manageColor(TEXT));
 			nameText.setHorizontalAlignment(Orientation.ALIGNMENT_LEFT);
 			gaService.setLocationAndSize(nameText, OPTION_EXTRA, POSITION_OFFSET - POSITION_SIZE / 2, DEFAULT_WIDTH / 2
@@ -291,7 +281,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			Shape valueShape = peCreateService.createShape(containerShape, false);
 			String position = addedBlock.getPosition();
 			if (position == null) {
-				position = "";
+				position = Messages.Graphiti_EMPTYSTRING; //$NON-NLS-1$
 			}
 			Text valueText = gaService.createText(valueShape, position);
 			valueText.setForeground(manageColor(TEXT));
@@ -304,7 +294,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 
 		createConnectionsAndOptions(addedBlock, containerShape, peCreateService, gaService);
 
-		LOGGER.debug("calling layout on {}", containerShape);
+		LOGGER.debug("calling layout on {}", containerShape); //$NON-NLS-1$
 		layoutPictogramElement(containerShape);
 
 		LOGGER.exit(containerShape);
@@ -327,11 +317,11 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 	private void createConnectionsAndOptions(final FunctionBlockModel addedBlock, final ContainerShape containerShape,
 			final IPeCreateService peCreateService, final IGaService gaService) {
 		{
-			LOGGER.debug("adding inputs");
+			LOGGER.debug("adding inputs"); //$NON-NLS-1$
 			int pos = CONNECTION_OFFSET;
 			for (Object inputObject : addedBlock.getInputs()) {
 				final InputModel input = (InputModel) inputObject;
-				LOGGER.trace("adding {} at {}", input, pos);
+				LOGGER.trace("adding {} at {}", input, pos); //$NON-NLS-1$
 				FixPointAnchor anchor = peCreateService.createFixPointAnchor(containerShape);
 				anchor.setLocation(gaService.createPoint(CONNECTION_SIZE / 2 + CONNECTION_EXTRA, pos - CONNECTION_SIZE
 						/ 2));
@@ -356,11 +346,11 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		}
 
 		{
-			LOGGER.debug("adding outputs");
+			LOGGER.debug("adding outputs"); //$NON-NLS-1$
 			int pos = CONNECTION_OFFSET;
 			for (Object outputObject : addedBlock.getOutputs()) {
 				final OutputModel output = (OutputModel) outputObject;
-				LOGGER.trace("adding {} at {}", output, pos);
+				LOGGER.trace("adding {} at {}", output, pos); //$NON-NLS-1$
 				FixPointAnchor anchor = peCreateService.createFixPointAnchor(containerShape);
 				anchor.setLocation(gaService.createPoint(DEFAULT_WIDTH - CONNECTION_SIZE / 2 - CONNECTION_EXTRA, pos
 						- CONNECTION_SIZE / 2));
@@ -378,7 +368,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 				gaService.setLocationAndSize(label, DEFAULT_WIDTH / 2 + CONNECTION_SIZE + 2 * CONNECTION_EXTRA, pos
 						- CONNECTION_SIZE, DEFAULT_WIDTH / 2 - CONNECTION_SIZE - CONNECTION_EXTRA * 5, CONNECTION_SIZE);
 				Graphiti.getPeService().setPropertyValue(label, CONNECTION_KEY, CONNECTION_VALUE);
-				LOGGER.trace("{}", Graphiti.getPeService().getProperty(label, CONNECTION_KEY));
+				LOGGER.trace("{}", Graphiti.getPeService().getProperty(label, CONNECTION_KEY)); //$NON-NLS-1$
 
 				pos += CONNECTION_SIZE + CONNECTION_SPACE;
 				link(anchor, output);
@@ -386,23 +376,23 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		}
 
 		{
-			LOGGER.debug("adding options");
+			LOGGER.debug("adding options"); //$NON-NLS-1$
 			int pos =
 					DNDAddBlockFeature.CONNECTION_OFFSET
 							+ Math.max(addedBlock.getInputs().size(), addedBlock.getOutputs().size())
 							* (DNDAddBlockFeature.CONNECTION_SIZE + DNDAddBlockFeature.CONNECTION_SPACE);
 			for (Object optionObject : addedBlock.getOptions()) {
 				final OptionModel option = (OptionModel) optionObject;
-				LOGGER.trace("adding {} at {}", option, pos);
+				LOGGER.trace("adding {} at {}", option, pos); //$NON-NLS-1$
 				Shape nameShape = peCreateService.createShape(containerShape, false);
-				Text nameText = gaService.createText(nameShape, option.getName() + ":");
+				Text nameText = gaService.createText(nameShape, option.getName() + ":"); //$NON-NLS-1$
 				nameText.setForeground(manageColor(TEXT));
 				nameText.setHorizontalAlignment(Orientation.ALIGNMENT_LEFT);
 				gaService.setLocationAndSize(nameText, OPTION_EXTRA, pos - CONNECTION_SIZE / 2, DEFAULT_WIDTH / 2 - 2
 						* OPTION_EXTRA, CONNECTION_SIZE);
 
 				Shape valueShape = peCreateService.createShape(containerShape, false);
-				Text valueText = gaService.createText(valueShape, "" + option.getValue());
+				Text valueText = gaService.createText(valueShape, Messages.Graphiti_EMPTYSTRING + option.getValue()); //$NON-NLS-1$
 				valueText.setForeground(manageColor(TEXT));
 				valueText.setHorizontalAlignment(Orientation.ALIGNMENT_RIGHT);
 				gaService.setLocationAndSize(valueText, DEFAULT_WIDTH / 2 + OPTION_EXTRA, pos - CONNECTION_SIZE / 2,

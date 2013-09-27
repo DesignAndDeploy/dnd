@@ -34,10 +34,10 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 *            the type of FunctionBlocks to create
 	 */
 	public DNDCreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
-		super(fp, blockClass == null ? "null" : blockClass.getClassName(), "Creates FunctionBlocks of the type"
-				+ (blockClass == null ? "null" : blockClass.getClassName()));
+		super(fp, blockClass == null ? Messages.Graphiti_createBlock_BLOCK_CLASS_NULL : blockClass.getClassName(), Messages.Graphiti_createBlock_CREATE_DESCRIPTION
+				+ (blockClass == null ? Messages.Graphiti_createBlock_BLOCK_CLASS_NULL : blockClass.getClassName())); //$NON-NLS-1$
 		if (blockClass == null) {
-			throw new IllegalArgumentException("blockClass must not be null");
+			throw new IllegalArgumentException("blockClass must not be null"); //$NON-NLS-1$
 		}
 		this.blockClass = blockClass;
 	}
@@ -102,14 +102,14 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 		// version for Graphiti <0.9.0. Calls DiagramEditorFactory.createResourceSetAndEditingDomain()
 		Class<?> diagramEditorFactoryClass = null;
 		try {
-			diagramEditorFactoryClass = loader.loadClass("org.eclipse.graphiti.ui.editor.DiagramEditorFactory");
+			diagramEditorFactoryClass = loader.loadClass("org.eclipse.graphiti.ui.editor.DiagramEditorFactory"); //$NON-NLS-1$
 		} catch (final ClassNotFoundException e) {
 		}
 		if (diagramEditorFactoryClass != null) {
 			Method createResourceSetAndEditingDomainMethod = null;
 			try {
 				createResourceSetAndEditingDomainMethod =
-						diagramEditorFactoryClass.getDeclaredMethod("createResourceSetAndEditingDomain");
+						diagramEditorFactoryClass.getDeclaredMethod("createResourceSetAndEditingDomain"); //$NON-NLS-1$
 			} catch (SecurityException e) {
 			} catch (NoSuchMethodException e) {
 			}
@@ -127,13 +127,13 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 		// version for Graphiti >=0.9.0. Calls GraphitiUiInternal.getEmfService().createResourceSetAndEditingDomain()
 		Class<?> graphitiUiInternalClass = null;
 		try {
-			graphitiUiInternalClass = loader.loadClass("org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal");
+			graphitiUiInternalClass = loader.loadClass("org.eclipse.graphiti.ui.internal.services.GraphitiUiInternal"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
 		}
 		if (graphitiUiInternalClass != null) {
 			Method getEmfServiceMethod = null;
 			try {
-				getEmfServiceMethod = graphitiUiInternalClass.getDeclaredMethod("getEmfService");
+				getEmfServiceMethod = graphitiUiInternalClass.getDeclaredMethod("getEmfService"); //$NON-NLS-1$
 			} catch (SecurityException e) {
 			} catch (NoSuchMethodException e) {
 			}
@@ -150,7 +150,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 			if (emfService != null) {
 				try {
 					createResourceSetAndEditingDomainMethod =
-							emfService.getClass().getDeclaredMethod("createResourceSetAndEditingDomain");
+							emfService.getClass().getDeclaredMethod("createResourceSetAndEditingDomain"); //$NON-NLS-1$
 				} catch (SecurityException e) {
 				} catch (NoSuchMethodException e) {
 				}
