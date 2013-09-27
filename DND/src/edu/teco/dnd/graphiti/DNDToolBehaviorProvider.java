@@ -73,6 +73,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		}
 		List<String> categoryList = new ArrayList<String>(categories.keySet());
 		Collections.sort(categoryList);
+		
 		for (String category : categoryList) {
 			PaletteCompartmentEntry pce = new PaletteCompartmentEntry(category, null);
 			List<ICreateFeature> cfs = categories.get(category);
@@ -86,7 +87,6 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 				pce.addToolEntry(new ObjectCreationToolEntry(cf.getName(), cf.getDescription(), null, null, cf));
 			}
 			palette.add(pce);
-
 		}
 		return palette.toArray(new IPaletteCompartmentEntry[0]);
 	}
