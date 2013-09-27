@@ -34,9 +34,4 @@ public class DNDDiagramTypeProvider extends AbstractDiagramTypeProvider {
 	public final IToolBehaviorProvider[] getAvailableToolBehaviorProviders() {
 		return new IToolBehaviorProvider[] { new DNDToolBehaviorProvider(this) };
 	}
-	
-	@Override
-	public boolean isAutoUpdateAtStartup(){
-		return true;
-	}
 }
