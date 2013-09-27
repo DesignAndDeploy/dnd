@@ -301,14 +301,14 @@ public class ModuleApplicationManager {
 	 *            the blocks that stopped executing.
 	 */
 	private void removeBlock(final UUID appId, final FunctionBlockSecurityDecorator blocks) {
-		final UUID blockUUID = blocks.getBlockUUID();
-		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(new BlockID(blockUUID, appId)));
+		final BlockID blockID = new BlockID(blocks.getBlockUUID(), appId);
+		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockID));
 		if (holder != null) {
 			holder.increase();
 		} else {
 			LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
 		}
-		spotOccupiedByBlock.remove(blockUUID);
+		spotOccupiedByBlock.remove(blockID);
 	}
 
 	/**
