@@ -85,10 +85,6 @@ public class DNDAddDataConnectionFeature extends AbstractAddFeature {
 		polyline.setForeground(manageColor(IColorConstant.RED));
 		LOGGER.debug("Polyline is {}", polyline);
 
-		// create link and wire it
-		LOGGER.debug("linking");
-		link(connection, getBusinessObjectForPictogramElement(addConContext.getTargetAnchor()));
-
 		LOGGER.exit(connection);
 		return connection;
 	}

@@ -51,10 +51,9 @@ public class DNDRemoveDataConnectionFeature extends DefaultRemoveFeature {
 	}
 
 	@Override
-	public void execute(final IContext context) {
-		Connection connection = (Connection) ((IRemoveContext) context).getPictogramElement();
+	public void preRemove(final IRemoveContext context) {
+		Connection connection = (Connection) context.getPictogramElement();
 		InputModel input = (InputModel) getBusinessObjectForPictogramElement(connection.getEnd());
 		input.setOutput(null);
-		super.execute(context);
 	}
 }
