@@ -240,7 +240,8 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			Text text = gaService.createText(shape, addedBlock.getTypeName());
 			text.setForeground(manageColor(TEXT));
 			text.setHorizontalAlignment(Orientation.ALIGNMENT_CENTER);
-			text.setFont(gaService.manageFont(getDiagram(), Messages.Graphiti_addBlock_FONTNAME, FONT_SIZE, false, true));
+			text.setFont(gaService
+					.manageFont(getDiagram(), Messages.Graphiti_addBlock_FONTNAME, FONT_SIZE, false, true));
 			gaService.setLocationAndSize(text, 0, 0, DEFAULT_WIDTH, SEPARATOR_Y);
 
 			link(shape, addedBlock);
@@ -253,7 +254,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			nameText.setForeground(manageColor(TEXT));
 			nameText.setHorizontalAlignment(Orientation.ALIGNMENT_LEFT);
 			gaService.setLocationAndSize(nameText, OPTION_EXTRA, BLOCKNAME_OFFSET - BLOCKNAME_SIZE / 2, DEFAULT_WIDTH
-					/ 2 - OPTION_EXTRA, BLOCKNAME_SIZE);
+					/ 2 - 2 * OPTION_EXTRA, BLOCKNAME_SIZE);
 
 			Shape valueShape = peCreateService.createShape(containerShape, false);
 			String blockName = addedBlock.getBlockName();
@@ -263,8 +264,8 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			Text valueText = gaService.createText(valueShape, blockName);
 			valueText.setForeground(manageColor(TEXT));
 			valueText.setHorizontalAlignment(Orientation.ALIGNMENT_RIGHT);
-			gaService.setLocationAndSize(valueText, DEFAULT_WIDTH / 2 + OPTION_EXTRA, BLOCKNAME_OFFSET
-					- CONNECTION_SIZE / 2, DEFAULT_WIDTH / 2 - 2 * OPTION_EXTRA, BLOCKNAME_SIZE);
+			gaService.setLocationAndSize(valueText, DEFAULT_WIDTH / 2 + OPTION_EXTRA, BLOCKNAME_OFFSET - BLOCKNAME_SIZE
+					/ 2, DEFAULT_WIDTH / 2 - 2 * OPTION_EXTRA, BLOCKNAME_SIZE);
 			TypePropertyUtil.setBlockNameText(valueText);
 			link(valueShape, addedBlock);
 		}
@@ -276,7 +277,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			nameText.setForeground(manageColor(TEXT));
 			nameText.setHorizontalAlignment(Orientation.ALIGNMENT_LEFT);
 			gaService.setLocationAndSize(nameText, OPTION_EXTRA, POSITION_OFFSET - POSITION_SIZE / 2, DEFAULT_WIDTH / 2
-					- OPTION_EXTRA, POSITION_SIZE);
+					- 2 * OPTION_EXTRA, POSITION_SIZE);
 
 			Shape valueShape = peCreateService.createShape(containerShape, false);
 			String position = addedBlock.getPosition();
@@ -286,7 +287,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 			Text valueText = gaService.createText(valueShape, position);
 			valueText.setForeground(manageColor(TEXT));
 			valueText.setHorizontalAlignment(Orientation.ALIGNMENT_RIGHT);
-			gaService.setLocationAndSize(valueText, DEFAULT_WIDTH / 2 + OPTION_EXTRA, POSITION_OFFSET - CONNECTION_SIZE
+			gaService.setLocationAndSize(valueText, DEFAULT_WIDTH / 2 + OPTION_EXTRA, POSITION_OFFSET - POSITION_SIZE
 					/ 2, DEFAULT_WIDTH / 2 - 2 * OPTION_EXTRA, POSITION_SIZE);
 			TypePropertyUtil.setPositionText(valueText);
 			link(valueShape, addedBlock);
@@ -298,7 +299,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		layoutPictogramElement(containerShape);
 
 		LOGGER.exit(containerShape);
-		
+
 		return containerShape;
 	}
 
