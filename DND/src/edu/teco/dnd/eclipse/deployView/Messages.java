@@ -26,12 +26,12 @@ public class Messages extends NLS {
 	public static String DEPLOY_NO_DIST_YET;
 	public static String DEPLOY_NO_MODULES;
 	public static String DEPLOY_NO_REGEX_NAME;
-	public static String DEPLOY_NO_REGEX_PLACE;
+	public static String DEPLOY_NO_REGEX_LOCATION;
 	public static String DEPLOY_NO_VALID_DISTRIBUTION;
 	public static String DEPLOY_RENAMEBLOCK_TOOLTIP;
 	public static String DEPLOY_SELECTMODULE_TOOLTIP;
 	public static String DEPLOY_SELECTMODULEOFFLINE_TOOLTIP;
-	public static String DEPLOY_SELECTPLACE_TOOLTIP;
+	public static String DEPLOY_SELECTLOCATION_TOOLTIP;
 	public static String DEPLOY_SERVER_NOT_RUNNING;
 	public static String DEPLOY_SERVER_NOT_RUNNING_INFO;
 	public static String DEPLOY_UPDATEBLOCKS_TOOLTIP;
@@ -52,7 +52,7 @@ public class Messages extends NLS {
 	public static String DEPLOYGRAPHICS_LOADING_APPLICATION;
 	public static String DEPLOYGRAPHICS_MODULE;
 	public static String DEPLOYGRAPHICS_NEWLINE;
-	public static String DEPLOYGRAPHICS_PLACE;
+	public static String DEPLOYGRAPHICS_LOCATION;
 	public static String DEPLOYGRAPHICS_SAVE_CONSTRAINTS;
 	public static String DEPLOYGRAPHICS_SELECT_BLOCK;
 	public static String DEPLOYGRAPHICS_SERVER_OFFLINE;

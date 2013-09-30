@@ -59,7 +59,7 @@ import edu.teco.dnd.util.StringUtil;
 
 /**
  * This class gives the user access to all functionality needed to deploy an application. The user can load an existing
- * data flow graph, rename its function blocks and constrain them to specific modules and / or places. The user can also
+ * data flow graph, rename its function blocks and constrain them to specific modules and / or locations. The user can also
  * create a distribution and deploy the function blocks on the modules.
  * 
  */
@@ -92,7 +92,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private UUID selectedID;
 	private FunctionBlockModel selectedBlockModel;
 	private Map<FunctionBlockModel, UUID> moduleConstraints = new HashMap<FunctionBlockModel, UUID>();
-	private Map<FunctionBlockModel, String> placeConstraints = new HashMap<FunctionBlockModel, String>();
+	private Map<FunctionBlockModel, String> locationConstraints = new HashMap<FunctionBlockModel, String>();
 
 	private URL[] classPath = new URL[0];
 
@@ -169,7 +169,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	/**
 	 * To be invoked before constraints are saved. This method does basically the same things like updateBlocks(), but
-	 * doesn't change the text fields for name, place and module to be assigned to a block. Therefore, whatever the user
+	 * doesn't change the text fields for name, location and module to be assigned to a block. Therefore, whatever the user
 	 * entered in these fields will still be available after the update and not be changed to the name and position the
 	 * block has within the graphiti diagram, so the constraints can still be saved for the selected block.
 	 */
@@ -244,7 +244,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private void addBlock(FunctionBlockModel model) {
 		String position = model.getPosition();
 		if (position != null && !position.isEmpty()) {
-			placeConstraints.put(model, position);
+			locationConstraints.put(model, position);
 		}
 		graphicsManager.createDeploymentItem(model.getBlockName(), position, model);
 	}
@@ -261,7 +261,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private synchronized void replaceBlock(FunctionBlockModel oldBlock, FunctionBlockModel newBlock) {
 		UUID module = moduleConstraints.get(oldBlock);
 		moduleConstraints.remove(oldBlock);
-		placeConstraints.remove(oldBlock);
+		locationConstraints.remove(oldBlock);
 
 		if (module != null) {
 			moduleConstraints.put(newBlock, module);
@@ -269,7 +269,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 		String newPosition = newBlock.getPosition();
 		if (newPosition != null && !newPosition.isEmpty()) {
-			placeConstraints.put(newBlock, newPosition);
+			locationConstraints.put(newBlock, newPosition);
 		}
 
 		graphicsManager.replaceBlock(newBlock.getBlockName(), newPosition, oldBlock, newBlock);
@@ -277,7 +277,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	private synchronized void removeBlock(FunctionBlockModel model) {
 		moduleConstraints.remove(model);
-		placeConstraints.remove(model);
+		locationConstraints.remove(model);
 		graphicsManager.disposeDeploymentItem(model);
 	}
 
@@ -304,7 +304,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		LOGGER.entry();
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
 		synchronized (this){
-			constraints.add(new UserConstraints(new HashMap<FunctionBlockModel, UUID>(moduleConstraints), placeConstraints));
+			constraints.add(new UserConstraints(new HashMap<FunctionBlockModel, UUID>(moduleConstraints), locationConstraints));
 		}
 
 		Distribution dist = null;
@@ -396,8 +396,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 		String position = null;
 
-		if (placeConstraints.containsKey(selectedBlockModel)) {
-			position = placeConstraints.get(selectedBlockModel);
+		if (locationConstraints.containsKey(selectedBlockModel)) {
+			position = locationConstraints.get(selectedBlockModel);
 		}
 		selectedIndex = idList.indexOf(moduleConstraints.get(selectedBlockModel)) + 1;
 
@@ -423,12 +423,12 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			return;
 		}
 
-		String location = graphicsManager.getPlacesText();
+		String location = graphicsManager.getLocationsText();
 		String newName = graphicsManager.getBlockNameText();
 		try {
 			Pattern.compile(location);
 		} catch (PatternSyntaxException e) {
-			warn(Messages.DEPLOY_NO_REGEX_PLACE);
+			warn(Messages.DEPLOY_NO_REGEX_LOCATION);
 			graphicsManager.addNewInfoText(Messages.DEPLOY_CONSTRAINTS_NOT_SAVED);
 			return;
 		}
@@ -457,9 +457,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		if (location.isEmpty()) {
-			placeConstraints.remove(selectedBlockModel);
+			locationConstraints.remove(selectedBlockModel);
 		} else {
-			placeConstraints.put(selectedBlockModel, location);
+			locationConstraints.put(selectedBlockModel, location);
 		}
 		selectedBlockModel.setPosition(location);
 

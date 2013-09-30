@@ -86,8 +86,8 @@ public class DeployViewGraphics {
 	private Label moduleLabel;
 	private Combo moduleCombo;
 	private Button createButton;
-	private Label placeLabel;
-	private Text placesText;
+	private Label locationLabel;
+	private Text locationsText;
 	private Button deployButton;
 	private Button saveConstraintsButton;
 	private StyledText infoText;
@@ -126,8 +126,8 @@ public class DeployViewGraphics {
 		createModuleLabel();
 		createModuleCombo();
 		createCreateButton();
-		createPlaceLabel();
-		createPlacesText();
+		createLocationLabel();
+		createLocationsText();
 		createDeployButton();
 		createConstraintsButton();
 		createInformationText();
@@ -170,7 +170,7 @@ public class DeployViewGraphics {
 		column1.setText(Messages.DEPLOYGRAPHICS_MODULE);
 		column1.setToolTipText(Messages.DEPLOY_COLUMN1_TOOLTIP);
 		TableColumn column2 = new TableColumn(deploymentTable, SWT.NONE);
-		column2.setText(Messages.DEPLOYGRAPHICS_PLACE);
+		column2.setText(Messages.DEPLOYGRAPHICS_LOCATION);
 		column2.setToolTipText(Messages.DEPLOY_COLUMN2_TOOLTIP);
 		TableColumn column3 = new TableColumn(deploymentTable, SWT.NONE);
 		column3.setText(Messages.DEPLOYGRAPHICS_DEPLOYED_ON);
@@ -340,33 +340,33 @@ public class DeployViewGraphics {
 		moduleCombo.remove(index);
 	}
 
-	// Places Text
+	// locations Text
 
-	private Label createPlaceLabel() {
+	private Label createLocationLabel() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.verticalSpan = 2;
-		placeLabel = new Label(parent, SWT.NONE);
-		placeLabel.setLayoutData(data);
-		placeLabel.setText(Messages.DEPLOYGRAPHICS_PLACE); //$NON-NLS-1$
-		placeLabel.setToolTipText(Messages.DEPLOY_SELECTPLACE_TOOLTIP);
-		placeLabel.pack();
-		return placeLabel;
+		locationLabel = new Label(parent, SWT.NONE);
+		locationLabel.setLayoutData(data);
+		locationLabel.setText(Messages.DEPLOYGRAPHICS_LOCATION); //$NON-NLS-1$
+		locationLabel.setToolTipText(Messages.DEPLOY_SELECTLOCATION_TOOLTIP);
+		locationLabel.pack();
+		return locationLabel;
 	}
 
-	private Text createPlacesText() {
+	private Text createLocationsText() {
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.BEGINNING;
 		data.horizontalAlignment = SWT.FILL;
-		placesText = new Text(parent, SWT.NONE);
-		placesText.setToolTipText(Messages.DEPLOY_SELECTPLACE_TOOLTIP);
-		placesText.setLayoutData(data);
-		placesText.setEnabled(false);
-		return placesText;
+		locationsText = new Text(parent, SWT.NONE);
+		locationsText.setToolTipText(Messages.DEPLOY_SELECTLOCATION_TOOLTIP);
+		locationsText.setLayoutData(data);
+		locationsText.setEnabled(false);
+		return locationsText;
 	}
 
-	protected String getPlacesText() {
-		return placesText.getText();
+	protected String getLocationsText() {
+		return locationsText.getText();
 	}
 
 	// Constraints Button
@@ -526,7 +526,7 @@ public class DeployViewGraphics {
 		if (modulesAvailable) {
 			moduleCombo.setEnabled(true);
 		}
-		placesText.setEnabled(true);
+		locationsText.setEnabled(true);
 		saveConstraintsButton.setEnabled(true);
 		blockNameText.setEnabled(true);
 
@@ -545,7 +545,7 @@ public class DeployViewGraphics {
 	}
 
 	protected void updateBlockSelection(final String newPosition, final String newBlockName, final int moduleSelection) {
-		placesText.setText(newPosition == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : newPosition); //$NON-NLS-1$
+		locationsText.setText(newPosition == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : newPosition); //$NON-NLS-1$
 		blockNameText.setText(newBlockName == null ? Messages.DEPLOYGRAPHICS_EMPTYSTRING : newBlockName); //$NON-NLS-1$
 		if (moduleSelection > -1) {
 			selectInModuleCombo(moduleSelection);
@@ -554,11 +554,11 @@ public class DeployViewGraphics {
 
 	protected void resetBlockSelection() {
 		selectedItem = null;
-		placesText.setText(Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
+		locationsText.setText(Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
 		blockNameText.setText(Messages.DEPLOYGRAPHICS_SELECT_BLOCK); //$NON-NLS-1$
 		blockNameText.setEnabled(false);
 		moduleCombo.setEnabled(false);
-		placesText.setEnabled(false);
+		locationsText.setEnabled(false);
 		saveConstraintsButton.setEnabled(false);
 	}
 
@@ -666,7 +666,7 @@ public class DeployViewGraphics {
 			}
 		});
 
-		placesText.addKeyListener(new DeployKeyAdapter(view) {
+		locationsText.addKeyListener(new DeployKeyAdapter(view) {
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode == ENTER) {
 					getView().saveConstraints();
