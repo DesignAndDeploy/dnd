@@ -300,7 +300,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	/**
 	 * Invoked whenever the Create Button is pressed.
 	 */
-	protected void create() {
+	protected void distribute() {
 		LOGGER.entry();
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
 		synchronized (this){

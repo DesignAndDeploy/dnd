@@ -85,7 +85,7 @@ public class DeployViewGraphics {
 	private Button updateBlocksButton;
 	private Label moduleLabel;
 	private Combo moduleCombo;
-	private Button createButton;
+	private Button distributeButton;
 	private Label locationLabel;
 	private Text locationsText;
 	private Button deployButton;
@@ -125,7 +125,7 @@ public class DeployViewGraphics {
 		createUpdateModulesButton();
 		createModuleLabel();
 		createModuleCombo();
-		createCreateButton();
+		createDistributionButton();
 		createLocationLabel();
 		createLocationsText();
 		createDeployButton();
@@ -173,10 +173,10 @@ public class DeployViewGraphics {
 		column2.setText(Messages.DEPLOYGRAPHICS_LOCATION);
 		column2.setToolTipText(Messages.DEPLOY_COLUMN2_TOOLTIP);
 		TableColumn column3 = new TableColumn(deploymentTable, SWT.NONE);
-		column3.setText(Messages.DEPLOYGRAPHICS_DEPLOYED_ON);
+		column3.setText(Messages.DEPLOYGRAPHICS_DISTRIBUTED_ON);
 		column3.setToolTipText(Messages.DEPLOY_COLUMN3_TOOLTIP);
 		TableColumn column4 = new TableColumn(deploymentTable, SWT.NONE);
-		column4.setText(Messages.DEPLOYGRAPHICS_DEPLOYED_AT);
+		column4.setText(Messages.DEPLOYGRAPHICS_DISTRIBUTED_AT);
 		column4.setToolTipText(Messages.DEPLOY_COLUMN4_TOOLTIP);
 
 		deploymentTable.getColumn(BLOCKNAME).pack();
@@ -232,14 +232,14 @@ public class DeployViewGraphics {
 
 	// Create Distribution Button
 
-	private Button createCreateButton() {
+	private Button createDistributionButton() {
 		GridData data = new GridData();
 		data.horizontalAlignment = SWT.FILL;
-		createButton = new Button(parent, SWT.NONE);
-		createButton.setLayoutData(data);
-		createButton.setText(Messages.DEPLOYGRAPHICS_CREATE_DEPLOYMENT);
-		createButton.setToolTipText(Messages.DEPLOY_CREATEDISTRIBUTION_TOOLTIP);
-		return createButton;
+		distributeButton = new Button(parent, SWT.NONE);
+		distributeButton.setLayoutData(data);
+		distributeButton.setText(Messages.DEPLOYGRAPHICS_CREATE_DISTRIBUTION);
+		distributeButton.setToolTipText(Messages.DEPLOY_CREATEDISTRIBUTION_TOOLTIP);
+		return distributeButton;
 	}
 
 	// Deploy Button
@@ -567,7 +567,7 @@ public class DeployViewGraphics {
 			serverButton.setText(Messages.DEPLOYGRAPHICS_STOP_SERVER); //$NON-NLS-1$
 		}
 		updateModulesButton.setEnabled(true);
-		createButton.setEnabled(true);
+		distributeButton.setEnabled(true);
 		moduleCombo.setToolTipText(Messages.DEPLOYGRAPHICS_EMPTYSTRING); //$NON-NLS-1$
 		if (infoText != null && infoTexts != null) {
 			addNewInfoText(Messages.DEPLOYGRAPHICS_SERVER_ONLINE);
@@ -579,7 +579,7 @@ public class DeployViewGraphics {
 			serverButton.setText(Messages.DEPLOYGRAPHICS_START_SERVER); //$NON-NLS-1$
 		}
 		updateModulesButton.setEnabled(false);
-		createButton.setEnabled(false);
+		distributeButton.setEnabled(false);
 		moduleCombo.setToolTipText(Messages.DEPLOY_SELECTMODULEOFFLINE_TOOLTIP);
 		if (infoText != null && infoTexts != null) {
 			addNewInfoText(Messages.DEPLOYGRAPHICS_SERVER_OFFLINE);
@@ -632,10 +632,10 @@ public class DeployViewGraphics {
 			}
 		});
 
-		createButton.addSelectionListener(new DeploySelectionAdapter(view) {
+		distributeButton.addSelectionListener(new DeploySelectionAdapter(view) {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().create();
+				getView().distribute();
 			}
 		});
 
