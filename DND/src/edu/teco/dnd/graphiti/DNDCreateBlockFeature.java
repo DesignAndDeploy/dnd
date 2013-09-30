@@ -79,12 +79,12 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 		 */
 		Diagram diagram = getDiagram();
 		TransactionalEditingDomain domain = createEditingDomain();
-		;
+		; //TODO why is there a single semicolon?
 		Assert.isNotNull(diagram.getDiagramTypeId());
 		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId(diagram.getDiagramTypeId());
 		Assert.isNotNull(providerId);
 		domain.getCommandStack().execute(new LinkCoreModelCommand(domain, diagram, newBlock, providerId));
-
+		
 		return new Object[] { newBlock };
 	}
 
