@@ -38,23 +38,17 @@ public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 
 	@Override
 	public boolean canExecute(ICustomContext context) {
-		boolean ret = false;
-		PictogramElement[] pes = context.getPictogramElements();
-		if (pes != null && pes.length == 1) {
-			Object bo = getBusinessObjectForPictogramElement(pes[0]);
-			if (bo instanceof FunctionBlockModel) {
-				PictogramElement pe = context.getInnerPictogramElement();
-				if (pe == null) {
-					ret = false;
-				} else if (pe.getGraphicsAlgorithm() instanceof Text) {
-					Text text = (Text) pe.getGraphicsAlgorithm();
-					if (TypePropertyUtil.isBlockNameText(text) || TypePropertyUtil.isPositionText(text)) {
-						ret = true;
-					}
+		PictogramElement pe = context.getInnerPictogramElement();
+		if (pe != null) {
+			Object bo = getBusinessObjectForPictogramElement(pe);
+			if (bo instanceof FunctionBlockModel && pe.getGraphicsAlgorithm() instanceof Text) {
+				Text text = (Text) pe.getGraphicsAlgorithm();
+				if (TypePropertyUtil.isBlockNameText(text) || TypePropertyUtil.isPositionText(text)) {
+					return true;
 				}
 			}
 		}
-		return ret;
+		return false;
 	}
 
 	@Override
