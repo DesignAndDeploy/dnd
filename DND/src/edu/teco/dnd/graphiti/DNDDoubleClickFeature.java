@@ -1,16 +1,15 @@
 package edu.teco.dnd.graphiti;
 
-import org.eclipse.graphiti.features.IDirectEditingFeature;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.graphiti.features.IDirectEditingInfo;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.context.IDoubleClickContext;
-import org.eclipse.graphiti.features.context.impl.DirectEditingContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
+import org.eclipse.graphiti.mm.pictograms.ContainerShape;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
-import org.eclipse.graphiti.ui.internal.parts.IAnchorContainerDelegate;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
@@ -47,19 +46,25 @@ public class DNDDoubleClickFeature extends AbstractCustomFeature {
 	@Override
 	public void execute(ICustomContext context) {
 		if (context instanceof IDoubleClickContext) {
-			IDoubleClickContext dcon = (IDoubleClickContext) context;
-			PictogramElement pe = dcon.getInnerPictogramElement();
+			PictogramElement pe = context.getInnerPictogramElement();
 			if (pe != null) {
 				GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 				if (getBusinessObjectForPictogramElement(pe) instanceof FunctionBlockModel && ga instanceof Text) {
-					Text text = (Text) pe.getGraphicsAlgorithm();
-					if (TypePropertyUtil.isBlockNameText(text)) {
-						//TODO: Open text field for block name.
-					} else if (TypePropertyUtil.isPositionText(text)) {
-						//And for location
+					Text text = (Text) ga;
+					if (TypePropertyUtil.isBlockNameText(ga) || TypePropertyUtil.isPositionText(text)) {
+						IDirectEditingInfo directEditingInfo = getFeatureProvider().getDirectEditingInfo();
+						EObject containingObject = pe.eContainer();
+						if (containingObject instanceof ContainerShape) {
+							directEditingInfo.setMainPictogramElement((ContainerShape) containingObject);
+							directEditingInfo.setPictogramElement(pe);
+							directEditingInfo.setGraphicsAlgorithm(text);
+							directEditingInfo.setActive(true);
+							getDiagramEditor().refresh();
+						}
 					}
 				}
 			}
 		}
 	}
+
 }
