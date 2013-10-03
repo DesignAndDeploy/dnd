@@ -41,7 +41,7 @@ public class HelloMessage extends Message {
 	 * 
 	 * @return the UUID of the sending module
 	 */
-	public UUID getUUID() {
+	public UUID getModuleUUID() {
 		return this.moduleUUID;
 	}
 

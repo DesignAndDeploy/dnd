@@ -774,7 +774,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 				LOGGER.exit(null);
 				return null;
 			}
-			final UUID remoteUUID = msg.getUUID();
+			final UUID remoteUUID = msg.getModuleUUID();
 			ctx.attr(REMOTE_UUID_KEY).set(remoteUUID);
 			ThreadContext.put("remoteUUID", remoteUUID.toString());
 			if (localUUID.equals(remoteUUID)) {
