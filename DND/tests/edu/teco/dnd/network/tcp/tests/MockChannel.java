@@ -1,6 +1,7 @@
 package edu.teco.dnd.network.tcp.tests;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import io.netty.channel.Channel;
@@ -76,7 +77,9 @@ public class MockChannel {
 	@SuppressWarnings("unchecked")
 	public <T> Attribute<T> attr(final AttributeKey<T> key) {
 		if (!attributes.containsKey(key)) {
-			attributes.put(key, mock(Attribute.class));
+			final Attribute<T> mockAttribute = mock(Attribute.class);
+			doAnswer(new SetAttributeAnswer<T>(key)).when(mockAttribute).set((T) any());
+			attributes.put(key, mockAttribute);
 		}
 		return (Attribute<T>) attributes.get(key);
 	}
@@ -85,6 +88,21 @@ public class MockChannel {
 		@Override
 		public Attribute<?> answer(final InvocationOnMock invocation) throws Throwable {
 			return attr((AttributeKey<?>) invocation.getArguments()[0]);
+		}
+	}
+
+	private class SetAttributeAnswer<T> implements Answer<Void> {
+		private final AttributeKey<T> key;
+
+		private SetAttributeAnswer(final AttributeKey<T> key) {
+			this.key = key;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Void answer(final InvocationOnMock invocation) throws Throwable {
+			setAttribute(key, (T) invocation.getArguments()[0]);
+			return null;
 		}
 	}
 }
