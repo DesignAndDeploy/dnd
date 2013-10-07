@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ ServerChannelManagerTest.class, ClientChannelManagerTest.class })
+@SuiteClasses({ ServerChannelManagerTest.class, ClientChannelManagerTest.class, HelloMessageHandlerTest.class })
 public class TCPTests {
 
 }
