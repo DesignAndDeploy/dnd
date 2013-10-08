@@ -121,7 +121,7 @@ public class Application {
 		// sending null is allowed, as some FunctionBlocks may make use of it
 
 		// FIXME: do sanitizing.
-		// doublecheck arguments because this is the only function callable from userspace, that has enhanced
+		// double check arguments because this is the only function callable from userspace, that has enhanced
 		// privileges.
 
 		sanitizedSendValue(funcBlock, input, value);
@@ -130,7 +130,7 @@ public class Application {
 	/**
 	 * Called by sendValue after the arguments have been properly sanitized to make sure there is no harmfull code in
 	 * them. Function is a way for userApplicationCode to be given advanced privileges. <br>
-	 * <b>Make sure to have doublecheck every Argument</b>
+	 * <b>Make sure to have double checked every Argument</b>
 	 * 
 	 * @param funcBlock
 	 *            see sendValue but sanitized
@@ -213,6 +213,8 @@ public class Application {
 	 * @throws UserSuppliedCodeException
 	 *             if some part of the code of the functionBlock (e.g. constructor) does throw an exception or otherwise
 	 *             misbehave (e.g. System.exit(),...)
+	 * @throws IllegalArgumentException
+	 *             if blockDescription.blockClassName is not a function block.
 	 */
 	public void scheduleBlock(final BlockDescription blockDescription) throws ClassNotFoundException,
 			UserSuppliedCodeException {
@@ -230,7 +232,8 @@ public class Application {
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
-			moduleApplicationManager.addToBlockTypeHolders(ownAppId, securityDecorator, blockDescription.blockTypeHolderId);
+			moduleApplicationManager.addToBlockTypeHolders(ownAppId, securityDecorator,
+					blockDescription.blockTypeHolderId);
 			LOGGER.trace("adding {} to scheduledToStart");
 			scheduledToStart.add(securityDecorator);
 			LOGGER.trace("saving block options");
@@ -254,15 +257,16 @@ public class Application {
 	 *             if the classloader can not find a class with this name.
 	 * @throws UserSuppliedCodeException
 	 *             If the given class misbehaves during initialization (throws errors...)
+	 * @throws IllegalArgumentException
+	 *             inf className is not a functionBlock.
 	 */
 	@SuppressWarnings("unchecked")
 	private FunctionBlockSecurityDecorator createFunctionBlockSecurityDecorator(final String className)
-			throws ClassNotFoundException, UserSuppliedCodeException {
+			throws ClassNotFoundException, UserSuppliedCodeException, IllegalArgumentException {
 		Class<?> cls = null;
 		cls = classLoader.loadClass(className);
 		if (!FunctionBlock.class.isAssignableFrom(cls)) {
 			throw new IllegalArgumentException("class " + className + " is not a FunctionBlock");
-			// FIXME: catch this somewhere!
 		}
 		return new FunctionBlockSecurityDecorator((Class<? extends FunctionBlock>) cls);
 	}
@@ -297,7 +301,7 @@ public class Application {
 				throw new IllegalArgumentException("tried to double start Application.");
 			}
 			isRunning = true;
-	
+
 			for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
 				startBlock(func);
 			}
@@ -423,7 +427,8 @@ public class Application {
 					try {
 						fun.shutdown();
 					} catch (UserSuppliedCodeException e) {
-						// TODO: handle malevolent block. Stop it, maybe?
+						LOGGER.catching(e);
+						LOGGER.info("Shutdown of block {} failed due to exception in blockCode.", fun.getBlockName());
 					}
 				}
 			}
@@ -433,14 +438,13 @@ public class Application {
 			@SuppressWarnings("deprecation")
 			public void run() {
 				shutdownThread.start();
-				try {
-					Thread.sleep(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
 
-					shutdownThread.interrupt();
-					Thread.sleep(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
-				} catch (InterruptedException e) {
-					// Ignoring
-				}
+				sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
+				LOGGER.info("shutdownThread is taking to long. Interrupting it.");
+				shutdownThread.interrupt();
+
+				sleepUninterrupted(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
+				LOGGER.warn("Shutdown thread hanging. Killing it.");
 				shutdownThread.stop();
 				// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
 				// yet there is no alternative to it if the victim is refusing to cooperate.
@@ -517,6 +521,26 @@ public class Application {
 		public void setValue(Serializable value) {
 			for (final ValueDestination destination : destinations) {
 				sendValue(destination.getBlock(), destination.getInput(), value);
+			}
+		}
+	}
+
+	/**
+	 * Behaves like a Thread.sleep(millisToSleep), with the exception, that all InterruptedExceptions are disregarded
+	 * (=have no influence on sleep time and are dropped)
+	 * 
+	 * @param millisToSleep
+	 *            time to sleep in milli seconds.
+	 */
+	private void sleepUninterrupted(long millisToSleep) {
+		long sleepTill = System.currentTimeMillis() + millisToSleep;
+		long timeLeftToSleep = millisToSleep;
+		while (timeLeftToSleep > 0) {
+			try {
+				Thread.sleep(timeLeftToSleep);
+				break;
+			} catch (InterruptedException e) {
+				timeLeftToSleep = sleepTill - System.currentTimeMillis();
 			}
 		}
 	}

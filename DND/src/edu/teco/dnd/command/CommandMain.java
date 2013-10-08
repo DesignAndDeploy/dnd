@@ -1,8 +1,8 @@
 package edu.teco.dnd.command;
 
-import java.util.Collection;
-
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import java.util.Collection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,7 +12,6 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.ModelPackage;
-import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.ServerManager;
 

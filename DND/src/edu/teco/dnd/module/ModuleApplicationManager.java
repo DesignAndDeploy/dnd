@@ -180,7 +180,7 @@ public class ModuleApplicationManager {
 	 * @throws ClassNotFoundException
 	 *             if the Class described in blockDescription can not be loaded by the application class loader.
 	 * @throws IllegalArgumentException
-	 *             if the application does not exist.
+	 *             if the application does not exist or scheduleBlock threw one.
 	 */
 	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException,
 			UserSuppliedCodeException, IllegalArgumentException {
@@ -207,7 +207,8 @@ public class ModuleApplicationManager {
 	 * @param blockTypeHolderId
 	 *            the ID of the blockTypeHolder to perform this on.
 	 */
-	public void addToBlockTypeHolders(final UUID appId, final FunctionBlockSecurityDecorator block, final int blockTypeHolderId) {
+	public void addToBlockTypeHolders(final UUID appId, final FunctionBlockSecurityDecorator block,
+			final int blockTypeHolderId) {
 		final BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(blockTypeHolderId);
 		if (holder == null) {
 			throw new IllegalArgumentException("There is no BlockTypeHolder with ID " + blockTypeHolderId);
