@@ -41,7 +41,7 @@ public class ApplicationClassLoader extends ClassLoader {
 	}
 
 	@Override
-	protected Class<?> loadClass(String name, boolean resolveIt) throws ClassNotFoundException {
+	protected synchronized Class<?> loadClass(String name, boolean resolveIt) throws ClassNotFoundException {
 
 		Class<?> clazz = classes.get(name);
 		if (clazz != null) {
@@ -93,7 +93,7 @@ public class ApplicationClassLoader extends ClassLoader {
 	 * @param classData
 	 *            The bytecode of the class to load.
 	 */
-	public void appLoadClass(String name, byte[] classData) {
+	public synchronized void appLoadClass(String name, byte[] classData) {
 		if (name == null) {
 			throw new IllegalArgumentException("name must not be null");
 		}

@@ -440,7 +440,7 @@ public class Application {
 				shutdownThread.start();
 
 				sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
-				LOGGER.info("shutdownThread is taking to long. Interrupting it.");
+				LOGGER.info("shutdownThread is taking too long. Interrupting it.");
 				shutdownThread.interrupt();
 
 				sleepUninterrupted(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
