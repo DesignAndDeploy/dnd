@@ -7,7 +7,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ ServerChannelManagerTest.class, ClientChannelManagerTest.class, ClientChannelInitializerTest.class,
 		HandlersByApplicationIDTest.class, MessageHandlerManagerTest.class, HelloMessageHandlerTest.class,
-		ConnectionEstablishedMessageHandlerTest.class })
+		ConnectionEstablishedMessageHandlerTest.class, ResponseFutureManagerTest.class })
 public class TCPTests {
 
 }
