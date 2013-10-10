@@ -1,6 +1,8 @@
 package edu.teco.dnd.module;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ChannelFactory;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
@@ -56,10 +58,11 @@ import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.values.ValueNak;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
-import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
-import edu.teco.dnd.network.messages.PeerMessage;
+import edu.teco.dnd.network.tcp.ClientBootstrapChannelFactory;
+import edu.teco.dnd.network.tcp.ServerBootstrapChannelFactory;
+import edu.teco.dnd.network.tcp.TCPConnectionManager;
 import edu.teco.dnd.util.Base64Adapter;
 import edu.teco.dnd.util.IndexedThreadFactory;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
@@ -180,18 +183,13 @@ public final class ModuleMain {
 		eventLoopGroups.add(applicationGroup);
 		eventLoopGroups.add(beaconGroup);
 
-		final TCPConnectionManager tcpConnMan =
-				new TCPConnectionManager(networkGroup, applicationGroup, new ChannelFactory<NioServerSocketChannel>() {
-					@Override
-					public NioServerSocketChannel newChannel() {
-						return new NioServerSocketChannel();
-					}
-				}, new ChannelFactory<NioSocketChannel>() {
-					@Override
-					public NioSocketChannel newChannel() {
-						return new NioSocketChannel();
-					}
-				}, moduleConfig.getUuid());
+		final ServerBootstrap serverBootstrap = new ServerBootstrap();
+		serverBootstrap.group(networkGroup, applicationGroup);
+		serverBootstrap.channel(NioServerSocketChannel.class);
+		final Bootstrap clientBootstrap = new Bootstrap();
+		clientBootstrap.group(networkGroup);
+		clientBootstrap.channel(NioSocketChannel.class);
+		final TCPConnectionManager tcpConnMan = new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap), new ClientBootstrapChannelFactory(clientBootstrap), moduleConfig.getUuid());
 		for (final InetSocketAddress address : moduleConfig.getListen()) {
 			tcpConnMan.startListening(address);
 		}
@@ -208,11 +206,6 @@ public final class ModuleMain {
 		for (final NetConnection address : moduleConfig.getMulticast()) {
 			udpMulticastBeacon.addAddress(address.getInterface(), address.getAddress());
 		}
-
-		tcpConnMan.addMessageType(PeerMessage.class);
-
-		// final PeerExchanger peerExchanger = new PeerExchanger(connectionManager);
-		// peerExchanger.addModule(moduleConfig.getUuid(), announce);
 
 		return tcpConnMan;
 	}
@@ -279,12 +272,12 @@ public final class ModuleMain {
 		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
 		// Module does not execute given application but received Message anyway, handlers
-		tcpConnMan.addHandler(null, LoadClassMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(null, BlockMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(null, StartApplicationMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(null, KillAppMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(null, ValueMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(null, WhoHasBlockMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(null, ShutdownModuleMessage.class, new ShutdownModuleHandler(appMan));
+		tcpConnMan.addHandler(LoadClassMessage.class, new MissingApplicationHandler());
+		tcpConnMan.addHandler(BlockMessage.class, new MissingApplicationHandler());
+		tcpConnMan.addHandler(StartApplicationMessage.class, new MissingApplicationHandler());
+		tcpConnMan.addHandler(KillAppMessage.class, new MissingApplicationHandler());
+		tcpConnMan.addHandler(ValueMessage.class, new MissingApplicationHandler());
+		tcpConnMan.addHandler(WhoHasBlockMessage.class, new MissingApplicationHandler());
+		tcpConnMan.addHandler(ShutdownModuleMessage.class, new ShutdownModuleHandler(appMan));
 	}
 }
