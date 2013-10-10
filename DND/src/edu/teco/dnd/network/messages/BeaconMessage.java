@@ -74,7 +74,7 @@ public class BeaconMessage extends Message {
 	 * 
 	 * @return the UUID of the module
 	 */
-	public UUID getUUID() {
+	public UUID getModuleUUID() {
 		return moduleUUID;
 	}
 
