@@ -7,7 +7,7 @@ import edu.teco.dnd.network.tcp.tests.TCPTests;
 
 
 @RunWith(Suite.class)
-@SuiteClasses({ TCPTests.class })
+@SuiteClasses({ TCPTests.class, DelegatingConnectionListenerTest.class })
 public class NetworkTests {
 
 }
