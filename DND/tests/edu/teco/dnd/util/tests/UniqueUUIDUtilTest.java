@@ -13,7 +13,7 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,7 +31,7 @@ public class UniqueUUIDUtilTest {
 	private final UUID extraUUID = UUID.fromString("00000000-0000-0000-0000-000000000042");
 
 	@Rule
-	public MethodRule globalTimeout = new Timeout(1000);
+	public TestRule globalTimeout = new Timeout(1000);
 
 	@Mock
 	private UUIDFactory factory;
