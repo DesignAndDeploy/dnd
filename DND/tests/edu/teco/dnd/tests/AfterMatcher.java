@@ -1,7 +1,7 @@
 package edu.teco.dnd.tests;
 
 import org.hamcrest.Description;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class AfterMatcher extends TypeSafeMatcher<Object> {
 	private final Object otherItem;

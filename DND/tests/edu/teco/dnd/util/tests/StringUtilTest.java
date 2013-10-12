@@ -1,5 +1,7 @@
 package edu.teco.dnd.util.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -9,7 +11,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import edu.teco.dnd.util.StringUtil;
-import static junit.framework.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class StringUtilTest {

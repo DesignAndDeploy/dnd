@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.hamcrest.Description;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class ContainsInOrder extends TypeSafeMatcher<Iterable<?>> {
 	private final List<? extends Object> expected;

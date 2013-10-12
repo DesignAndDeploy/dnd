@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.not;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class HasItemThat<T> extends TypeSafeMatcher<Iterable<? extends T>> {
 	private final Matcher<T> subMatcher;

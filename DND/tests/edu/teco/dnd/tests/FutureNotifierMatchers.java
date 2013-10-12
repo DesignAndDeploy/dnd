@@ -2,7 +2,7 @@ package edu.teco.dnd.tests;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 import edu.teco.dnd.util.FutureNotifier;
 
