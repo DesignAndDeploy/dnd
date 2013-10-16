@@ -8,17 +8,47 @@ import java.util.concurrent.ConcurrentMap;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
 
+/**
+ * <p>
+ * Manages {@link MessageHandler}s for multiple Message classes and Application IDs.
+ * </p>
+ * 
+ * <p>
+ * Handlers can be set for Message classes and can also be set for a specific Application ID only. If a handler is
+ * requested it is first check if an Application specific handler for the given Application ID is registered for the
+ * class of the Message. If there is no such handler it is checked if a default handler for the class is registered. If
+ * neither of them is found the superclass is checked until a handler is found or Message itself was checked.
+ * </p>
+ * 
+ * @author Philipp Adolf
+ */
 public class MessageHandlerManager {
 	private final ConcurrentMap<Class<? extends Message>, HandlersByApplicationID<? extends Message>> handlers =
 			new ConcurrentHashMap<Class<? extends Message>, HandlersByApplicationID<? extends Message>>();
 
-	public <T extends Message> void setDefaultHandler(final Class<T> messageClass, final MessageHandler<? super T> handler) {
+	/**
+	 * Sets the default handler for a Message class.
+	 * 
+	 * @param messageClass
+	 *            the class the default handler should be set for
+	 * @param handler
+	 *            the handler that should be used as the default handler
+	 */
+	public <T extends Message> void setDefaultHandler(final Class<T> messageClass,
+			final MessageHandler<? super T> handler) {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
 		synchronized (messageClassHandlers) {
 			messageClassHandlers.setDefaultHandler(handler);
 		}
 	}
 
+	/**
+	 * Sets an Application specific handler.
+	 * 
+	 * @param messageClass
+	 * @param handler
+	 * @param applicationID
+	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
 			final UUID applicationID) {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
@@ -43,7 +73,7 @@ public class MessageHandlerManager {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
 		MessageHandler<? super T> handler = null;
 		synchronized (messageClassHandlers) {
-			handler = messageClassHandlers.getDefaultHandler();	
+			handler = messageClassHandlers.getDefaultHandler();
 		}
 		if (handler == null) {
 			try {
@@ -88,7 +118,8 @@ public class MessageHandlerManager {
 		}
 	}
 
-	// In case HandlersByApplicationID are removed in other parts of the code this may lead to NullPointerExceptions
+	// TODO: In case HandlersByApplicationID are removed in other parts of the code this may lead to
+	// NullPointerExceptions
 	@SuppressWarnings("unchecked")
 	private <T extends Message> HandlersByApplicationID<T> getHandlersForClass(final Class<T> messageClass) {
 		HandlersByApplicationID<T> handlersForClass = (HandlersByApplicationID<T>) handlers.get(messageClass);
