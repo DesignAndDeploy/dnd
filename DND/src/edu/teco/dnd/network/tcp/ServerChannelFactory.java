@@ -11,7 +11,18 @@ import java.net.SocketAddress;
  * @author Philipp Adolf
  */
 public interface ServerChannelFactory {
+	/**
+	 * Create a new Channel that listens on the given address.
+	 * 
+	 * @param address the address to listen on
+	 * @return a FutureNotifier that will return the Channel
+	 */
 	ChannelFutureNotifier bind(SocketAddress address);
 
+	/**
+	 * Sets the initializer that will be called to initialize new Channels.
+	 * 
+	 * @param initializer the initializer to call for new Channels
+	 */
 	void setChildChannelInitializer(ChannelHandler initializer);
 }
