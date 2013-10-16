@@ -11,6 +11,18 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 
+/**
+ * <p>
+ * Handles incoming {@link ConnectionEstablishedMessage}s.
+ * </p>
+ * 
+ * <p>
+ * The handler does some sanity checks for the remote UUID sent with the message and if they are passed marks the
+ * Channel as active.
+ * </p>
+ * 
+ * @author Philipp Adolf
+ */
 @Sharable
 public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHandler<ConnectionEstablishedMessage> {
 	private static final Logger LOGGER = LogManager.getLogger(ConnectionEstablishedMessageHandler.class);
@@ -33,7 +45,7 @@ public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHan
 				LOGGER.exit();
 				return;
 			}
-			
+
 			final UUID storedRemoteUUID = getChannelRemoteUUID(ctx);
 			final UUID messageRemoteUUID = msg.getRemoteUUID();
 			if (storedRemoteUUID != null && !storedRemoteUUID.equals(messageRemoteUUID)) {
@@ -43,28 +55,28 @@ public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHan
 				LOGGER.exit();
 				return;
 			}
-			
+
 			if (messageRemoteUUID == null) {
 				LOGGER.warn("got ConnectionEtablishedMessage with UUID null, closing");
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
-			
+
 			if (localUUID.equals(messageRemoteUUID)) {
 				LOGGER.warn("got ConnectionEstablishedMessage with my own UUID, closing");
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
-			
+
 			if (isMasterFor(messageRemoteUUID)) {
 				LOGGER.warn("got ConnectionEstablishedMessage from a slave, closing");
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
-			
+
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("setting channel {} to {} active", ctx.channel(), messageRemoteUUID);
 			}
@@ -73,7 +85,7 @@ public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHan
 			LOGGER.exit();
 		}
 	}
-	
+
 	private boolean isActive(final ChannelHandlerContext ctx) {
 		return clientChannelManager.isActive(ctx.channel());
 	}
