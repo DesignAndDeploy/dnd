@@ -10,11 +10,24 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.util.DefaultFutureNotifier;
 
+/**
+ * <p>Creates and updates {@link ResponseFutureNotifier}s.</p>
+ * 
+ * @author Philipp Adolf
+ */
 public class ResponseFutureManager {
 	private static Logger LOGGER = LogManager.getLogger();
 	
 	private final Map<UUID, ResponseFutureNotifier> responseFutureNotifier = new HashMap<UUID, ResponseFutureNotifier>();
 	
+	/**
+	 * Creates a new ResponseFutureNotifier for a given Message UUID.
+	 * 
+	 * @param sourceUUID the UUID of the Message the ResponseFutureNotifier should be for
+	 * @return a ResponseFutureNotifier for the given Message UUID
+	 * @throws IllegalArgumentException if <code>sourceUUID</code> is null
+	 * @throws IllegalStateException if there already is a ResponseFutureNotifier for the given UUID
+	 */
 	public ResponseFutureNotifier createResponseFuture(final UUID sourceUUID) {
 		LOGGER.entry(sourceUUID);
 		if (sourceUUID == null) {
@@ -30,6 +43,11 @@ public class ResponseFutureManager {
 		return LOGGER.exit(newNotifier);
 	}
 	
+	/**
+	 * Sets the state of the matching ResponseFutureNotifier to success.
+	 * 
+	 * @param response the Response that was received
+	 */
 	public void setSuccess(final Response response) {
 		LOGGER.entry(response);
 		final UUID sourceUUID = response.getSourceUUID();
@@ -43,6 +61,12 @@ public class ResponseFutureManager {
 		LOGGER.exit();
 	}
 	
+	/**
+	 * Sets the state of the ResponseFutureNotifier for the given UUID to failure.
+	 * 
+	 * @param sourceUUID the UUID for which no Response will be received
+	 * @param cause the cause for the failure
+	 */
 	public void setFailure(final UUID sourceUUID, final Throwable cause) {
 		LOGGER.entry(sourceUUID, cause);
 		ResponseFutureNotifier notifier = null;
@@ -55,6 +79,11 @@ public class ResponseFutureManager {
 		LOGGER.exit();
 	}
 	
+	/**
+	 * A FutureNotifier that will return a Response.
+	 * 
+	 * @author Philipp Adolf
+	 */
 	public class ResponseFutureNotifier extends DefaultFutureNotifier<Response> {
 		private final UUID sourceUUID;
 		
@@ -62,6 +91,11 @@ public class ResponseFutureManager {
 			this.sourceUUID = sourceUUID;
 		}
 		
+		/**
+		 * Returns the UUID of the Message the Response is for.
+		 * 
+		 * @return the UUID of the Message the Response is for
+		 */
 		public UUID getSourceUUID() {
 			return sourceUUID;
 		}
