@@ -29,8 +29,9 @@ public interface ConnectionManager {
 	 *            the UUID of the module the message should be sent to
 	 * @param message
 	 *            the message that should be sent
-	 * @return a FutureNotifier that will return the Response for the message. Will return null if it is used to send a
-	 *         Response
+	 * @return a FutureNotifier that will return the Response for the message. If this method is called to send a
+	 *         Response the FutureNotifier will only reflect whether or not sending the Response to the connected client
+	 *         has succeeded. The result will always be null in this case.
 	 */
 	public FutureNotifier<Response> sendMessage(UUID uuid, Message message);
 
