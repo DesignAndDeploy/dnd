@@ -138,7 +138,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	private boolean isLong(final Class<?> cls) {
-		return Long.class.isAssignableFrom(cls);
+		return Long.class.isAssignableFrom(cls) || long.class.isAssignableFrom(cls);
 	}
 
 	private final Object getFieldValue(final Field field) throws IllegalArgumentException, IllegalAccessException {
