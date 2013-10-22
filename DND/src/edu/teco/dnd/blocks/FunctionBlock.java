@@ -19,6 +19,10 @@ public abstract class FunctionBlock implements Serializable {
 	 */
 	private static final long serialVersionUID = 7444744469990667015L;
 
+	private static final String BLOCK_TYPE_FIELD_NAME = "BLOCK_TYPE";
+
+	private static final String BLOCK_UPDATE_INTERVAL_FIELD_NAME = "BLOCK_UPDATE_INTERVAL";
+
 	/**
 	 * The UUID of the block. Will be set in {@link #doInit(UUID, String)}. Is used as an indicator to see if doInit has
 	 * been called.
@@ -80,24 +84,14 @@ public abstract class FunctionBlock implements Serializable {
 			for (final Field field : c.getDeclaredFields()) {
 				final Class<?> type = field.getType();
 				final String name = field.getName();
-				if (Output.class.isAssignableFrom(type) && !outputs.containsKey(name)) {
-					final Output<?> output = new Output<Serializable>();
-					field.setAccessible(true);
-					field.set(this, output);
-					outputs.put(name, output);
-				} else if (Input.class.isAssignableFrom(type) && !inputs.containsKey(name)) {
-					final Input<?> input = new Input<Serializable>();
-					field.setAccessible(true);
-					field.set(this, input);
-					inputs.put(name, input);
-				} else if (String.class.isAssignableFrom(type) && blockType == null
-						&& "BLOCK_TYPE".equals(field.getName())) {
-					field.setAccessible(true);
-					blockType = (String) field.get(this);
-				} else if (Long.class.isAssignableFrom(type) && updateInterval == null
-						&& "BLOCK_UPDATE_INTERVAL".equals(field.getName())) {
-					field.setAccessible(true);
-					updateInterval = (Long) field.get(this);
+				if (isOutput(type) && !outputs.containsKey(name)) {
+					outputs.put(name, createOutput(field));
+				} else if (isInput(type) && !inputs.containsKey(name)) {
+					inputs.put(name, createInput(field));
+				} else if (isBlockType(field) && blockType == null) {
+					blockType = (String) getFieldValue(field);
+				} else if (isUpdateInterval(field) && updateInterval == null) {
+					updateInterval = (Long) getFieldValue(field);
 				}
 			}
 		}
@@ -107,6 +101,49 @@ public abstract class FunctionBlock implements Serializable {
 		if (this.updateInterval == null) {
 			this.updateInterval = Long.MIN_VALUE;
 		}
+	}
+	
+	private static final boolean isOutput(final Class<?> cls) {
+		return Output.class.isAssignableFrom(cls);
+	}
+
+	private final Output<?> createOutput(Field field) throws IllegalArgumentException, IllegalAccessException {
+		final Output<?> output = new Output<Serializable>();
+		field.setAccessible(true);
+		field.set(this, output);
+		return output;
+	}
+
+	private static final boolean isInput(final Class<?> cls) {
+		return Input.class.isAssignableFrom(cls);
+	}
+	
+	private final Input<?> createInput(final Field field) throws IllegalArgumentException, IllegalAccessException {
+		final Input<?> input = new Input<Serializable>();
+		field.setAccessible(true);
+		field.set(this, input);
+		return input;
+	}
+
+	private boolean isBlockType(final Field field) {
+		return isString(field.getType()) && BLOCK_TYPE_FIELD_NAME.equals(field.getName());
+	}
+
+	private static final boolean isString(final Class<?> cls) {
+		return String.class.isAssignableFrom(cls);
+	}
+
+	private boolean isUpdateInterval(Field field) {
+		return isLong(field.getType()) && BLOCK_UPDATE_INTERVAL_FIELD_NAME.equals(field.getName());
+	}
+
+	private boolean isLong(final Class<?> cls) {
+		return Long.class.isAssignableFrom(cls);
+	}
+
+	private final Object getFieldValue(final Field field) throws IllegalArgumentException, IllegalAccessException {
+		field.setAccessible(true);
+		return field.get(this);
 	}
 
 	/**
