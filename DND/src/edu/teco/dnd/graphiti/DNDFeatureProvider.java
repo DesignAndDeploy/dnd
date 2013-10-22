@@ -52,7 +52,7 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import org.eclipse.graphiti.ui.features.DefaultFeatureProvider;
 
 import edu.teco.dnd.blocks.FunctionBlockClass;
-import edu.teco.dnd.blocks.FunctionBlockFactory;
+import edu.teco.dnd.blocks.FunctionBlockClassFactory;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.OptionModel;
@@ -109,7 +109,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * Used to inspect FunctionBlocks.
 	 */
-	private FunctionBlockFactory blockFactory;
+	private FunctionBlockClassFactory blockFactory;
 
 	/**
 	 * Whether or not {@link #createFeatureFactory} was initialised.
@@ -146,9 +146,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * Registers default create features at the factory.
 	 */
 	private void registerDefaultTypes() {
-		final FunctionBlockFactory factory;
+		final FunctionBlockClassFactory factory;
 		try {
-			factory = new FunctionBlockFactory(SyntheticRepository.getInstance());
+			factory = new FunctionBlockClassFactory(SyntheticRepository.getInstance());
 		} catch (final ClassNotFoundException e) {
 			LOGGER.catching(Level.WARN, e);
 			return;
@@ -180,7 +180,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			final Set<IPath> ipaths = getProjectClassPath();
 			repository = SyntheticRepository.getInstance(new ClassPath(StringUtil.joinIterable(ipaths, ":")));
 			try {
-				blockFactory = new FunctionBlockFactory(repository);
+				blockFactory = new FunctionBlockClassFactory(repository);
 			} catch (final ClassNotFoundException e) {
 				LOGGER.catching(e);
 			}
@@ -210,7 +210,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 * 
 	 * @return the FunctionBlockFactory
 	 */
-	public final synchronized FunctionBlockFactory getFunctionBlockFactory() {
+	public final synchronized FunctionBlockClassFactory getFunctionBlockFactory() {
 		initialiseFactory();
 		return blockFactory;
 	}
