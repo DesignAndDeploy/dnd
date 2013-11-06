@@ -4,7 +4,7 @@ Design and Deploy (or DND for short) is a framework for developing applications 
 
 Current status
 --------------
-DND is not yet ready for general use. Right now the only thing that is usable is the dataflow graph editor (explained below) is working, but we're working on getting the network layer ready to get some of the basic features ready.
+DND still has a lot of rough edges, however if you can live with a hickup now and then you should have a good experience using it. Note that things may change in ways that’ll break code you’ll write now. But as function blocks are rather simple adjusting them shouldn’t be hard.
 
 To run the graph editor you'll need Eclipse 3.7 or newer. The Eclipse plugins EMF and Graphiti (Incubation) are needed. They can be installed from Eclipse package manager using the update site for your Eclipse version. Right now we don't have a binary version, so you'll have to import the project into Eclipse and choose Run As > Eclipse Application.
 
