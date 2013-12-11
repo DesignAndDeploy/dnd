@@ -28,8 +28,7 @@ public class DatagramPacketWrapper extends MessageToMessageCodec<DatagramPacket,
 	/**
 	 * The AttributeKey for the target address. The address must be attached to the context of this ChannelHandler.
 	 */
-	public static final AttributeKey<InetSocketAddress> TARGET_ADDRESS = new AttributeKey<InetSocketAddress>(
-			"targetAddress");
+	public static final AttributeKey<InetSocketAddress> TARGET_ADDRESS = AttributeKey.valueOf("targetAddress");
 
 	@Override
 	protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {

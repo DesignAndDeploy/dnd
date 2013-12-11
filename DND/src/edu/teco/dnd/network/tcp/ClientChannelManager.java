@@ -35,8 +35,8 @@ import edu.teco.dnd.network.DelegatingConnectionListener;
 public class ClientChannelManager implements RemoteUUIDResolver {
 	private static final Logger LOGGER = LogManager.getLogger(ClientChannelManager.class);
 
-	private static final AttributeKey<UUID> REMOTE_UUID_KEY = new AttributeKey<UUID>("remote UUID");
-	private static final AttributeKey<Boolean> ACTIVE_KEY = new AttributeKey<Boolean>("active");
+	private static final AttributeKey<UUID> REMOTE_UUID_KEY = AttributeKey.valueOf("remote UUID");
+	private static final AttributeKey<Boolean> ACTIVE_KEY = AttributeKey.valueOf("active");
 
 	private final Set<Channel> channels = new HashSet<Channel>();
 	private final Map<UUID, Set<Channel>> channelsByRemoteUUID = new HashMap<UUID, Set<Channel>>();
