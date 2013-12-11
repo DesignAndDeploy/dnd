@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
@@ -43,6 +44,22 @@ public class MessageHandlerManager {
 	}
 
 	/**
+	 * Sets the default handler for a Message class.
+	 * 
+	 * @param messageClass
+	 *            the class the default handler should be set for
+	 * @param handler
+	 *            the handler that should be used as the default handler
+	 */
+	public <T extends Message> void setDefaultHandler(final Class<T> messageClass,
+			final MessageHandler<? super T> handler, final Executor executor) {
+		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
+		synchronized (messageClassHandlers) {
+			messageClassHandlers.setDefaultHandler(handler, executor);
+		}
+	}
+
+	/**
 	 * Sets an Application specific handler.
 	 * 
 	 * @param messageClass
@@ -58,6 +75,21 @@ public class MessageHandlerManager {
 	}
 
 	/**
+	 * Sets an Application specific handler.
+	 * 
+	 * @param messageClass
+	 * @param handler
+	 * @param applicationID
+	 */
+	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
+			final UUID applicationID, final Executor executor) {
+		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
+		synchronized (messageClassHandlers) {
+			messageClassHandlers.setHandler(applicationID, handler, executor);
+		}
+	}
+
+	/**
 	 * Returns the default handler for a given Message class. The search is recursive, that is if the given class has no
 	 * default handler the class' superclass is checked until Message itself is reached. If no default handler can be
 	 * found a NoSuchElementException is thrown.
@@ -69,15 +101,15 @@ public class MessageHandlerManager {
 	 *             if neither the class nor its superclasses have a default handler
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends Message> MessageHandler<? super T> getDefaultHandler(final Class<T> messageClass) {
+	public <T extends Message> MessageHandlerWithExecutor<T> getDefaultHandler(final Class<T> messageClass) {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
-		MessageHandler<? super T> handler = null;
+		MessageHandlerWithExecutor<T> handler = null;
 		synchronized (messageClassHandlers) {
-			handler = messageClassHandlers.getDefaultHandler();
+			handler = messageClassHandlers.getDefaultHandlerWithExecutor();
 		}
 		if (handler == null) {
 			try {
-				return (MessageHandler<? super T>) getDefaultHandler(getMessageSuperclass(messageClass));
+				return (MessageHandlerWithExecutor<T>) getDefaultHandler(getMessageSuperclass(messageClass));
 			} catch (final IllegalArgumentException e) {
 				throw new NoSuchElementException("no message handler found");
 			}
@@ -100,16 +132,17 @@ public class MessageHandlerManager {
 	 *             if the class and its superclasses have neither an Application specific handler nor a default handler
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends Message> MessageHandler<? super T> getHandler(final Class<T> messageClass,
+	public <T extends Message> MessageHandlerWithExecutor<T> getHandler(final Class<T> messageClass,
 			final UUID applicationID) {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
-		MessageHandler<? super T> handler = null;
+		MessageHandlerWithExecutor<T> handler = null;
 		synchronized (messageClassHandlers) {
-			handler = messageClassHandlers.getHandler(applicationID);
+			handler = messageClassHandlers.getHandlerWithExecutor(applicationID);
 		}
 		if (handler == null) {
 			try {
-				return (MessageHandler<? super T>) getHandler(getMessageSuperclass(messageClass), applicationID);
+				return (MessageHandlerWithExecutor<T>) getHandler(getMessageSuperclass(messageClass),
+						applicationID);
 			} catch (final IllegalArgumentException e) {
 				throw new NoSuchElementException("no message handler found");
 			}

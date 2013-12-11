@@ -33,6 +33,8 @@ public class ClientMessageDispatcherTest {
 	private static UUID remoteUUID;
 
 	@Mock
+	private Channel channel;
+	@Mock
 	private ChannelHandlerContext channelHandlerContext;
 
 	@Mock
@@ -67,7 +69,6 @@ public class ClientMessageDispatcherTest {
 
 	@Before
 	public void setupDispatcher() {
-		final Channel channel = mock(Channel.class);
 		when(channelHandlerContext.channel()).thenReturn(channel);
 		final RemoteUUIDResolver resolver = mock(RemoteUUIDResolver.class);
 		when(resolver.getRemoteUUID(channel)).thenReturn(remoteUUID);
@@ -93,7 +94,7 @@ public class ClientMessageDispatcherTest {
 	public void testDefaultResponseWithoutHandler() throws Exception {
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
 
-		verify(channelHandlerContext).writeAndFlush(isNotNull(DefaultResponse.class));
+		verify(channel).writeAndFlush(isNotNull(DefaultResponse.class));
 	}
 
 	@Test
@@ -103,7 +104,7 @@ public class ClientMessageDispatcherTest {
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
 
-		verify(channelHandlerContext).writeAndFlush(isNotNull(DefaultResponse.class));
+		verify(channel).writeAndFlush(isNotNull(DefaultResponse.class));
 	}
 
 	@Test
@@ -113,7 +114,7 @@ public class ClientMessageDispatcherTest {
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
 
-		verify(channelHandlerContext).writeAndFlush(isNotNull(DefaultResponse.class));
+		verify(channel).writeAndFlush(isNotNull(DefaultResponse.class));
 	}
 
 	@Test
@@ -124,7 +125,7 @@ public class ClientMessageDispatcherTest {
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
 
-		verify(channelHandlerContext).writeAndFlush(response);
+		verify(channel).writeAndFlush(response);
 	}
 
 	@Test
