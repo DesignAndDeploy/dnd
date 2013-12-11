@@ -216,8 +216,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	@Override
 	public <T extends Message> void addHandler(final UUID appid, final Class<? extends T> msgType,
 			final MessageHandler<? super T> handler, final Executor executor) {
-		LOGGER.warn("executors not implemented");
-		addHandler(appid, msgType, handler);
+		messageDispatcher.setHandler(msgType, handler, appid, executor);
 	}
 
 	@Override
@@ -229,8 +228,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	@Override
 	public <T extends Message> void addHandler(final Class<? extends T> msgType,
 			final MessageHandler<? super T> handler, final Executor executor) {
-		LOGGER.warn("executors not implemented");
-		addHandler(msgType, handler);
+		messageDispatcher.setDefaultHandler(msgType, handler, executor);
 	}
 
 	@Override
