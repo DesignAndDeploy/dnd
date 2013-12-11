@@ -1,6 +1,8 @@
 package edu.teco.dnd.server;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ChannelFactory;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
@@ -35,8 +37,10 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.network.TCPConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.network.tcp.ClientBootstrapChannelFactory;
+import edu.teco.dnd.network.tcp.ServerBootstrapChannelFactory;
+import edu.teco.dnd.network.tcp.TCPConnectionManager;
 import edu.teco.dnd.util.NetConnection;
 
 /**
@@ -126,7 +130,7 @@ public class ServerManager {
 		}
 
 		TCPConnectionManager connectionManager = null;
-		EventLoopGroup networkEventLoopGroup = null;
+		EventLoopGroup applicationEventLoopGroup = null;
 		final List<NetConnection> multicast = getMulticast(multicastAddress);
 		final List<InetSocketAddress> listen = getListen(listenAddress);
 		final List<InetSocketAddress> announce = getAnnounce(announceAddress);
@@ -138,24 +142,20 @@ public class ServerManager {
 				return;
 			}
 
-			networkEventLoopGroup = new NioEventLoopGroup();
-			OioEventLoopGroup oioEventLoopGroup = new OioEventLoopGroup();
+			applicationEventLoopGroup = new NioEventLoopGroup();
+			EventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
+			EventLoopGroup oioEventLoopGroup = new OioEventLoopGroup();
 			eventExecutorGroups.add(networkEventLoopGroup);
 			eventExecutorGroups.add(oioEventLoopGroup);
 
-			connectionManager =
-					new TCPConnectionManager(networkEventLoopGroup, networkEventLoopGroup,
-							new ChannelFactory<NioServerSocketChannel>() {
-								@Override
-								public NioServerSocketChannel newChannel() {
-									return new NioServerSocketChannel();
-								}
-							}, new ChannelFactory<NioSocketChannel>() {
-								@Override
-								public NioSocketChannel newChannel() {
-									return new NioSocketChannel();
-								}
-							}, uuid);
+
+			final ServerBootstrap serverBootstrap = new ServerBootstrap();
+			serverBootstrap.group(networkEventLoopGroup, applicationEventLoopGroup);
+			serverBootstrap.channel(NioServerSocketChannel.class);
+			final Bootstrap clientBootstrap = new Bootstrap();
+			clientBootstrap.group(networkEventLoopGroup);
+			clientBootstrap.channel(NioSocketChannel.class);
+			connectionManager = new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap), new ClientBootstrapChannelFactory(clientBootstrap), uuid);
 			ModuleMain.globalRegisterMessageAdapterType(connectionManager);
 			this.connectionManager = connectionManager;
 
@@ -198,7 +198,7 @@ public class ServerManager {
 		beacon.setAnnounceAddresses(beaconAddresses);
 
 		final TCPConnectionManager conMan = connectionManager;
-		networkEventLoopGroup.execute(new Runnable() {
+		applicationEventLoopGroup.execute(new Runnable() {
 			@Override
 			public void run() {
 				if (listen.isEmpty()) {

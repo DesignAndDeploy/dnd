@@ -43,11 +43,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.network.codecs.DatagramPacketWrapper;
-import edu.teco.dnd.network.codecs.GsonCodec;
-import edu.teco.dnd.network.codecs.MessageAdapter;
 import edu.teco.dnd.network.messages.BeaconMessage;
 import edu.teco.dnd.network.messages.BeaconMessageDeserializer;
 import edu.teco.dnd.network.messages.Message;
+import edu.teco.dnd.network.tcp.GsonCodec;
+import edu.teco.dnd.network.tcp.MessageAdapter;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 
 /**
@@ -369,7 +369,7 @@ public class UDPMulticastBeacon {
 	 *            the addresses to send with the beacon
 	 */
 	public void setAnnounceAddresses(final List<InetSocketAddress> addresses) {
-		final BeaconMessage newBeacon = new BeaconMessage(beacon.get().getUUID(), addresses);
+		final BeaconMessage newBeacon = new BeaconMessage(beacon.get().getModuleUUID(), addresses);
 		LOGGER.debug("doing lazy set on beacon to {}", newBeacon);
 		beacon.lazySet(newBeacon);
 	}
@@ -483,7 +483,7 @@ public class UDPMulticastBeacon {
 	// maybe queue them and empty the queue at a fixed interval (every second or so)
 	private void handleBeacon(final BeaconMessage beacon) {
 		LOGGER.entry(beacon);
-		if (this.beacon.get().getUUID().equals(beacon.getUUID())) {
+		if (this.beacon.get().getModuleUUID().equals(beacon.getUUID())) {
 			LOGGER.exit();
 			return;
 		}

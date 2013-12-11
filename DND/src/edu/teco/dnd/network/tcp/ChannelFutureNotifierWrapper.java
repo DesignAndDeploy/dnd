@@ -1,4 +1,4 @@
-package edu.teco.dnd.network;
+package edu.teco.dnd.network.tcp;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

@@ -9,21 +9,21 @@ import org.apache.bcel.util.SyntheticRepository;
 
 import edu.teco.dnd.util.SynchronizedBCELRepository;
 
-public class FunctionBlockFactory {
+public class FunctionBlockClassFactory {
 	private final Repository repository;
 
 	private final ConcurrentMap<String, FunctionBlockClass> blocks =
 			new ConcurrentHashMap<String, FunctionBlockClass>();
 
-	public FunctionBlockFactory(final Repository repository) throws ClassNotFoundException {
+	public FunctionBlockClassFactory(final Repository repository) throws ClassNotFoundException {
 		this.repository = new SynchronizedBCELRepository(repository);
 	}
 
-	public FunctionBlockFactory(final ClassPath classPath) throws ClassNotFoundException {
+	public FunctionBlockClassFactory(final ClassPath classPath) throws ClassNotFoundException {
 		this(SyntheticRepository.getInstance(classPath));
 	}
 
-	public FunctionBlockFactory(final String classPath) throws ClassNotFoundException {
+	public FunctionBlockClassFactory(final String classPath) throws ClassNotFoundException {
 		this(new ClassPath(classPath));
 	}
 
