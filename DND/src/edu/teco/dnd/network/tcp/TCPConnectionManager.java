@@ -1,8 +1,6 @@
 package edu.teco.dnd.network.tcp;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
