@@ -20,5 +20,5 @@ public interface MessageHandler<T extends Message> {
 	 * @param message
 	 *            the message that was received
 	 */
-	Response handleMessage(UUID remoteUUID, T message);
+	Response handleMessage(UUID remoteUUID, T message) throws Exception;
 }

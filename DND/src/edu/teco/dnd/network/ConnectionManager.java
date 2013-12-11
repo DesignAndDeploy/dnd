@@ -3,7 +3,6 @@ package edu.teco.dnd.network;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
@@ -29,8 +28,9 @@ public interface ConnectionManager {
 	 *            the UUID of the module the message should be sent to
 	 * @param message
 	 *            the message that should be sent
-	 * @return a FutureNotifier that will return the Response for the message. Will return null if it is used to send a
-	 *         Response
+	 * @return a FutureNotifier that will return the Response for the message. If this method is called to send a
+	 *         Response the FutureNotifier will only reflect whether or not sending the Response to the connected client
+	 *         has succeeded. The result will always be null in this case.
 	 */
 	public FutureNotifier<Response> sendMessage(UUID uuid, Message message);
 
@@ -139,5 +139,5 @@ public interface ConnectionManager {
 	 * 
 	 * @return a Future that is done when the ConnectionManager has shut down
 	 */
-	public Future<Void> getShutdownFuture();
+	public FutureNotifier<Void> getShutdownFuture();
 }

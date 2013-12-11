@@ -1,4 +1,4 @@
-package edu.teco.dnd.network.codecs;
+package edu.teco.dnd.network.tcp;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;

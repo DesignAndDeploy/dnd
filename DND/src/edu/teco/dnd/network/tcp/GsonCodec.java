@@ -1,4 +1,4 @@
-package edu.teco.dnd.network.codecs;
+package edu.teco.dnd.network.tcp;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;

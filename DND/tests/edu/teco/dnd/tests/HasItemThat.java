@@ -6,7 +6,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class HasItemThat<T> extends TypeSafeMatcher<Iterable<? extends T>> {
+public class HasItemThat<T> extends TypeSafeMatcher<Iterable<? super T>> {
 	private final Matcher<T> subMatcher;
 
 	public HasItemThat(final Matcher<T> subMatcher) {
@@ -29,7 +29,7 @@ public class HasItemThat<T> extends TypeSafeMatcher<Iterable<? extends T>> {
 	 * 
 	 * @see #hasItemThat(Matcher)
 	 */
-	public static <T> Matcher<Iterable<? extends T>> hasNoItemThat(final Matcher<T> subMatcher) {
+	public static <T> Matcher<Iterable<? super T>> hasNoItemThat(final Matcher<T> subMatcher) {
 		return not(hasItemThat(subMatcher));
 	}
 
@@ -39,8 +39,8 @@ public class HasItemThat<T> extends TypeSafeMatcher<Iterable<? extends T>> {
 	}
 
 	@Override
-	public boolean matchesSafely(final Iterable<? extends T> actual) {
-		for (final T item : actual) {
+	public boolean matchesSafely(final Iterable<? super T> actual) {
+		for (final Object item : actual) {
 			if (subMatcher.matches(item)) {
 				return true;
 			}

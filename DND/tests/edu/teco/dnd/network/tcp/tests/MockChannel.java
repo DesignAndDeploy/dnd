@@ -19,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import edu.teco.dnd.network.ChannelFutureNotifier;
+import edu.teco.dnd.network.tcp.ChannelFutureNotifier;
 
 public class MockChannel {
 	@Mock
