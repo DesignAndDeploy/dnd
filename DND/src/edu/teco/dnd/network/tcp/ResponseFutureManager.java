@@ -100,11 +100,11 @@ public class ResponseFutureManager {
 			return sourceUUID;
 		}
 		
-		protected void setSuccess0(final Response response) {
+		public void setSuccess0(final Response response) {
 			setSuccess(response);
 		}
 		
-		protected void setFailure0(final Throwable cause) {
+		public void setFailure0(final Throwable cause) {
 			setFailure(cause);
 		}
 		

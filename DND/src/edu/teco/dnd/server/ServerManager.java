@@ -65,7 +65,7 @@ public class ServerManager {
 	 * Unit for the Intervals for the UDPMulticastBeacon to send.
 	 */
 	public static final TimeUnit timeUnit = TimeUnit.SECONDS;
-	
+
 	/**
 	 * The default address used for multicast.
 	 */
@@ -86,7 +86,7 @@ public class ServerManager {
 	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
 
 	private static ModuleManager moduleManager;
-	
+
 	private static ApplicationManager applicationManager;
 
 	public static ServerManager getDefault() {
@@ -107,15 +107,16 @@ public class ServerManager {
 	/**
 	 * Starts a server.
 	 * 
-	 * To start a server from within eclipse, use startServer() in the {@link Activator} class. Only {@link Activator} can access the
-	 * user preferences and will pass them to this method.
+	 * To start a server from within eclipse, use startServer() in the {@link Activator} class. Only {@link Activator}
+	 * can access the user preferences and will pass them to this method.
 	 * 
 	 * To start a server from outside of eclipse, you need to call this method and pass the arguments (addresses).
 	 * 
 	 * @param multicastAddress
 	 * @param listenAddress
 	 * @param announceAddress
-	 * @param interval: Interval for the UDPMulticastBeacons to send out.
+	 * @param interval
+	 *            : Interval for the UDPMulticastBeacons to send out.
 	 */
 	public void startServer(String multicastAddress, String listenAddress, String announceAddress, int interval) {
 		LOGGER.entry();
@@ -148,14 +149,15 @@ public class ServerManager {
 			eventExecutorGroups.add(networkEventLoopGroup);
 			eventExecutorGroups.add(oioEventLoopGroup);
 
-
 			final ServerBootstrap serverBootstrap = new ServerBootstrap();
 			serverBootstrap.group(networkEventLoopGroup, applicationEventLoopGroup);
 			serverBootstrap.channel(NioServerSocketChannel.class);
 			final Bootstrap clientBootstrap = new Bootstrap();
 			clientBootstrap.group(networkEventLoopGroup);
 			clientBootstrap.channel(NioSocketChannel.class);
-			connectionManager = new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap), new ClientBootstrapChannelFactory(clientBootstrap), uuid);
+			connectionManager =
+					new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap),
+							new ClientBootstrapChannelFactory(clientBootstrap), networkEventLoopGroup, uuid);
 			ModuleMain.globalRegisterMessageAdapterType(connectionManager);
 			this.connectionManager = connectionManager;
 
@@ -340,10 +342,10 @@ public class ServerManager {
 		LOGGER.exit();
 	}
 
-	public ApplicationManager getApplicationManager(){
+	public ApplicationManager getApplicationManager() {
 		return applicationManager;
 	}
-	
+
 	public ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}

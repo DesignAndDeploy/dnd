@@ -10,6 +10,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,9 +63,13 @@ import edu.teco.dnd.util.FutureNotifier;
 public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	private static final Logger LOGGER = LogManager.getLogger(TCPConnectionManager.class);
 
+	public static final long TIMEOUT_DELAY = 30;
+	public static final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
+
 	private final ClientChannelManager clientChannelManager;
 	private final ServerChannelManager serverChannelManager;
 	private final ResponseFutureManager responseFutureManager;
+	private final TimeoutResponseInvalidator timeoutResponseInvalidator;
 	private final ClientMessageDispatcher messageDispatcher;
 	private final ClientChannelInitializer clientChannelInitializer;
 
@@ -87,9 +93,11 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * @see ClientBootstrapChannelFactory
 	 */
 	public TCPConnectionManager(final ServerChannelFactory serverChannelFactory,
-			final ClientChannelFactory clientChannelFactory, final UUID localUUID) {
+			final ClientChannelFactory clientChannelFactory, final ScheduledExecutorService invalidatorThread,
+			final UUID localUUID) {
 		this.localUUID = localUUID;
 		responseFutureManager = new ResponseFutureManager();
+		timeoutResponseInvalidator = new TimeoutResponseInvalidator(invalidatorThread, TIMEOUT_DELAY, TIMEOUT_UNIT);
 		clientChannelManager = new ClientChannelManager(clientChannelFactory);
 		clientChannelInitializer = new ClientChannelInitializer(clientChannelManager, localUUID);
 		clientChannelFactory.setChannelInitializer(clientChannelInitializer);
@@ -100,13 +108,18 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	/**
-	 * <p>Adds a Message type to the list of known types.</p>
+	 * <p>
+	 * Adds a Message type to the list of known types.
+	 * </p>
 	 * 
-	 * <p>This method has to be called before a Message of that type is sent or received, otherwise sending/receiving
-	 * will fail. The type that will be sent encoded in the JSON representation will be taken from the public static
-	 * final String field called MESSAGE_TYPE defined in the class.</p>
+	 * <p>
+	 * This method has to be called before a Message of that type is sent or received, otherwise sending/receiving will
+	 * fail. The type that will be sent encoded in the JSON representation will be taken from the public static final
+	 * String field called MESSAGE_TYPE defined in the class.
+	 * </p>
 	 * 
-	 * @param cls the Message class to register
+	 * @param cls
+	 *            the Message class to register
 	 * @see MessageAdapter
 	 */
 	public void addMessageType(final Class<? extends Message> cls) {
@@ -114,11 +127,15 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	/**
-	 * <p>Registers a type adapter for GSON.</p>
+	 * <p>
+	 * Registers a type adapter for GSON.
+	 * </p>
 	 * 
-	 * <p>Some classes cannot be serialized correctly by GSON. For these classes a type adapter can be added. This method
+	 * <p>
+	 * Some classes cannot be serialized correctly by GSON. For these classes a type adapter can be added. This method
 	 * is thread safe and all Messages sent after the method returned will use the new adapter. Adapters should be added
-	 * as early as possible, especially if they are used to deserialize incoming Messages.</p>
+	 * as early as possible, especially if they are used to deserialize incoming Messages.
+	 * </p>
 	 * 
 	 * @param type
 	 *            the type for which the adapter should be registered
@@ -187,6 +204,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 			final Channel channel = getActiveChannel(uuid);
 			final ResponseFutureNotifier futureNotifier = responseFutureManager.createResponseFuture(message.getUUID());
 			channel.writeAndFlush(message).addListener(new ResponseInvalidator(futureNotifier));
+			timeoutResponseInvalidator.addTimeout(futureNotifier);
 			return futureNotifier;
 		} catch (final NoSuchElementException e) {
 			return new FinishedFutureNotifier<Response>(e);

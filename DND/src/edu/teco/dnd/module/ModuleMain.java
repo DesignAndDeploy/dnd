@@ -189,7 +189,9 @@ public final class ModuleMain {
 		final Bootstrap clientBootstrap = new Bootstrap();
 		clientBootstrap.group(networkGroup);
 		clientBootstrap.channel(NioSocketChannel.class);
-		final TCPConnectionManager tcpConnMan = new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap), new ClientBootstrapChannelFactory(clientBootstrap), moduleConfig.getUuid());
+		final TCPConnectionManager tcpConnMan =
+				new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap),
+						new ClientBootstrapChannelFactory(clientBootstrap), applicationGroup, moduleConfig.getUuid());
 		for (final InetSocketAddress address : moduleConfig.getListen()) {
 			tcpConnMan.startListening(address);
 		}
