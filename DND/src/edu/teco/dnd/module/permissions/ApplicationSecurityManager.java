@@ -1,4 +1,4 @@
-package edu.teco.dnd.module;
+package edu.teco.dnd.module.permissions;
 
 import java.io.ObjectStreamClass;
 import java.lang.reflect.ReflectPermission;
@@ -10,6 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.module.Application;
+import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
+import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 
 public class ApplicationSecurityManager extends SecurityManager {

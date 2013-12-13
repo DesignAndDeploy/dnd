@@ -1,4 +1,4 @@
-package edu.teco.dnd.module;
+package edu.teco.dnd.module.permissions;
 
 import java.lang.reflect.Method;
 
