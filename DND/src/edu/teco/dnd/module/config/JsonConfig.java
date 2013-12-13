@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -118,13 +119,13 @@ public class JsonConfig extends ConfigReader {
 			reader = new FileReader(path);
 			setTo(GSON.fromJson(reader, this.getClass()));
 		} catch (FileNotFoundException e) {
-			LOGGER.catching(e);
+			LOGGER.catching(Level.WARN, e);
 			throw e;
 		} finally {
 			try {
 				reader.close();
 			} catch (Exception e) {
-				// ignoring
+				LOGGER.catching(Level.INFO, e);
 			}
 		}
 

@@ -153,10 +153,10 @@ public final class ModuleMain {
 		try {
 			moduleConfig = new JsonConfig(configPath);
 		} catch (IOException e) {
-			LOGGER.fatal("could not open file: \"{}\"", configPath);
+			LOGGER.warn("could not open file: \"{}\"", configPath);
 			return null;
 		} catch (Exception e) {
-			LOGGER.fatal("could not load config: \"{}\"", configPath);
+			LOGGER.warn("could not load config: \"{}\"", configPath);
 			e.printStackTrace();
 			return null;
 		}
