@@ -127,6 +127,7 @@ public final class ModuleMain {
 			System.setSecurityManager(new ApplicationSecurityManager());
 		} catch (SecurityException se) {
 			LOGGER.fatal("Can not set SecurityManager.");
+			// FIXME: just calling exit is probably a bad idea
 			System.exit(-1);
 		}
 
