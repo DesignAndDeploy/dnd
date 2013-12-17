@@ -210,7 +210,11 @@ public class BlockTypeHolder {
 	 * @return true if the block was succesfully added, false otherwise
 	 */
 	public synchronized boolean tryAdd(final String blockType) {
-		if (blockType == null || !blockType.matches(type)) {
+		String normalizedBlockType = blockType;
+		if (normalizedBlockType == null) {
+			normalizedBlockType = "";
+		}
+		if (!normalizedBlockType.matches(type)) {
 			return false;
 		}
 		return tryDecrease();
