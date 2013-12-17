@@ -424,6 +424,10 @@ public class Application {
 		final Thread shutdownThread = new Thread(new Runnable() {
 			public void run() {
 				for (FunctionBlockSecurityDecorator fun : funcBlockById.values()) {
+					if (Thread.interrupted()) {
+						LOGGER.warn("shutdownThread got interrupted, not shutting down remaining FunctionBlocks");
+						break;
+					}
 					try {
 						fun.shutdown();
 					} catch (UserSuppliedCodeException e) {
@@ -440,10 +444,18 @@ public class Application {
 				shutdownThread.start();
 
 				sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
+				if (!shutdownThread.isAlive()) {
+					LOGGER.debug("shutdownThread finished in time");
+					return;
+				}
 				LOGGER.info("shutdownThread is taking too long. Interrupting it.");
 				shutdownThread.interrupt();
 
 				sleepUninterrupted(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
+				if (!shutdownThread.isAlive()) {
+					LOGGER.debug("shutdownThread finished in time after interrupting");
+					return;
+				}
 				LOGGER.warn("Shutdown thread hanging. Killing it.");
 				shutdownThread.stop();
 				// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
