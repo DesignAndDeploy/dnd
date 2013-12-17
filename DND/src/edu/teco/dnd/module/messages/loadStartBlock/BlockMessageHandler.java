@@ -33,11 +33,11 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 		try {
 			appManager.scheduleBlock(message.getApplicationID(), blockDescription);
 		} catch (final ClassNotFoundException e) {
-			return new BlockNak();
+			return new BlockNak(e);
 		} catch (final UserSuppliedCodeException e) {
-			return new BlockNak();
+			return new BlockNak(e);
 		} catch (final IllegalArgumentException e) {
-			return new BlockNak();
+			return new BlockNak(e);
 		}
 		return new BlockAck();
 	}

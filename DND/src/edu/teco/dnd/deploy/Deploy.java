@@ -34,6 +34,7 @@ import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockAck;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
+import edu.teco.dnd.module.messages.loadStartBlock.BlockNak;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
 import edu.teco.dnd.network.ConnectionManager;
@@ -566,7 +567,11 @@ public class Deploy {
 		if (future.isSuccess()) {
 			for (final Response response : future.getNow()) {
 				if (!(response instanceof BlockAck)) {
-					deployFutureNotifier.setFailure0(null);
+					if (response instanceof BlockNak) {
+						deployFutureNotifier.setFailure0(new BlockNotAcceptedException(((BlockNak) response).getErrorMessage()));
+					} else {
+						deployFutureNotifier.setFailure0(null);
+					}
 					LOGGER.exit();
 					return;
 				}
