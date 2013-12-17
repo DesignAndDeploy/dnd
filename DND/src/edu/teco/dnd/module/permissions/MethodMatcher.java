@@ -24,4 +24,9 @@ public class MethodMatcher implements StackTraceElementMatcher {
 		return className.equals(stackTraceElement.getClassName())
 				&& methodName.equals(stackTraceElement.getMethodName());
 	}
+	
+	@Override
+	public String toString() {
+		return "MethodMatcher[" + className + "." + methodName + "]";
+	}
 }
