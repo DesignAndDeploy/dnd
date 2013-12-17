@@ -325,7 +325,11 @@ public class Distribution {
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("holder type: {}, block type: {}", holder.getType(), block.getType());
 			}
-			if (!block.getType().matches(holder.getType())) {
+			String blockType = block.getType();
+			if (blockType == null) {
+				blockType = "";
+			}
+			if (!blockType.matches(holder.getType())) {
 				LOGGER.exit(false);
 				return false;
 			}
