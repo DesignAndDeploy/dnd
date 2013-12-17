@@ -31,6 +31,8 @@ public class ApplicationSecurityManager extends SecurityManager {
 		grantPermissionRule.addPermission(new RuntimePermission("getFileSystemAttributes"));
 		ruleCombiner.addRule(grantPermissionRule);
 
+		ruleCombiner.addRule(new JITPolicyRule());
+
 		final StackTraceElementMatcherPolicyRule stemMatcher = new StackTraceElementMatcherPolicyRule();
 		stemMatcher.addInsecureMatcher(new ClassMatcher(UsercodeWrapper.class));
 		stemMatcher.addInsecureMatcher(new ClassMatcher(FunctionBlockSecurityDecorator.class));
@@ -41,8 +43,6 @@ public class ApplicationSecurityManager extends SecurityManager {
 		stemMatcher.addSecureMatcher(new MethodMatcher(ClassLoader.class, "loadClass"));
 		stemMatcher.addSecureMatcher(new ClassMatcher(ValueMessageAdapter.class));
 		ruleCombiner.addRule(stemMatcher);
-
-		ruleCombiner.addRule(new JITPolicyRule());
 
 		rule = ruleCombiner;
 	}
