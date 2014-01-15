@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ StringUtilTest.class, DefaultFutureNotifierTest.class, Base64AdapterTest.class,
-		UniqueUUIDUtilTest.class, MessageDigestAlgorithmTest.class })
+		UniqueUUIDUtilTest.class, MessageDigestAlgorithmTest.class, ByteArrayStorageTest.class })
 public class UtilTests {
 
 }
