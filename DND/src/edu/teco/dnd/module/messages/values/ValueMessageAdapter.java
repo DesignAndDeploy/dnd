@@ -17,6 +17,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Base64;
 
@@ -78,7 +79,13 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 		JsonObject jObject = json.getAsJsonObject();
 
 		appId = context.deserialize(jObject.get("appId"), UUID.class);
-		ClassLoader loader = module.getAppClassLoader(appId);
+		
+		ClassLoader loader = null;
+		final Application application = module.getApplication(appId);
+		if (application != null) {
+			loader = application.getClassLoader();
+		}
+		
 		blockUuid = context.deserialize(jObject.get("blockUuid"), UUID.class);
 		input = context.deserialize(jObject.get("input"), String.class);
 		try {

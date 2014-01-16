@@ -1,8 +1,8 @@
 package edu.teco.dnd.module;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -38,9 +38,11 @@ public class Module {
 	private static final Logger LOGGER = LogManager.getLogger(Module.class);
 
 	private final ConfigReader moduleConfig;
-	private final Map<UUID, Application> runningApps = new ConcurrentHashMap<UUID, Application>();
 	private final ConnectionManager connMan;
 	private final Runnable moduleShutdownHook;
+
+	private final Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
+
 	private boolean isShuttingDown = false;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ModuleBlockManager moduleBlockManager;
@@ -179,7 +181,10 @@ public class Module {
 			if (isShuttingDown) {
 				return;
 			}
-			final Application app = runningApps.get(appId);
+			Application app;
+			synchronized (runningApps) {
+				app = runningApps.get(appId);
+			}
 			if (app == null) {
 				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockUUID
 						+ " for non-existant Application " + appId);
@@ -203,7 +208,10 @@ public class Module {
 			if (isShuttingDown) {
 				return;
 			}
-			Application app = runningApps.get(appId);
+			Application app;
+			synchronized (runningApps) {
+				app = runningApps.get(appId);
+			}
 			if (app == null) {
 				LOGGER.warn("Tried to start non existing app: {}", appId);
 				throw new IllegalArgumentException("tried to start app that does not exist.");
@@ -228,8 +236,10 @@ public class Module {
 			if (moduleShutdownHook != null) {
 				moduleShutdownHook.run();
 			}
-			for (UUID appId : runningApps.keySet()) {
-				stopApplication(appId);
+			synchronized (runningApps) {
+				for (UUID appId : runningApps.keySet()) {
+					stopApplication(appId);
+				}
 			}
 		} finally {
 			shutdownLock.writeLock().unlock();
@@ -268,20 +278,16 @@ public class Module {
 	 * @return the runningApps
 	 */
 	public Map<UUID, Application> getRunningApps() {
-		return runningApps;
+		final Map<UUID, Application> result = new HashMap<UUID, Application>();
+		synchronized (runningApps) {
+			result.putAll(runningApps);
+		}
+		return result;
 	}
 
 	public Application getApplication(final UUID applicationID) {
-		return runningApps.get(applicationID);
-	}
-
-	/**
-	 * @param appId
-	 *            UUID of the application to get the classloader of.
-	 * @return the class loader of an app. null if none.
-	 */
-	public ClassLoader getAppClassLoader(UUID appId) {
-		Application app = runningApps.get(appId);
-		return (app == null) ? null : app.getClassLoader();
+		synchronized (runningApps) {
+			return runningApps.get(applicationID);
+		}
 	}
 }
