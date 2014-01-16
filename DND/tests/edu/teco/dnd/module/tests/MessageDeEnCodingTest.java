@@ -24,7 +24,7 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
 import edu.teco.dnd.module.ModuleInfo;
-import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.tests.TestConfigReader;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
@@ -86,9 +86,9 @@ public class MessageDeEnCodingTest implements Serializable {
 
 	static {
 
-		ModuleApplicationManager appMan;
+		Module appMan;
 		try {
-			appMan = new ModuleApplicationManager(TestConfigReader.getPredefinedReader(), null, null) {
+			appMan = new Module(TestConfigReader.getPredefinedReader(), null, null) {
 				public ClassLoader getAppClassLoader(UUID appId) {
 					return null;
 				};

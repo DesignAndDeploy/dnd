@@ -134,9 +134,8 @@ public final class ModuleMain {
 
 		ModuleShutdownHook shutdownHook = new ModuleShutdownHook(eventLoopGroups);
 		synchronized (shutdownHook) {
-			ModuleApplicationManager appMan =
-					new ModuleApplicationManager(moduleConfig, tcpConnectionManager, shutdownHook);
-			registerHandlerAdapter(moduleConfig, tcpConnectionManager, appMan);
+			Module module = new Module(moduleConfig, tcpConnectionManager, shutdownHook);
+			registerHandlerAdapter(moduleConfig, tcpConnectionManager, module);
 		}
 
 		System.out.println("ModuleInfo is up and running.");
@@ -262,17 +261,16 @@ public final class ModuleMain {
 	 *            the configuration according to which the module is set up.
 	 * @param tcpConnMan
 	 *            TCPConnectionManager to register handlers on.
-	 * @param appMan
-	 *            the applicationManager the various handlers should use later.
+	 * @param module
+	 *            the Module the various handlers should use later.
 	 */
-	private static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager tcpConnMan,
-			ModuleApplicationManager appMan) {
+	private static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager tcpConnMan, Module module) {
 		globalRegisterMessageAdapterType(tcpConnMan);
-		tcpConnMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
+		tcpConnMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
 
-		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
+		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
 		tcpConnMan.addHandler(RequestApplicationListMessage.class,
-				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), appMan));
+				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), module));
 		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
 		// ModuleInfo does not execute given application but received Message anyway, handlers
@@ -282,6 +280,6 @@ public final class ModuleMain {
 		tcpConnMan.addHandler(KillAppMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(ValueMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(WhoHasBlockMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(ShutdownModuleMessage.class, new ShutdownModuleHandler(appMan));
+		tcpConnMan.addHandler(ShutdownModuleMessage.class, new ShutdownModuleHandler(module));
 	}
 }

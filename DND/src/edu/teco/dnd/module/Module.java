@@ -38,8 +38,8 @@ import edu.teco.dnd.util.IndexedThreadFactory;
  * @author Marvin Marx
  * 
  */
-public class ModuleApplicationManager {
-	private static final Logger LOGGER = LogManager.getLogger(ModuleApplicationManager.class);
+public class Module {
+	private static final Logger LOGGER = LogManager.getLogger(Module.class);
 
 	private final UUID localeModuleId;
 	private final ConfigReader moduleConfig;
@@ -60,7 +60,7 @@ public class ModuleApplicationManager {
 	 *            A runnable that will be executed upon receipt of a KillMeassage before the applications are killed.
 	 *            Likely to shutdown the network cleanly.
 	 */
-	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan, Runnable modShutdownHook) {
+	public Module(ConfigReader moduleConfig, ConnectionManager connMan, Runnable modShutdownHook) {
 		this.moduleShutdownHook = modShutdownHook;
 		this.moduleConfig = moduleConfig;
 		this.localeModuleId = moduleConfig.getUuid();
@@ -75,7 +75,7 @@ public class ModuleApplicationManager {
 	 * @param connMan
 	 *            the Manager for connections to other modules.
 	 */
-	public ModuleApplicationManager(ConfigReader moduleConfig, ConnectionManager connMan) {
+	public Module(ConfigReader moduleConfig, ConnectionManager connMan) {
 		this(moduleConfig, connMan, null);
 	}
 

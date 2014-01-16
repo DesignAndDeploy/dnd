@@ -43,7 +43,7 @@ public class Application {
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
-	private final ModuleApplicationManager moduleApplicationManager;
+	private final Module module;
 
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 	private final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
@@ -81,7 +81,7 @@ public class Application {
 	 * @param classloader
 	 *            Class loader that will be used by this Application. Can be used to limit the privileges of this app.
 	 *            Also used to make loading classes over network possible.
-	 * @param moduleApplicationManager
+	 * @param module
 	 *            The module ApplicationManager used for callbacks to de/increase allowedBlockmaps
 	 * 
 	 */
@@ -89,15 +89,14 @@ public class Application {
 	// class.
 
 	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
-			ConnectionManager connMan, ApplicationClassLoader classloader,
-			final ModuleApplicationManager moduleApplicationManager) {
+			ConnectionManager connMan, ApplicationClassLoader classloader, final Module module) {
 		this.ownAppId = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
 		this.classLoader = classloader;
 		this.funcBlockById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
-		this.moduleApplicationManager = moduleApplicationManager;
+		this.module = module;
 	}
 
 	/**
@@ -232,8 +231,7 @@ public class Application {
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
-			moduleApplicationManager.addToBlockTypeHolders(ownAppId, securityDecorator,
-					blockDescription.blockTypeHolderId);
+			module.addToBlockTypeHolders(ownAppId, securityDecorator, blockDescription.blockTypeHolderId);
 			LOGGER.trace("adding {} to scheduledToStart");
 			scheduledToStart.add(securityDecorator);
 			LOGGER.trace("saving block options");
