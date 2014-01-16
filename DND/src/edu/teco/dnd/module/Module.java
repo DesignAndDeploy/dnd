@@ -1,6 +1,5 @@
 package edu.teco.dnd.module;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +12,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.module.config.BlockTypeHolder;
+import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
+import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
@@ -43,8 +43,7 @@ public class Module {
 	private final Runnable moduleShutdownHook;
 	private boolean isShuttingDown = false;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
-	private final Map<ApplicationBlockID, Integer> spotOccupiedByBlock =
-			new ConcurrentHashMap<ApplicationBlockID, Integer>();
+	private final ModuleBlockManager moduleBlockManager;
 
 	/**
 	 * 
@@ -60,6 +59,7 @@ public class Module {
 		this.moduleShutdownHook = shutdownHook;
 		this.moduleConfig = config;
 		this.connMan = connMan;
+		this.moduleBlockManager = new ModuleBlockManager(this.moduleConfig.getAllowedBlocksById());
 	}
 
 	/**
@@ -109,9 +109,9 @@ public class Module {
 	private Application createApplication(final UUID appId, final String name) {
 		final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
 		final ScheduledThreadPoolExecutor executor =
-				new ScheduledThreadPoolExecutor(moduleConfig.getMaxThreadsPerApp(), createApplicationThreadFactory(
-						appId, classLoader));
-		return new Application(appId, name, executor, connMan, classLoader, this);
+				new ScheduledThreadPoolExecutor(moduleConfig.getMaxThreadsPerApp(), createApplicationThreadFactory(appId,
+						classLoader));
+		return new Application(appId, name, executor, connMan, classLoader, moduleBlockManager);
 	}
 
 	/**
@@ -151,8 +151,7 @@ public class Module {
 		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), executor);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), executor);
 		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(application), executor);
-		connMan.addHandler(appId, WhoHasBlockMessage.class,
-				new WhoHasFuncBlockHandler(application, moduleConfig.getUuid()));
+		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(application, moduleConfig.getUuid()));
 	}
 
 	/**
@@ -168,9 +167,11 @@ public class Module {
 	 *             if the Class described in blockDescription can not be loaded by the application class loader.
 	 * @throws IllegalArgumentException
 	 *             if the application does not exist or scheduleBlock threw one.
+	 * @throws NoSuchBlockTypeHolderException 
+	 * @throws BlockTypeHolderFullException 
 	 */
 	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException,
-			UserSuppliedCodeException, IllegalArgumentException {
+			UserSuppliedCodeException, IllegalArgumentException, BlockTypeHolderFullException, NoSuchBlockTypeHolderException {
 		shutdownLock.readLock().lock();
 		try {
 			if (isShuttingDown) {
@@ -186,28 +187,6 @@ public class Module {
 			shutdownLock.readLock().unlock();
 		}
 
-	}
-
-	/**
-	 * decrease the amount of allowed blocks o this type to run, while also checking whether this block is allowed to
-	 * run at all.
-	 * 
-	 * @param block
-	 *            the block to put into the list.
-	 * @param blockTypeHolderId
-	 *            the ID of the blockTypeHolder to perform this on.
-	 */
-	public void addToBlockTypeHolders(final UUID appId, final FunctionBlockSecurityDecorator block,
-			final int blockTypeHolderId) {
-		final BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(blockTypeHolderId);
-		if (holder == null) {
-			throw new IllegalArgumentException("There is no BlockTypeHolder with ID " + blockTypeHolderId);
-		}
-		if (!holder.tryAdd(block.getBlockType())) {
-			// TODO: Maybe a different kind of exception would be better
-			throw new IllegalArgumentException();
-		}
-		spotOccupiedByBlock.put(new ApplicationBlockID(block.getBlockUUID(), appId), blockTypeHolderId);
 	}
 
 	/**
@@ -264,49 +243,23 @@ public class Module {
 	public void stopApplication(UUID appId) {
 		// TODO deregister Message handlers
 		LOGGER.entry(appId);
-		Collection<FunctionBlockSecurityDecorator> blocksKilled;
 		synchronized (runningApps) {
 			Application app = runningApps.get(appId);
 			if (app == null) {
+				LOGGER.warn("tried to stop nonexistant application with ID {}", appId);
+				LOGGER.exit();
 				return;
 			}
 
 			app.shutdown();
 
-			blocksKilled = app.getAllBlocks();
+			for (final FunctionBlockSecurityDecorator block : app.getAllBlocks()) {
+				moduleBlockManager.removeBlock(new ApplicationBlockID(block.getBlockUUID(), appId));
+			}
 
 			runningApps.remove(appId);
 		}
-		removeBlocks(appId, blocksKilled);
-	}
-
-	/**
-	 * Removes FunctionBlocks from the BlockTypeHolders they are occupying.
-	 * 
-	 * @param blocks
-	 *            the blocks to remove
-	 */
-	private void removeBlocks(final UUID appId, final Collection<FunctionBlockSecurityDecorator> blocks) {
-		for (final FunctionBlockSecurityDecorator singleBlock : blocks) {
-			removeBlock(appId, singleBlock);
-		}
-	}
-
-	/**
-	 * Removes a FunctionBlock from the BlockTypeHolder it is occupying.
-	 * 
-	 * @param block
-	 *            the block to remove
-	 */
-	private void removeBlock(final UUID appId, final FunctionBlockSecurityDecorator block) {
-		final ApplicationBlockID applicationBlockID = new ApplicationBlockID(block.getBlockUUID(), appId);
-		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(applicationBlockID));
-		if (holder != null) {
-			holder.increase();
-		} else {
-			LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
-		}
-		spotOccupiedByBlock.remove(applicationBlockID);
+		LOGGER.exit();
 	}
 
 	/**
@@ -314,6 +267,10 @@ public class Module {
 	 */
 	public Map<UUID, Application> getRunningApps() {
 		return runningApps;
+	}
+
+	public Application getApplication(final UUID applicationID) {
+		return runningApps.get(applicationID);
 	}
 
 	/**

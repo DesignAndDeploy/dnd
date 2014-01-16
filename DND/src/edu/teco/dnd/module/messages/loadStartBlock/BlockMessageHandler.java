@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import edu.teco.dnd.module.BlockDescription;
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
+import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
@@ -37,6 +39,10 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 		} catch (final UserSuppliedCodeException e) {
 			return new BlockNak(e);
 		} catch (final IllegalArgumentException e) {
+			return new BlockNak(e);
+		} catch (BlockTypeHolderFullException e) {
+			return new BlockNak(e);
+		} catch (NoSuchBlockTypeHolderException e) {
 			return new BlockNak(e);
 		}
 		return new BlockAck();

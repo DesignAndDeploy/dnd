@@ -24,6 +24,8 @@ import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.blocks.OutputTarget;
 import edu.teco.dnd.blocks.ValueDestination;
+import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
+import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.network.ConnectionManager;
 
 /**
@@ -43,7 +45,7 @@ public class Application {
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
-	private final Module module;
+	private final ModuleBlockManager moduleBlockManager;
 
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 	private final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
@@ -85,18 +87,16 @@ public class Application {
 	 *            The module ApplicationManager used for callbacks to de/increase allowedBlockmaps
 	 * 
 	 */
-	// TODO: factor blockTypeholder mapping out of ModuleAppManager so as to not have to pass the whole class to this
-	// class.
-
 	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
-			ConnectionManager connMan, ApplicationClassLoader classloader, final Module module) {
+			ConnectionManager connMan, ApplicationClassLoader classloader,
+			final ModuleBlockManager moduleBlockManager) {
 		this.ownAppId = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
 		this.classLoader = classloader;
 		this.funcBlockById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
-		this.module = module;
+		this.moduleBlockManager = moduleBlockManager;
 	}
 
 	/**
@@ -212,11 +212,13 @@ public class Application {
 	 * @throws UserSuppliedCodeException
 	 *             if some part of the code of the functionBlock (e.g. constructor) does throw an exception or otherwise
 	 *             misbehave (e.g. System.exit(),...)
+	 * @throws NoSuchBlockTypeHolderException 
+	 * @throws BlockTypeHolderFullException 
 	 * @throws IllegalArgumentException
 	 *             if blockDescription.blockClassName is not a function block.
 	 */
 	public void scheduleBlock(final BlockDescription blockDescription) throws ClassNotFoundException,
-			UserSuppliedCodeException {
+			UserSuppliedCodeException, BlockTypeHolderFullException, NoSuchBlockTypeHolderException {
 		LOGGER.entry(blockDescription);
 		final FunctionBlockSecurityDecorator securityDecorator =
 				createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
@@ -231,7 +233,7 @@ public class Application {
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
-			module.addToBlockTypeHolders(ownAppId, securityDecorator, blockDescription.blockTypeHolderId);
+			moduleBlockManager.addToBlockTypeHolders(ownAppId, securityDecorator, blockDescription.blockTypeHolderId);
 			LOGGER.trace("adding {} to scheduledToStart");
 			scheduledToStart.add(securityDecorator);
 			LOGGER.trace("saving block options");
