@@ -39,13 +39,13 @@ public class Module {
 
 	private final ConfigReader moduleConfig;
 	private final ConnectionManager connMan;
-	private final Runnable moduleShutdownHook;
 
 	private final Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
+	private final ModuleBlockManager moduleBlockManager;
 
 	private boolean isShuttingDown = false;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
-	private final ModuleBlockManager moduleBlockManager;
+	private final Runnable moduleShutdownHook;
 
 	/**
 	 * 
