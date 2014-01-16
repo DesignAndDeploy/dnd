@@ -41,7 +41,8 @@ public class Module {
 	private final Map<UUID, Application> runningApps = new ConcurrentHashMap<UUID, Application>();
 	private final ConnectionManager connMan;
 	private final Runnable moduleShutdownHook;
-	private final ReadWriteLock isShuttingDown = new ReentrantReadWriteLock();
+	private boolean isShuttingDown = false;
+	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final Map<BlockID, Integer> spotOccupiedByBlock = new ConcurrentHashMap<BlockID, Integer>();
 
 	/**
@@ -74,8 +75,11 @@ public class Module {
 	public void joinApplication(final UUID appId, UUID deployingAgentId, String name) {
 		LOGGER.info("joining app {} ({}), as requested by {}", name, appId, deployingAgentId);
 
-		isShuttingDown.readLock().lock();
+		shutdownLock.readLock().lock();
 		try {
+			if (isShuttingDown) {
+				return;
+			}
 			synchronized (runningApps) {
 				if (runningApps.containsKey(appId)) {
 					LOGGER.info("trying to rejoin app that was already joined before.");
@@ -88,7 +92,7 @@ public class Module {
 				registerMessageHandlers(newApp);
 			}
 		} finally {
-			isShuttingDown.readLock().unlock();
+			shutdownLock.readLock().unlock();
 		}
 	}
 
@@ -166,8 +170,11 @@ public class Module {
 	 */
 	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException,
 			UserSuppliedCodeException, IllegalArgumentException {
-		isShuttingDown.readLock().lock();
+		shutdownLock.readLock().lock();
 		try {
+			if (isShuttingDown) {
+				return;
+			}
 			final Application app = runningApps.get(appId);
 			if (app == null) {
 				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockUUID
@@ -175,7 +182,7 @@ public class Module {
 			}
 			app.scheduleBlock(blockDescription);
 		} finally {
-			isShuttingDown.readLock().unlock();
+			shutdownLock.readLock().unlock();
 		}
 
 	}
@@ -209,8 +216,11 @@ public class Module {
 	 *            the UUID of the app to be started.
 	 */
 	public void startApp(UUID appId) {
-		isShuttingDown.readLock().lock();
+		shutdownLock.readLock().lock();
 		try {
+			if (isShuttingDown) {
+				return;
+			}
 			Application app = runningApps.get(appId);
 			if (app == null) {
 				LOGGER.warn("Tried to start non existing app: {}", appId);
@@ -218,7 +228,7 @@ public class Module {
 			}
 			app.start();
 		} finally {
-			isShuttingDown.readLock().unlock();
+			shutdownLock.readLock().unlock();
 		}
 
 	}
@@ -227,8 +237,12 @@ public class Module {
 	 * triggers a shutdown of all Applications because the module is being shutdown.
 	 */
 	public void shutdownModule() {
-		isShuttingDown.writeLock().lock();
+		shutdownLock.writeLock().lock();
 		try {
+			if (isShuttingDown) {
+				return;
+			}
+			isShuttingDown = true;
 			if (moduleShutdownHook != null) {
 				moduleShutdownHook.run();
 			}
@@ -236,7 +250,7 @@ public class Module {
 				stopApplication(appId);
 			}
 		} finally {
-			isShuttingDown.writeLock().unlock();
+			shutdownLock.writeLock().unlock();
 		}
 	}
 
