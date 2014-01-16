@@ -109,8 +109,8 @@ public class Module {
 	private Application createApplication(final UUID appId, final String name) {
 		final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
 		final ScheduledThreadPoolExecutor executor =
-				new ScheduledThreadPoolExecutor(moduleConfig.getMaxThreadsPerApp(), createApplicationThreadFactory(appId,
-						classLoader));
+				new ScheduledThreadPoolExecutor(moduleConfig.getMaxThreadsPerApp(), createApplicationThreadFactory(
+						appId, classLoader));
 		return new Application(appId, name, executor, connMan, classLoader, moduleBlockManager);
 	}
 
@@ -151,7 +151,8 @@ public class Module {
 		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), executor);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), executor);
 		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(application), executor);
-		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(application, moduleConfig.getUuid()));
+		connMan.addHandler(appId, WhoHasBlockMessage.class,
+				new WhoHasFuncBlockHandler(application, moduleConfig.getUuid()));
 	}
 
 	/**
@@ -167,11 +168,12 @@ public class Module {
 	 *             if the Class described in blockDescription can not be loaded by the application class loader.
 	 * @throws IllegalArgumentException
 	 *             if the application does not exist or scheduleBlock threw one.
-	 * @throws NoSuchBlockTypeHolderException 
-	 * @throws BlockTypeHolderFullException 
+	 * @throws NoSuchBlockTypeHolderException
+	 * @throws BlockTypeHolderFullException
 	 */
 	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException,
-			UserSuppliedCodeException, IllegalArgumentException, BlockTypeHolderFullException, NoSuchBlockTypeHolderException {
+			UserSuppliedCodeException, IllegalArgumentException, BlockTypeHolderFullException,
+			NoSuchBlockTypeHolderException {
 		shutdownLock.readLock().lock();
 		try {
 			if (isShuttingDown) {

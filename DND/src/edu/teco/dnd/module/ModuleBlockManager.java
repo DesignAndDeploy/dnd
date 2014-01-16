@@ -66,7 +66,7 @@ public class ModuleBlockManager {
 	public void removeBlock(final ApplicationBlockID applicationBlockID) {
 		LOGGER.entry(applicationBlockID);
 		synchronized (this) {
-			final BlockTypeHolder holder = blockTypeHoldersByID.remove(spotOccupiedByBlock.get(applicationBlockID));
+			final BlockTypeHolder holder = blockTypeHoldersByID.get(spotOccupiedByBlock.remove(applicationBlockID));
 			if (holder == null) {
 				LOGGER.warn("did not find BlockTypeHolder for {}", applicationBlockID);
 			} else {
@@ -75,7 +75,7 @@ public class ModuleBlockManager {
 		}
 		LOGGER.exit();
 	}
-	
+
 	public static final class NoSuchBlockTypeHolderException extends Exception {
 		private static final long serialVersionUID = -7492354487660781502L;
 

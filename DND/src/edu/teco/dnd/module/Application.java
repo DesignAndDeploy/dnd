@@ -88,8 +88,7 @@ public class Application {
 	 * 
 	 */
 	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
-			ConnectionManager connMan, ApplicationClassLoader classloader,
-			final ModuleBlockManager moduleBlockManager) {
+			ConnectionManager connMan, ApplicationClassLoader classloader, final ModuleBlockManager moduleBlockManager) {
 		this.ownAppId = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
@@ -212,8 +211,8 @@ public class Application {
 	 * @throws UserSuppliedCodeException
 	 *             if some part of the code of the functionBlock (e.g. constructor) does throw an exception or otherwise
 	 *             misbehave (e.g. System.exit(),...)
-	 * @throws NoSuchBlockTypeHolderException 
-	 * @throws BlockTypeHolderFullException 
+	 * @throws NoSuchBlockTypeHolderException
+	 * @throws BlockTypeHolderFullException
 	 * @throws IllegalArgumentException
 	 *             if blockDescription.blockClassName is not a function block.
 	 */
