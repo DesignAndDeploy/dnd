@@ -41,9 +41,7 @@ import edu.teco.dnd.util.IndexedThreadFactory;
 public class Module {
 	private static final Logger LOGGER = LogManager.getLogger(Module.class);
 
-	private final UUID localeModuleId;
 	private final ConfigReader moduleConfig;
-	private final int maxAllowedThreadsPerApp;
 	private final Map<UUID, Application> runningApps = new ConcurrentHashMap<UUID, Application>();
 	private final ConnectionManager connMan;
 	private final Runnable moduleShutdownHook;
@@ -63,8 +61,6 @@ public class Module {
 	public Module(ConfigReader moduleConfig, ConnectionManager connMan, Runnable modShutdownHook) {
 		this.moduleShutdownHook = modShutdownHook;
 		this.moduleConfig = moduleConfig;
-		this.localeModuleId = moduleConfig.getUuid();
-		this.maxAllowedThreadsPerApp = moduleConfig.getMaxThreadsPerApp();
 		this.connMan = connMan;
 	}
 
@@ -123,8 +119,8 @@ public class Module {
 	private Application createApplication(final UUID appId, final String name) {
 		final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
 		final ScheduledThreadPoolExecutor executor =
-				new ScheduledThreadPoolExecutor(maxAllowedThreadsPerApp, createApplicationThreadFactory(appId,
-						classLoader));
+				new ScheduledThreadPoolExecutor(moduleConfig.getMaxThreadsPerApp(), createApplicationThreadFactory(
+						appId, classLoader));
 		return new Application(appId, name, executor, connMan, classLoader, this);
 	}
 
@@ -165,7 +161,8 @@ public class Module {
 		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), executor);
 		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), executor);
 		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(application), executor);
-		connMan.addHandler(appId, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(application, localeModuleId));
+		connMan.addHandler(appId, WhoHasBlockMessage.class,
+				new WhoHasFuncBlockHandler(application, moduleConfig.getUuid()));
 	}
 
 	/**
