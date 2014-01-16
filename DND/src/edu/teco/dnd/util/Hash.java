@@ -8,11 +8,11 @@ import java.util.Arrays;
  * @author Philipp Adolf
  */
 public class Hash {
-	private final HashAlgorithm algorithm;
+	private final HashAlgorithm<?> algorithm;
 	
 	private final byte[] hash;
 	
-	public Hash(final HashAlgorithm algorithm, final byte[] hash) {
+	public Hash(final HashAlgorithm<?> algorithm, final byte[] hash) {
 		this.algorithm = algorithm;
 		this.hash = hash;
 	}
@@ -22,7 +22,7 @@ public class Hash {
 	 * 
 	 * @return the algorithm used to calculate this Hash
 	 */
-	public HashAlgorithm getAlgorithm() {
+	public HashAlgorithm<?> getAlgorithm() {
 		return algorithm;
 	}
 	

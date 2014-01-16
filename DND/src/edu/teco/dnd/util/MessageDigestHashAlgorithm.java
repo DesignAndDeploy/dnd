@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
  * 
  * @author Philipp Adolf
  */
-public class MessageDigestHashAlgorithm implements HashAlgorithm {
+public class MessageDigestHashAlgorithm implements HashAlgorithm<byte[]> {
 	private final String algorithmName;
 	
 	public MessageDigestHashAlgorithm(final String algorithmName) throws NoSuchAlgorithmException {
