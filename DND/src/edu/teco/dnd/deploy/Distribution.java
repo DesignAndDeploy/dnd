@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
@@ -40,7 +40,7 @@ public class Distribution {
 	/**
 	 * Mapping from BlockTypeHolder to matching BlockTarget.
 	 */
-	private final Map<Entry<Module, BlockTypeHolder>, BlockTarget> blockTargets;
+	private final Map<Entry<ModuleInfo, BlockTypeHolder>, BlockTarget> blockTargets;
 
 	/**
 	 * Returns the mapping for this distribution.
@@ -57,7 +57,7 @@ public class Distribution {
 	public Distribution() {
 		blocks = new HashMap<FunctionBlockModel, Distribution.BlockTarget>();
 		targets = new HashMap<Distribution.BlockTarget, Collection<FunctionBlockModel>>();
-		blockTargets = new HashMap<Entry<Module, BlockTypeHolder>, Distribution.BlockTarget>();
+		blockTargets = new HashMap<Entry<ModuleInfo, BlockTypeHolder>, Distribution.BlockTarget>();
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class Distribution {
 	public Distribution(final Distribution old) {
 		this(new HashMap<FunctionBlockModel, BlockTarget>(old.blocks),
 				new HashMap<BlockTarget, Collection<FunctionBlockModel>>(old.targets),
-				new HashMap<Entry<Module, BlockTypeHolder>, BlockTarget>(old.blockTargets));
+				new HashMap<Entry<ModuleInfo, BlockTypeHolder>, BlockTarget>(old.blockTargets));
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class Distribution {
 	 */
 	private Distribution(final Map<FunctionBlockModel, BlockTarget> blocks,
 			final Map<BlockTarget, Collection<FunctionBlockModel>> targets,
-			final Map<Entry<Module, BlockTypeHolder>, BlockTarget> blockTargets) {
+			final Map<Entry<ModuleInfo, BlockTypeHolder>, BlockTarget> blockTargets) {
 		this.blocks = blocks;
 		this.targets = targets;
 		this.blockTargets = blockTargets;
@@ -100,9 +100,9 @@ public class Distribution {
 	 * @param typeHolder
 	 *            the typeHolder to add the block to
 	 * @return true if the block was added
-	 * @see #canAdd(FunctionBlock, Module, BlockTypeHolder)
+	 * @see #canAdd(FunctionBlock, ModuleInfo, BlockTypeHolder)
 	 */
-	public boolean add(final FunctionBlockModel block, final Module module, final BlockTypeHolder typeHolder) {
+	public boolean add(final FunctionBlockModel block, final ModuleInfo module, final BlockTypeHolder typeHolder) {
 		LOGGER.entry(block, module, typeHolder);
 		final BlockTarget blockTarget = getBlockTarget(module, typeHolder);
 
@@ -122,7 +122,7 @@ public class Distribution {
 	 *            the typeHolder to check
 	 * @return true if the block can be added
 	 */
-	public boolean canAdd(final FunctionBlockModel block, final Module module, final BlockTypeHolder typeHolder) {
+	public boolean canAdd(final FunctionBlockModel block, final ModuleInfo module, final BlockTypeHolder typeHolder) {
 		return getBlockTarget(module, typeHolder).canAdd(this, block);
 	}
 
@@ -155,9 +155,9 @@ public class Distribution {
 	 *            the typeHolder for which to return the BlockTarget
 	 * @return the BlockTarget for <code>typeHolder</code>
 	 */
-	private BlockTarget getBlockTarget(final Module module, final BlockTypeHolder typeHolder) {
-		final Entry<Module, BlockTypeHolder> key =
-				new AbstractMap.SimpleEntry<Module, BlockTypeHolder>(module, typeHolder);
+	private BlockTarget getBlockTarget(final ModuleInfo module, final BlockTypeHolder typeHolder) {
+		final Entry<ModuleInfo, BlockTypeHolder> key =
+				new AbstractMap.SimpleEntry<ModuleInfo, BlockTypeHolder>(module, typeHolder);
 		BlockTarget target = blockTargets.get(key);
 		if (target == null) {
 			target = new BlockTarget(module, typeHolder);
@@ -187,7 +187,7 @@ public class Distribution {
 	}
 
 	/**
-	 * Represents a target for a FunctionBlock mapping. It consists of a BlockTypeHolder and the Module the
+	 * Represents a target for a FunctionBlock mapping. It consists of a BlockTypeHolder and the ModuleInfo the
 	 * BlockTypeHolder belongs to.
 	 * 
 	 * @author Philipp Adolf
@@ -196,7 +196,7 @@ public class Distribution {
 		/**
 		 * The module {@link #holder} belongs to.
 		 */
-		private final Module module;
+		private final ModuleInfo module;
 
 		/**
 		 * The BlockTypeHolder this BlockTarget represents.
@@ -211,7 +211,7 @@ public class Distribution {
 		 * @param holder
 		 *            the BlockTypeHolder this object represents
 		 */
-		public BlockTarget(final Module module, final BlockTypeHolder holder) {
+		public BlockTarget(final ModuleInfo module, final BlockTypeHolder holder) {
 			this.module = module;
 			this.holder = holder;
 		}
@@ -221,7 +221,7 @@ public class Distribution {
 		 * 
 		 * @return the module the BlockTypeHolder represented by this object belongs to
 		 */
-		public Module getModule() {
+		public ModuleInfo getModule() {
 			return module;
 		}
 

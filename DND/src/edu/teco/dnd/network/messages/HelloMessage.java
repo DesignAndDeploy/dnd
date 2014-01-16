@@ -27,9 +27,9 @@ public class HelloMessage extends Message {
 	 * Initializes a new HelloMessage.
 	 * 
 	 * @param uuid
-	 *            the UUID of the sending Module
+	 *            the UUID of the sending ModuleInfo
 	 * @param framesize
-	 *            the maximum frame size the Module can receive
+	 *            the maximum frame size the ModuleInfo can receive
 	 */
 	public HelloMessage(final UUID uuid, final int framesize) {
 		this.moduleUUID = uuid;

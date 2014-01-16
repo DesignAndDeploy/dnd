@@ -8,7 +8,7 @@ import java.util.Map;
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.util.FutureNotifier;
 
 /**
@@ -23,15 +23,15 @@ public class DeployViewProgress {
 	
 	public static void startDeploying(final String appName, final Deploy deploy,
 			final Map<FunctionBlockModel, BlockTarget> mapBlockToTarget) {
-		Collection<Module> modules = new ArrayList<Module>();
+		Collection<ModuleInfo> modules = new ArrayList<ModuleInfo>();
 		for (BlockTarget t : mapBlockToTarget.values()) {
-			Module m = t.getModule();
+			ModuleInfo m = t.getModule();
 			if (!modules.contains(m)) {
 				modules.add(m);
 			}
 		}
 
-		for (Module m : modules) {
+		for (ModuleInfo m : modules) {
 			DeployJob deployJob = new DeployJob(appName, m, deploy);
 			deployJob.setUser(true);
 			deployJob.schedule();

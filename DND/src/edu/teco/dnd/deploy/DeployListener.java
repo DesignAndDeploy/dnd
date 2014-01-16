@@ -9,42 +9,42 @@ import java.util.UUID;
  */
 public interface DeployListener {
 	/**
-	 * This method is called as soon as a Module joined the application successfully.
+	 * This method is called as soon as a ModuleInfo joined the application successfully.
 	 * 
 	 * @param appId
 	 *            the UUID of the Application
 	 * @param moduleUUID
-	 *            the UUID of the Module
+	 *            the UUID of the ModuleInfo
 	 */
 	void moduleJoined(UUID appId, UUID moduleUUID);
 
 	/**
-	 * This method is called when a Module has loaded all classes it needs successfully.
+	 * This method is called when a ModuleInfo has loaded all classes it needs successfully.
 	 * 
 	 * @param appId
 	 *            the UUID of the Application
 	 * @param moduleUUID
-	 *            the UUID of the Module
+	 *            the UUID of the ModuleInfo
 	 */
 	void moduleLoadedClasses(UUID appId, UUID moduleUUID);
 
 	/**
-	 * This method is called when a Module has loaded its blocks successfully.
+	 * This method is called when a ModuleInfo has loaded its blocks successfully.
 	 * 
 	 * @param appId
 	 *            the UUID of the Application
 	 * @param moduleUUID
-	 *            the UUID of the Module
+	 *            the UUID of the ModuleInfo
 	 */
 	void moduleLoadedBlocks(UUID appId, UUID moduleUUID);
 
 	/**
-	 * This method is called when a Module has started the application successfully.
+	 * This method is called when a ModuleInfo has started the application successfully.
 	 * 
 	 * @param appId
 	 *            the UUID of the Application
 	 * @param moduleUUID
-	 *            the UUID of the Module
+	 *            the UUID of the ModuleInfo
 	 */
 	void moduleStarted(UUID appId, UUID moduleUUID);
 

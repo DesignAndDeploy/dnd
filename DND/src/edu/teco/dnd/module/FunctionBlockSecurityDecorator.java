@@ -119,8 +119,8 @@ public class FunctionBlockSecurityDecorator {
 	public String getBlockType() {
 		return block.getBlockType();
 	}
-	
-	public String getBlockName(){
+
+	public String getBlockName() {
 		return block.getBlockName();
 	}
 

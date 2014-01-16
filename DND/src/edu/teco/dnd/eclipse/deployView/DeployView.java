@@ -44,7 +44,7 @@ import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.server.DistributionCreator;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ModuleManagerListener;
@@ -64,7 +64,7 @@ import edu.teco.dnd.util.StringUtil;
  * 
  */
 public class DeployView extends EditorPart implements ModuleManagerListener,
-		FutureListener<JoinedFutureNotifier<Module>> {
+		FutureListener<JoinedFutureNotifier<ModuleInfo>> {
 
 	/**
 	 * The logger for this class.
@@ -136,7 +136,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 */
 	protected void updateModules() {
 		if (ServerManager.getDefault().isRunning()) {
-			FutureNotifier<Collection<Module>> notifier = manager.updateModuleInfo();
+			FutureNotifier<Collection<ModuleInfo>> notifier = manager.updateModuleInfo();
 			notifier.addListener(this);
 		} else {
 			warn(Messages.DEPLOY_SERVER_NOT_RUNNING);
@@ -325,7 +325,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		} else {
 			mapBlockToTarget = dist.getMapping();
 			for (FunctionBlockModel block : mapBlockToTarget.keySet()) {
-				final Module m = mapBlockToTarget.get(block).getModule();
+				final ModuleInfo m = mapBlockToTarget.get(block).getModule();
 				graphicsManager.modifyDistributionInfo(block, m.getName(), m.getLocation());
 				newConstraints = false;
 			}
@@ -406,7 +406,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	/**
-	 * Invoked whenever a Module from moduleCombo is selected.
+	 * Invoked whenever a ModuleInfo from moduleCombo is selected.
 	 */
 	protected void moduleSelected() {
 		selectedIndex = graphicsManager.getModuleComboIndex();
@@ -488,7 +488,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	/**
-	 * Adds a Module ID.
+	 * Adds a ModuleInfo ID.
 	 * 
 	 * @param id
 	 *            the ID to add
@@ -507,7 +507,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	/**
-	 * Removes a Module ID including all dependent information on this module.
+	 * Removes a ModuleInfo ID including all dependent information on this module.
 	 * 
 	 * @param id
 	 *            the ID to remove
@@ -683,7 +683,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	@Override
-	public void moduleOffline(final UUID id, Module module) {
+	public void moduleOffline(final UUID id, ModuleInfo module) {
 		LOGGER.entry(id);
 		display.asyncExec(new Runnable() {
 			@Override
@@ -697,7 +697,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	@Override
-	public void moduleResolved(final UUID id, final Module module) {
+	public void moduleResolved(final UUID id, final ModuleInfo module) {
 
 		display.asyncExec(new Runnable() {
 			@Override
@@ -726,7 +726,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	@Override
-	public void serverOnline(final Map<UUID, Module> modules) {
+	public void serverOnline(final Map<UUID, ModuleInfo> modules) {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -771,7 +771,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 */
 
 	@Override
-	public void operationComplete(final JoinedFutureNotifier<Module> future) throws Exception {
+	public void operationComplete(final JoinedFutureNotifier<ModuleInfo> future) throws Exception {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {

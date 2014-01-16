@@ -49,7 +49,7 @@ public class HelloMessageHandler extends SimpleChannelInboundHandler<HelloMessag
 			}
 			if (localUUID.equals(remoteUUID)) {
 				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("got a connection from myself/a Module with the same UUID from {}, disconnecting",
+					LOGGER.info("got a connection from myself/a ModuleInfo with the same UUID from {}, disconnecting",
 							getRemoteAddress(ctx));
 				}
 				ctx.close();

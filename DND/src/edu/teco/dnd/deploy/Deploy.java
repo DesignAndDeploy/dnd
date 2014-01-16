@@ -26,7 +26,7 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OptionModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationAck;
@@ -54,12 +54,12 @@ import edu.teco.dnd.util.MapUtil;
  * 
  * <ol>
  * <li>Send {@link JoinApplicationMessage}s to all modules involved</li>
- * <li>Once a module has responded positively to a JoinApplicationMessage, send all classes needed on the Module via
+ * <li>Once a module has responded positively to a JoinApplicationMessage, send all classes needed on the ModuleInfo via
  * {@link LoadClassMessage}</li>
- * <li>When classes have been successfully loaded, all {@link FunctionBlock}s are sent to the Module via
+ * <li>When classes have been successfully loaded, all {@link FunctionBlock}s are sent to the ModuleInfo via
  * {@link BlockMessage}s</li>
  * <li>When all Blocks have been sent to the corresponding Modules, a {@link StartApplicationMessage} is sent to every
- * Module</li>
+ * ModuleInfo</li>
  * </ol>
  * 
  * If any of the steps fails the deployment is aborted and a {@link KillAppMessage} is sent to all Modules.
@@ -108,9 +108,9 @@ public class Deploy {
 	private final Dependencies dependencies;
 
 	/**
-	 * Stores the ClassFiles each Module needs. Filled by {@link #deploy()}.
+	 * Stores the ClassFiles each ModuleInfo needs. Filled by {@link #deploy()}.
 	 */
-	private Map<Module, Set<ClassFile>> neededFilesPerModule;
+	private Map<ModuleInfo, Set<ClassFile>> neededFilesPerModule;
 
 	/**
 	 * Used to cache the contents of the class files.
@@ -130,9 +130,9 @@ public class Deploy {
 	private final AtomicInteger unfinishedModules = new AtomicInteger();
 
 	/**
-	 * Stores the FunctionBlocks that are to be sent to each Module.
+	 * Stores the FunctionBlocks that are to be sent to each ModuleInfo.
 	 */
-	private final Map<Module, Set<FunctionBlockModel>> moduleMap;
+	private final Map<ModuleInfo, Set<FunctionBlockModel>> moduleMap;
 
 	/**
 	 * Used to make sure that the deployment process is only started once.
@@ -248,7 +248,7 @@ public class Deploy {
 	 * 
 	 * @return all Modules used by the application
 	 */
-	public Set<Module> getModules() {
+	public Set<ModuleInfo> getModules() {
 		return Collections.unmodifiableSet(this.moduleMap.keySet());
 	}
 
@@ -259,7 +259,7 @@ public class Deploy {
 	 */
 	public Collection<UUID> getModuleUUIDs() {
 		final Collection<UUID> uuids = new ArrayList<UUID>(moduleMap.size());
-		for (final Module module : moduleMap.keySet()) {
+		for (final ModuleInfo module : moduleMap.keySet()) {
 			uuids.add(module.getUUID());
 		}
 		return uuids;
@@ -295,7 +295,7 @@ public class Deploy {
 		final Map<FunctionBlockModel, Set<ClassFile>> neededFiles = getNeededFiles();
 		neededFilesPerModule = MapUtil.transitiveMapSet(moduleMap, neededFiles);
 
-		for (final Module module : moduleMap.keySet()) {
+		for (final ModuleInfo module : moduleMap.keySet()) {
 			sendJoin(module.getUUID()).addListener(new FutureListener<FutureNotifier<Response>>() {
 				@Override
 				public void operationComplete(final FutureNotifier<Response> future) {
@@ -308,12 +308,12 @@ public class Deploy {
 	}
 
 	/**
-	 * Creates a mapping from FunctionBlock to Module using {@link #distribution}.
+	 * Creates a mapping from FunctionBlock to ModuleInfo using {@link #distribution}.
 	 * 
-	 * @return a mapping from FunctionBlock to corresponding Module
+	 * @return a mapping from FunctionBlock to corresponding ModuleInfo
 	 */
-	private Map<FunctionBlockModel, Module> getModuleMapping() {
-		final Map<FunctionBlockModel, Module> moduleMapping = new HashMap<FunctionBlockModel, Module>();
+	private Map<FunctionBlockModel, ModuleInfo> getModuleMapping() {
+		final Map<FunctionBlockModel, ModuleInfo> moduleMapping = new HashMap<FunctionBlockModel, ModuleInfo>();
 		for (final Entry<FunctionBlockModel, BlockTarget> entry : distribution.entrySet()) {
 			moduleMapping.put(entry.getKey(), entry.getValue().getModule());
 		}
@@ -334,11 +334,11 @@ public class Deploy {
 	}
 
 	/**
-	 * Sends a {@link JoinApplicationMessage} to the Module with the given UUID.
+	 * Sends a {@link JoinApplicationMessage} to the ModuleInfo with the given UUID.
 	 * 
 	 * @param moduleUUID
-	 *            the UUID of the Module the message should be sent to
-	 * @return a FutureNotifier that will return the Response of the Module
+	 *            the UUID of the ModuleInfo the message should be sent to
+	 * @return a FutureNotifier that will return the Response of the ModuleInfo
 	 */
 	private FutureNotifier<Response> sendJoin(final UUID moduleUUID) {
 		LOGGER.entry(moduleUUID);
@@ -349,16 +349,16 @@ public class Deploy {
 	}
 
 	/**
-	 * This method is called when a Module's Response to a {@link JoinApplicationMessage} is received. If a positive
-	 * Response is received {@link #sendClasses(Module)} is called, otherwise {@link #deployFutureNotifier} is marked as
+	 * This method is called when a ModuleInfo's Response to a {@link JoinApplicationMessage} is received. If a positive
+	 * Response is received {@link #sendClasses(ModuleInfo)} is called, otherwise {@link #deployFutureNotifier} is marked as
 	 * failed.
 	 * 
 	 * @param future
 	 *            the FutureNotifier for the Response
 	 * @param module
-	 *            the Module the Response is from
+	 *            the ModuleInfo the Response is from
 	 */
-	private void handleJoinFinished(final FutureNotifier<Response> future, final Module module) {
+	private void handleJoinFinished(final FutureNotifier<Response> future, final ModuleInfo module) {
 		LOGGER.entry(future, module);
 		if (deployFutureNotifier.isDone() && !deployFutureNotifier.isSuccess()) {
 			LOGGER.debug("deployFutureNotifier failed, aborting");
@@ -391,7 +391,7 @@ public class Deploy {
 	 * Calls {@link DeployListener#moduleJoined(UUID)} on all listeners.
 	 * 
 	 * @param moduleUUID
-	 *            the UUID of the Module that joined
+	 *            the UUID of the ModuleInfo that joined
 	 */
 	private void informJoined(final UUID moduleUUID) {
 		listenerLock.readLock().lock();
@@ -405,13 +405,13 @@ public class Deploy {
 	}
 
 	/**
-	 * Sends all classes needed by the given Module to the Module.
+	 * Sends all classes needed by the given ModuleInfo to the ModuleInfo.
 	 * 
 	 * @param module
 	 *            the that should be handled
 	 * @return a FutureNotifier that will return a Collection of the Responses to all {@link LoadClassMessage}s
 	 */
-	private FutureNotifier<Collection<Response>> sendClasses(final Module module) {
+	private FutureNotifier<Collection<Response>> sendClasses(final ModuleInfo module) {
 		final UUID moduleUUID = module.getUUID();
 		final Collection<FutureNotifier<? extends Response>> futureNotifiers =
 				new ArrayList<FutureNotifier<? extends Response>>();
@@ -422,13 +422,13 @@ public class Deploy {
 	}
 
 	/**
-	 * Sends a single class to a Module. Used {@link #fileCache} to cache the class file contents.
+	 * Sends a single class to a ModuleInfo. Used {@link #fileCache} to cache the class file contents.
 	 * 
 	 * @param moduleUUID
-	 *            the UUID of the Module the class should be sent to
+	 *            the UUID of the ModuleInfo the class should be sent to
 	 * @param classFile
 	 *            the class to send
-	 * @return a FutureNotifier that will return the Response of the Module
+	 * @return a FutureNotifier that will return the Response of the ModuleInfo
 	 */
 	private FutureNotifier<Response> sendClass(final UUID moduleUUID, final ClassFile classFile) {
 		byte[] classData;
@@ -444,15 +444,15 @@ public class Deploy {
 
 	/**
 	 * This method is called when a FutureNotifier for Responses to {@link LoadClassMessage}s has finished. If a
-	 * positive Reponse is received {@link #sendBlocks(Module)} is called, otherwise {@link #deployFutureNotifier} is
+	 * positive Reponse is received {@link #sendBlocks(ModuleInfo)} is called, otherwise {@link #deployFutureNotifier} is
 	 * marked as failed.
 	 * 
 	 * @param future
 	 *            the FutureNotifier that returns the Responses
 	 * @param module
-	 *            the Module the Responses are from
+	 *            the ModuleInfo the Responses are from
 	 */
-	private void handleClassSendingFinished(final FutureNotifier<Collection<Response>> future, final Module module) {
+	private void handleClassSendingFinished(final FutureNotifier<Collection<Response>> future, final ModuleInfo module) {
 		LOGGER.entry(future, module);
 		if (deployFutureNotifier.isDone() && !deployFutureNotifier.isSuccess()) {
 			LOGGER.debug("deployFutureNotifier failed, aborting");
@@ -487,7 +487,7 @@ public class Deploy {
 	 * Calls {@link DeployListener#moduleLoadedClasses(UUID)} on all listeners.
 	 * 
 	 * @param moduleUUID
-	 *            the UUID of the Module that loaded the classes
+	 *            the UUID of the ModuleInfo that loaded the classes
 	 */
 	private void informClassesLoaded(final UUID moduleUUID) {
 		listenerLock.readLock().lock();
@@ -501,13 +501,13 @@ public class Deploy {
 	}
 
 	/**
-	 * Sends all Blocks that are assigned to the given Module to the Module.
+	 * Sends all Blocks that are assigned to the given ModuleInfo to the ModuleInfo.
 	 * 
 	 * @param module
-	 *            the Module to handle
+	 *            the ModuleInfo to handle
 	 * @return a FutureNotifier returning a Collection of all Responses to the {@link BlockMessage}s
 	 */
-	private FutureNotifier<Collection<Response>> sendBlocks(final Module module) {
+	private FutureNotifier<Collection<Response>> sendBlocks(final ModuleInfo module) {
 		final UUID moduleUUID = module.getUUID();
 		final Collection<FutureNotifier<? extends Response>> futureNotifiers =
 				new ArrayList<FutureNotifier<? extends Response>>();
@@ -519,13 +519,13 @@ public class Deploy {
 	}
 
 	/**
-	 * Sends a single {@link FunctionBlock} to the Module with the given UUID.
+	 * Sends a single {@link FunctionBlock} to the ModuleInfo with the given UUID.
 	 * 
 	 * @param moduleUUID
-	 *            the UUID of the Module
+	 *            the UUID of the ModuleInfo
 	 * @param block
 	 *            the FunctionBlock to send
-	 * @return a FutureNotifier that will return the Response of the Module
+	 * @return a FutureNotifier that will return the Response of the ModuleInfo
 	 */
 	private FutureNotifier<Response> sendBlock(final UUID moduleUUID, final FunctionBlockModel block) {
 		final Map<String, String> options = new HashMap<String, String>();
@@ -547,7 +547,7 @@ public class Deploy {
 	}
 
 	/**
-	 * This method is called when all {@link FunctionBlock} that are assigned to a Module have been sent. If a positive
+	 * This method is called when all {@link FunctionBlock} that are assigned to a ModuleInfo have been sent. If a positive
 	 * Response was received {@link #unfinishedModules} is decremented. If it is zero afterwards
 	 * {@link #sendStartApplication()} is called. If a negative Response is received {@link #deployFutureNotifier} is
 	 * marked as failed.
@@ -555,9 +555,9 @@ public class Deploy {
 	 * @param future
 	 *            the FutureNotifier returning the Responses
 	 * @param module
-	 *            the Module the Responses are from
+	 *            the ModuleInfo the Responses are from
 	 */
-	private void handleBlockSendingFinished(final FutureNotifier<Collection<Response>> future, final Module module) {
+	private void handleBlockSendingFinished(final FutureNotifier<Collection<Response>> future, final ModuleInfo module) {
 		LOGGER.entry(future, module);
 		if (deployFutureNotifier.isDone() && !deployFutureNotifier.isSuccess()) {
 			LOGGER.exit();
@@ -599,7 +599,7 @@ public class Deploy {
 	 * Calls {@link DeployListener#moduleLoadedBlocks(UUID)} on all listeners.
 	 * 
 	 * @param moduleUUID
-	 *            the UUID of the Module that loaded its blocks
+	 *            the UUID of the ModuleInfo that loaded its blocks
 	 */
 	private void informBlocksLoaded(final UUID moduleUUID) {
 		listenerLock.readLock().lock();
@@ -614,7 +614,7 @@ public class Deploy {
 
 	/**
 	 * Sends a {@link StartApplicationMessage} to all Modules and adds a listener to each future to call
-	 * {@link #informModuleStarted(UUID)} if the Module started the application successfully.
+	 * {@link #informModuleStarted(UUID)} if the ModuleInfo started the application successfully.
 	 * 
 	 * @return a FutureNotifier returning the Responses of all Modules
 	 */
@@ -622,7 +622,7 @@ public class Deploy {
 		final StartApplicationMessage startApplicationMessage = new StartApplicationMessage(appId);
 		final Collection<FutureNotifier<? extends Response>> futureNotifiers =
 				new ArrayList<FutureNotifier<? extends Response>>();
-		for (final Module module : moduleMap.keySet()) {
+		for (final ModuleInfo module : moduleMap.keySet()) {
 			final UUID moduleUUID = module.getUUID();
 			final FutureNotifier<Response> futureNotifier =
 					connectionManager.sendMessage(module.getUUID(), startApplicationMessage);
@@ -675,7 +675,7 @@ public class Deploy {
 	 * Calls {@link DeployListener#moduleStarted(UUID)} on all listeners.
 	 * 
 	 * @param moduleUUID
-	 *            the UUID of the Module that started
+	 *            the UUID of the ModuleInfo that started
 	 */
 	private void informModuleStarted(final UUID moduleUUID) {
 		listenerLock.readLock().lock();
@@ -707,7 +707,7 @@ public class Deploy {
 
 	private void killApplication() {
 		LOGGER.info("killing failed application");
-		for (final Module module : moduleMap.keySet()) {
+		for (final ModuleInfo module : moduleMap.keySet()) {
 			final KillAppMessage killAppMsg = new KillAppMessage(appId);
 			connectionManager.sendMessage(module.getUUID(), killAppMsg);
 		}

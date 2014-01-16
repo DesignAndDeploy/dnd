@@ -22,7 +22,7 @@ public interface ConnectionManager {
 	public static final UUID APPID_DEFAULT = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
 	/**
-	 * Sends a message to the given Module.
+	 * Sends a message to the given ModuleInfo.
 	 * 
 	 * @param uuid
 	 *            the UUID of the module the message should be sent to

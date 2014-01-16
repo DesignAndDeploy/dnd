@@ -27,8 +27,8 @@ import edu.teco.dnd.util.ReferenceIterator;
 
 /**
  * Provides functionality to send values to a remote FunctionBlock. This includes searching for the FunctionBlock using
- * its UUID and buffering values until the Module on which the FunctionBlock is running is found. Values are cached
- * using SoftReferences so they may get garbage collected before the Module is found.
+ * its UUID and buffering values until the ModuleInfo on which the FunctionBlock is running is found. Values are cached
+ * using SoftReferences so they may get garbage collected before the ModuleInfo is found.
  * 
  * @author Philipp Adolf
  */
@@ -55,12 +55,12 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	private final ConnectionManager connectionManager;
 
 	/**
-	 * Values that are queued to be send once the right Module is found.
+	 * Values that are queued to be send once the right ModuleInfo is found.
 	 */
 	private final List<Reference<TargetedValue>> pendingValues = new LinkedList<Reference<TargetedValue>>();
 
 	/**
-	 * The UUID of the Module that has the target FunctionBlock. null if unknown.
+	 * The UUID of the ModuleInfo that has the target FunctionBlock. null if unknown.
 	 */
 	private UUID moduleUUID = null;
 
@@ -91,7 +91,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	}
 
 	/**
-	 * Sends a value to the FunctionBlock. If the Module the FunctionBlock is unknown the value is queued to be sent
+	 * Sends a value to the FunctionBlock. If the ModuleInfo the FunctionBlock is unknown the value is queued to be sent
 	 * later.
 	 * 
 	 * @param targetInput
@@ -127,16 +127,16 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 			}
 		}
 
-		// this part will only be reached if the Module UUID was not null in either one of the locked blocks above
+		// this part will only be reached if the ModuleInfo UUID was not null in either one of the locked blocks above
 		sendValue(uuid, targetInput, value);
 		LOGGER.exit();
 	}
 
 	/**
-	 * Sends a ValueMessage to the given Module.
+	 * Sends a ValueMessage to the given ModuleInfo.
 	 * 
 	 * @param modUUID
-	 *            the UUID of the Module the message should be send to
+	 *            the UUID of the ModuleInfo the message should be send to
 	 * @param targetInput
 	 *            the name of the input of the FunctionBlock the value is for
 	 * @param value
@@ -152,8 +152,8 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	}
 
 	/**
-	 * Sends queries to all connected Modules if the Module UUID for the Module that has the target FunctionBlock is
-	 * unknown and no queries are pending.
+	 * Sends queries to all connected Modules if the ModuleInfo UUID for the ModuleInfo that has the target
+	 * FunctionBlock is unknown and no queries are pending.
 	 */
 	private void queryUUID() {
 		LOGGER.entry();
@@ -194,7 +194,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 
 	/**
 	 * This is called once the {@link ModuleUUIDFutureNotifier} finishes. Either sets {@link #moduleUUID} and sends all
-	 * pending values or retries finding the Module UUID.
+	 * pending values or retries finding the ModuleInfo UUID.
 	 * 
 	 * @param future
 	 *            the FutureNotifier that finished
@@ -256,11 +256,12 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		}
 
 		/**
-		 * This is called by {@link WhoHasBlockResponseListener} if a Module responded with a {@link BlockFoundResponse}
-		 * . This marks this FutureNotifier as completed successfully with the given moduleUUID.
+		 * This is called by {@link WhoHasBlockResponseListener} if a ModuleInfo responded with a
+		 * {@link BlockFoundResponse} . This marks this FutureNotifier as completed successfully with the given
+		 * moduleUUID.
 		 * 
 		 * @param moduleUUID
-		 *            the UUID of the Module containing the FunctionBlock
+		 *            the UUID of the ModuleInfo containing the FunctionBlock
 		 */
 		public void queryFinishedSuccessfully(final UUID moduleUUID) {
 			setSuccess(moduleUUID);

@@ -101,7 +101,7 @@ public class Application {
 	}
 
 	/**
-	 * called from this app, when a value is supposed to be send to another block (potentially on another Module).
+	 * called from this app, when a value is supposed to be send to another block (potentially on another ModuleInfo).
 	 * 
 	 * 
 	 * @param funcBlock
@@ -510,7 +510,7 @@ public class Application {
 	/**
 	 * @param blockId
 	 *            the blockId to check for.
-	 * @return true iff the the given block is executing on this Module.
+	 * @return true iff the the given block is executing on this ModuleInfo.
 	 */
 	public boolean isExecuting(UUID blockId) {
 		return funcBlockById.containsKey(blockId);

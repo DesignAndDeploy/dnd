@@ -1,7 +1,7 @@
 package edu.teco.dnd.deploy;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
@@ -12,7 +12,7 @@ import edu.teco.dnd.module.config.BlockTypeHolder;
  */
 public class ResourceConstraint implements Constraint {
 	@Override
-	public boolean isAllowed(final Distribution distribution, final FunctionBlockModel block, final Module module,
+	public boolean isAllowed(final Distribution distribution, final FunctionBlockModel block, final ModuleInfo module,
 			final BlockTypeHolder holder) {
 		return distribution.canAdd(block, module, holder);
 	}

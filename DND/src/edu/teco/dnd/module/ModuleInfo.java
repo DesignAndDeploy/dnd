@@ -6,12 +6,12 @@ import java.util.UUID;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
- * Represents the configuration/setup of a Module. Used for transporting said information.
+ * Represents the configuration/setup of a ModuleInfo. Used for transporting said information.
  * 
  * @author jung
  * 
  */
-public class Module {
+public class ModuleInfo {
 	private UUID uuid;
 	private String name;
 	private String location;
@@ -27,7 +27,7 @@ public class Module {
 	 * @param holder
 	 *            BlockTypeHolder of the module.
 	 */
-	public Module(UUID id, String name, BlockTypeHolder holder) {
+	public ModuleInfo(UUID id, String name, BlockTypeHolder holder) {
 		this.uuid = id;
 		this.name = name;
 		this.holder = holder;
@@ -98,7 +98,7 @@ public class Module {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		Module other = (Module) obj;
+		ModuleInfo other = (ModuleInfo) obj;
 		if (holder == null) {
 			if (other.holder != null) {
 				return false;
@@ -132,6 +132,6 @@ public class Module {
 
 	@Override
 	public String toString() {
-		return "Module[uuid=" + uuid + ",name=" + name + ",location=" + location + "]";
+		return "ModuleInfo[uuid=" + uuid + ",name=" + name + ",location=" + location + "]";
 	}
 }

@@ -9,7 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
@@ -32,7 +32,7 @@ public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMess
 		final JsonElement jsonSourceUUID = jsonObj.get("sourceuuid");
 		UUID sourceUUID = context.deserialize(jsonSourceUUID, UUID.class);
 		final JsonElement jsonModule = jsonObj.get("module");
-		Module module = context.deserialize(jsonModule, Module.class);
+		ModuleInfo module = context.deserialize(jsonModule, ModuleInfo.class);
 		final BlockTypeHolder rootHolder = module.getHolder();
 		if (rootHolder != null) {
 			setParents(rootHolder);

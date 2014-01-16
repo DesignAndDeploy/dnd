@@ -45,7 +45,7 @@ public class ApplicationQuery {
 
 	/**
 	 * get a FutureNotifier usable to retrieve a list of running applications (and information about them) from a single
-	 * Module.
+	 * ModuleInfo.
 	 * 
 	 * @param module
 	 *            UUID of the module to query

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 public class UserConstraints implements Constraint {
@@ -19,7 +19,7 @@ public class UserConstraints implements Constraint {
 	}
 
 	@Override
-	public boolean isAllowed(Distribution distribution, FunctionBlockModel block, Module module, BlockTypeHolder holder) {
+	public boolean isAllowed(Distribution distribution, FunctionBlockModel block, ModuleInfo module, BlockTypeHolder holder) {
 		if (moduleConstraints.containsKey(block)) {
 			UUID id = module.getUUID();
 			if (!moduleConstraints.get(block).equals(id)) {

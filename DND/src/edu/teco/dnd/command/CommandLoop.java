@@ -13,7 +13,7 @@ import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.server.DistributionCreator;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.NoBlocksException;
@@ -88,7 +88,7 @@ public class CommandLoop {
 	 * @return
 	 */
 	private Distribution createDistribution() {
-		Map<UUID, Module> map = moduleManager.getMap();
+		Map<UUID, ModuleInfo> map = moduleManager.getMap();
 
 		Distribution dist = null;
 		try {
@@ -116,7 +116,7 @@ public class CommandLoop {
 		System.out.println("Distribution succeeded:");
 		Map<FunctionBlockModel, BlockTarget> map = dist.getMapping();
 		for (FunctionBlockModel block : map.keySet()) {
-			Module mod = map.get(block).getModule();
+			ModuleInfo mod = map.get(block).getModule();
 			System.out.println(block.getBlockName() + " mapped to " + mod.getName() + " : " + mod.getUUID().toString());
 		}
 		return true;

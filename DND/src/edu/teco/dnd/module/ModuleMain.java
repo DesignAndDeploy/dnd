@@ -71,7 +71,7 @@ import edu.teco.dnd.util.NetConnection;
 import edu.teco.dnd.util.NetConnectionAdapter;
 
 /**
- * The main class that is started on a Module.
+ * The main class that is started on a ModuleInfo.
  */
 public final class ModuleMain {
 	/**
@@ -139,7 +139,7 @@ public final class ModuleMain {
 			registerHandlerAdapter(moduleConfig, tcpConnectionManager, appMan);
 		}
 
-		System.out.println("Module is up and running.");
+		System.out.println("ModuleInfo is up and running.");
 
 	}
 
@@ -216,7 +216,7 @@ public final class ModuleMain {
 
 	/**
 	 * Registers necessary types of Messages/Adapters for interfacing with the network layer on the given
-	 * TCPConnectionManager. This is the global part used for Module as well as Deploy.
+	 * TCPConnectionManager. This is the global part used for ModuleInfo as well as Deploy.
 	 * 
 	 * @param tcpConnMan
 	 *            the TCPConnectionManager to register the adapters on.
@@ -255,8 +255,8 @@ public final class ModuleMain {
 	}
 
 	/**
-	 * Registers Message Handlers and adapters for the module on the TCPConnectionManager. This is Module specific and
-	 * not used by deploy.
+	 * Registers Message Handlers and adapters for the module on the TCPConnectionManager. This is ModuleInfo specific
+	 * and not used by deploy.
 	 * 
 	 * @param moduleConfig
 	 *            the configuration according to which the module is set up.
@@ -275,7 +275,7 @@ public final class ModuleMain {
 				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), appMan));
 		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
-		// Module does not execute given application but received Message anyway, handlers
+		// ModuleInfo does not execute given application but received Message anyway, handlers
 		tcpConnMan.addHandler(LoadClassMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(BlockMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(StartApplicationMessage.class, new MissingApplicationHandler());

@@ -23,7 +23,7 @@ import com.google.gson.GsonBuilder;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.tests.TestConfigReader;
@@ -164,7 +164,7 @@ public class MessageDeEnCodingTest implements Serializable {
 		MSG_ADAPTER.addMessageType(ModuleInfoMessage.class);
 		try {
 			final ConfigReader configReader = TestConfigReader.getPredefinedReader();
-			testEnDeCoding(new ModuleInfoMessage(new Module(configReader.getUuid(), configReader.getName(),
+			testEnDeCoding(new ModuleInfoMessage(new ModuleInfo(configReader.getUuid(), configReader.getName(),
 					configReader.getBlockRoot())));
 		} catch (SocketException e) {
 			e.printStackTrace();
