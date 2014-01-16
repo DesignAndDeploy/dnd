@@ -32,11 +32,7 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.util.IndexedThreadFactory;
 
 /**
- * class responsible for handling all the applications that belong to a module. (e.g. storing them, managing
- * shutdown...). Basically the main eventdriven "executable" of the modules.
- * 
- * @author Marvin Marx
- * 
+ * Provides a high level view of a Module.
  */
 public class Module {
 	private static final Logger LOGGER = LogManager.getLogger(Module.class);
@@ -50,29 +46,18 @@ public class Module {
 
 	/**
 	 * 
-	 * @param moduleConfig
+	 * @param config
 	 *            Configuration this module has been given.
 	 * @param connMan
 	 *            the Manager for connections to other modules.
-	 * @param modShutdownHook
+	 * @param shutdownHook
 	 *            A runnable that will be executed upon receipt of a KillMeassage before the applications are killed.
-	 *            Likely to shutdown the network cleanly.
+	 *            Can be null if it is not needed.
 	 */
-	public Module(ConfigReader moduleConfig, ConnectionManager connMan, Runnable modShutdownHook) {
-		this.moduleShutdownHook = modShutdownHook;
-		this.moduleConfig = moduleConfig;
+	public Module(ConfigReader config, ConnectionManager connMan, Runnable shutdownHook) {
+		this.moduleShutdownHook = shutdownHook;
+		this.moduleConfig = config;
 		this.connMan = connMan;
-	}
-
-	/**
-	 * 
-	 * @param moduleConfig
-	 *            Configuration this module has been given.
-	 * @param connMan
-	 *            the Manager for connections to other modules.
-	 */
-	public Module(ConfigReader moduleConfig, ConnectionManager connMan) {
-		this(moduleConfig, connMan, null);
 	}
 
 	/**
