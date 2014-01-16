@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ConfigReader;
-import edu.teco.dnd.module.messages.infoReq.BlockID;
+import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessageHandler;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
@@ -43,7 +43,8 @@ public class Module {
 	private final Runnable moduleShutdownHook;
 	private boolean isShuttingDown = false;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
-	private final Map<BlockID, Integer> spotOccupiedByBlock = new ConcurrentHashMap<BlockID, Integer>();
+	private final Map<ApplicationBlockID, Integer> spotOccupiedByBlock =
+			new ConcurrentHashMap<ApplicationBlockID, Integer>();
 
 	/**
 	 * 
@@ -206,7 +207,7 @@ public class Module {
 			// TODO: Maybe a different kind of exception would be better
 			throw new IllegalArgumentException();
 		}
-		spotOccupiedByBlock.put(new BlockID(block.getBlockUUID(), appId), blockTypeHolderId);
+		spotOccupiedByBlock.put(new ApplicationBlockID(block.getBlockUUID(), appId), blockTypeHolderId);
 	}
 
 	/**
@@ -298,14 +299,14 @@ public class Module {
 	 *            the block to remove
 	 */
 	private void removeBlock(final UUID appId, final FunctionBlockSecurityDecorator block) {
-		final BlockID blockID = new BlockID(block.getBlockUUID(), appId);
-		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(blockID));
+		final ApplicationBlockID applicationBlockID = new ApplicationBlockID(block.getBlockUUID(), appId);
+		BlockTypeHolder holder = moduleConfig.getAllowedBlocksById().get(spotOccupiedByBlock.get(applicationBlockID));
 		if (holder != null) {
 			holder.increase();
 		} else {
 			LOGGER.warn("Block returned bogous blocktype on shutdown. Can not free resources.");
 		}
-		spotOccupiedByBlock.remove(blockID);
+		spotOccupiedByBlock.remove(applicationBlockID);
 	}
 
 	/**

@@ -14,7 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
-import edu.teco.dnd.module.messages.infoReq.BlockID;
+import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.network.ConnectionManager;
@@ -192,7 +192,7 @@ public class ApplicationQuery {
 					Map<UUID, Collection<UUID>> appBlocks = applicationListResponse.getApplicationBlocks();
 					Map<UUID, String> appNames = applicationListResponse.getApplicationNames();
 					Map<UUID, String> uuidToBlockType = applicationListResponse.getBlockTypes();
-					Map<BlockID, String> blockIDToBlockName = applicationListResponse.getBlockNames();
+					Map<ApplicationBlockID, String> applicationBlockIDToBlockName = applicationListResponse.getBlockNames();
 					for (UUID appID : appNames.keySet()) {
 						ApplicationInformation currentAppInfo = appInfos.get(appID);
 						if (currentAppInfo == null) {
@@ -203,7 +203,7 @@ public class ApplicationQuery {
 						for (UUID blockUUID : appBlocks.get(appID)) {
 							currentAppInfo.addBlockModulePair(blockUUID, currentModId);
 							currentAppInfo.addUUIDBlockTypePair(blockUUID, uuidToBlockType.get(blockUUID));
-							currentAppInfo.addBlockIDNamePair(blockUUID, blockIDToBlockName.get(new BlockID(blockUUID, appID)));
+							currentAppInfo.addBlockIDNamePair(blockUUID, applicationBlockIDToBlockName.get(new ApplicationBlockID(blockUUID, appID)));
 						}
 					}
 
