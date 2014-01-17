@@ -146,7 +146,7 @@ public class Module {
 	 *            the application the message handlers are to be registered for.
 	 */
 	private void registerMessageHandlers(final Application application) {
-		final UUID appId = application.getOwnAppId();
+		final UUID appId = application.getApplicationID();
 		final Executor executor = application.getThreadPool();
 		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(application), executor);
 		connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), executor);
@@ -265,7 +265,7 @@ public class Module {
 
 			app.shutdown();
 
-			for (final FunctionBlockSecurityDecorator block : app.getAllBlocks()) {
+			for (final FunctionBlockSecurityDecorator block : app.getFunctionBlocksById().values()) {
 				moduleBlockManager.removeBlock(new ApplicationBlockID(block.getBlockUUID(), appId));
 			}
 

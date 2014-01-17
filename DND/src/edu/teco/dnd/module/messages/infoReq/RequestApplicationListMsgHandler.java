@@ -41,12 +41,12 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 		final Map<UUID, Collection<UUID>> applicationBlocks = new HashMap<UUID, Collection<UUID>>();
 
 		for (final Application application : module.getRunningApps().values()) {
-			for (UUID id : application.getFuncBlockById().keySet()){
-				uuidToBlockType.put(id, application.getFuncBlockById().get(id).getBlockType());
-				applicationBlockIDToBlockName.put(new ApplicationBlockID(id, application.getOwnAppId()), application.getFuncBlockById().get(id).getBlockName());
+			for (UUID id : application.getFunctionBlocksById().keySet()){
+				uuidToBlockType.put(id, application.getFunctionBlocksById().get(id).getBlockType());
+				applicationBlockIDToBlockName.put(new ApplicationBlockID(id, application.getApplicationID()), application.getFunctionBlocksById().get(id).getBlockName());
 			}
-			applicationNames.put(application.getOwnAppId(), application.getName());
-			applicationBlocks.put(application.getOwnAppId(), application.getFuncBlockById().keySet());
+			applicationNames.put(application.getApplicationID(), application.getName());
+			applicationBlocks.put(application.getApplicationID(), application.getFunctionBlocksById().keySet());
 		}
 		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks, uuidToBlockType, applicationBlockIDToBlockName);
 	}

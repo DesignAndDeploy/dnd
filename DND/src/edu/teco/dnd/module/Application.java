@@ -40,7 +40,7 @@ public class Application {
 	public static final int TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL = 2000;
 	/** Additional time granted, for shutdownhooks after kill attempt, before thread is forcefully stopped. */
 	public static final int ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL = 500;
-	private final UUID ownAppId;
+	private final UUID applicationID;
 	private final String name;
 	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
@@ -60,14 +60,7 @@ public class Application {
 
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
-	private final Map<UUID, FunctionBlockSecurityDecorator> funcBlockById;
-
-	/**
-	 * @return all blocks, this app is currently executing.
-	 */
-	public Collection<FunctionBlockSecurityDecorator> getAllBlocks() {
-		return funcBlockById.values();
-	}
+	private final Map<UUID, FunctionBlockSecurityDecorator> functionBlocksById;
 
 	/**
 	 * 
@@ -89,12 +82,12 @@ public class Application {
 	 */
 	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
 			ConnectionManager connMan, ApplicationClassLoader classloader, final ModuleBlockManager moduleBlockManager) {
-		this.ownAppId = appId;
+		this.applicationID = appId;
 		this.name = name;
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
 		this.classLoader = classloader;
-		this.funcBlockById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
+		this.functionBlocksById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
 		this.moduleBlockManager = moduleBlockManager;
 	}
 
@@ -139,7 +132,7 @@ public class Application {
 	 */
 	private void sanitizedSendValue(final UUID funcBlock, final String input, final Serializable value) {
 
-		if (isExecuting(funcBlock)) { // block is local
+		if (hasFunctionBlockWithID(funcBlock)) { // block is local
 			try {
 				receiveValue(funcBlock, input, value);
 			} catch (NonExistentFunctionblockException e) {
@@ -165,7 +158,7 @@ public class Application {
 	private ValueSender getValueSender(final UUID funcBlock) {
 		ValueSender valueSender = valueSenders.get(funcBlock);
 		if (valueSender == null) {
-			valueSender = new ValueSender(ownAppId, funcBlock, connMan);
+			valueSender = new ValueSender(applicationID, funcBlock, connMan);
 			// if between the get and this call another Thread put a ValueSender into the map, this call will return the
 			// ValueSender the other
 			// Thread put into the Map. We'll use that one instead of our new one so that only one ValueSender exists
@@ -232,7 +225,8 @@ public class Application {
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
-			moduleBlockManager.addToBlockTypeHolders(ownAppId, securityDecorator, blockDescription.blockTypeHolderId);
+			moduleBlockManager.addToBlockTypeHolders(applicationID, securityDecorator,
+					blockDescription.blockTypeHolderId);
 			LOGGER.trace("adding {} to scheduledToStart");
 			scheduledToStart.add(securityDecorator);
 			LOGGER.trace("saving block options");
@@ -318,7 +312,7 @@ public class Application {
 			return; // Already shutting down.
 		}
 		try {
-			funcBlockById.put(block.getBlockUUID(), block);
+			functionBlocksById.put(block.getBlockUUID(), block);
 
 			Runnable initRunnable = new Runnable() {
 				@Override
@@ -382,7 +376,7 @@ public class Application {
 			return; // Already shutting down.
 		}
 		try {
-			final FunctionBlockSecurityDecorator block = funcBlockById.get(funcBlockId);
+			final FunctionBlockSecurityDecorator block = functionBlocksById.get(funcBlockId);
 			if (block == null) {
 				LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
 				throw LOGGER.throwing(new NonExistentFunctionblockException());
@@ -422,7 +416,7 @@ public class Application {
 		scheduledThreadPool.shutdown();
 		final Thread shutdownThread = new Thread(new Runnable() {
 			public void run() {
-				for (FunctionBlockSecurityDecorator fun : funcBlockById.values()) {
+				for (FunctionBlockSecurityDecorator fun : functionBlocksById.values()) {
 					if (Thread.interrupted()) {
 						LOGGER.warn("shutdownThread got interrupted, not shutting down remaining FunctionBlocks");
 						break;
@@ -469,8 +463,8 @@ public class Application {
 	 * 
 	 * @return the UUID of this application
 	 */
-	public UUID getOwnAppId() {
-		return ownAppId;
+	public UUID getApplicationID() {
+		return applicationID;
 	}
 
 	/**
@@ -497,22 +491,12 @@ public class Application {
 		return scheduledThreadPool;
 	}
 
-	/**
-	 * 
-	 * @return a map of FunctionBlockSecurityDecorators/FunctionBlocks this Application executes on this module. Mapped
-	 *         <BlockUUID, FuncBlockSecurityDecorator>
-	 */
-	public Map<UUID, FunctionBlockSecurityDecorator> getFuncBlockById() {
-		return new HashMap<UUID, FunctionBlockSecurityDecorator>(funcBlockById);
+	public Map<UUID, FunctionBlockSecurityDecorator> getFunctionBlocksById() {
+		return new HashMap<UUID, FunctionBlockSecurityDecorator>(functionBlocksById);
 	}
 
-	/**
-	 * @param blockId
-	 *            the blockId to check for.
-	 * @return true iff the the given block is executing on this ModuleInfo.
-	 */
-	public boolean isExecuting(UUID blockId) {
-		return funcBlockById.containsKey(blockId);
+	public boolean hasFunctionBlockWithID(UUID blockId) {
+		return functionBlocksById.containsKey(blockId);
 	}
 
 	// TODO insert javadoc here.
