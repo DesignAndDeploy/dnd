@@ -56,7 +56,13 @@ public class HashStorage<T> {
 	 */
 	public T putIfAbsent(final T data) {
 		final Hash hash = algorithm.getHash(data);
-		T oldData = get(hash);
+		T oldData = null;
+		lock.readLock().lock();
+		try {
+			oldData = get(hash);
+		} finally {
+			lock.readLock().unlock();
+		}
 		if (oldData != null) {
 			return oldData;
 		}

@@ -43,7 +43,7 @@ public class Application {
 	public static final int TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL = 2000;
 	/** Additional time granted, for shutdownhooks after kill attempt, before thread is forcefully stopped. */
 	public static final int ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL = 500;
-	
+
 	/**
 	 * Current state of the application. Can only advance to the next state: the Application starts in CREATED, then
 	 * goes to RUNNING and eventually transitions to STOPPED.
@@ -62,7 +62,7 @@ public class Application {
 
 	private State currentState = State.CREATED;
 	private final ReadWriteLock currentStateLock = new ReentrantReadWriteLock();
-	
+
 	private final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
 	private final Map<FunctionBlockSecurityDecorator, Map<String, String>> blockOptions =
 			new HashMap<FunctionBlockSecurityDecorator, Map<String, String>>();
@@ -74,7 +74,8 @@ public class Application {
 
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
-	private final Map<UUID, FunctionBlockSecurityDecorator> functionBlocksById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
+	private final Map<UUID, FunctionBlockSecurityDecorator> functionBlocksById =
+			new HashMap<UUID, FunctionBlockSecurityDecorator>();
 
 	/**
 	 * 
@@ -336,25 +337,27 @@ public class Application {
 		currentStateLock.readLock().lock();
 		try {
 			if (currentState != State.CREATED) {
-				throw LOGGER.throwing(new IllegalStateException("Tried to start " + this + " while it was in State " + currentState));
+				throw LOGGER.throwing(new IllegalStateException("Tried to start " + this + " while it was in State "
+						+ currentState));
 			}
 		} finally {
 			currentStateLock.readLock().unlock();
 		}
-		
+
 		currentStateLock.writeLock().lock();
 		try {
 			if (currentState != State.CREATED) {
-				throw LOGGER.throwing(new IllegalStateException("Tried to start " + this + " while it was in State " + currentState));
+				throw LOGGER.throwing(new IllegalStateException("Tried to start " + this + " while it was in State "
+						+ currentState));
 			}
-			
+
 			currentState = State.RUNNING;
 
 			synchronized (scheduledToStart) {
 				for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
 					startBlock(func, blockOptions.get(func));
 				}
-				
+
 				scheduledToStart.clear();
 				blockOptions.clear();
 			}
@@ -396,7 +399,7 @@ public class Application {
 					}
 				}
 			};
-			
+
 			final Future<?> initFuture = scheduledThreadPool.submit(initRunnable);
 			while (initFuture.isDone()) {
 				try {
@@ -408,7 +411,7 @@ public class Application {
 					return;
 				}
 			}
-			
+
 			// FIXME: if two blocks share the UUID, blocks get lost
 			functionBlocksById.put(block.getBlockUUID(), block);
 
@@ -449,18 +452,19 @@ public class Application {
 			if (isRunning()) {
 				throw new IllegalStateException(this + " is not running");
 			}
-			
+
 			final FunctionBlockSecurityDecorator block = functionBlocksById.get(funcBlockId);
 			if (block == null) {
 				throw LOGGER.throwing(new NonExistentFunctionblockException(funcBlockId.toString()));
 			}
-			
+
 			final Input input = block.getInputs().get(inputName);
 			if (input == null) {
-				throw LOGGER.throwing(new NonExistentInputException("FunctionBlock " + funcBlockId + " does not have an input called " + inputName));
+				throw LOGGER.throwing(new NonExistentInputException("FunctionBlock " + funcBlockId
+						+ " does not have an input called " + inputName));
 			}
 			input.setValue(value);
-			
+
 			final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
@@ -495,15 +499,15 @@ public class Application {
 		} finally {
 			currentStateLock.readLock().unlock();
 		}
-		
+
 		currentStateLock.writeLock().lock();
 		try {
 			if (currentState != State.RUNNING) {
 				throw LOGGER.throwing(new IllegalArgumentException(this + " is not currently running"));
 			}
-			
+
 			scheduledThreadPool.shutdown();
-			
+
 			final Thread shutdownThread = new Thread() {
 				@Override
 				public void run() {
