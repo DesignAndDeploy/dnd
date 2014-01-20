@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -35,29 +37,35 @@ import edu.teco.dnd.network.ConnectionManager;
  * 
  */
 public class Application {
+	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
 	/** Time all shutdown hooks of an application have to run before being killed. */
 	public static final int TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL = 2000;
 	/** Additional time granted, for shutdownhooks after kill attempt, before thread is forcefully stopped. */
 	public static final int ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL = 500;
+	
+	/**
+	 * Current state of the application. Can only advance to the next state: the Application starts in CREATED, then
+	 * goes to RUNNING and eventually transitions to STOPPED.
+	 * 
+	 * @author Philipp Adolf
+	 */
+	private enum State {
+		CREATED, RUNNING, STOPPED
+	}
+
 	private final UUID applicationID;
 	private final String name;
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
 	private final ModuleBlockManager moduleBlockManager;
 
-	enum State {
-		CREATED, RUNNING, STOPPED
-	}
-
 	private State currentState = State.CREATED;
 	private final ReadWriteLock currentStateLock = new ReentrantReadWriteLock();
-
-	private static final Logger LOGGER = LogManager.getLogger(Application.class);
+	
 	private final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
 	private final Map<FunctionBlockSecurityDecorator, Map<String, String>> blockOptions =
 			new HashMap<FunctionBlockSecurityDecorator, Map<String, String>>();
-	private boolean isRunning = false;
 
 	/**
 	 * A Map from FunctionBlock UUID to matching ValueSender. Not used for local FunctionBlocks.
@@ -66,7 +74,7 @@ public class Application {
 
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
-	private final Map<UUID, FunctionBlockSecurityDecorator> functionBlocksById;
+	private final Map<UUID, FunctionBlockSecurityDecorator> functionBlocksById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
 
 	/**
 	 * 
@@ -93,8 +101,35 @@ public class Application {
 		this.scheduledThreadPool = scheduledThreadPool;
 		this.connMan = connMan;
 		this.classLoader = classloader;
-		this.functionBlocksById = new HashMap<UUID, FunctionBlockSecurityDecorator>();
 		this.moduleBlockManager = moduleBlockManager;
+	}
+
+	/**
+	 * Returns true if this Application is currently running.
+	 * 
+	 * @return true if this Application is currently running.
+	 */
+	public boolean isRunning() {
+		currentStateLock.readLock().lock();
+		try {
+			return currentState == State.RUNNING;
+		} finally {
+			currentStateLock.readLock().unlock();
+		}
+	}
+
+	/**
+	 * Returns true if this Application has been shut down.
+	 * 
+	 * @return true if this Application has been shut down
+	 */
+	public boolean hasShutDown() {
+		currentStateLock.readLock().lock();
+		try {
+			return currentState == State.STOPPED;
+		} finally {
+			currentStateLock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -194,15 +229,6 @@ public class Application {
 		classLoader.appLoadClass(classname, classData);
 	}
 
-	public boolean hasShutDown() {
-		currentStateLock.readLock().lock();
-		try {
-			return currentState == State.STOPPED;
-		} finally {
-			currentStateLock.readLock().unlock();
-		}
-	}
-
 	/**
 	 * Schedules a block in this application to be executed, once Application.start() is called.
 	 * 
@@ -231,7 +257,7 @@ public class Application {
 					createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
 			LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
 			securityDecorator.doInit(blockDescription.blockUUID, blockDescription.blockName);
-			
+
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
@@ -244,7 +270,7 @@ public class Application {
 			initializeOutputs(securityDecorator, blockDescription.outputs);
 
 			if (isRunning()) {
-
+				startBlock(securityDecorator, blockDescription.options);
 			} else {
 				synchronized (scheduledToStart) {
 					LOGGER.trace("adding {} to scheduledToStart");
@@ -253,15 +279,6 @@ public class Application {
 					blockOptions.put(securityDecorator, blockDescription.options);
 				}
 			}
-		} finally {
-			currentStateLock.readLock().unlock();
-		}
-	}
-
-	public boolean isRunning() {
-		currentStateLock.readLock().lock();
-		try {
-			return currentState == State.RUNNING;
 		} finally {
 			currentStateLock.readLock().unlock();
 		}
@@ -316,16 +333,33 @@ public class Application {
 	 * starts this application, as in: starts executing the previously scheduled blocks.
 	 */
 	public void start() {
-		synchronized (scheduledToStart) {
-			if (isRunning) {
-				LOGGER.warn("tried to double start Application.");
-				throw new IllegalArgumentException("tried to double start Application.");
+		currentStateLock.readLock().lock();
+		try {
+			if (currentState != State.CREATED) {
+				throw LOGGER.throwing(new IllegalStateException("Tried to start " + this + " while it was in State " + currentState));
 			}
-			isRunning = true;
+		} finally {
+			currentStateLock.readLock().unlock();
+		}
+		
+		currentStateLock.writeLock().lock();
+		try {
+			if (currentState != State.CREATED) {
+				throw LOGGER.throwing(new IllegalStateException("Tried to start " + this + " while it was in State " + currentState));
+			}
+			
+			currentState = State.RUNNING;
 
-			for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
-				startBlock(func);
+			synchronized (scheduledToStart) {
+				for (final FunctionBlockSecurityDecorator func : scheduledToStart) {
+					startBlock(func, blockOptions.get(func));
+				}
+				
+				scheduledToStart.clear();
+				blockOptions.clear();
 			}
+		} finally {
+			currentStateLock.writeLock().unlock();
 		}
 	}
 
@@ -335,20 +369,16 @@ public class Application {
 	 * @param block
 	 *            the block to be started.
 	 */
-	private void startBlock(final FunctionBlockSecurityDecorator block) {
-		if (!shutdownLock.readLock().tryLock()) {
-			return; // Already shutting down.
-		}
+	private void startBlock(final FunctionBlockSecurityDecorator block, final Map<String, String> options) {
+		currentStateLock.readLock().lock();
 		try {
-			functionBlocksById.put(block.getBlockUUID(), block);
+			if (hasShutDown()) {
+				throw LOGGER.throwing(new IllegalStateException(this + " has already been shut down"));
+			}
 
-			Runnable initRunnable = new Runnable() {
+			final Runnable initRunnable = new Runnable() {
 				@Override
 				public void run() {
-					Map<String, String> options = null;
-					synchronized (scheduledToStart) {
-						options = blockOptions.remove(block);
-					}
 					try {
 						block.init(options);
 					} catch (UserSuppliedCodeException e) {
@@ -356,7 +386,7 @@ public class Application {
 					}
 				}
 			};
-			Runnable updater = new Runnable() {
+			final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -366,7 +396,21 @@ public class Application {
 					}
 				}
 			};
-			scheduledThreadPool.execute(initRunnable);
+			
+			final Future<?> initFuture = scheduledThreadPool.submit(initRunnable);
+			while (initFuture.isDone()) {
+				try {
+					initFuture.get();
+				} catch (final InterruptedException e) {
+					LOGGER.debug("got interrupted waiting for init future of {}", block);
+				} catch (final ExecutionException e) {
+					LOGGER.catching(e);
+					return;
+				}
+			}
+			
+			// FIXME: if two blocks share the UUID, blocks get lost
+			functionBlocksById.put(block.getBlockUUID(), block);
 
 			long period = block.getUpdateInterval();
 			try {
@@ -376,10 +420,10 @@ public class Application {
 					scheduledThreadPool.scheduleAtFixedRate(updater, period, period, TimeUnit.MILLISECONDS);
 				}
 			} catch (RejectedExecutionException e) {
-				LOGGER.info("Received start block after initiating shutdown. Not scheduling block {}.", block);
+				LOGGER.catching(e);
 			}
 		} finally {
-			shutdownLock.readLock().unlock();
+			currentStateLock.readLock().unlock();
 		}
 	}
 
@@ -400,22 +444,24 @@ public class Application {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void receiveValue(final UUID funcBlockId, String inputName, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
-		if (!shutdownLock.readLock().tryLock()) {
-			return; // Already shutting down.
-		}
+		currentStateLock.readLock().lock();
 		try {
+			if (isRunning()) {
+				throw new IllegalStateException(this + " is not running");
+			}
+			
 			final FunctionBlockSecurityDecorator block = functionBlocksById.get(funcBlockId);
 			if (block == null) {
-				LOGGER.info("FunctionBlockID not existent. ({})", funcBlockId);
-				throw LOGGER.throwing(new NonExistentFunctionblockException());
+				throw LOGGER.throwing(new NonExistentFunctionblockException(funcBlockId.toString()));
 			}
+			
 			final Input input = block.getInputs().get(inputName);
 			if (input == null) {
-				LOGGER.info("input '{}' non existant for {}", inputName, block);
-				throw LOGGER.throwing(new NonExistentInputException());
+				throw LOGGER.throwing(new NonExistentInputException("FunctionBlock " + funcBlockId + " does not have an input called " + inputName));
 			}
 			input.setValue(value);
-			Runnable updater = new Runnable() {
+			
+			final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -429,62 +475,73 @@ public class Application {
 			try {
 				scheduledThreadPool.schedule(updater, 0, TimeUnit.SECONDS);
 			} catch (RejectedExecutionException e) {
-				LOGGER.info("Received message after initiating shutdown. Not rescheduling {}.", funcBlockId);
+				LOGGER.catching(e);
 			}
 		} finally {
-			shutdownLock.readLock().unlock();
+			currentStateLock.readLock().unlock();
 		}
 	}
 
 	/**
 	 * Called when this application is shut down. Will call the appropriate methods on the executed functionBlocks.
 	 */
+	@SuppressWarnings("deprecation")
 	public void shutdown() {
-		shutdownLock.writeLock().lock(); // will not be unlocked.
-		scheduledThreadPool.shutdown();
-		final Thread shutdownThread = new Thread(new Runnable() {
-			public void run() {
-				for (FunctionBlockSecurityDecorator fun : functionBlocksById.values()) {
-					if (Thread.interrupted()) {
-						LOGGER.warn("shutdownThread got interrupted, not shutting down remaining FunctionBlocks");
-						break;
-					}
-					try {
-						fun.shutdown();
-					} catch (UserSuppliedCodeException e) {
-						LOGGER.catching(e);
-						LOGGER.info("Shutdown of block {} failed due to exception in blockCode.", fun.getBlockName());
-					}
-				}
+		currentStateLock.readLock().lock();
+		try {
+			if (currentState != State.RUNNING) {
+				throw LOGGER.throwing(new IllegalArgumentException(this + " is not currently running"));
 			}
-		});
-
-		Thread watcherThread = new Thread(new Runnable() {
-			@SuppressWarnings("deprecation")
-			public void run() {
-				shutdownThread.start();
-
-				sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
-				if (!shutdownThread.isAlive()) {
-					LOGGER.debug("shutdownThread finished in time");
-					return;
-				}
-				LOGGER.info("shutdownThread is taking too long. Interrupting it.");
-				shutdownThread.interrupt();
-
-				sleepUninterrupted(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
-				if (!shutdownThread.isAlive()) {
-					LOGGER.debug("shutdownThread finished in time after interrupting");
-					return;
-				}
-				LOGGER.warn("Shutdown thread hanging. Killing it.");
-				shutdownThread.stop();
-				// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
-				// yet there is no alternative to it if the victim is refusing to cooperate.
+		} finally {
+			currentStateLock.readLock().unlock();
+		}
+		
+		currentStateLock.writeLock().lock();
+		try {
+			if (currentState != State.RUNNING) {
+				throw LOGGER.throwing(new IllegalArgumentException(this + " is not currently running"));
 			}
-		});
+			
+			scheduledThreadPool.shutdown();
+			
+			final Thread shutdownThread = new Thread() {
+				@Override
+				public void run() {
+					for (final FunctionBlockSecurityDecorator block : functionBlocksById.values()) {
+						if (Thread.interrupted()) {
+							LOGGER.warn("shutdownThread got interrupted, not shutting down remaining FunctionBlocks");
+							break;
+						}
+						try {
+							block.shutdown();
+						} catch (UserSuppliedCodeException e) {
+							LOGGER.catching(e);
+						}
+					}
+				}
+			};
+			shutdownThread.start();
 
-		watcherThread.start();
+			sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
+			if (!shutdownThread.isAlive()) {
+				LOGGER.debug("shutdownThread finished in time");
+				return;
+			}
+			LOGGER.info("shutdownThread is taking too long. Interrupting it.");
+			shutdownThread.interrupt();
+
+			sleepUninterrupted(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
+			if (!shutdownThread.isAlive()) {
+				LOGGER.debug("shutdownThread finished in time after interrupting");
+				return;
+			}
+			LOGGER.warn("Shutdown thread hanging. Killing it.");
+			shutdownThread.stop();
+			// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
+			// yet there is no alternative to it if the victim is refusing to cooperate.
+		} finally {
+			currentStateLock.writeLock().unlock();
+		}
 	}
 
 	/**
