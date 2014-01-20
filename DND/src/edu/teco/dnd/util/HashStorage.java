@@ -54,7 +54,7 @@ public class HashStorage<T> {
 	 * @param data the object to add
 	 * @return an object with the same Hash as the one that was given
 	 */
-	public T putIfAbsent(final T data) {
+	public ValueWithHash<T> putIfAbsent(final T data) {
 		final Hash hash = algorithm.getHash(data);
 		T oldData = null;
 		lock.readLock().lock();
@@ -64,18 +64,18 @@ public class HashStorage<T> {
 			lock.readLock().unlock();
 		}
 		if (oldData != null) {
-			return oldData;
+			return new ValueWithHash<T>(oldData, hash);
 		}
 		
 		lock.writeLock().lock();
 		try {
 			oldData = get(hash);
 			if (oldData != null) {
-				return oldData;
+				return new ValueWithHash<T>(oldData, hash);
 			}
 			
 			storage.put(hash, new WeakReference<T>(data));
-			return data;
+			return new ValueWithHash<T>(data, hash);
 		} finally {
 			lock.writeLock().unlock();
 		}

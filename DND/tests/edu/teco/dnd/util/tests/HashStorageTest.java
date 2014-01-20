@@ -1,5 +1,6 @@
 package edu.teco.dnd.util.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
@@ -13,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import edu.teco.dnd.util.HashStorage;
 import edu.teco.dnd.util.Hash;
 import edu.teco.dnd.util.HashAlgorithm;
+import edu.teco.dnd.util.ValueWithHash;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HashStorageTest {
@@ -50,7 +52,23 @@ public class HashStorageTest {
 	
 	@Test
 	public void testPutIfAbsent() {
-		assertSame(OBJECT1, bsa.putIfAbsent(OBJECT1));
+		final ValueWithHash<Object> valueWithHash = bsa.putIfAbsent(OBJECT1);
+		
+		assertSame(OBJECT1, valueWithHash.getValue());
+		assertEquals(hash1, valueWithHash.getHash());
+	}
+	
+	@Test
+	public void testPutMultiple() {
+		when(algorithm.getHash(OBJECT2)).thenReturn(hash1);	// create hash collision
+
+		final ValueWithHash<Object> valueWithHash1 = bsa.putIfAbsent(OBJECT1);
+		final ValueWithHash<Object> valueWithHash2 = bsa.putIfAbsent(OBJECT2);
+
+		assertSame(OBJECT1, valueWithHash1.getValue());
+		assertEquals(hash1, valueWithHash1.getHash());
+		assertSame(OBJECT1, valueWithHash2.getValue());
+		assertEquals(hash1, valueWithHash2.getHash());
 	}
 	
 	@Test
