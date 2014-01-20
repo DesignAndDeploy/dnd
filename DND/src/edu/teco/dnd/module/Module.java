@@ -1,11 +1,10 @@
 package edu.teco.dnd.module;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -29,7 +28,9 @@ import edu.teco.dnd.module.messages.values.ValueMessageHandler;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.module.messages.values.WhoHasFuncBlockHandler;
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.util.HashStorage;
 import edu.teco.dnd.util.IndexedThreadFactory;
+import edu.teco.dnd.util.MessageDigestHashAlgorithm;
 
 /**
  * Provides a high level view of a Module.
@@ -37,9 +38,15 @@ import edu.teco.dnd.util.IndexedThreadFactory;
 public class Module {
 	private static final Logger LOGGER = LogManager.getLogger(Module.class);
 
+	/**
+	 * This algorithm will be used to store byte code globally.
+	 */
+	public static final String BYTE_CODE_HASH_ALGORITHM = "SHA-256";
+
 	private final ConfigReader moduleConfig;
 	private final ConnectionManager connMan;
 
+	private final HashStorage<byte[]> byteCodeStorage;
 	private final Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
 	private final ModuleBlockManager moduleBlockManager;
 
@@ -56,8 +63,12 @@ public class Module {
 	 * @param shutdownHook
 	 *            A runnable that will be executed upon receipt of a KillMeassage before the applications are killed.
 	 *            Can be null if it is not needed.
+	 * @throws NoSuchAlgorithmException
+	 *             if the algorithm that is used for the byte code HashStorage. See {@link #BYTE_CODE_HASH_ALGORITHM}.
 	 */
-	public Module(ConfigReader config, ConnectionManager connMan, Runnable shutdownHook) {
+	public Module(ConfigReader config, ConnectionManager connMan, Runnable shutdownHook)
+			throws NoSuchAlgorithmException {
+		this.byteCodeStorage = new HashStorage<byte[]>(new MessageDigestHashAlgorithm(BYTE_CODE_HASH_ALGORITHM));
 		this.moduleShutdownHook = shutdownHook;
 		this.moduleConfig = config;
 		this.connMan = connMan;
@@ -109,34 +120,9 @@ public class Module {
 	 * @return A reference to the new application object
 	 */
 	private Application createApplication(final UUID appId, final String name) {
-		final ApplicationClassLoader classLoader = new ApplicationClassLoader(connMan, appId);
-		final ScheduledThreadPoolExecutor executor =
-				new ScheduledThreadPoolExecutor(moduleConfig.getMaxThreadsPerApp(), createApplicationThreadFactory(
-						appId, classLoader));
-		return new Application(appId, name, executor, connMan, classLoader, moduleBlockManager);
-	}
-
-	/**
-	 * create a new Thread factory.
-	 * 
-	 * @param appId
-	 *            the application UUID, used for naming of threads.
-	 * @param classLoader
-	 *            classLoader set as contextClassLoader of the created threads. It is STRONGLY advised this be the same
-	 *            as the classLoader used to load the Application class.
-	 * @return a thread Factory that can be used for applications.
-	 */
-	private ThreadFactory createApplicationThreadFactory(final UUID appId, final ApplicationClassLoader classLoader) {
-		return new ThreadFactory() {
-			private final ThreadFactory internalFactory = new IndexedThreadFactory("app-" + appId.toString() + "-");
-
-			@Override
-			public Thread newThread(Runnable r) {
-				final Thread appThread = internalFactory.newThread(r);
-				appThread.setContextClassLoader(classLoader); // prevent circumvention of our classLoader.
-				return appThread;
-			}
-		};
+		final IndexedThreadFactory threadFactory = new IndexedThreadFactory("app-" + appId + "-");
+		return new Application(appId, name, connMan, threadFactory, moduleConfig.getMaxThreadsPerApp(),
+				moduleBlockManager, byteCodeStorage);
 	}
 
 	/**

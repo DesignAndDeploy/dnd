@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -29,6 +30,8 @@ import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
 import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.util.HashStorage;
+import edu.teco.dnd.util.ValueWithHash;
 
 /**
  * This class represents a single application running on a module.
@@ -59,6 +62,7 @@ public class Application {
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
 	private final ModuleBlockManager moduleBlockManager;
+	private final HashStorage<byte[]> byteCodeStorage;
 
 	private State currentState = State.CREATED;
 	private final ReadWriteLock currentStateLock = new ReentrantReadWriteLock();
@@ -95,13 +99,16 @@ public class Application {
 	 *            The module ApplicationManager used for callbacks to de/increase allowedBlockmaps
 	 * 
 	 */
-	public Application(UUID appId, String name, ScheduledThreadPoolExecutor scheduledThreadPool,
-			ConnectionManager connMan, ApplicationClassLoader classloader, final ModuleBlockManager moduleBlockManager) {
+	public Application(final UUID appId, final String name, final ConnectionManager connMan,
+			final ThreadFactory threadFactory, final int maxThreadsPerApp, final ModuleBlockManager moduleBlockManager,
+			final HashStorage<byte[]> byteCodeStorage) {
 		this.applicationID = appId;
 		this.name = name;
-		this.scheduledThreadPool = scheduledThreadPool;
+		this.byteCodeStorage = byteCodeStorage;
+		this.classLoader = new ApplicationClassLoader();
+		this.scheduledThreadPool =
+				new ScheduledThreadPoolExecutor(maxThreadsPerApp, new ContextClassLoaderThreadFactory(threadFactory));
 		this.connMan = connMan;
-		this.classLoader = classloader;
 		this.moduleBlockManager = moduleBlockManager;
 	}
 
@@ -227,7 +234,8 @@ public class Application {
 			throw new IllegalArgumentException("classname and classdata must not be null.");
 		}
 
-		classLoader.appLoadClass(classname, classData);
+		final ValueWithHash<byte[]> byteCode = byteCodeStorage.putIfAbsent(classData);
+		classLoader.addClass(classname, byteCode.getValue());
 	}
 
 	/**
@@ -607,6 +615,22 @@ public class Application {
 				sendValue(destination.getBlock(), destination.getInput(), value);
 			}
 		}
+	}
+
+	private class ContextClassLoaderThreadFactory implements ThreadFactory {
+		private final ThreadFactory internalFactory;
+
+		private ContextClassLoaderThreadFactory(final ThreadFactory internalFactory) {
+			this.internalFactory = internalFactory;
+		}
+
+		@Override
+		public Thread newThread(final Runnable r) {
+			final Thread thread = internalFactory.newThread(r);
+			thread.setContextClassLoader(classLoader);
+			return thread;
+		}
+
 	}
 
 	/**

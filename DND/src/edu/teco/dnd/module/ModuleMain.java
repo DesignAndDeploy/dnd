@@ -13,6 +13,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -134,7 +135,13 @@ public final class ModuleMain {
 
 		ModuleShutdownHook shutdownHook = new ModuleShutdownHook(eventLoopGroups);
 		synchronized (shutdownHook) {
-			Module module = new Module(moduleConfig, tcpConnectionManager, shutdownHook);
+			Module module = null;
+			try {
+				module = new Module(moduleConfig, tcpConnectionManager, shutdownHook);
+			} catch (final NoSuchAlgorithmException e) {
+				System.err.println("Missing algorithm: " + e);
+				System.exit(1);
+			}
 			registerHandlerAdapter(moduleConfig, tcpConnectionManager, module);
 		}
 
