@@ -2,7 +2,7 @@ package edu.teco.dnd.discover;
 
 import java.util.UUID;
 
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
 import edu.teco.dnd.network.ConnectionManager;
@@ -24,7 +24,7 @@ public class ModuleQuery {
 		return notifier;
 	}
 
-	public static class ModuleInfoFutureNotifier extends DefaultFutureNotifier<Module> implements
+	public static class ModuleInfoFutureNotifier extends DefaultFutureNotifier<ModuleInfo> implements
 			FutureListener<FutureNotifier<Response>> {
 		private final UUID moduleUUID;
 

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 
 /**
  * An EvaluationStrategy that rates higher the higher the number of used modules is.
@@ -16,7 +16,7 @@ import edu.teco.dnd.module.Module;
 public class MaximalModuleCountEvaluator implements EvaluationStrategy {
 	@Override
 	public int evaluate(final Distribution distribution) {
-		final Set<Module> modules = new HashSet<Module>();
+		final Set<ModuleInfo> modules = new HashSet<ModuleInfo>();
 		for (final BlockTarget blockTarget : distribution.getMapping().values()) {
 			modules.add(blockTarget.getModule());
 		}
@@ -24,7 +24,7 @@ public class MaximalModuleCountEvaluator implements EvaluationStrategy {
 	}
 
 	@Override
-	public int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks, Collection<Module> modules) {
+	public int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks, Collection<ModuleInfo> modules) {
 		return Integer.MAX_VALUE;
 	}
 }

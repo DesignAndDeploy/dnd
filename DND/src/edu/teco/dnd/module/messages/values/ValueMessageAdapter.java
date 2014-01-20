@@ -17,7 +17,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.Application;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Base64;
 
 /**
@@ -33,16 +34,16 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(ValueMessageAdapter.class);
-	private final ModuleApplicationManager appMan;
+	private final Module module;
 
 	/**
 	 * 
-	 * @param appMan
-	 *            the ApplicationManager used to retrieve the appropriate class loader. ( In case the value is of a type
+	 * @param module
+	 *            the Module used to retrieve the appropriate class loader. ( In case the value is of a type
 	 *            that is missing on the module).
 	 */
-	public ValueMessageAdapter(ModuleApplicationManager appMan) {
-		this.appMan = appMan;
+	public ValueMessageAdapter(Module module) {
+		this.module = module;
 	}
 
 	@Override
@@ -78,7 +79,13 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 		JsonObject jObject = json.getAsJsonObject();
 
 		appId = context.deserialize(jObject.get("appId"), UUID.class);
-		ClassLoader loader = appMan.getAppClassLoader(appId);
+		
+		ClassLoader loader = null;
+		final Application application = module.getApplication(appId);
+		if (application != null) {
+			loader = application.getClassLoader();
+		}
+		
 		blockUuid = context.deserialize(jObject.get("blockUuid"), UUID.class);
 		input = context.deserialize(jObject.get("input"), String.class);
 		try {

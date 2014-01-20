@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import edu.teco.dnd.discover.ModuleQuery;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
@@ -25,12 +25,12 @@ import edu.teco.dnd.util.JoinedFutureNotifier;
  * 
  */
 public class ModuleManager implements ConnectionListener, DNDServerStateListener,
-		FutureListener<FutureNotifier<Module>> {
+		FutureListener<FutureNotifier<ModuleInfo>> {
 	/**
 	 * A Map of all Modules that were found. Modules are added with a value of null when they're discovered, after the
-	 * Module responded to the RequestModuleInfoMessage the value is updated.
+	 * ModuleInfo responded to the RequestModuleInfoMessage the value is updated.
 	 */
-	private Map<UUID, Module> map;
+	private Map<UUID, ModuleInfo> map;
 
 	/**
 	 * All registered listeners.
@@ -51,7 +51,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	 * Initializes a new ModuleManager.
 	 */
 	protected ModuleManager() {
-		map = new HashMap<UUID, Module>();
+		map = new HashMap<UUID, ModuleInfo>();
 		ServerManager.getDefault().addServerStateListener(this);
 	}
 
@@ -130,7 +130,7 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 
 	@Override
 	public synchronized void connectionClosed(UUID uuid) {
-		Module mod = map.get(uuid);
+		ModuleInfo mod = map.get(uuid);
 		map.remove(uuid);
 		
 		for (final ModuleManagerListener listener : moduleManagerListeners) {
@@ -139,9 +139,9 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	}
 
 	@Override
-	public synchronized void operationComplete(FutureNotifier<Module> future) throws Exception {
+	public synchronized void operationComplete(FutureNotifier<ModuleInfo> future) throws Exception {
 		if (future.isSuccess()) {
-			Module module = future.getNow();
+			ModuleInfo module = future.getNow();
 			UUID id = module.getUUID();
 			map.put(id, module);
 			for (final ModuleManagerListener listener : moduleManagerListeners) {
@@ -152,13 +152,13 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	}
 
 	/**
-	 * Returns a copy of the Map of all currently known Modules. The value for an entry may be null if the Module hasn't
+	 * Returns a copy of the Map of all currently known Modules. The value for an entry may be null if the ModuleInfo hasn't
 	 * responded to the RequestModuleInfoMessage yet.
 	 * 
 	 * @return a copy of the Map of all currently known Modules
 	 */
-	public synchronized Map<UUID, Module> getMap() {
-		return new HashMap<UUID, Module>(map);
+	public synchronized Map<UUID, ModuleInfo> getMap() {
+		return new HashMap<UUID, ModuleInfo>(map);
 	}
 
 	/**
@@ -167,10 +167,10 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	 * 
 	 * @return collection of currently running modules to deploy on.
 	 */
-	public Collection<Module> getModuleCollection() {
-		Collection<Module> collection = new ArrayList<Module>();
+	public Collection<ModuleInfo> getModuleCollection() {
+		Collection<ModuleInfo> collection = new ArrayList<ModuleInfo>();
 		for (UUID id : map.keySet()) {
-			Module m = map.get(id);
+			ModuleInfo m = map.get(id);
 			if (m != null) {
 				collection.add(m);
 			}
@@ -184,14 +184,14 @@ public class ModuleManager implements ConnectionListener, DNDServerStateListener
 	 * 
 	 * @return
 	 */
-	public synchronized FutureNotifier<Collection<Module>> updateModuleInfo() {
-		final Collection<FutureNotifier<? extends Module>> futures = new ArrayList<FutureNotifier<? extends Module>>();
+	public synchronized FutureNotifier<Collection<ModuleInfo>> updateModuleInfo() {
+		final Collection<FutureNotifier<? extends ModuleInfo>> futures = new ArrayList<FutureNotifier<? extends ModuleInfo>>();
 		for (UUID uuid : map.keySet()) {
-			final FutureNotifier<Module> future = query.getModuleInfo(uuid);
+			final FutureNotifier<ModuleInfo> future = query.getModuleInfo(uuid);
 			future.addListener(this);
 			futures.add(future);
 		}
-		return new JoinedFutureNotifier<Module>(futures);
+		return new JoinedFutureNotifier<ModuleInfo>(futures);
 	}
 
 }

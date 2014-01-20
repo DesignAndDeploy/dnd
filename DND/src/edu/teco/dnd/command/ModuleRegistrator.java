@@ -3,7 +3,7 @@ package edu.teco.dnd.command;
 import java.util.Map;
 import java.util.UUID;
 
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.server.ModuleManagerListener;
 
 /**
@@ -20,8 +20,8 @@ public class ModuleRegistrator implements ModuleManagerListener{
 	}
 
 	@Override
-	public void moduleOffline(UUID id, Module module) {
-		System.out.print("Module went offline: ");
+	public void moduleOffline(UUID id, ModuleInfo module) {
+		System.out.print("ModuleInfo went offline: ");
 		if (module != null){
 			System.out.print(module.getName() + " ");
 		}
@@ -29,14 +29,14 @@ public class ModuleRegistrator implements ModuleManagerListener{
 	}
 
 	@Override
-	public void moduleResolved(UUID id, Module module) {
-		System.out.println("Module registered: " + module.getName() + ":" + id.toString());
+	public void moduleResolved(UUID id, ModuleInfo module) {
+		System.out.println("ModuleInfo registered: " + module.getName() + ":" + id.toString());
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void serverOnline(Map<UUID, Module> modules) {
+	public void serverOnline(Map<UUID, ModuleInfo> modules) {
 		System.out.println("Server running.");
 	}
 

@@ -24,7 +24,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ModuleManagerListener;
 import edu.teco.dnd.server.ServerManager;
@@ -175,7 +175,7 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Adds a Module ID to the table.
+	 * Adds a ModuleInfo ID to the table.
 	 * 
 	 * @param id
 	 *            the ID to add
@@ -195,7 +195,7 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 	}
 
 	/**
-	 * Removes a Module ID from the table.
+	 * Removes a ModuleInfo ID from the table.
 	 * 
 	 * @param id
 	 *            the ID to remove
@@ -226,7 +226,7 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 	}
 
 	@Override
-	public void moduleOffline(final UUID id, Module module) {
+	public void moduleOffline(final UUID id, ModuleInfo module) {
 		LOGGER.entry(id);
 		display.asyncExec(new Runnable() {
 			@Override
@@ -238,7 +238,7 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 	}
 
 	@Override
-	public void moduleResolved(final UUID id, final Module module) {
+	public void moduleResolved(final UUID id, final ModuleInfo module) {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -259,7 +259,7 @@ public class ModuleView extends ViewPart implements ModuleManagerListener {
 	}
 
 	@Override
-	public void serverOnline(final Map<UUID, Module> modules) {
+	public void serverOnline(final Map<UUID, ModuleInfo> modules) {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {

@@ -21,14 +21,14 @@ import com.google.gson.JsonSerializer;
  * @author jung
  * 
  */
-public class BlockIDAdapter implements JsonSerializer<BlockID>, JsonDeserializer<BlockID> {
+public class BlockIDAdapter implements JsonSerializer<ApplicationBlockID>, JsonDeserializer<ApplicationBlockID> {
 	/**
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(BlockIDAdapter.class);
 
 	@Override
-	public BlockID deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+	public ApplicationBlockID deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 			throws JsonParseException {
 		LOGGER.entry(json, typeOfT, context);
 
@@ -54,14 +54,14 @@ public class BlockIDAdapter implements JsonSerializer<BlockID>, JsonDeserializer
 			throw new JsonParseException("appID is not a string");
 		}
 
-		final BlockID blockID =
-				new BlockID(UUID.fromString(blockUUID.getAsString()), UUID.fromString(appUUID.getAsString()));
-		LOGGER.exit(blockID);
-		return blockID;
+		final ApplicationBlockID applicationBlockID =
+				new ApplicationBlockID(UUID.fromString(blockUUID.getAsString()), UUID.fromString(appUUID.getAsString()));
+		LOGGER.exit(applicationBlockID);
+		return applicationBlockID;
 	}
 
 	@Override
-	public JsonElement serialize(BlockID src, Type typeOfSrc, JsonSerializationContext context) {
+	public JsonElement serialize(ApplicationBlockID src, Type typeOfSrc, JsonSerializationContext context) {
 		LOGGER.entry(src, typeOfSrc, context);
 		final JsonObject obj = new JsonObject();
 		obj.addProperty("blockUUID", src.getBlockUUID().toString());

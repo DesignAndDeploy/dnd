@@ -23,8 +23,8 @@ import com.google.gson.GsonBuilder;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.ValueDestination;
 import edu.teco.dnd.meeting.BeamerOperatorBlock;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.Module;
-import edu.teco.dnd.module.ModuleApplicationManager;
 import edu.teco.dnd.module.config.ConfigReader;
 import edu.teco.dnd.module.config.tests.TestConfigReader;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
@@ -32,7 +32,7 @@ import edu.teco.dnd.module.messages.generalModule.ShutdownModuleAck;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleNak;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
-import edu.teco.dnd.module.messages.infoReq.BlockID;
+import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
@@ -86,9 +86,9 @@ public class MessageDeEnCodingTest implements Serializable {
 
 	static {
 
-		ModuleApplicationManager appMan;
+		Module appMan;
 		try {
-			appMan = new ModuleApplicationManager(TestConfigReader.getPredefinedReader(), null, null) {
+			appMan = new Module(TestConfigReader.getPredefinedReader(), null, null) {
 				public ClassLoader getAppClassLoader(UUID appId) {
 					return null;
 				};
@@ -115,17 +115,17 @@ public class MessageDeEnCodingTest implements Serializable {
 		Map<UUID, String> modIds = new TreeMap<UUID, String>();
 		Map<UUID, Collection<UUID>> appBlocksRunning = new TreeMap<UUID, Collection<UUID>>();
 		Map<UUID, String> uuidToBlockType = new HashMap<UUID, String>();
-		Map<BlockID, String> blockIDToBlockName = new HashMap<BlockID, String>();
+		Map<ApplicationBlockID, String> applicationBlockIDToBlockName = new HashMap<ApplicationBlockID, String>();
 		Set<UUID> blockMap = new TreeSet<UUID>();
 		blockMap.add(TEST_FUNBLOCK_UUID);
 		appBlocksRunning.put(TEST_APP_UUID, blockMap);
 		uuidToBlockType.put(TEST_FUNBLOCK_UUID, "testOperator");
-		blockIDToBlockName.put(new BlockID(TEST_FUNBLOCK_UUID, TEST_APP_UUID), "block1Name");
+		applicationBlockIDToBlockName.put(new ApplicationBlockID(TEST_FUNBLOCK_UUID, TEST_APP_UUID), "block1Name");
 
 		modIds.put(TEST_APP_UUID, "APP_1");
 		MSG_ADAPTER.addMessageType(ApplicationListResponse.class);
 		testEnDeCoding(new ApplicationListResponse(TEST_MODULE_UUID, modIds, appBlocksRunning, uuidToBlockType,
-				blockIDToBlockName));
+				applicationBlockIDToBlockName));
 	}
 
 	@Test
@@ -164,7 +164,7 @@ public class MessageDeEnCodingTest implements Serializable {
 		MSG_ADAPTER.addMessageType(ModuleInfoMessage.class);
 		try {
 			final ConfigReader configReader = TestConfigReader.getPredefinedReader();
-			testEnDeCoding(new ModuleInfoMessage(new Module(configReader.getUuid(), configReader.getName(),
+			testEnDeCoding(new ModuleInfoMessage(new ModuleInfo(configReader.getUuid(), configReader.getName(),
 					configReader.getBlockRoot())));
 		} catch (SocketException e) {
 			e.printStackTrace();

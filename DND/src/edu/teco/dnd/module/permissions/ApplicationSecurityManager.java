@@ -14,7 +14,7 @@ import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 
 /**
- * A SecurityManager used to restrict permissions for FunctionBlocks running on a Module.
+ * A SecurityManager used to restrict permissions for FunctionBlocks running on a ModuleInfo.
  * 
  * @author Philipp Adolf
  */

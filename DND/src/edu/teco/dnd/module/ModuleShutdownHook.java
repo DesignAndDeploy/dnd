@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * Runnable passed to ModuleApplicationManager which will be executed when the Module is supposed to be shut down.
+ * Runnable passed to Module which will be executed when the ModuleInfo is supposed to be shut down.
  * 
  */
 public class ModuleShutdownHook implements Runnable {

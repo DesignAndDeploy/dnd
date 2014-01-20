@@ -28,7 +28,7 @@ import edu.teco.dnd.module.messages.generalModule.MissingApplicationHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
-import edu.teco.dnd.module.messages.infoReq.BlockID;
+import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.module.messages.infoReq.BlockIDAdapter;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
@@ -71,7 +71,7 @@ import edu.teco.dnd.util.NetConnection;
 import edu.teco.dnd.util.NetConnectionAdapter;
 
 /**
- * The main class that is started on a Module.
+ * The main class that is started on a ModuleInfo.
  */
 public final class ModuleMain {
 	/**
@@ -134,12 +134,11 @@ public final class ModuleMain {
 
 		ModuleShutdownHook shutdownHook = new ModuleShutdownHook(eventLoopGroups);
 		synchronized (shutdownHook) {
-			ModuleApplicationManager appMan =
-					new ModuleApplicationManager(moduleConfig, tcpConnectionManager, shutdownHook);
-			registerHandlerAdapter(moduleConfig, tcpConnectionManager, appMan);
+			Module module = new Module(moduleConfig, tcpConnectionManager, shutdownHook);
+			registerHandlerAdapter(moduleConfig, tcpConnectionManager, module);
 		}
 
-		System.out.println("Module is up and running.");
+		System.out.println("ModuleInfo is up and running.");
 
 	}
 
@@ -216,7 +215,7 @@ public final class ModuleMain {
 
 	/**
 	 * Registers necessary types of Messages/Adapters for interfacing with the network layer on the given
-	 * TCPConnectionManager. This is the global part used for Module as well as Deploy.
+	 * TCPConnectionManager. This is the global part used for ModuleInfo as well as Deploy.
 	 * 
 	 * @param tcpConnMan
 	 *            the TCPConnectionManager to register the adapters on.
@@ -226,7 +225,7 @@ public final class ModuleMain {
 		tcpConnMan.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		tcpConnMan.registerTypeAdapter(byte[].class, new Base64Adapter());
 		tcpConnMan.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
-		tcpConnMan.registerTypeAdapter(BlockID.class, new BlockIDAdapter());
+		tcpConnMan.registerTypeAdapter(ApplicationBlockID.class, new BlockIDAdapter());
 
 		tcpConnMan.addMessageType(JoinApplicationMessage.class);
 		tcpConnMan.addMessageType(JoinApplicationAck.class);
@@ -255,33 +254,32 @@ public final class ModuleMain {
 	}
 
 	/**
-	 * Registers Message Handlers and adapters for the module on the TCPConnectionManager. This is Module specific and
-	 * not used by deploy.
+	 * Registers Message Handlers and adapters for the module on the TCPConnectionManager. This is ModuleInfo specific
+	 * and not used by deploy.
 	 * 
 	 * @param moduleConfig
 	 *            the configuration according to which the module is set up.
 	 * @param tcpConnMan
 	 *            TCPConnectionManager to register handlers on.
-	 * @param appMan
-	 *            the applicationManager the various handlers should use later.
+	 * @param module
+	 *            the Module the various handlers should use later.
 	 */
-	private static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager tcpConnMan,
-			ModuleApplicationManager appMan) {
+	private static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager tcpConnMan, Module module) {
 		globalRegisterMessageAdapterType(tcpConnMan);
-		tcpConnMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(appMan));
+		tcpConnMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
 
-		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(appMan));
+		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
 		tcpConnMan.addHandler(RequestApplicationListMessage.class,
-				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), appMan));
+				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), module));
 		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
-		// Module does not execute given application but received Message anyway, handlers
+		// ModuleInfo does not execute given application but received Message anyway, handlers
 		tcpConnMan.addHandler(LoadClassMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(BlockMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(StartApplicationMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(KillAppMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(ValueMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(WhoHasBlockMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(ShutdownModuleMessage.class, new ShutdownModuleHandler(appMan));
+		tcpConnMan.addHandler(ShutdownModuleMessage.class, new ShutdownModuleHandler(module));
 	}
 }

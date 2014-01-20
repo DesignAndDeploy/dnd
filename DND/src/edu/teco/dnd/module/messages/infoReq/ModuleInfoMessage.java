@@ -2,7 +2,7 @@ package edu.teco.dnd.module.messages.infoReq;
 
 import java.util.UUID;
 
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -15,9 +15,9 @@ public class ModuleInfoMessage extends Response {
 
 	public static final String MESSAGE_TYPE = "module info";
 	/**
-	 * a Module class that encapsulates the information about the module.
+	 * a ModuleInfo class that encapsulates the information about the module.
 	 */
-	public final Module module;
+	public final ModuleInfo module;
 
 	/**
 	 * construct a new module info message. (should usually not be used, unless it is desired to produce an exact
@@ -30,25 +30,25 @@ public class ModuleInfoMessage extends Response {
 	 * @param module
 	 *            the module with the appropriate informations set.
 	 */
-	public ModuleInfoMessage(final UUID sourceMsgUuid, final UUID msgUuid, final Module module) {
+	public ModuleInfoMessage(final UUID sourceMsgUuid, final UUID msgUuid, final ModuleInfo module) {
 		super(sourceMsgUuid, msgUuid);
 		this.module = module;
 	}
 
 	/**
-	 * construct a new Module info message.
+	 * construct a new ModuleInfo info message.
 	 * 
 	 * @param module
 	 *            the encapsulated module information.
 	 */
-	public ModuleInfoMessage(final Module module) {
+	public ModuleInfoMessage(final ModuleInfo module) {
 		this.module = module;
 	}
 
 	/**
 	 * @return the module with the encapsulated module information.
 	 */
-	public Module getModule() {
+	public ModuleInfo getModule() {
 		return this.module;
 	}
 

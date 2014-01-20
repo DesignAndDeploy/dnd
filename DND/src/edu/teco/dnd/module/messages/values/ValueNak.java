@@ -19,7 +19,7 @@ public class ValueNak extends Response {
 	 */
 	public enum ErrorType {
 		/**
-		 * Value could not be delivered, because this Module does not know/execute the given FunctionBlock.
+		 * Value could not be delivered, because this ModuleInfo does not know/execute the given FunctionBlock.
 		 */
 		WRONG_MODULE,
 		/**

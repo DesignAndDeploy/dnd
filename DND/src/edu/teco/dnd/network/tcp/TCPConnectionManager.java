@@ -217,10 +217,10 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * different channels in this case).
 	 * 
 	 * @param uuid
-	 *            the UUID of the remote Module
-	 * @return an active channel that is connected to the Module
+	 *            the UUID of the remote ModuleInfo
+	 * @return an active channel that is connected to the ModuleInfo
 	 * @throws NoSuchElementException
-	 *             if no active connection to the Module exists
+	 *             if no active connection to the ModuleInfo exists
 	 */
 	private Channel getActiveChannel(final UUID uuid) {
 		for (final Channel channel : clientChannelManager.getChannels(uuid)) {

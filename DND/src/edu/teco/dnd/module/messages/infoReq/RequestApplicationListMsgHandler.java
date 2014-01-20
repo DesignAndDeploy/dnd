@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.teco.dnd.module.Application;
-import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -17,19 +17,19 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class RequestApplicationListMsgHandler implements MessageHandler<RequestApplicationListMessage> {
 	private final UUID moduleUUID;
-	private final ModuleApplicationManager applicationManager;
+	private final Module module;
 
 	/**
 	 * create a new AppListMsgHandler.
 	 * 
 	 * @param moduleUUID
 	 *            UUID of the module this is running on.
-	 * @param applicationManager
-	 *            the applicationManager of the module this is running on. Needed to extract the running applications.
+	 * @param module
+	 *            the module this is running on. Needed to extract the running applications.
 	 */
-	public RequestApplicationListMsgHandler(final UUID moduleUUID, final ModuleApplicationManager applicationManager) {
+	public RequestApplicationListMsgHandler(final UUID moduleUUID, final Module module) {
 		this.moduleUUID = moduleUUID;
-		this.applicationManager = applicationManager;
+		this.module = module;
 	}
 
 	@Override
@@ -37,17 +37,17 @@ public class RequestApplicationListMsgHandler implements MessageHandler<RequestA
 			final RequestApplicationListMessage message) {
 		final Map<UUID, String> applicationNames = new HashMap<UUID, String>();
 		final Map<UUID, String> uuidToBlockType = new HashMap<UUID, String>();
-		final Map<BlockID, String> blockIDToBlockName = new HashMap<BlockID, String>();
+		final Map<ApplicationBlockID, String> applicationBlockIDToBlockName = new HashMap<ApplicationBlockID, String>();
 		final Map<UUID, Collection<UUID>> applicationBlocks = new HashMap<UUID, Collection<UUID>>();
 
-		for (final Application application : applicationManager.getRunningApps().values()) {
-			for (UUID id : application.getFuncBlockById().keySet()){
-				uuidToBlockType.put(id, application.getFuncBlockById().get(id).getBlockType());
-				blockIDToBlockName.put(new BlockID(id, application.getOwnAppId()), application.getFuncBlockById().get(id).getBlockName());
+		for (final Application application : module.getRunningApps().values()) {
+			for (UUID id : application.getFunctionBlocksById().keySet()){
+				uuidToBlockType.put(id, application.getFunctionBlocksById().get(id).getBlockType());
+				applicationBlockIDToBlockName.put(new ApplicationBlockID(id, application.getApplicationID()), application.getFunctionBlocksById().get(id).getBlockName());
 			}
-			applicationNames.put(application.getOwnAppId(), application.getName());
-			applicationBlocks.put(application.getOwnAppId(), application.getFuncBlockById().keySet());
+			applicationNames.put(application.getApplicationID(), application.getName());
+			applicationBlocks.put(application.getApplicationID(), application.getFunctionBlocksById().keySet());
 		}
-		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks, uuidToBlockType, blockIDToBlockName);
+		return new ApplicationListResponse(moduleUUID, applicationNames, applicationBlocks, uuidToBlockType, applicationBlockIDToBlockName);
 	}
 }

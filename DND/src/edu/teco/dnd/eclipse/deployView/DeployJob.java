@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DeployListener;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 
 public class DeployJob extends Job {
 
@@ -46,12 +46,12 @@ public class DeployJob extends Job {
 	public static final int STEPS_PER_MODULE = STEPS_JOIN_MODULE + STEPS_LOAD_CLASSES + STEPS_LOAD_BLOCKS
 			+ STEPS_START_MODULE;
 
-	private Module module;
+	private ModuleInfo module;
 	private UUID id;
 	private Deploy deploy;
 	private IProgressMonitor m;
 
-	public DeployJob(String name, Module m, Deploy d) {
+	public DeployJob(String name, ModuleInfo m, Deploy d) {
 		super("Deploying " + name + "...");
 		this.module = m;
 		this.id = m.getUUID();
@@ -73,7 +73,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleJoined(UUID appId, UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("Module {} joined Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} joined Application {}", moduleUUID, appId);
 					monitor.worked(STEPS_JOIN_MODULE);
 				}
 			}
@@ -81,7 +81,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleLoadedClasses(UUID appId, UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} loaded all classes for Application {}", moduleUUID, appId);
 					monitor.worked(STEPS_LOAD_CLASSES);
 				}
 			}
@@ -89,7 +89,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleLoadedBlocks(UUID appId, UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
 					monitor.worked(STEPS_LOAD_BLOCKS);
 				}
 			}
@@ -97,7 +97,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleStarted(final UUID appId, final UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("Module {} started the Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} started the Application {}", moduleUUID, appId);
 					monitor.worked(STEPS_START_MODULE);
 				}
 			}

@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.module.ModuleShutdownHook;
 import edu.teco.dnd.module.config.BlockTypeHolder;
@@ -53,8 +53,8 @@ public class ModuleMainTest {
 						method.setAccessible(true);
 						connectionManager = (TCPConnectionManager) method.invoke(null, reader, eventLoopGroups);
 
-						ModuleApplicationManager appMan =
-								new ModuleApplicationManager(reader, connectionManager, new ModuleShutdownHook(
+						Module appMan =
+								new Module(reader, connectionManager, new ModuleShutdownHook(
 										eventLoopGroups));
 
 						// ModuleMain.registerHandlerAdapter(reader, connectionManager, appMan);

@@ -294,7 +294,7 @@ public class DeployViewGraphics {
 		return blockNameText.getText();
 	}
 
-	// Module Combo
+	// ModuleInfo Combo
 
 	private Label createModuleLabel() {
 		moduleLabel = new Label(parent, SWT.NONE);

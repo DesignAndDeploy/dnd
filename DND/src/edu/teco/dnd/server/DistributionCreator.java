@@ -8,7 +8,7 @@ import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.DistributionGenerator;
 import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 
 /**
  * This class creates a distribution, if possible. It might seem a little redundant, since it does not do much more than
@@ -25,7 +25,7 @@ public class DistributionCreator {
 
 	public static Distribution createDistribution(Collection<FunctionBlockModel> blocks,
 			Collection<Constraint> constraints) throws NoBlocksException, NoModulesException {
-		Collection<Module> modules = ServerManager.getDefault().getModuleManager().getModuleCollection();
+		Collection<ModuleInfo> modules = ServerManager.getDefault().getModuleManager().getModuleCollection();
 		if (blocks == null || blocks.isEmpty()) {
 			throw new NoBlocksException();
 		}

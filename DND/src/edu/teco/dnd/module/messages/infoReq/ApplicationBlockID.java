@@ -4,13 +4,13 @@ import java.util.UUID;
 
 /**
  * This class represents a unique ID for each instance of a function block. That way, all blocks can have the same UUID
- * as the function block model they derived from, but still be distinguished by their BlockID. The BlockID contains the
- * unique combination of the UUID of the function block and the UUID of the application
+ * as the function block model they derived from, but still be distinguished by their ApplicationBlockID. The
+ * ApplicationBlockID contains the unique combination of the UUID of the function block and the UUID of the application
  * 
  * @author Alisa Jung
  * 
  */
-public class BlockID{
+public class ApplicationBlockID {
 	private UUID blockID;
 	private UUID appID;
 
@@ -22,24 +22,24 @@ public class BlockID{
 	 * @param appID
 	 *            ID of the application this instance of the block belongs to.
 	 */
-	public BlockID(UUID blockUUID, UUID appID) {
+	public ApplicationBlockID(UUID blockUUID, UUID appID) {
 		this.blockID = blockUUID;
 		this.appID = appID;
 	}
 
-	public UUID getBlockUUID(){
+	public UUID getBlockUUID() {
 		return this.blockID;
 	}
-	
-	public UUID getAppID(){
+
+	public UUID getAppID() {
 		return this.appID;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return "blablubb";
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -57,7 +57,7 @@ public class BlockID{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BlockID other = (BlockID) obj;
+		ApplicationBlockID other = (ApplicationBlockID) obj;
 		if (appID == null) {
 			if (other.appID != null)
 				return false;
@@ -70,5 +70,5 @@ public class BlockID{
 			return false;
 		return true;
 	}
-	
+
 }

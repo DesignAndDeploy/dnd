@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ApplicationInformation {
 	private final UUID appId;
 	private final String name;
-	// private final Map<UUID/* BlockID */, UUID/* OnModuleID */> blocksRunningOn = new ConcurrentHashMap<UUID, UUID>();
+	// private final Map<UUID/* ApplicationBlockID */, UUID/* OnModuleID */> blocksRunningOn = new ConcurrentHashMap<UUID, UUID>();
 	private final Map<UUID/* ModuleId */, Collection<UUID>/* BlockId */> modulesRunningBlocks =
 			new ConcurrentHashMap<UUID, Collection<UUID>>();
 	private Map<UUID, String> blockToType = new HashMap<UUID, String>();

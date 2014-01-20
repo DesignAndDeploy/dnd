@@ -3,7 +3,9 @@ package edu.teco.dnd.module.messages.loadStartBlock;
 import java.util.UUID;
 
 import edu.teco.dnd.module.BlockDescription;
-import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
+import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
@@ -14,29 +16,33 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 	/**
-	 * ApplicationManager to trigger the scheduling on.
+	 * Module to trigger the scheduling on.
 	 */
-	private final ModuleApplicationManager appManager;
+	private final Module module;
 
 	/**
 	 * 
-	 * @param appManager
-	 *            ApplicationManager to trigger the scheduling on.
+	 * @param module
+	 *            Module to trigger the scheduling on.
 	 */
-	public BlockMessageHandler(ModuleApplicationManager appManager) {
-		this.appManager = appManager;
+	public BlockMessageHandler(Module module) {
+		this.module = module;
 	}
 
 	@Override
 	public Response handleMessage(UUID remoteUUID, BlockMessage message) {
 		final BlockDescription blockDescription = new BlockDescription(message.blockClass, message.blockName, message.blockUUID, message.options, message.outputs, message.scheduleToId);
 		try {
-			appManager.scheduleBlock(message.getApplicationID(), blockDescription);
+			module.scheduleBlock(message.getApplicationID(), blockDescription);
 		} catch (final ClassNotFoundException e) {
 			return new BlockNak(e);
 		} catch (final UserSuppliedCodeException e) {
 			return new BlockNak(e);
 		} catch (final IllegalArgumentException e) {
+			return new BlockNak(e);
+		} catch (BlockTypeHolderFullException e) {
+			return new BlockNak(e);
+		} catch (NoSuchBlockTypeHolderException e) {
 			return new BlockNak(e);
 		}
 		return new BlockAck();

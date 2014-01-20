@@ -2,7 +2,7 @@ package edu.teco.dnd.module.messages.generalModule;
 
 import java.util.UUID;
 
-import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -13,22 +13,22 @@ import edu.teco.dnd.network.messages.Response;
  * 
  */
 public class ShutdownModuleHandler implements MessageHandler<ShutdownModuleMessage> {
-	private final ModuleApplicationManager appMan;
+	private final Module module;
 
 	/**
 	 * 
-	 * @param appMan
-	 *            the applicationManager of the associated module. The instance the shutdown command will be passed on
+	 * @param module
+	 *            the associated module. The instance the shutdown command will be passed on
 	 *            to.
 	 */
-	public ShutdownModuleHandler(ModuleApplicationManager appMan) {
-		this.appMan = appMan;
+	public ShutdownModuleHandler(Module module) {
+		this.module = module;
 	}
 
 	@Override
 	public Response handleMessage(UUID remoteUUID, ShutdownModuleMessage message) {
 		try {
-			appMan.shutdownModule();
+			module.shutdownModule();
 		} catch (Exception ex) {
 			return new ShutdownModuleNak();
 		}

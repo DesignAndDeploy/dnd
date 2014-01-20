@@ -2,7 +2,7 @@ package edu.teco.dnd.module.messages.killApp;
 
 import java.util.UUID;
 
-import edu.teco.dnd.module.ModuleApplicationManager;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -14,24 +14,24 @@ import edu.teco.dnd.network.messages.Response;
  */
 public class KillAppMessageHandler implements MessageHandler<KillAppMessage> {
 	/**
-	 * the ApplicationManager to trigger the stopping on.
+	 * the Module to trigger the stopping on.
 	 */
-	private final ModuleApplicationManager appManager;
+	private final Module module;
 
 	/**
 	 * 
-	 * @param appManager
-	 *            the ApplicationManager to trigger the stopping on.
+	 * @param module
+	 *            the Module to trigger the stopping on.
 	 */
-	public KillAppMessageHandler(ModuleApplicationManager appManager) {
-		this.appManager = appManager;
+	public KillAppMessageHandler(Module module) {
+		this.module = module;
 
 	}
 
 	@Override
 	public Response handleMessage(UUID remoteUUID, KillAppMessage message) {
 		try {
-			appManager.stopApplication(message.getApplicationID());
+			module.stopApplication(message.getApplicationID());
 		} catch (Exception e) {
 			return new KillAppNak(message.getApplicationID());
 

@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.BlockTypeHolderIterator;
 
@@ -81,7 +81,7 @@ public class DistributionGenerator {
 	 *            the available modules
 	 * @return the best Distribution found or null if none exists
 	 */
-	public Distribution getDistribution(final Collection<FunctionBlockModel> blocks, final Collection<Module> modules) {
+	public Distribution getDistribution(final Collection<FunctionBlockModel> blocks, final Collection<ModuleInfo> modules) {
 		best = null;
 		bestValue = Integer.MIN_VALUE;
 		getDistribution(new ArrayList<FunctionBlockModel>(blocks), modules, new Distribution());
@@ -98,7 +98,7 @@ public class DistributionGenerator {
 	 * @param start
 	 *            the Distribution that has been built so far
 	 */
-	private void getDistribution(final Collection<FunctionBlockModel> blocks, final Collection<Module> modules,
+	private void getDistribution(final Collection<FunctionBlockModel> blocks, final Collection<ModuleInfo> modules,
 			final Distribution start) {
 		LOGGER.entry(blocks, modules, start);
 		if (blocks.isEmpty()) {
@@ -119,7 +119,7 @@ public class DistributionGenerator {
 
 			blocks.remove(block);
 
-			for (final Module module : modules) {
+			for (final ModuleInfo module : modules) {
 				for (final BlockTypeHolder holder : new BlockTypeHolderIterator(module.getHolder())) {
 					if (holder.isLeaf()) {
 						if (isAllowed(start, block, module, holder)) {
@@ -153,7 +153,7 @@ public class DistributionGenerator {
 	 *            the holder where the block should be added
 	 * @return
 	 */
-	private boolean isAllowed(final Distribution distribution, final FunctionBlockModel block, final Module module,
+	private boolean isAllowed(final Distribution distribution, final FunctionBlockModel block, final ModuleInfo module,
 			final BlockTypeHolder holder) {
 		for (final Constraint constraint : constraints) {
 			if (!constraint.isAllowed(distribution, block, module, holder)) {

@@ -25,7 +25,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.discover.ApplicationInformation;
-import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.messages.Response;
@@ -94,7 +94,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	private Label selectedInfoLabel;
 	private Button updateButton;
 	private Button killAppButton;
-	private Button sortButton; // Sort by App or Module
+	private Button sortButton; // Sort by App or ModuleInfo
 	private Table appTable;
 	private Table blockTable;
 
@@ -106,7 +106,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	private Map<UUID, TableItem> uuidToItem;
 	private Map<TableItem, ApplicationInformation> blockTableItemToApp;
 	private Map<TableItem, UUID> blockTableItemToModule;
-	private Module selectedModule;
+	private ModuleInfo selectedModule;
 	private ApplicationInformation selectedApp;
 	private int sorted;
 
@@ -284,7 +284,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 
 		blockTableItemToApp.clear();
 		Map<UUID, Collection<ApplicationInformation>> modToApp = appManager.getModulesToApps();
-		Map<UUID, Module> idToMod = ServerManager.getDefault().getModuleManager().getMap();
+		Map<UUID, ModuleInfo> idToMod = ServerManager.getDefault().getModuleManager().getMap();
 		for (UUID id : modToApp.keySet()) {
 			TableItem item = new TableItem(appTable, SWT.NONE);
 			if (idToMod.containsKey(id)) {
@@ -339,7 +339,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 			selectedApp = appManager.getMap().get(itemToUUID.get(selectedItem));
 			selectedInfoLabel.setText(selectedApp.getName() + Messages.AppView_COLON + selectedApp.getAppId().toString());
 			ModuleManager m = ServerManager.getDefault().getModuleManager();
-			Map<UUID, Module> uuidToModule = m.getMap();
+			Map<UUID, ModuleInfo> uuidToModule = m.getMap();
 
 			Map<UUID, Collection<UUID>> modToBlocks = selectedApp.getBlocksRunningOn();
 
@@ -426,7 +426,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	private void blocktableModuleSelected() {
 		TableItem[] items = blockTable.getSelection();
 		if (items.length == 1) {
-			Map<UUID, Module> map = ServerManager.getDefault().getModuleManager().getMap();
+			Map<UUID, ModuleInfo> map = ServerManager.getDefault().getModuleManager().getMap();
 			if (map.containsKey(blockTableItemToModule.get(items[0]))) {
 				selectedModule = map.get(blockTableItemToModule.get(items[0]));
 			}
@@ -488,7 +488,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	 * SORTED_BY_MODULES, the maps should contain information on TableItems and Modules.
 	 * 
 	 * @param id
-	 *            UUID of the Application or Module to connect to a TableItem
+	 *            UUID of the Application or ModuleInfo to connect to a TableItem
 	 * @param item
 	 *            the TableItem to connect to the UUID of an Application or module
 	 */

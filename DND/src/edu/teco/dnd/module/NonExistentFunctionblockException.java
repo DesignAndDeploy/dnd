@@ -1,7 +1,7 @@
 package edu.teco.dnd.module;
 
 /**
- * thrown if an accessed FunctionBlock does not exist on the Module it was accessed on.
+ * thrown if an accessed FunctionBlock does not exist on the ModuleInfo it was accessed on.
  * 
  */
 public class NonExistentFunctionblockException extends Exception {
