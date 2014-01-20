@@ -42,10 +42,16 @@ public class Application {
 	public static final int ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL = 500;
 	private final UUID applicationID;
 	private final String name;
-	private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
 	private final ModuleBlockManager moduleBlockManager;
+
+	enum State {
+		CREATED, RUNNING, STOPPED
+	}
+
+	private State currentState = State.CREATED;
+	private final ReadWriteLock currentStateLock = new ReentrantReadWriteLock();
 
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 	private final Set<FunctionBlockSecurityDecorator> scheduledToStart = new HashSet<FunctionBlockSecurityDecorator>();
@@ -181,17 +187,19 @@ public class Application {
 	 *            bytecode of the class to be loaded
 	 */
 	public void loadClass(String classname, byte[] classData) {
-		if (!shutdownLock.readLock().tryLock()) {
-			throw new IllegalStateException("App already shuting down");
+		if (classname == null || classData == null) {
+			throw new IllegalArgumentException("classname and classdata must not be null.");
 		}
 
+		classLoader.appLoadClass(classname, classData);
+	}
+
+	public boolean hasShutDown() {
+		currentStateLock.readLock().lock();
 		try {
-			if (classname == null || classData == null) {
-				throw new IllegalArgumentException("classname and classdata must not be null.");
-			}
-			classLoader.appLoadClass(classname, classData);
+			return currentState == State.STOPPED;
 		} finally {
-			shutdownLock.readLock().unlock();
+			currentStateLock.readLock().unlock();
 		}
 	}
 
@@ -213,30 +221,49 @@ public class Application {
 	public void scheduleBlock(final BlockDescription blockDescription) throws ClassNotFoundException,
 			UserSuppliedCodeException, BlockTypeHolderFullException, NoSuchBlockTypeHolderException {
 		LOGGER.entry(blockDescription);
-		final FunctionBlockSecurityDecorator securityDecorator =
-				createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
-		LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
-		securityDecorator.doInit(blockDescription.blockUUID, blockDescription.blockName);
-
-		synchronized (scheduledToStart) {
-			if (isRunning) {
-				throw LOGGER.throwing(new IllegalStateException("tried to schedule block " + securityDecorator
-						+ " in already running application"));
+		currentStateLock.readLock().lock();
+		try {
+			if (hasShutDown()) {
+				throw LOGGER.throwing(new IllegalStateException(this + " has already been stopped"));
 			}
+
+			final FunctionBlockSecurityDecorator securityDecorator =
+					createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
+			LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
+			securityDecorator.doInit(blockDescription.blockUUID, blockDescription.blockName);
+			
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
 			}
 			moduleBlockManager.addToBlockTypeHolders(applicationID, securityDecorator,
 					blockDescription.blockTypeHolderId);
-			LOGGER.trace("adding {} to scheduledToStart");
-			scheduledToStart.add(securityDecorator);
-			LOGGER.trace("saving block options");
-			blockOptions.put(securityDecorator, blockDescription.options);
 
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("initializing outputs {} on {}", blockDescription.outputs, securityDecorator);
 			}
 			initializeOutputs(securityDecorator, blockDescription.outputs);
+
+			if (isRunning()) {
+
+			} else {
+				synchronized (scheduledToStart) {
+					LOGGER.trace("adding {} to scheduledToStart");
+					scheduledToStart.add(securityDecorator);
+					LOGGER.trace("saving block options");
+					blockOptions.put(securityDecorator, blockDescription.options);
+				}
+			}
+		} finally {
+			currentStateLock.readLock().unlock();
+		}
+	}
+
+	public boolean isRunning() {
+		currentStateLock.readLock().lock();
+		try {
+			return currentState == State.RUNNING;
+		} finally {
+			currentStateLock.readLock().unlock();
 		}
 	}
 
