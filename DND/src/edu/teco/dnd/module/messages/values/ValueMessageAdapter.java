@@ -22,81 +22,81 @@ import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Base64;
 
 /**
- * GSon adapter used to (de)serialize a ValueMessage. Reads the Object and writes it as primitives onto the sjson
- * stream. or the other way round.
- * 
- * @author Marvin Marx
- * 
+ * Adapter for {@link ValueMessage}. Serializes the value using the Serializable interface, then encode that as Base64.
+ * Other fields are simply encoded using default GSON encoders.
  */
 public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, JsonSerializer<ValueMessage> {
-
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(ValueMessageAdapter.class);
+
 	private final Module module;
 
 	/**
+	 * Initializes a new ValueMessageAdapter.
 	 * 
 	 * @param module
-	 *            the Module used to retrieve the appropriate class loader. ( In case the value is of a type
-	 *            that is missing on the module).
+	 *            this module is used to get the Application's ClassLoaders (based on the Application ID in the received
+	 *            message). If null or if the Application is missing only the default ClassLoader will be used.
 	 */
-	public ValueMessageAdapter(Module module) {
+	public ValueMessageAdapter(final Module module) {
 		this.module = module;
 	}
 
 	@Override
-	public JsonElement serialize(ValueMessage src, Type typeOfSrc, JsonSerializationContext context) {
+	public JsonElement serialize(final ValueMessage src, final Type typeOfSrc, final JsonSerializationContext context) {
 		LOGGER.entry(src, typeOfSrc, context);
+		String encodedValue = null;
+		try {
+			encodedValue = Base64.encodeObject(src.value);
+		} catch (final IOException e) {
+			throw new JsonParseException("Failed to encode value as Base64", e);
+		}
+		
 		final JsonObject jsonObject = new JsonObject();
 		jsonObject.add("appId", context.serialize(src.getApplicationID()));
 		jsonObject.add("blockUuid", context.serialize(src.blockId));
 		jsonObject.add("input", context.serialize(src.input));
-		try {
-			jsonObject.add("value", new JsonPrimitive(Base64.encodeObject(src.value)));
-		} catch (IOException e) {
-			throw new JsonParseException("Can not base64 value of valueMessage.");
-		}
+		jsonObject.add("value", new JsonPrimitive(encodedValue));
 
-		LOGGER.exit(jsonObject);
-		return jsonObject;
+		return LOGGER.exit(jsonObject);
 	}
 
 	@Override
-	public ValueMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+	public ValueMessage deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
 			throws JsonParseException {
-		UUID appId;
-		UUID blockUuid;
-		String input;
-		Serializable value;
-
 		LOGGER.entry(json, typeOfT, context);
 		if (!json.isJsonObject()) {
-			LOGGER.exit();
-			throw new JsonParseException("not a JSON primitive");
+			throw LOGGER.throwing(new JsonParseException("not a JSON object"));
 		}
-		JsonObject jObject = json.getAsJsonObject();
+		final JsonObject jsonObject = json.getAsJsonObject();
 
-		appId = context.deserialize(jObject.get("appId"), UUID.class);
-		
-		ClassLoader loader = null;
-		final Application application = module.getApplication(appId);
-		if (application != null) {
-			loader = application.getClassLoader();
-		}
-		
-		blockUuid = context.deserialize(jObject.get("blockUuid"), UUID.class);
-		input = context.deserialize(jObject.get("input"), String.class);
+		final UUID appId = context.deserialize(jsonObject.get("appId"), UUID.class);
+		final UUID blockUuid = context.deserialize(jsonObject.get("blockUuid"), UUID.class);
+		final String input = context.deserialize(jsonObject.get("input"), String.class);
+
+		ClassLoader loader = getClassLoaderForApplication(appId);
+		Serializable value = null;
 		try {
-			value = (Serializable) Base64.decodeToObject(jObject.get("value").getAsString(), Base64.NO_OPTIONS, loader);
-		} catch (IOException e) {
-			throw new JsonParseException("can not parse base64 serializable");
-		} catch (ClassNotFoundException e) {
-			throw new JsonParseException("no appropriate class to decode serializable in value message.");
+			value = (Serializable) Base64.decodeToObject(jsonObject.get("value").getAsString(), Base64.NO_OPTIONS, loader);
+		} catch (final IOException e) {
+			throw LOGGER.throwing(new JsonParseException("error parsing Base64 value", e));
+		} catch (final ClassNotFoundException e) {
+			throw LOGGER.throwing(new JsonParseException("could not find class of value", e));
 		}
 
 		return new ValueMessage(appId, blockUuid, input, value);
 	}
 
+	private ClassLoader getClassLoaderForApplication(final UUID applicationID) {
+		LOGGER.entry(applicationID);
+		if (module == null) {
+			return LOGGER.exit(null);
+		}
+
+		final Application application = module.getApplication(applicationID);
+		if (application == null) {
+			return LOGGER.exit(null);
+		}
+
+		return LOGGER.exit(application.getClassLoader());
+	}
 }
