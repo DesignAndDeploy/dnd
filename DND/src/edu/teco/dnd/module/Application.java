@@ -78,8 +78,8 @@ public class Application {
 
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
-	private final Map<UUID, FunctionBlockSecurityDecorator> functionBlocksById =
-			new HashMap<UUID, FunctionBlockSecurityDecorator>();
+	private final ConcurrentMap<UUID, FunctionBlockSecurityDecorator> functionBlocksById =
+			new ConcurrentHashMap<UUID, FunctionBlockSecurityDecorator>();
 
 	/**
 	 * 
