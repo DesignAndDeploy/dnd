@@ -21,11 +21,12 @@ import com.google.gson.JsonSerializer;
  * @author jung
  * 
  */
-public class BlockIDAdapter implements JsonSerializer<ApplicationBlockID>, JsonDeserializer<ApplicationBlockID> {
+public class ApplicationBlockIDAdapter implements JsonSerializer<ApplicationBlockID>,
+		JsonDeserializer<ApplicationBlockID> {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(BlockIDAdapter.class);
+	private static final Logger LOGGER = LogManager.getLogger(ApplicationBlockIDAdapter.class);
 
 	@Override
 	public ApplicationBlockID deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)

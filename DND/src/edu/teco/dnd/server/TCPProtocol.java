@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 
 import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
-import edu.teco.dnd.module.messages.infoReq.BlockIDAdapter;
+import edu.teco.dnd.module.messages.infoReq.ApplicationBlockIDAdapter;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
@@ -47,7 +47,7 @@ public class TCPProtocol {
 		tcpConnectionManager.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
 		tcpConnectionManager.registerTypeAdapter(byte[].class, new Base64Adapter());
 		tcpConnectionManager.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
-		tcpConnectionManager.registerTypeAdapter(ApplicationBlockID.class, new BlockIDAdapter());
+		tcpConnectionManager.registerTypeAdapter(ApplicationBlockID.class, new ApplicationBlockIDAdapter());
 
 		tcpConnectionManager.addMessageType(JoinApplicationMessage.class);
 		tcpConnectionManager.addMessageType(JoinApplicationAck.class);
