@@ -158,7 +158,7 @@ public class ServerManager {
 			connectionManager =
 					new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap),
 							new ClientBootstrapChannelFactory(clientBootstrap), networkEventLoopGroup, uuid);
-			ModuleMain.globalRegisterMessageAdapterType(connectionManager);
+			new TCPProtocol().initialize(connectionManager);
 			this.connectionManager = connectionManager;
 
 			beacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {

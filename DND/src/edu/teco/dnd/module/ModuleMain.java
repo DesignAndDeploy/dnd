@@ -28,36 +28,18 @@ import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
-import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
-import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
-import edu.teco.dnd.module.messages.infoReq.BlockIDAdapter;
-import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
-import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMsgHandler;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMsgHandler;
-import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessageHandler;
-import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationNak;
-import edu.teco.dnd.module.messages.joinStartApp.StartApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
-import edu.teco.dnd.module.messages.joinStartApp.StartApplicationNak;
-import edu.teco.dnd.module.messages.killApp.KillAppAck;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
-import edu.teco.dnd.module.messages.killApp.KillAppNak;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockAck;
 import edu.teco.dnd.module.messages.loadStartBlock.BlockMessage;
-import edu.teco.dnd.module.messages.loadStartBlock.BlockNak;
-import edu.teco.dnd.module.messages.loadStartBlock.LoadClassAck;
 import edu.teco.dnd.module.messages.loadStartBlock.LoadClassMessage;
-import edu.teco.dnd.module.messages.loadStartBlock.LoadClassNak;
-import edu.teco.dnd.module.messages.values.BlockFoundResponse;
-import edu.teco.dnd.module.messages.values.ValueAck;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
-import edu.teco.dnd.module.messages.values.ValueNak;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.module.permissions.ApplicationSecurityManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
@@ -65,11 +47,9 @@ import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.network.tcp.ClientBootstrapChannelFactory;
 import edu.teco.dnd.network.tcp.ServerBootstrapChannelFactory;
 import edu.teco.dnd.network.tcp.TCPConnectionManager;
-import edu.teco.dnd.util.Base64Adapter;
+import edu.teco.dnd.server.TCPProtocol;
 import edu.teco.dnd.util.IndexedThreadFactory;
-import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
-import edu.teco.dnd.util.NetConnectionAdapter;
 
 /**
  * The main class that is started on a ModuleInfo.
@@ -221,46 +201,6 @@ public final class ModuleMain {
 	}
 
 	/**
-	 * Registers necessary types of Messages/Adapters for interfacing with the network layer on the given
-	 * TCPConnectionManager. This is the global part used for ModuleInfo as well as Deploy.
-	 * 
-	 * @param tcpConnMan
-	 *            the TCPConnectionManager to register the adapters on.
-	 */
-	public static void globalRegisterMessageAdapterType(TCPConnectionManager tcpConnMan) {
-		tcpConnMan.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
-		tcpConnMan.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
-		tcpConnMan.registerTypeAdapter(byte[].class, new Base64Adapter());
-		tcpConnMan.registerTypeAdapter(ModuleInfoMessage.class, new ModuleInfoMessageAdapter());
-		tcpConnMan.registerTypeAdapter(ApplicationBlockID.class, new BlockIDAdapter());
-
-		tcpConnMan.addMessageType(JoinApplicationMessage.class);
-		tcpConnMan.addMessageType(JoinApplicationAck.class);
-		tcpConnMan.addMessageType(JoinApplicationNak.class);
-		tcpConnMan.addMessageType(ValueMessage.class);
-		tcpConnMan.addMessageType(WhoHasBlockMessage.class);
-		tcpConnMan.addMessageType(ValueNak.class);
-		tcpConnMan.addMessageType(ValueAck.class);
-		tcpConnMan.addMessageType(BlockFoundResponse.class);
-		tcpConnMan.addMessageType(LoadClassNak.class);
-		tcpConnMan.addMessageType(LoadClassMessage.class);
-		tcpConnMan.addMessageType(LoadClassAck.class);
-		tcpConnMan.addMessageType(BlockNak.class);
-		tcpConnMan.addMessageType(BlockMessage.class);
-		tcpConnMan.addMessageType(BlockAck.class);
-		tcpConnMan.addMessageType(KillAppNak.class);
-		tcpConnMan.addMessageType(KillAppAck.class);
-		tcpConnMan.addMessageType(KillAppMessage.class);
-		tcpConnMan.addMessageType(StartApplicationMessage.class);
-		tcpConnMan.addMessageType(StartApplicationAck.class);
-		tcpConnMan.addMessageType(StartApplicationNak.class);
-		tcpConnMan.addMessageType(RequestModuleInfoMessage.class);
-		tcpConnMan.addMessageType(RequestApplicationListMessage.class);
-		tcpConnMan.addMessageType(ApplicationListResponse.class);
-		tcpConnMan.addMessageType(ModuleInfoMessage.class);
-	}
-
-	/**
 	 * Registers Message Handlers and adapters for the module on the TCPConnectionManager. This is ModuleInfo specific
 	 * and not used by deploy.
 	 * 
@@ -272,7 +212,7 @@ public final class ModuleMain {
 	 *            the Module the various handlers should use later.
 	 */
 	private static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager tcpConnMan, Module module) {
-		globalRegisterMessageAdapterType(tcpConnMan);
+		new TCPProtocol().initialize(tcpConnMan);
 		tcpConnMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
 
 		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
@@ -280,7 +220,6 @@ public final class ModuleMain {
 				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), module));
 		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
-		// ModuleInfo does not execute given application but received Message anyway, handlers
 		tcpConnMan.addHandler(LoadClassMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(BlockMessage.class, new MissingApplicationHandler());
 		tcpConnMan.addHandler(StartApplicationMessage.class, new MissingApplicationHandler());
