@@ -619,13 +619,12 @@ public class Deploy {
 	 * @return a FutureNotifier returning the Responses of all Modules
 	 */
 	private FutureNotifier<Collection<Response>> sendStartApplication() {
-		final StartApplicationMessage startApplicationMessage = new StartApplicationMessage(appId);
 		final Collection<FutureNotifier<? extends Response>> futureNotifiers =
 				new ArrayList<FutureNotifier<? extends Response>>();
 		for (final ModuleInfo module : moduleMap.keySet()) {
 			final UUID moduleUUID = module.getUUID();
 			final FutureNotifier<Response> futureNotifier =
-					connectionManager.sendMessage(module.getUUID(), startApplicationMessage);
+					connectionManager.sendMessage(module.getUUID(), new StartApplicationMessage(appId));
 			futureNotifier.addListener(new FutureListener<FutureNotifier<Response>>() {
 				@Override
 				public void operationComplete(final FutureNotifier<Response> future) {
