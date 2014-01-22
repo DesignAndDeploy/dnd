@@ -35,7 +35,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private static Activator plugin;
 
-	private static ServerManager serverManager;
+	private static final ServerManager serverManager = ServerManager.getDefault();
 
 	static {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
@@ -51,8 +51,6 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 
-		serverManager = ServerManager.getDefault();
-
 		LOGGER.exit();
 	}
 
@@ -63,6 +61,10 @@ public class Activator extends AbstractUIPlugin {
 		plugin = null;
 
 		LOGGER.exit();
+	}
+	
+	public ServerManager getServerManager() {
+		return serverManager;
 	}
 
 	/**
