@@ -24,6 +24,7 @@ import edu.teco.dnd.server.ServerManager;
 public class ApplicationView extends ViewPart {
 	private static final Logger LOGGER = LogManager.getLogger(ApplicationView.class);
 
+	private final ApplicationTreeUpdater applicationTreeUpdater = new ApplicationTreeUpdater();
 	private final UpdateButtonActivator updateButtonActivator = new UpdateButtonActivator();
 
 	@Override
@@ -33,6 +34,7 @@ public class ApplicationView extends ViewPart {
 
 		ServerManager serverManager = Activator.getDefault().getServerManager();
 		serverManager.addServerStateListener(updateButtonActivator);
+		applicationTreeUpdater.setApplicationManager(serverManager.getApplicationManager());
 		LOGGER.exit();
 	}
 
@@ -43,6 +45,8 @@ public class ApplicationView extends ViewPart {
 
 		Activator.getDefault().getServerManager().removeServerStateListener(updateButtonActivator);
 		updateButtonActivator.setUpdateButton(null);
+		applicationTreeUpdater.setApplicationTree(null);
+		applicationTreeUpdater.setApplicationManager(null);
 		LOGGER.exit();
 	}
 
@@ -90,6 +94,7 @@ public class ApplicationView extends ViewPart {
 		final GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
 		gridData.horizontalSpan = 2;
 		applicationTree.setLayoutData(gridData);
+		applicationTreeUpdater.setApplicationTree(applicationTree);
 
 		return applicationTree;
 	}
