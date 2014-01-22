@@ -10,8 +10,14 @@ import java.util.UUID;
 
 import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.discover.ApplicationQuery;
+import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
+import edu.teco.dnd.module.messages.killApp.KillAppAck;
+import edu.teco.dnd.module.messages.killApp.KillAppMessage;
+import edu.teco.dnd.module.messages.killApp.KillAppNak;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.network.messages.Response;
+import edu.teco.dnd.util.DefaultFutureNotifier;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.JoinedFutureNotifier;
@@ -77,6 +83,29 @@ public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUI
 		return idToApp;
 	}
 	
+	public FutureNotifier<Void> killApplication(final UUID applicationID) {
+		final ApplicationInformation applicationInformation = idToApp.get(applicationID);
+		if (applicationInformation == null) {
+			throw new IllegalArgumentException("Application " + applicationID + " unknown");
+		}
+
+		final ConnectionManager connectionManager = ServerManager.getDefault().getConnectionManager();
+		if (connectionManager == null) {
+			throw new IllegalStateException("server not running");
+		}
+
+		final Collection<FutureNotifier<? extends Response>> futures =
+				new ArrayList<FutureNotifier<? extends Response>>();
+		for (final UUID moduleID : applicationInformation.getModules()) {
+			final KillAppMessage killAppMessage = new KillAppMessage(applicationID);
+			futures.add(connectionManager.sendMessage(moduleID, killAppMessage));
+		}
+		final JoinedFutureNotifier<Response> joinedFutureNotifier = new JoinedFutureNotifier<Response>(futures);
+		final KillAppFutureNotifier notifier = new KillAppFutureNotifier();
+		joinedFutureNotifier.addListener(notifier);
+		return notifier;
+	}
+	
 	@Override
 	public void operationComplete(FutureNotifier<Map<UUID, ApplicationInformation>> future) throws Exception {
 		if (future.isSuccess()) {
@@ -116,4 +145,27 @@ public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUI
 
 	}
 
+	private static class KillAppFutureNotifier extends DefaultFutureNotifier<Void> implements
+			FutureListener<FutureNotifier<Collection<Response>>> {
+		@Override
+		public void operationComplete(final FutureNotifier<Collection<Response>> future) {
+			if (future.isSuccess()) {
+				for (final Response response : future.getNow()) {
+					if (response instanceof KillAppAck || response instanceof MissingApplicationNak) {
+						continue;
+					} else if (response instanceof KillAppNak) {
+						setFailure(new Exception("got negative acknowledgment"));
+						return;
+					} else {
+						setFailure(null);
+						return;
+					}
+				}
+
+				setSuccess(null);
+			} else {
+				setFailure(future.cause());
+			}
+		}
+	}
 }

@@ -1,6 +1,5 @@
 package edu.teco.dnd.eclipse.appView;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,16 +25,12 @@ import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.module.ModuleInfo;
-import edu.teco.dnd.module.messages.killApp.KillAppMessage;
-import edu.teco.dnd.network.ConnectionManager;
-import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ServerManager;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
-import edu.teco.dnd.util.JoinedFutureNotifier;
 
 /**
  * View for the applications / running function blocks.
@@ -44,7 +39,7 @@ import edu.teco.dnd.util.JoinedFutureNotifier;
  * 
  */
 public class AppView extends ViewPart implements ApplicationManagerListener,
-		FutureListener<FutureNotifier<Collection<Response>>> {
+		FutureListener<FutureNotifier<Void>> {
 
 	/**
 	 * The logger for this class.
@@ -219,17 +214,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	 */
 	private void killApp() {
 		if (selectedApp != null) {
-			Collection<UUID> moduleIDs = selectedApp.getModules();
-			ConnectionManager connectionManager = ServerManager.getDefault().getConnectionManager();
-			final Collection<FutureNotifier<? extends Response>> futures =
-					new ArrayList<FutureNotifier<? extends Response>>();
-
-			for (final UUID module : moduleIDs) {
-				final KillAppMessage killAppMsg = new KillAppMessage(selectedApp.getAppId());
-				futures.add(connectionManager.sendMessage(module, killAppMsg));
-			}
-			JoinedFutureNotifier<Response> joined = new JoinedFutureNotifier<Response>(futures);
-			joined.addListener(this);
+			appManager.killApplication(selectedApp.getAppId()).addListener(this);
 			if (sorted == SORTED_BY_APPS) {
 				appTable.remove(appTable.indexOf(removeUUIDAndItem(selectedApp.getAppId())));
 				blockTable.removeAll();
@@ -550,7 +535,7 @@ public class AppView extends ViewPart implements ApplicationManagerListener,
 	 */
 
 	@Override
-	public void operationComplete(FutureNotifier<Collection<Response>> future) throws Exception {
+	public void operationComplete(FutureNotifier<Void> future) throws Exception {
 		if (!future.isSuccess()) {
 			warn(Messages.AppView_CANCEL_ERROR);
 		}
