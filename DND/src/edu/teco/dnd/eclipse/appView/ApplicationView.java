@@ -3,6 +3,8 @@ package edu.teco.dnd.eclipse.appView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -71,6 +73,7 @@ public class ApplicationView extends ViewPart {
 	private void createUpdateButton(final Composite parent) {
 		final Button button = createButton(parent, Messages.ApplicationView_UPDATE);
 		updateButtonActivator.setUpdateButton(button);
+		button.addSelectionListener(new UpdateListener());
 
 		final ServerManager serverManager = Activator.getDefault().getServerManager();
 		updateButtonActivator.setState(serverManager.isRunning());
@@ -102,5 +105,14 @@ public class ApplicationView extends ViewPart {
 	@Override
 	public void setFocus() {
 		// not needed by this view
+	}
+
+	private static class UpdateListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(final SelectionEvent e) {
+			LOGGER.entry(e);
+			Activator.getDefault().getServerManager().getApplicationManager().updateAppInfo();
+			LOGGER.exit();
+		}
 	}
 }
