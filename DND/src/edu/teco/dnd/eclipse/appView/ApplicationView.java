@@ -16,6 +16,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ServerManager;
 
 /**
@@ -28,6 +29,8 @@ public class ApplicationView extends ViewPart {
 
 	private final ApplicationTreeUpdater applicationTreeUpdater = new ApplicationTreeUpdater();
 	private final UpdateButtonActivator updateButtonActivator = new UpdateButtonActivator();
+	private final KillButtonListener killButtonListener = new KillButtonListener(
+			ApplicationTreeUpdater.APPLICATION_INFORMATION_STORE);
 
 	@Override
 	public void init(final IViewSite site, final IMemento memento) throws PartInitException {
@@ -36,7 +39,9 @@ public class ApplicationView extends ViewPart {
 
 		ServerManager serverManager = Activator.getDefault().getServerManager();
 		serverManager.addServerStateListener(updateButtonActivator);
-		applicationTreeUpdater.setApplicationManager(serverManager.getApplicationManager());
+		final ApplicationManager applicationManager = serverManager.getApplicationManager();
+		applicationTreeUpdater.setApplicationManager(applicationManager);
+		killButtonListener.setApplicationManager(applicationManager);
 		LOGGER.exit();
 	}
 
@@ -84,6 +89,7 @@ public class ApplicationView extends ViewPart {
 	private Button createKillButton(Composite parent) {
 		final Button killButton = createButton(parent, Messages.ApplicationView_KILL_APPLICATION);
 		killButton.setEnabled(false);
+		killButton.addSelectionListener(killButtonListener);
 		return killButton;
 	}
 
@@ -100,6 +106,7 @@ public class ApplicationView extends ViewPart {
 		gridData.horizontalSpan = 2;
 		applicationTree.setLayoutData(gridData);
 		applicationTreeUpdater.setApplicationTree(applicationTree);
+		killButtonListener.setApplicationTree(applicationTree);
 
 		return applicationTree;
 	}
