@@ -57,8 +57,10 @@ public class ApplicationView extends ViewPart {
 		LOGGER.entry(parent);
 		setLayout(parent);
 		createUpdateButton(parent);
-		createKillButton(parent);
-		createApplicationTree(parent);
+		final Button killButton = createKillButton(parent);
+		final Tree applicationTree = createApplicationTree(parent);
+
+		applicationTree.addSelectionListener(new KillButtonActivator(killButton));
 		LOGGER.exit();
 	}
 
