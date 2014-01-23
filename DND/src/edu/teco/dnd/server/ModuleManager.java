@@ -24,7 +24,7 @@ import edu.teco.dnd.util.JoinedFutureNotifier;
  * @author jung
  * 
  */
-public class ModuleManager implements ConnectionListener, DNDServerStateListener,
+public class ModuleManager implements ConnectionListener, ServerStateListener,
 		FutureListener<FutureNotifier<ModuleInfo>> {
 	/**
 	 * A Map of all Modules that were found. Modules are added with a value of null when they're discovered, after the

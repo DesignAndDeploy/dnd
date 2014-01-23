@@ -7,14 +7,14 @@ import org.eclipse.swt.widgets.Button;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
-import edu.teco.dnd.server.DNDServerStateListener;
+import edu.teco.dnd.server.ServerStateListener;
 
 /**
  * Used to automatically enable/disable the update button of the application view based on the state of the server.
  * 
  * @author Philipp Adolf
  */
-class UpdateButtonActivator implements DNDServerStateListener {
+class UpdateButtonActivator implements ServerStateListener {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	private Button updateButton = null;

@@ -81,7 +81,7 @@ public class ServerManager {
 
 	private final List<EventExecutorGroup> eventExecutorGroups = new ArrayList<EventExecutorGroup>();
 
-	private final Set<DNDServerStateListener> serverStateListener = new HashSet<DNDServerStateListener>();
+	private final Set<ServerStateListener> serverStateListener = new HashSet<ServerStateListener>();
 
 	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
 
@@ -168,7 +168,7 @@ public class ServerManager {
 				}
 			}, oioEventLoopGroup, networkEventLoopGroup, uuid, interval, timeUnit);
 
-			for (final DNDServerStateListener listener : serverStateListener) {
+			for (final ServerStateListener listener : serverStateListener) {
 				listener.serverStarted(connectionManager, beacon);
 			}
 		} finally {
@@ -331,7 +331,7 @@ public class ServerManager {
 						group.shutdownGracefully();
 					}
 					eventExecutorGroups.clear();
-					for (final DNDServerStateListener listener : serverStateListener) {
+					for (final ServerStateListener listener : serverStateListener) {
 						listener.serverStopped();
 					}
 				} finally {
@@ -358,7 +358,7 @@ public class ServerManager {
 		return beacon;
 	}
 
-	public void addServerStateListener(final DNDServerStateListener listener) {
+	public void addServerStateListener(final ServerStateListener listener) {
 		serverStateLock.writeLock().lock();
 		try {
 			serverStateListener.add(listener);
@@ -372,7 +372,7 @@ public class ServerManager {
 		}
 	}
 
-	public void removeServerStateListener(final DNDServerStateListener listener) {
+	public void removeServerStateListener(final ServerStateListener listener) {
 		serverStateLock.writeLock().lock();
 		try {
 			serverStateListener.remove(listener);

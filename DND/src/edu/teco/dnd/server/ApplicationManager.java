@@ -23,7 +23,7 @@ import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.JoinedFutureNotifier;
 
 public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUID, ApplicationInformation>>>,
-		DNDServerStateListener {
+		ServerStateListener {
 
 	private ApplicationQuery query;
 	private final Set<ApplicationManagerListener> listeners = new HashSet<ApplicationManagerListener>();

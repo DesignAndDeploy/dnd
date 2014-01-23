@@ -8,7 +8,7 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
  * 
  * @author Philipp Adolf
  */
-public interface DNDServerStateListener {
+public interface ServerStateListener {
 	void serverStarted(ConnectionManager connectionManager, UDPMulticastBeacon beacon);
 
 	void serverStopped();
