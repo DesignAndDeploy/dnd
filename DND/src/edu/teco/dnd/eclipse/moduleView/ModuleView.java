@@ -11,10 +11,37 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+
+import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.server.ServerManager;
 
 public class ModuleView extends ViewPart {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
+
+	private final StartStopButtonActivator startStopButtonActivator = new StartStopButtonActivator();
+
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		LOGGER.entry(site, memento);
+		super.init(site, memento);
+
+		final ServerManager serverManager = Activator.getDefault().getServerManager();
+		startStopButtonActivator.setServerManager(serverManager);
+		LOGGER.exit();
+	}
+
+	@Override
+	public void dispose() {
+		LOGGER.entry();
+		super.dispose();
+		startStopButtonActivator.setStartStopButton(null);
+		startStopButtonActivator.setServerManager(null);
+		LOGGER.exit();
+	}
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -35,6 +62,8 @@ public class ModuleView extends ViewPart {
 		final Button startStopButton = new Button(parent, SWT.NONE);
 		startStopButton.setText(Messages.ModuleView_BUTTON_START_SERVER);
 		startStopButton.setToolTipText(Messages.ModuleView_START_STOP_BUTTON_TOOLTIP);
+
+		startStopButtonActivator.setStartStopButton(startStopButton);
 	}
 
 	private Label createServerStatusLabel(final Composite parent) {

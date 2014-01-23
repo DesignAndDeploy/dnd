@@ -12,6 +12,11 @@ public class Messages extends NLS {
 	public static String ModuleView_SERVER_RUNNING;
 	public static String ModuleView_BUTTON_START_SERVER;
 	public static String ModuleView_START_STOP_BUTTON_TOOLTIP;
+	public static String StartStopButtonActivator_BUTTON_ERROR;
+	public static String StartStopButtonActivator_BUTTON_SERVER_STARTING;
+	public static String StartStopButtonActivator_BUTTON_SERVER_STOPPING;
+	public static String StartStopButtonActivator_BUTTON_START_SERVER;
+	public static String StartStopButtonActivator_BUTTON_STOP_SERVER;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
