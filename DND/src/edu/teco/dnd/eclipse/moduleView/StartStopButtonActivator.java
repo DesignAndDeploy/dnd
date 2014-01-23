@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Button;
 
 import edu.teco.dnd.eclipse.DisplayUtil;
+import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.server.ServerManager;
@@ -13,6 +14,9 @@ import edu.teco.dnd.server.ServerStateListener;
 
 class StartStopButtonActivator implements ServerStateListener {
 	private static final Logger LOGGER = LogManager.getLogger(StartStopButtonActivator.class);
+
+	public static final TypecastingWidgetDataStore<ServerAction> SERVER_ACTION_STORE =
+			new TypecastingWidgetDataStore<ServerAction>(ServerAction.class, "server action");
 
 	private Button startStopButton = null;
 	private ServerManager serverManager = null;
@@ -55,23 +59,30 @@ class StartStopButtonActivator implements ServerStateListener {
 		ButtonChanger buttonChanger = null;
 		switch (state) {
 		case STOPPED:
-			buttonChanger = new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_START_SERVER, true);
+			buttonChanger =
+					new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_START_SERVER, ServerAction.START);
 			break;
 
 		case STARTING:
-			buttonChanger = new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_SERVER_STARTING, false);
+			buttonChanger =
+					new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_SERVER_STARTING,
+							ServerAction.NONE);
 			break;
 
 		case RUNNING:
-			buttonChanger = new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_STOP_SERVER, true);
+			buttonChanger =
+					new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_STOP_SERVER, ServerAction.STOP);
 			break;
 
 		case STOPPING:
-			buttonChanger = new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_SERVER_STOPPING, false);
+			buttonChanger =
+					new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_SERVER_STOPPING,
+							ServerAction.NONE);
 			break;
 
 		default:
-			buttonChanger = new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_ERROR, false);
+			buttonChanger =
+					new ButtonChanger(button, Messages.StartStopButtonActivator_BUTTON_ERROR, ServerAction.NONE);
 			break;
 		}
 
@@ -82,18 +93,19 @@ class StartStopButtonActivator implements ServerStateListener {
 	private static class ButtonChanger implements Runnable {
 		private final Button button;
 		private final String text;
-		private final boolean enabled;
+		private final ServerAction action;
 
-		private ButtonChanger(final Button button, final String text, final boolean enabled) {
+		private ButtonChanger(final Button button, final String text, final ServerAction action) {
 			this.button = button;
 			this.text = text;
-			this.enabled = enabled;
+			this.action = action;
 		}
 
 		@Override
 		public void run() {
 			button.setText(text);
-			button.setEnabled(enabled);
+			button.setEnabled(action != ServerAction.NONE);
+			SERVER_ACTION_STORE.store(button, action);
 		}
 	}
 }

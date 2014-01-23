@@ -64,6 +64,7 @@ public class ModuleView extends ViewPart {
 		startStopButton.setToolTipText(Messages.ModuleView_START_STOP_BUTTON_TOOLTIP);
 
 		startStopButtonActivator.setStartStopButton(startStopButton);
+		startStopButton.addSelectionListener(new StartStopButtonListener(StartStopButtonActivator.SERVER_ACTION_STORE));
 	}
 
 	private Label createServerStatusLabel(final Composite parent) {
