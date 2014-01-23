@@ -82,9 +82,21 @@ public class ModuleManager implements ConnectionListener, ServerStateListener,
 	public synchronized void removeModuleManagerListener(final ModuleManagerListener listener) {
 		moduleManagerListeners.remove(listener);
 	}
-
+	
 	@Override
-	public synchronized void serverStarted(ConnectionManager newConnectionManager, UDPMulticastBeacon beacon) {
+	public void serverStateChanged(final ServerState state, final ConnectionManager connectionManager, final UDPMulticastBeacon beacon) {
+		switch (state) {
+		case RUNNING:
+			serverStarted(connectionManager);
+			break;
+			
+		case STOPPED:
+			serverStopped();
+			break;
+		}
+	}
+
+	private synchronized void serverStarted(ConnectionManager newConnectionManager) {
 		if (connectionManager != null) {
 			connectionManager.removeConnectionListener(this);
 		}
@@ -105,8 +117,7 @@ public class ModuleManager implements ConnectionListener, ServerStateListener,
 		}
 	}
 
-	@Override
-	public synchronized void serverStopped() {
+	private synchronized void serverStopped() {
 		if (connectionManager != null) {
 			connectionManager.removeConnectionListener(this);
 		}

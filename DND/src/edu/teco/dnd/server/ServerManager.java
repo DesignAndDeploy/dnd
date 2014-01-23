@@ -142,6 +142,10 @@ public class ServerManager {
 				LOGGER.exit();
 				return;
 			}
+			
+			for (final ServerStateListener listener : serverStateListener) {
+				listener.serverStateChanged(ServerState.STARTING, null, null);
+			}
 
 			applicationEventLoopGroup = new NioEventLoopGroup();
 			EventLoopGroup networkEventLoopGroup = new NioEventLoopGroup();
@@ -169,7 +173,7 @@ public class ServerManager {
 			}, oioEventLoopGroup, networkEventLoopGroup, uuid, interval, timeUnit);
 
 			for (final ServerStateListener listener : serverStateListener) {
-				listener.serverStarted(connectionManager, beacon);
+				listener.serverStateChanged(ServerState.RUNNING, connectionManager, beacon);
 			}
 		} finally {
 			serverStateLock.writeLock().unlock();
@@ -301,6 +305,11 @@ public class ServerManager {
 			if (connectionManager == null) {
 				return;
 			}
+			
+			for (final ServerStateListener listener : serverStateListener) {
+				listener.serverStateChanged(ServerState.STOPPING, connectionManager, beacon);
+			}
+			
 			connectionManager.shutdown();
 			beacon.shutdown();
 		} finally {
@@ -332,7 +341,7 @@ public class ServerManager {
 					}
 					eventExecutorGroups.clear();
 					for (final ServerStateListener listener : serverStateListener) {
-						listener.serverStopped();
+						listener.serverStateChanged(ServerState.STOPPED, null, null);
 					}
 				} finally {
 					serverStateLock.writeLock().unlock();
@@ -363,9 +372,9 @@ public class ServerManager {
 		try {
 			serverStateListener.add(listener);
 			if (connectionManager == null) {
-				listener.serverStopped();
+				listener.serverStateChanged(ServerState.STOPPED, null, null);
 			} else {
-				listener.serverStarted(connectionManager, beacon);
+				listener.serverStateChanged(ServerState.RUNNING, connectionManager, beacon);
 			}
 		} finally {
 			serverStateLock.writeLock().unlock();
@@ -378,6 +387,15 @@ public class ServerManager {
 			serverStateListener.remove(listener);
 		} finally {
 			serverStateLock.writeLock().unlock();
+		}
+	}
+
+	public ServerState getState() {
+		LOGGER.entry();
+		if (isRunning()) {
+			return ServerState.RUNNING;
+		} else {
+			return ServerState.STOPPED;
 		}
 	}
 

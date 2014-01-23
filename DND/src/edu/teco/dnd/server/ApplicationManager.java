@@ -128,7 +128,18 @@ public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUI
 	}
 
 	@Override
-	public void serverStarted(ConnectionManager connectionManager, UDPMulticastBeacon beacon) {
+	public void serverStateChanged(ServerState state, ConnectionManager connectionManager, UDPMulticastBeacon beacon) {
+		switch (state) {
+		case RUNNING:
+			serverStarted(connectionManager);
+			break;
+			
+		case STOPPED:
+			serverStopped();
+		}
+	}
+
+	private void serverStarted(ConnectionManager connectionManager) {
 		apps.clear();
 		query = new ApplicationQuery(connectionManager);
 		for (ApplicationManagerListener listener : listeners) {
@@ -136,8 +147,7 @@ public class ApplicationManager implements FutureListener<FutureNotifier<Map<UUI
 		}
 	}
 
-	@Override
-	public void serverStopped() {
+	private void serverStopped() {
 		apps.clear();
 		for (ApplicationManagerListener listener : listeners) {
 			listener.serverOffline();

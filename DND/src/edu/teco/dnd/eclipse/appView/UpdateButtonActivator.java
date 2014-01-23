@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Button;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.server.ServerState;
 import edu.teco.dnd.server.ServerStateListener;
 
 /**
@@ -52,14 +53,17 @@ class UpdateButtonActivator implements ServerStateListener {
 		});
 		LOGGER.exit();
 	}
-
+	
 	@Override
-	public void serverStarted(final ConnectionManager connectionManager, final UDPMulticastBeacon beacon) {
-		setState(true);
-	}
-
-	@Override
-	public void serverStopped() {
-		setState(false);
+	public void serverStateChanged(final ServerState state, final ConnectionManager connectionManager, final UDPMulticastBeacon beacon) {
+		switch (state) {
+		case RUNNING:
+			setState(true);
+			break;
+			
+		case STOPPED:
+			setState(false);
+			break;
+		}
 	}
 }
