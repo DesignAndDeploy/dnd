@@ -34,7 +34,7 @@
       <view id="edu.teco.dnd.eclipse.ViewModule"
     		category="edu.teco.dnd.viewCategory"
             name="%moduleview.name"
-            class="edu.teco.dnd.eclipse.ModuleView"/>
+            class="edu.teco.dnd.eclipse.moduleView.ModuleView"/>
       <view id="edu.teco.dnd.eclipse.ViewApp"
       		category="edu.teco.dnd.viewCategory"
             name="%applicationview.name"
