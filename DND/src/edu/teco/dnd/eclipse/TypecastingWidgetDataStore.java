@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.appView;
+package edu.teco.dnd.eclipse;
 
 import org.eclipse.swt.widgets.Widget;
 

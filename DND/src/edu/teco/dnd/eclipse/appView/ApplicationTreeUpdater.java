@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.eclipse.DisplayUtil;
+import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
 
