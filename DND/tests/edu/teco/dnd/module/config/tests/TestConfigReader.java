@@ -27,6 +27,7 @@ import edu.teco.dnd.util.NetConnection;
 public class TestConfigReader extends ConfigReader {
 
 	private String name;
+	private String location;
 	private UUID moduleUuid = UUID.randomUUID();
 	private int maxAppthreads = 0;
 	private boolean allowNIO = true;
@@ -46,6 +47,8 @@ public class TestConfigReader extends ConfigReader {
 	 * 
 	 * @param name
 	 *            moduleName (humanReadable)
+	 * @param location
+	 *            module location
 	 * @param moduleUuid
 	 *            moduleUUID...
 	 * @param maxAppthreads
@@ -61,11 +64,12 @@ public class TestConfigReader extends ConfigReader {
 	 * @param allowedBlocks
 	 *            Tree of blockTypes allowed to run (see BlockTypeHolder)
 	 */
-	public TestConfigReader(String name, UUID moduleUuid, int maxAppthreads, boolean allowNIO,
+	public TestConfigReader(String name, String location, UUID moduleUuid, int maxAppthreads, boolean allowNIO,
 			InetSocketAddress[] listen, InetSocketAddress[] announce, NetConnection[] multicast,
 			BlockTypeHolder allowedBlocks) {
 
 		this.name = name;
+		this.location = location;
 		this.moduleUuid = moduleUuid;
 		this.maxAppthreads = maxAppthreads;
 		this.allowNIO = allowNIO;
@@ -88,6 +92,7 @@ public class TestConfigReader extends ConfigReader {
 	 */
 	public static TestConfigReader getPredefinedReader() throws SocketException {
 		String name = "ConfReadName";
+		String location = "location";
 		UUID moduleUuid = UUID.fromString("12345678-9abc-def0-1234-56789abcdef0");
 		int maxAppthreads = 0;
 
@@ -111,7 +116,8 @@ public class TestConfigReader extends ConfigReader {
 		firstLevelChild.add(new BlockTypeHolder(secondLevelChild, 1));
 		BlockTypeHolder allowedBlocks = new BlockTypeHolder(firstLevelChild, 0);
 
-		return new TestConfigReader(name, moduleUuid, maxAppthreads, true, listen, announce, multicast, allowedBlocks);
+		return new TestConfigReader(name, location, moduleUuid, maxAppthreads, true, listen, announce, multicast,
+				allowedBlocks);
 	}
 
 	/**
@@ -148,6 +154,11 @@ public class TestConfigReader extends ConfigReader {
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getLocation() {
+		return location;
 	}
 
 	@Override

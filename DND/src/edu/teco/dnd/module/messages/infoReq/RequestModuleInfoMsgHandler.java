@@ -28,7 +28,8 @@ public class RequestModuleInfoMsgHandler implements MessageHandler<RequestModule
 
 	@Override
 	public Response handleMessage(UUID remoteUUID, RequestModuleInfoMessage message) {
-		return new ModuleInfoMessage(new ModuleInfo(conf.getUuid(), conf.getName(), conf.getBlockRoot()));
+		return new ModuleInfoMessage(new ModuleInfo(conf.getUuid(), conf.getName(), conf.getLocation(),
+				conf.getBlockRoot()));
 	}
 
 }

@@ -27,9 +27,10 @@ public class ModuleInfo {
 	 * @param holder
 	 *            BlockTypeHolder of the module.
 	 */
-	public ModuleInfo(UUID id, String name, BlockTypeHolder holder) {
+	public ModuleInfo(UUID id, String name, String location, BlockTypeHolder holder) {
 		this.uuid = id;
 		this.name = name;
+		this.location = location;
 		this.holder = holder;
 	}
 

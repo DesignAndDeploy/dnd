@@ -34,6 +34,7 @@ public class JsonConfig extends ConfigReader {
 	private static final int DEFAULT_ANNOUNCE_INTERVAL = 5;
 
 	private String name;
+	private String location;
 	private UUID uuid = UUID.randomUUID();
 	private int maxAppthreads = 0;
 	private boolean allowNIO = true;
@@ -99,6 +100,7 @@ public class JsonConfig extends ConfigReader {
 		}
 
 		this.name = oldConf.name;
+		this.location = oldConf.location;
 		this.maxAppthreads = oldConf.maxAppthreads;
 		this.allowNIO = oldConf.allowNIO;
 		if (oldConf.uuid != null) {
@@ -186,6 +188,11 @@ public class JsonConfig extends ConfigReader {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public String getLocation() {
+		return location;
 	}
 
 	@Override

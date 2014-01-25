@@ -52,6 +52,13 @@ public abstract class ConfigReader {
 	public abstract String getName();
 
 	/**
+	 * Returns the location of the Module. May be null.
+	 * 
+	 * @return the location of the Module or null if unset.
+	 */
+	public abstract String getLocation();
+
+	/**
 	 * @return the uuid of this module.
 	 */
 	public abstract UUID getUuid();
