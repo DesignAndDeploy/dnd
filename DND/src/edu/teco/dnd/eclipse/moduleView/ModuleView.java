@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -23,6 +22,7 @@ public class ModuleView extends ViewPart {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleView.class);
 
 	private final StartStopButtonActivator startStopButtonActivator = new StartStopButtonActivator();
+	private final ModuleTableUpdater moduleTableUpdater = new ModuleTableUpdater();
 
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
@@ -31,6 +31,7 @@ public class ModuleView extends ViewPart {
 
 		final ServerManager serverManager = Activator.getDefault().getServerManager();
 		startStopButtonActivator.setServerManager(serverManager);
+		moduleTableUpdater.setModuleManager(serverManager.getModuleManager());
 		LOGGER.exit();
 	}
 
@@ -40,6 +41,8 @@ public class ModuleView extends ViewPart {
 		super.dispose();
 		startStopButtonActivator.setStartStopButton(null);
 		startStopButtonActivator.setServerManager(null);
+		moduleTableUpdater.setModuleTable(null);
+		moduleTableUpdater.setModuleManager(null);
 		LOGGER.exit();
 	}
 
@@ -97,8 +100,7 @@ public class ModuleView extends ViewPart {
 			column.pack();
 		}
 
-		TableItem temp = new TableItem(moduleTable, SWT.NONE);
-		temp.setText(new String[] { "foo", "bar", "baz" });
+		moduleTableUpdater.setModuleTable(moduleTable);
 
 		return moduleTable;
 	}
