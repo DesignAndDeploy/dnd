@@ -34,6 +34,10 @@ public class ModuleInfo {
 		this.holder = holder;
 	}
 
+	public ModuleInfo(final UUID id) {
+		this(id, null, null, null);
+	}
+
 	/**
 	 * Returns the BlockTypeHolder of this module.
 	 * 
