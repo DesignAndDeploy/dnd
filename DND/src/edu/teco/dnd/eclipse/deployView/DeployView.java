@@ -59,8 +59,8 @@ import edu.teco.dnd.util.StringUtil;
 
 /**
  * This class gives the user access to all functionality needed to deploy an application. The user can load an existing
- * data flow graph, rename its function blocks and constrain them to specific modules and / or locations. The user can also
- * create a distribution and deploy the function blocks on the modules.
+ * data flow graph, rename its function blocks and constrain them to specific modules and / or locations. The user can
+ * also create a distribution and deploy the function blocks on the modules.
  * 
  */
 public class DeployView extends EditorPart implements ModuleManagerListener,
@@ -169,9 +169,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	/**
 	 * To be invoked before constraints are saved. This method does basically the same things like updateBlocks(), but
-	 * doesn't change the text fields for name, location and module to be assigned to a block. Therefore, whatever the user
-	 * entered in these fields will still be available after the update and not be changed to the name and position the
-	 * block has within the graphiti diagram, so the constraints can still be saved for the selected block.
+	 * doesn't change the text fields for name, location and module to be assigned to a block. Therefore, whatever the
+	 * user entered in these fields will still be available after the update and not be changed to the name and position
+	 * the block has within the graphiti diagram, so the constraints can still be saved for the selected block.
 	 */
 	private void updateBlocksForConstraints() {
 		LOGGER.entry();
@@ -303,8 +303,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	protected void distribute() {
 		LOGGER.entry();
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
-		synchronized (this){
-			constraints.add(new UserConstraints(new HashMap<FunctionBlockModel, UUID>(moduleConstraints), locationConstraints));
+		synchronized (this) {
+			constraints.add(new UserConstraints(new HashMap<FunctionBlockModel, UUID>(moduleConstraints),
+					locationConstraints));
 		}
 
 		Distribution dist = null;
@@ -354,7 +355,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 
 		final Dependencies dependencies =
-				new Dependencies(StringUtil.joinArray(classPath, Messages.DEPLOY_COLON), Arrays.asList(Pattern.compile("java\\..*"), //$NON-NLS-2$ //$NON-NLS-1$
+				new Dependencies(StringUtil.joinArray(classPath, Messages.DEPLOY_COLON), Arrays.asList(
+						Pattern.compile("java\\..*"), //$NON-NLS-2$ //$NON-NLS-1$
 						Pattern.compile("edu\\.teco\\.dnd\\..*"), Pattern.compile("com\\.google\\.gson\\..*"), //$NON-NLS-1$ //$NON-NLS-2$
 						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"), //$NON-NLS-1$ //$NON-NLS-2$
 						Pattern.compile("org\\.apache\\.logging\\.log4j"))); //$NON-NLS-1$
@@ -434,13 +436,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		}
 		try {
 			Pattern.compile(newName);
-		} catch (PatternSyntaxException e){
+		} catch (PatternSyntaxException e) {
 			warn(Messages.DEPLOY_NO_REGEX_NAME);
 			graphicsManager.addNewInfoText(Messages.DEPLOY_CONSTRAINTS_NOT_SAVED);
 			return;
-			
+
 		}
-		
+
 		if (selectedIndex > 0) {
 			selectedID = idList.get(selectedIndex - 1);
 		} else {
@@ -591,7 +593,8 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	private Collection<FunctionBlockModel> loadInput(final FileEditorInput input) throws IOException {
 		LOGGER.entry(input);
 		Collection<FunctionBlockModel> blockModelList = new ArrayList<FunctionBlockModel>();
-		graphicsManager.setAppName(input.getFile().getName().replaceAll("\\.blocks", Messages.DEPLOYGRAPHICS_EMPTYSTRING)); //$NON-NLS-1$ //$NON-NLS-2$
+		graphicsManager.setAppName(input.getFile().getName()
+				.replaceAll("\\.blocks", Messages.DEPLOYGRAPHICS_EMPTYSTRING)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		URI uri = URI.createURI(input.getURI().toASCIIString());
 		resource = new XMIResourceImpl(uri);
