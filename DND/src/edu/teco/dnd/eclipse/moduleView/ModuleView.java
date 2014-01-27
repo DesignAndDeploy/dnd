@@ -30,7 +30,7 @@ public class ModuleView extends ViewPart {
 
 		final ServerManager serverManager = Activator.getDefault().getServerManager();
 		startStopButtonActivator.setServerManager(serverManager);
-		moduleTableUpdater.setModuleManager(serverManager.getModuleManager());
+		moduleTableUpdater.setServerManager(serverManager);
 		LOGGER.exit();
 	}
 
@@ -41,7 +41,7 @@ public class ModuleView extends ViewPart {
 		startStopButtonActivator.setStartStopButton(null);
 		startStopButtonActivator.setServerManager(null);
 		moduleTableUpdater.setModuleTable(null);
-		moduleTableUpdater.setModuleManager(null);
+		moduleTableUpdater.setServerManager(null);
 		LOGGER.exit();
 	}
 

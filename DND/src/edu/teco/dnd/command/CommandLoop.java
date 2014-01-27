@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 import edu.teco.dnd.deploy.Deploy;
@@ -68,7 +67,7 @@ public class CommandLoop {
 				break;
 			} else if (CREATE.equals(getInput)) {
 				dist = createDistribution();
-				if (distributionSucceeded(dist) && askForUserConfirm("Deploy now?")){
+				if (distributionSucceeded(dist) && askForUserConfirm("Deploy now?")) {
 					deployDistribution(dist);
 				}
 			} else if (DEPLOY.equals(getInput)) {
@@ -88,7 +87,7 @@ public class CommandLoop {
 	 * @return
 	 */
 	private Distribution createDistribution() {
-		Map<UUID, ModuleInfo> map = moduleManager.getMap();
+		Collection<ModuleInfo> modules = moduleManager.getModules();
 
 		Distribution dist = null;
 		try {
@@ -98,18 +97,15 @@ public class CommandLoop {
 		} catch (NoModulesException e) {
 			System.out.println("No running modules available. Wait for more modules to register.");
 			System.out.println("Currently running:");
-			for (UUID id : map.keySet()) {
-				if (map.get(id) != null) {
-					System.out.print(map.get(id).getName());
-				}
-				System.out.println(" : " + id.toString());
+			for (final ModuleInfo module : modules) {
+				System.out.println(module);
 			}
 		}
 		return dist;
 	}
 
 	private boolean distributionSucceeded(Distribution dist) {
-		if (dist == null){
+		if (dist == null) {
 			System.out.println("No distribution exists.");
 			return false;
 		}
@@ -128,10 +124,9 @@ public class CommandLoop {
 			return;
 		}
 		final Dependencies dependencies =
-				new Dependencies(Arrays.asList(Pattern.compile("java\\..*"),
-						Pattern.compile("edu\\.teco\\.dnd\\..*"), Pattern.compile("com\\.google\\.gson\\..*"),
-						Pattern.compile("org\\.apache\\.bcel\\..*"), Pattern.compile("io\\.netty\\..*"),
-						Pattern.compile("org\\.apache\\.logging\\.log4j")));
+				new Dependencies(Arrays.asList(Pattern.compile("java\\..*"), Pattern.compile("edu\\.teco\\.dnd\\..*"),
+						Pattern.compile("com\\.google\\.gson\\..*"), Pattern.compile("org\\.apache\\.bcel\\..*"),
+						Pattern.compile("io\\.netty\\..*"), Pattern.compile("org\\.apache\\.logging\\.log4j")));
 		final Deploy deploy =
 				new Deploy(ServerManager.getDefault().getConnectionManager(), dist.getMapping(), appName, dependencies);
 		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes

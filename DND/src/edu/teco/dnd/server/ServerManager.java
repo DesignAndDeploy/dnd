@@ -85,7 +85,7 @@ public class ServerManager {
 
 	private final ReadWriteLock serverStateLock = new ReentrantReadWriteLock();
 
-	private static ModuleManager moduleManager;
+	private final ModuleManager moduleManager;
 
 	private static ApplicationManager applicationManager;
 
@@ -93,7 +93,6 @@ public class ServerManager {
 		synchronized (ServerManager.class) {
 			if (serverManager == null) {
 				serverManager = new ServerManager();
-				moduleManager = new ModuleManager();
 				applicationManager = new ApplicationManager();
 			}
 			return serverManager;
@@ -102,6 +101,7 @@ public class ServerManager {
 
 	private ServerManager() {
 		uuid = UUID.randomUUID();
+		moduleManager = new ModuleManager(this);
 	}
 
 	/**

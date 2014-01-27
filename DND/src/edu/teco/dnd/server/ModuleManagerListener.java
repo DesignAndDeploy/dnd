@@ -1,57 +1,36 @@
 package edu.teco.dnd.server;
 
-import java.util.Map;
-import java.util.UUID;
-
 import edu.teco.dnd.module.ModuleInfo;
 
 /**
- * Provides information on running Modules (UUIDs and ModuleInfo objects) and on Server State. In general: All information
- * needed by the views and editors, can be extended if additional information needed.
+ * These listeners are informed by a {@link ModuleManager} once new Modules are discovered, their information is fetched
+ * and when they disconnect.
  * 
- * @author jung
- * 
+ * @author Philipp Adolf
  */
 public interface ModuleManagerListener {
-
 	/**
-	 * Informs that a module has been connected.
+	 * This method is called once a new Module is connected.
 	 * 
-	 * @param id
-	 *            UUID of the module.
+	 * @param moduleInfo
+	 *            the information known about the Module. This will only be the UUID most of the time, the other entries
+	 *            may be null
 	 */
-	void moduleOnline(UUID id);
+	void moduleAdded(ModuleInfo moduleInfo);
 
 	/**
-	 * Informs that a module has been disconnected.
+	 * This method is called when a Module disconnects.
 	 * 
-	 * @param id
-	 *            UUID of the ModuleInfo.
-	 * @param module
-	 *            ModuleInfo that has been removed. Might be null if module was not resolved before.
+	 * @param moduleInfo
+	 *            the information that was known about the Module when it disconnect. May only be the UUID.
 	 */
-	void moduleOffline(UUID id, ModuleInfo module);
+	void moduleRemoved(ModuleInfo moduleInfo);
 
 	/**
-	 * Informs that UUID has been resolved to a module.
+	 * This method is called when new information about a Module is known.
 	 * 
-	 * @param id
-	 *            UUID of the module
-	 * @param module
-	 *            the ModuleInfo itself
+	 * @param moduleInfo
+	 *            the information known about the Module. Only the UUID is guaranteed to be set.
 	 */
-	void moduleResolved(UUID id, ModuleInfo module);
-
-	/**
-	 * Informs that server is Online and provides HashMap of Modules that are already running.
-	 * 
-	 * @return
-	 */
-	void serverOnline(Map<UUID, ModuleInfo> modules);
-
-	/**
-	 * Informs that server is offline.
-	 */
-	void serverOffline();
-
+	void moduleUpdated(ModuleInfo moduleInfo);
 }

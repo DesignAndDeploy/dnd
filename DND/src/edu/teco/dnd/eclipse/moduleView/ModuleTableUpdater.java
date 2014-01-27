@@ -1,8 +1,5 @@
 package edu.teco.dnd.eclipse.moduleView;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,22 +11,27 @@ import org.eclipse.swt.widgets.TableItem;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
 import edu.teco.dnd.module.ModuleInfo;
+import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ModuleManagerListener;
+import edu.teco.dnd.server.ServerManager;
+import edu.teco.dnd.server.ServerState;
+import edu.teco.dnd.server.ServerStateListener;
 
 /**
  * Used to fill the table in {@link ModuleView} based on discovered Modules.
  */
 // All non-private methods are simply a wrapper to execute the code in SWT's display thread and are therefore thread-
 // safe
-class ModuleTableUpdater implements ModuleManagerListener {
+class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleTableUpdater.class);
 
 	public static TypecastingWidgetDataStore<UUID> MODULE_UUID_STORE = new TypecastingWidgetDataStore<UUID>(UUID.class,
 			"module uuid");
 
 	private Table moduleTable = null;
-	private ModuleManager moduleManager = null;
+	private ServerManager serverManager = null;
 
 	void setModuleTable(final Table moduleTable) {
 		LOGGER.entry(moduleTable);
@@ -38,8 +40,11 @@ class ModuleTableUpdater implements ModuleManagerListener {
 			public void run() {
 				LOGGER.entry(moduleTable);
 				ModuleTableUpdater.this.moduleTable = moduleTable;
-				if (moduleTable != null && moduleManager != null) {
-					fillModuleTable(moduleTable, moduleManager.getMap());
+				if (serverManager != null) {
+					// Re-add as listener so that moduleTable gets filled
+					final ModuleManager moduleManager = serverManager.getModuleManager();
+					moduleManager.removeListener(ModuleTableUpdater.this);
+					moduleManager.addListener(ModuleTableUpdater.this);
 				}
 				LOGGER.exit();
 			}
@@ -47,19 +52,24 @@ class ModuleTableUpdater implements ModuleManagerListener {
 		LOGGER.exit();
 	}
 
-	void setModuleManager(final ModuleManager moduleManager) {
-		LOGGER.entry(moduleManager);
+	void setServerManager(final ServerManager newServerManager) {
+		LOGGER.entry(newServerManager);
 		DisplayUtil.getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				LOGGER.entry(moduleManager);
-				if (ModuleTableUpdater.this.moduleManager != null) {
-					ModuleTableUpdater.this.moduleManager.removeModuleManagerListener(ModuleTableUpdater.this);
+				LOGGER.entry(newServerManager);
+				if (serverManager != null) {
+					serverManager.removeServerStateListener(ModuleTableUpdater.this);
+					serverManager.getModuleManager().removeListener(ModuleTableUpdater.this);
+					if (moduleTable != null) {
+						moduleTable.removeAll();
+					}
 				}
 
-				ModuleTableUpdater.this.moduleManager = moduleManager;
-				if (moduleManager != null) {
-					moduleManager.addModuleManagerListener(ModuleTableUpdater.this);
+				ModuleTableUpdater.this.serverManager = newServerManager;
+				if (newServerManager != null) {
+					newServerManager.addServerStateListener(ModuleTableUpdater.this);
+					newServerManager.getModuleManager().addListener(ModuleTableUpdater.this);
 				}
 				LOGGER.exit();
 			}
@@ -68,18 +78,18 @@ class ModuleTableUpdater implements ModuleManagerListener {
 	}
 
 	@Override
-	public void moduleOnline(final UUID id) {
-		LOGGER.entry(id);
+	public void moduleAdded(final ModuleInfo module) {
+		LOGGER.entry(module);
 		DisplayUtil.getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				LOGGER.entry(id);
-				if (moduleTable == null || id == null) {
+				LOGGER.entry(module);
+				if (moduleTable == null || module == null) {
 					return;
 				}
-				final int index = getIndex(moduleTable, id);
+				final int index = getIndex(moduleTable, module.getUUID());
 				if (index < 0) {
-					addModule(moduleTable, id);
+					addModule(moduleTable, module);
 				}
 				LOGGER.exit();
 			}
@@ -88,16 +98,16 @@ class ModuleTableUpdater implements ModuleManagerListener {
 	}
 
 	@Override
-	public void moduleOffline(final UUID id, final ModuleInfo module) {
-		LOGGER.entry(id, module);
+	public void moduleRemoved(final ModuleInfo module) {
+		LOGGER.entry(module);
 		DisplayUtil.getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				LOGGER.entry(id, module);
-				if (moduleTable == null || id == null) {
+				LOGGER.entry(module);
+				if (moduleTable == null || module == null) {
 					return;
 				}
-				final int index = getIndex(moduleTable, id);
+				final int index = getIndex(moduleTable, module.getUUID());
 				if (index >= 0) {
 					moduleTable.remove(index);
 				}
@@ -108,19 +118,19 @@ class ModuleTableUpdater implements ModuleManagerListener {
 	}
 
 	@Override
-	public void moduleResolved(final UUID id, final ModuleInfo module) {
-		LOGGER.entry(id, module);
+	public void moduleUpdated(final ModuleInfo module) {
+		LOGGER.entry(module);
 		DisplayUtil.getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				LOGGER.entry(id, module);
-				if (moduleTable == null || id == null) {
+				LOGGER.entry(module);
+				if (moduleTable == null || module == null) {
 					return;
 				}
-				final int index = getIndex(moduleTable, id);
+				final int index = getIndex(moduleTable, module.getUUID());
 				TableItem item = null;
 				if (index < 0) {
-					item = addModule(moduleTable, id);
+					item = addModule(moduleTable, module);
 				} else {
 					item = moduleTable.getItem(index);
 				}
@@ -132,28 +142,16 @@ class ModuleTableUpdater implements ModuleManagerListener {
 	}
 
 	@Override
-	public void serverOnline(final Map<UUID, ModuleInfo> modules) {
-		LOGGER.entry(modules);
-		DisplayUtil.getDisplay().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				LOGGER.entry(modules);
-				if (moduleTable == null) {
-					return;
-				}
-				if (modules == null) {
-					fillModuleTable(moduleTable, Collections.<UUID, ModuleInfo> emptyMap());
-				} else {
-					fillModuleTable(moduleTable, modules);
-				}
-				LOGGER.exit();
-			}
-		});
-		LOGGER.exit();
+	public void serverStateChanged(final ServerState state, final ConnectionManager connectionManager,
+			final UDPMulticastBeacon beacon) {
+		switch (state) {
+		case STOPPING:
+		case STOPPED:
+			serverOffline();
+		}
 	}
 
-	@Override
-	public void serverOffline() {
+	private void serverOffline() {
 		LOGGER.entry();
 		DisplayUtil.getDisplay().syncExec(new Runnable() {
 			@Override
@@ -168,42 +166,23 @@ class ModuleTableUpdater implements ModuleManagerListener {
 		LOGGER.exit();
 	}
 
-	private void fillModuleTable(final Table moduleTable, final Map<UUID, ModuleInfo> modules) {
-		LOGGER.entry(moduleTable, modules);
-		assert moduleTable != null;
-		assert modules != null;
-		moduleTable.removeAll();
-		for (final Entry<UUID, ModuleInfo> module : modules.entrySet()) {
-			final TableItem column = addModule(moduleTable, module.getKey());
-			setModuleInfo(column, module.getValue());
-		}
-		LOGGER.exit();
-	}
-
-	private TableItem addModule(final Table moduleTable, final UUID moduleID) {
-		LOGGER.entry(moduleTable, moduleID);
+	private TableItem addModule(final Table moduleTable, final ModuleInfo module) {
+		LOGGER.entry(moduleTable, module);
 		assert moduleTable != null;
 		final TableItem item = new TableItem(moduleTable, SWT.NONE);
-		setModuleID(item, moduleID);
+		setModuleInfo(item, module);
 		return LOGGER.exit(item);
 	}
 
 	private void setModuleInfo(final TableItem item, final ModuleInfo moduleInfo) {
 		LOGGER.entry(item, moduleInfo);
 		assert item != null;
-		if (moduleInfo != null) {
-			setModuleID(item, moduleInfo.getUUID());
-			item.setText(1, "" + moduleInfo.getName());
-			item.setText(2, "" + moduleInfo.getLocation());
-		}
-		LOGGER.exit();
-	}
+		assert moduleInfo != null;
 
-	private void setModuleID(final TableItem item, final UUID moduleID) {
-		LOGGER.entry(item, moduleID);
-		assert item != null;
-		item.setText(0, "" + moduleID);
-		MODULE_UUID_STORE.store(item, moduleID);
+		MODULE_UUID_STORE.store(item, moduleInfo.getUUID());
+		item.setText(0, "" + moduleInfo.getUUID());
+		item.setText(1, "" + moduleInfo.getName());
+		item.setText(2, "" + moduleInfo.getLocation());
 		LOGGER.exit();
 	}
 

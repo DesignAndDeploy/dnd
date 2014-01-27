@@ -308,6 +308,7 @@ public class ClientChannelManager implements RemoteUUIDResolver {
 	 * @param listener the ConnectionListener to add
 	 */
 	public void addConnectionListener(final ConnectionListener listener) {
+		// TODO: listener should be informed about all existing connections
 		delegatingConnectionListener.addListener(listener);
 	}
 

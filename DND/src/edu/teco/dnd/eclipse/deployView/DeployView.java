@@ -46,16 +46,19 @@ import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
+import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.server.DistributionCreator;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ModuleManagerListener;
 import edu.teco.dnd.server.NoBlocksException;
 import edu.teco.dnd.server.NoModulesException;
 import edu.teco.dnd.server.ServerManager;
+import edu.teco.dnd.server.ServerState;
+import edu.teco.dnd.server.ServerStateListener;
 import edu.teco.dnd.util.Dependencies;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
-import edu.teco.dnd.util.JoinedFutureNotifier;
 import edu.teco.dnd.util.StringUtil;
 
 /**
@@ -64,8 +67,7 @@ import edu.teco.dnd.util.StringUtil;
  * also create a distribution and deploy the function blocks on the modules.
  * 
  */
-public class DeployView extends EditorPart implements ModuleManagerListener,
-		FutureListener<JoinedFutureNotifier<ModuleInfo>> {
+public class DeployView extends EditorPart implements ServerStateListener, ModuleManagerListener {
 
 	/**
 	 * The logger for this class.
@@ -106,8 +108,9 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		setSite(site);
 		setInput(input);
 		serverManager = ServerManager.getDefault();
+		serverManager.addServerStateListener(this);
 		manager = serverManager.getModuleManager();
-		manager.addModuleManagerListener(this);
+		manager.addListener(this);
 		mapBlockToTarget = new HashMap<FunctionBlockModel, BlockTarget>();
 		LOGGER.exit();
 	}
@@ -131,8 +134,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 */
 	protected void updateModules() {
 		if (ServerManager.getDefault().isRunning()) {
-			FutureNotifier<Collection<ModuleInfo>> notifier = manager.updateModuleInfo();
-			notifier.addListener(this);
+			manager.update();
 		} else {
 			warn(Messages.DEPLOY_SERVER_NOT_RUNNING);
 			graphicsManager.addNewInfoText(Messages.DEPLOY_SERVER_NOT_RUNNING_INFO);
@@ -663,17 +665,17 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	@Override
 	public void dispose() {
-		manager.removeModuleManagerListener(this);
+		manager.removeListener(this);
 	}
 
 	@Override
-	public void moduleOnline(final UUID id) {
-		LOGGER.entry(id);
+	public void moduleAdded(final ModuleInfo module) {
+		LOGGER.entry(module);
 		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
-					addID(id);
+					addID(module.getUUID());
 				}
 			}
 		});
@@ -681,13 +683,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	@Override
-	public void moduleOffline(final UUID id, ModuleInfo module) {
-		LOGGER.entry(id);
+	public void moduleRemoved(final ModuleInfo module) {
+		LOGGER.entry(module);
 		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
-					removeID(id);
+					removeID(module.getUUID());
 				}
 			}
 		});
@@ -695,25 +697,26 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	}
 
 	@Override
-	public void moduleResolved(final UUID id, final ModuleInfo module) {
-
+	public void moduleUpdated(final ModuleInfo module) {
+		LOGGER.entry(module);
 		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public synchronized void run() {
 				if (widgetsInitialized) {
-					if (!idList.contains(id)) {
-						addID(id);
+					final UUID moduleID = module.getUUID();
+					if (!idList.contains(moduleID)) {
+						addID(moduleID);
 					}
 
-					int comboIndex = idList.indexOf(id) + 1;
+					int comboIndex = idList.indexOf(moduleID) + 1;
 					String text = Messages.DEPLOYGRAPHICS_EMPTYSTRING; //$NON-NLS-1$
 					if (module.getName() != null) {
 						text = module.getName();
 					}
 					text = text.concat(Messages.DEPLOY_COLON); //$NON-NLS-1$
-					text = text.concat(id.toString());
+					text = text.concat(moduleID.toString());
 					graphicsManager.setItemToModuleCombo(comboIndex, text);
-					if (moduleConstraints.containsValue(id)) {
+					if (moduleConstraints.containsValue(moduleID)) {
 						for (FunctionBlockModel blockModel : moduleConstraints.keySet()) {
 							graphicsManager.moduleRenamed(blockModel, text);
 						}
@@ -721,10 +724,23 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 				}
 			}
 		});
+		LOGGER.exit();
 	}
 
 	@Override
-	public void serverOnline(final Map<UUID, ModuleInfo> modules) {
+	public void serverStateChanged(final ServerState state, final ConnectionManager connectionManager,
+			final UDPMulticastBeacon beacon) {
+		switch (state) {
+		case RUNNING:
+			serverOnline();
+			break;
+
+		case STOPPED:
+			serverOffline();
+		}
+	}
+
+	private void serverOnline() {
 		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -736,17 +752,13 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 							removeID(idList.get(0)); // TODO: Unschön, aber geht
 														// hoffentlich?
 						}
-						for (UUID moduleID : modules.keySet()) {
-							addID(moduleID);
-						}
 					}
 				}
 			}
 		});
 	}
 
-	@Override
-	public void serverOffline() {
+	private void serverOffline() {
 		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -763,23 +775,4 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 			}
 		});
 	}
-
-	/**
-	 * Invoked whenever the update modules button was pressed and the update failed or is completed.
-	 */
-
-	@Override
-	public void operationComplete(final JoinedFutureNotifier<ModuleInfo> future) throws Exception {
-		DisplayUtil.getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (future.isSuccess()) {
-					graphicsManager.addNewInfoText(Messages.DEPLOY_MODULEUPDATE_COMPLETE);
-				} else {
-					graphicsManager.addNewInfoText(Messages.DEPLOY_MODULEUPDATE_FAILED);
-				}
-			}
-		});
-	}
-
 }

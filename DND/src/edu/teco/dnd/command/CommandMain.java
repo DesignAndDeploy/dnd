@@ -111,7 +111,7 @@ public class CommandMain {
 		ResourceSet newSet = new ResourceSetImpl();
 		newSet.setPackageRegistry(new EPackageRegistryImpl());
 		newSet.getPackageRegistry().put(ModelPackage.eNS_URI, ModelPackage.eINSTANCE);
-		
+
 		FunctionBlockLoader blockLoader = new FunctionBlockLoader(path);
 		blockLoader.loadBlocks();
 		functionBlocks = blockLoader.getBlocks();
@@ -119,7 +119,7 @@ public class CommandMain {
 		ServerManager.getDefault().startServer(multicast, listen, announce, default_interval);
 
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
-		ServerManager.getDefault().getModuleManager().addModuleManagerListener(moduleRegistrator);
+		ServerManager.getDefault().getModuleManager().addListener(moduleRegistrator);
 
 		CommandLoop loop = new CommandLoop(functionBlocks, blockLoader.getApplicationName());
 		loop.loop(createOrDeploy);

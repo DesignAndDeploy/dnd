@@ -25,7 +25,7 @@ public class DistributionCreator {
 
 	public static Distribution createDistribution(Collection<FunctionBlockModel> blocks,
 			Collection<Constraint> constraints) throws NoBlocksException, NoModulesException {
-		Collection<ModuleInfo> modules = ServerManager.getDefault().getModuleManager().getModuleCollection();
+		Collection<ModuleInfo> modules = ServerManager.getDefault().getModuleManager().getModules();
 		if (blocks == null || blocks.isEmpty()) {
 			throw new NoBlocksException();
 		}
