@@ -42,6 +42,7 @@ import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.eclipse.Activator;
+import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
@@ -71,7 +72,6 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
 
-	private Display display;
 	private ServerManager serverManager;
 	private ModuleManager manager;
 
@@ -106,12 +106,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		setSite(site);
 		setInput(input);
 		serverManager = ServerManager.getDefault();
-		display = Display.getCurrent();
 		manager = serverManager.getModuleManager();
-		if (display == null) {
-			display = Display.getDefault();
-			LOGGER.trace("Display.getCurrent() returned null, using Display.getDefault(): {}", display); //$NON-NLS-1$
-		}
 		manager.addModuleManagerListener(this);
 		mapBlockToTarget = new HashMap<FunctionBlockModel, BlockTarget>();
 		LOGGER.exit();
@@ -369,7 +364,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
 			@Override
 			public void operationComplete(final FutureNotifier<? super Void> future) {
-				display.asyncExec(new Runnable() {
+				DisplayUtil.getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						updateModules();
@@ -674,7 +669,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	@Override
 	public void moduleOnline(final UUID id) {
 		LOGGER.entry(id);
-		display.asyncExec(new Runnable() {
+		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
@@ -688,7 +683,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	@Override
 	public void moduleOffline(final UUID id, ModuleInfo module) {
 		LOGGER.entry(id);
-		display.asyncExec(new Runnable() {
+		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
@@ -702,7 +697,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 	@Override
 	public void moduleResolved(final UUID id, final ModuleInfo module) {
 
-		display.asyncExec(new Runnable() {
+		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public synchronized void run() {
 				if (widgetsInitialized) {
@@ -730,7 +725,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	@Override
 	public void serverOnline(final Map<UUID, ModuleInfo> modules) {
-		display.asyncExec(new Runnable() {
+		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
@@ -752,7 +747,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	@Override
 	public void serverOffline() {
-		display.asyncExec(new Runnable() {
+		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
@@ -775,7 +770,7 @@ public class DeployView extends EditorPart implements ModuleManagerListener,
 
 	@Override
 	public void operationComplete(final JoinedFutureNotifier<ModuleInfo> future) throws Exception {
-		display.asyncExec(new Runnable() {
+		DisplayUtil.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (future.isSuccess()) {
