@@ -7,7 +7,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IMemento;
@@ -51,7 +50,6 @@ public class ModuleView extends ViewPart {
 		LOGGER.entry(parent);
 		setLayout(parent);
 		createStartStopButton(parent);
-		createServerStatusLabel(parent);
 		createModuleTable(parent);
 		parent.pack();
 		LOGGER.exit();
@@ -63,23 +61,11 @@ public class ModuleView extends ViewPart {
 
 	private void createStartStopButton(final Composite parent) {
 		final Button startStopButton = new Button(parent, SWT.NONE);
-		startStopButton.setText(Messages.ModuleView_BUTTON_START_SERVER);
+		startStopButton.setText(Messages.StartStopButtonActivator_BUTTON_START_SERVER);
 		startStopButton.setToolTipText(Messages.ModuleView_START_STOP_BUTTON_TOOLTIP);
 
 		startStopButtonActivator.setStartStopButton(startStopButton);
 		startStopButton.addSelectionListener(new StartStopButtonListener(StartStopButtonActivator.SERVER_ACTION_STORE));
-	}
-
-	private Label createServerStatusLabel(final Composite parent) {
-		final Label serverStatusLabel = new Label(parent, SWT.NONE);
-
-		final GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		serverStatusLabel.setLayoutData(gridData);
-
-		serverStatusLabel.setText(Messages.ModuleView_SERVER_STOPPED);
-
-		return serverStatusLabel;
 	}
 
 	private Table createModuleTable(final Composite parent) {

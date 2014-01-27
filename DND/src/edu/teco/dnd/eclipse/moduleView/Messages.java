@@ -8,9 +8,6 @@ public class Messages extends NLS {
 	public static String ModuleView_COLUMN_MODULE_LOCATION;
 	public static String ModuleView_COLUMN_MODULE_ID;
 	public static String ModuleView_COLUMN_MODULE_NAME;
-	public static String ModuleView_SERVER_STOPPED;
-	public static String ModuleView_SERVER_RUNNING;
-	public static String ModuleView_BUTTON_START_SERVER;
 	public static String ModuleView_START_STOP_BUTTON_TOOLTIP;
 	public static String StartStopButtonActivator_BUTTON_ERROR;
 	public static String StartStopButtonActivator_BUTTON_SERVER_STARTING;
