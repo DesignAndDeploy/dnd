@@ -58,6 +58,19 @@ public class ApplicationInformation {
 		collection.add(value);
 	}
 
+	public ApplicationInformation combine(final ApplicationInformation other) {
+		if (other == null) {
+			throw new IllegalArgumentException("other must not be null");
+		}
+		if (!id.equals(other.id)) {
+			throw new IllegalArgumentException("other Application has a different ID");
+		}
+		final Collection<BlockInformation> newBlocks = new ArrayList<BlockInformation>();
+		newBlocks.addAll(this.getBlocks());
+		newBlocks.addAll(other.getBlocks());
+		return new ApplicationInformation(id, name, newBlocks);
+	}
+
 	public UUID getID() {
 		return id;
 	}

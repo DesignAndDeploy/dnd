@@ -3,11 +3,11 @@ package edu.teco.dnd.server;
 import java.net.InetSocketAddress;
 
 import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
-import edu.teco.dnd.module.messages.infoReq.ApplicationListResponse;
+import edu.teco.dnd.module.messages.infoReq.ApplicationInformationResponse;
 import edu.teco.dnd.module.messages.infoReq.ApplicationBlockIDAdapter;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessageAdapter;
-import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationInformationMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
@@ -70,8 +70,8 @@ public class TCPProtocol {
 		tcpConnectionManager.addMessageType(StartApplicationAck.class);
 		tcpConnectionManager.addMessageType(StartApplicationNak.class);
 		tcpConnectionManager.addMessageType(RequestModuleInfoMessage.class);
-		tcpConnectionManager.addMessageType(RequestApplicationListMessage.class);
-		tcpConnectionManager.addMessageType(ApplicationListResponse.class);
+		tcpConnectionManager.addMessageType(RequestApplicationInformationMessage.class);
+		tcpConnectionManager.addMessageType(ApplicationInformationResponse.class);
 		tcpConnectionManager.addMessageType(ModuleInfoMessage.class);
 	}
 }

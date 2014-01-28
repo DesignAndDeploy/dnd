@@ -28,8 +28,8 @@ import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
-import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMessage;
-import edu.teco.dnd.module.messages.infoReq.RequestApplicationListMsgHandler;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationInformationMessage;
+import edu.teco.dnd.module.messages.infoReq.RequestApplicationInformationMessageHandler;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMsgHandler;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
@@ -216,8 +216,8 @@ public final class ModuleMain {
 		tcpConnMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
 
 		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
-		tcpConnMan.addHandler(RequestApplicationListMessage.class,
-				new RequestApplicationListMsgHandler(moduleConfig.getUuid(), module));
+		tcpConnMan.addHandler(RequestApplicationInformationMessage.class,
+				new RequestApplicationInformationMessageHandler(moduleConfig.getUuid(), module));
 		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
 		tcpConnMan.addHandler(LoadClassMessage.class, new MissingApplicationHandler());
