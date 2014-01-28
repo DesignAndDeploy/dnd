@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import edu.teco.dnd.discover.ApplicationInformation;
+import edu.teco.dnd.discover.BlockInformation;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
 import edu.teco.dnd.server.ApplicationManager;
@@ -131,7 +132,7 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 
 		LOGGER.debug("adding TableItem for {} to {}", applicationInformation, applicationTree);
 		final TreeItem applicationItem = new TreeItem(tree, SWT.NONE);
-		applicationItem.setText(0, applicationInformation.getName() + " (" + applicationInformation.getAppId() + ")");
+		applicationItem.setText(0, applicationInformation.getName() + " (" + applicationInformation.getID() + ")");
 		APPLICATION_INFORMATION_STORE.store(applicationItem, applicationInformation);
 		for (final UUID moduleUUID : applicationInformation.getModules()) {
 			addModule(applicationItem, applicationInformation, moduleUUID);
@@ -155,8 +156,8 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 		LOGGER.trace("adding TableItem for module {} to {}", moduleUUID, applicationItem);
 		final TreeItem moduleItem = new TreeItem(applicationItem, SWT.NONE);
 		moduleItem.setText("" + moduleUUID);
-		for (final UUID blockID : applicationInformation.getBlocksRunningOn().get(moduleUUID)) {
-			addBlock(moduleItem, applicationInformation, blockID);
+		for (final BlockInformation block : applicationInformation.getBlocks(moduleUUID)) {
+			addBlock(moduleItem, applicationInformation, block);
 		}
 	}
 
@@ -171,9 +172,9 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 	 *            the ID of the FunctionBlock that should be added by this method
 	 */
 	private void addBlock(final TreeItem moduleItem, final ApplicationInformation applicationInformation,
-			final UUID blockID) {
-		LOGGER.trace("adding TableItem for block {} to {}", blockID, moduleItem);
+			final BlockInformation block) {
+		LOGGER.trace("adding TableItem for block {} to {}", block, moduleItem);
 		final TreeItem blockItem = new TreeItem(moduleItem, SWT.NONE);
-		blockItem.setText(applicationInformation.getBlockName(blockID) + " (" + blockID + ")");
+		blockItem.setText(block.getName() + " (" + block.getID() + ")");
 	}
 }

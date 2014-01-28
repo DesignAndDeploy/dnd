@@ -70,7 +70,7 @@ class KillButtonListener extends SelectionAdapter {
 			return;
 		}
 
-		final UUID applicationID = selectedApplication.getAppId();
+		final UUID applicationID = selectedApplication.getID();
 		final FutureNotifier<Void> killFutureNotifier = killApplication(applicationID);
 		if (killFutureNotifier == null) {
 			LOGGER.exit();

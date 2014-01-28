@@ -1,5 +1,6 @@
 package edu.teco.dnd.discover;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -194,17 +195,15 @@ public class ApplicationQuery {
 					Map<UUID, String> uuidToBlockType = applicationListResponse.getBlockTypes();
 					Map<ApplicationBlockID, String> applicationBlockIDToBlockName = applicationListResponse.getBlockNames();
 					for (UUID appID : appNames.keySet()) {
-						ApplicationInformation currentAppInfo = appInfos.get(appID);
-						if (currentAppInfo == null) {
-							// application is not yet known
-							currentAppInfo = new ApplicationInformation(appID, appNames.get(appID));
-							appInfos.put(appID, currentAppInfo);
-						}
+						final Collection<BlockInformation> blocks = new ArrayList<BlockInformation>();
 						for (UUID blockUUID : appBlocks.get(appID)) {
-							currentAppInfo.addBlockModulePair(blockUUID, currentModId);
-							currentAppInfo.addUUIDBlockTypePair(blockUUID, uuidToBlockType.get(blockUUID));
-							currentAppInfo.addBlockIDNamePair(blockUUID, applicationBlockIDToBlockName.get(new ApplicationBlockID(blockUUID, appID)));
+							blocks.add(new BlockInformation(blockUUID, applicationBlockIDToBlockName.get(new ApplicationBlockID(blockUUID, appID)), uuidToBlockType.get(blockUUID), currentModId));
 						}
+						ApplicationInformation oldAppInfo = appInfos.get(appID);
+						if (oldAppInfo != null) {
+							blocks.addAll(oldAppInfo.getBlocks());
+						}
+						appInfos.put(appID, new ApplicationInformation(appID, appNames.get(appID), blocks));
 					}
 
 				}
