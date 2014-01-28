@@ -14,8 +14,12 @@ import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.discover.BlockInformation;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
+import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
+import edu.teco.dnd.server.ServerState;
+import edu.teco.dnd.server.ServerStateListener;
 
 /**
  * This class is used to update the Tree used by {@link ApplicationView}.
@@ -23,7 +27,7 @@ import edu.teco.dnd.server.ApplicationManagerListener;
  * @author Philipp Adolf
  */
 // TODO: Add module names
-class ApplicationTreeUpdater implements ApplicationManagerListener {
+class ApplicationTreeUpdater implements ServerStateListener, ApplicationManagerListener {
 	private static final Logger LOGGER = LogManager.getLogger(ApplicationTreeUpdater.class);
 
 	public static final TypecastingWidgetDataStore<ApplicationInformation> APPLICATION_INFORMATION_STORE =
@@ -50,7 +54,7 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 		if (this.applicationManager != null) {
 			this.applicationManager.addApplicationListener(this);
 
-			fillTree(this.applicationManager.getApps());
+			fillTree(this.applicationManager.getApplications());
 		} else {
 			fillTree(Collections.<ApplicationInformation> emptyList());
 		}
@@ -70,7 +74,7 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 		if (applicationManager == null) {
 			fillTree(Collections.<ApplicationInformation> emptyList());
 		} else {
-			fillTree(applicationManager.getApps());
+			fillTree(applicationManager.getApplications());
 		}
 	}
 
@@ -82,12 +86,13 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 	}
 
 	@Override
-	public void serverOnline() {
-	}
-
-	@Override
-	public void serverOffline() {
-		fillTree(Collections.<ApplicationInformation> emptyList());
+	public synchronized void serverStateChanged(final ServerState state, final ConnectionManager connectionManager,
+			final UDPMulticastBeacon beacon) {
+		switch (state) {
+		case STOPPING:
+		case STOPPED:
+			fillTree(Collections.<ApplicationInformation> emptyList());
+		}
 	}
 
 	/**
@@ -96,7 +101,7 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 	 * @param applications
 	 *            the Applications that should be displayed
 	 */
-	private synchronized void fillTree(final Collection<ApplicationInformation> applications) {
+	private void fillTree(final Collection<ApplicationInformation> applications) {
 		LOGGER.entry(applications);
 		assert applications != null;
 
@@ -113,7 +118,7 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 				public void run() {
 					localApplicationTree.removeAll();
 
-					for (final ApplicationInformation application : applicationManager.getApps()) {
+					for (final ApplicationInformation application : applicationManager.getApplications()) {
 						addApplication(localApplicationTree, application);
 					}
 

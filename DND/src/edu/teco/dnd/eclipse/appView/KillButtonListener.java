@@ -158,7 +158,7 @@ class KillButtonListener extends SelectionAdapter {
 				LOGGER.debug("Failed to kill {}", applicationID);
 			}
 			synchronized (KillButtonListener.this) {
-				applicationManager.updateAppInfo();
+				applicationManager.update();
 			}
 		}
 	}

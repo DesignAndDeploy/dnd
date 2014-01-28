@@ -87,21 +87,19 @@ public class ServerManager {
 
 	private final ModuleManager moduleManager;
 
-	private static ApplicationManager applicationManager;
+	private final ApplicationManager applicationManager;
 
-	public static ServerManager getDefault() {
-		synchronized (ServerManager.class) {
-			if (serverManager == null) {
-				serverManager = new ServerManager();
-				applicationManager = new ApplicationManager();
-			}
-			return serverManager;
+	public synchronized static ServerManager getDefault() {
+		if (serverManager == null) {
+			serverManager = new ServerManager();
 		}
+		return serverManager;
 	}
 
 	private ServerManager() {
 		uuid = UUID.randomUUID();
 		moduleManager = new ModuleManager(this);
+		applicationManager = new ApplicationManager(this);
 	}
 
 	/**

@@ -120,7 +120,7 @@ public class ApplicationView extends ViewPart {
 		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			LOGGER.entry(e);
-			Activator.getDefault().getServerManager().getApplicationManager().updateAppInfo();
+			Activator.getDefault().getServerManager().getApplicationManager().update();
 			LOGGER.exit();
 		}
 	}
