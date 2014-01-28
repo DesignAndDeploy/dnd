@@ -9,8 +9,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
+import edu.teco.dnd.server.ApplicationInformation;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;

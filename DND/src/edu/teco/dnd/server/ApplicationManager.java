@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
 import edu.teco.dnd.module.messages.infoReq.ApplicationInformationResponse;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationInformationMessage;

@@ -2,7 +2,6 @@ package edu.teco.dnd.server;
 
 import java.util.Collection;
 
-import edu.teco.dnd.discover.ApplicationInformation;
 
 /**
  * This listener is informed every time the list of running Applications has been refreshed.

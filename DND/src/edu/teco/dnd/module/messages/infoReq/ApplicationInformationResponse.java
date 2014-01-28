@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
-import edu.teco.dnd.discover.ApplicationInformation;
 import edu.teco.dnd.network.messages.Response;
+import edu.teco.dnd.server.ApplicationInformation;
 
 /**
  * Contains ApplicationInformation about all Applications running on the sending Module.

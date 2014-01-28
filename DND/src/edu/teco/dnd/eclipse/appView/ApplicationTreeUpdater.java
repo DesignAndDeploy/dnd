@@ -10,14 +10,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import edu.teco.dnd.discover.ApplicationInformation;
-import edu.teco.dnd.discover.BlockInformation;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.server.ApplicationInformation;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.server.ApplicationManagerListener;
+import edu.teco.dnd.server.BlockInformation;
 import edu.teco.dnd.server.ServerState;
 import edu.teco.dnd.server.ServerStateListener;
 

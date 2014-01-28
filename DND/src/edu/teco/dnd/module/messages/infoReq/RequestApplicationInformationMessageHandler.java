@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
-import edu.teco.dnd.discover.ApplicationInformation;
-import edu.teco.dnd.discover.BlockInformation;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
+import edu.teco.dnd.server.ApplicationInformation;
+import edu.teco.dnd.server.BlockInformation;
 
 /**
  * Handles {@link RequestApplicationInformationMessage} by sending an {@link ApplicationInformationResponse}.

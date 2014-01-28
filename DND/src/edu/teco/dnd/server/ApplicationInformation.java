@@ -1,4 +1,4 @@
-package edu.teco.dnd.discover;
+package edu.teco.dnd.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
