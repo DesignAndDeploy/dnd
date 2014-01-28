@@ -100,23 +100,24 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 		LOGGER.entry(applications);
 		assert applications != null;
 
-		if (applicationTree == null) {
+		final Tree localApplicationTree;
+		synchronized (this) {
+			localApplicationTree = applicationTree;
+		}
+
+		if (localApplicationTree == null) {
 			LOGGER.debug("applicationTree is null");
 		} else {
-			DisplayUtil.getDisplay().syncExec(new Runnable() {
+			DisplayUtil.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					// this is unsychronized access to applicationTree. However, the thread that submits this Runnable
-					// holds the lock and this Runnable is executed synchronously, so applicationTree will not be
-					// modified
-					final Tree tree = applicationTree;
-					tree.removeAll();
+					localApplicationTree.removeAll();
 
 					for (final ApplicationInformation application : applicationManager.getApps()) {
-						addApplication(tree, application);
+						addApplication(localApplicationTree, application);
 					}
 
-					tree.update();
+					localApplicationTree.update();
 				}
 			});
 		}
