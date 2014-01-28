@@ -33,9 +33,11 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 	private volatile Tree applicationTree = null;
 
 	/**
-	 * Sets the ApplicationManager that should be used. This method is thread-safe and will update applicationTree if it has been set.
+	 * Sets the ApplicationManager that should be used. This method is thread-safe and will update applicationTree if it
+	 * has been set.
 	 * 
-	 * @param applicationManager the new ApplicationManager to use
+	 * @param applicationManager
+	 *            the new ApplicationManager to use
 	 * @see #setApplicationTree(Tree)
 	 */
 	synchronized void setApplicationManager(final ApplicationManager applicationManager) {
@@ -59,7 +61,8 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 	 * Sets the Tree object that should be filled with the Applications. If an ApplicationManager has been set, the Tree
 	 * is automatically filled. This method is thread-safe.
 	 * 
-	 * @param applicationTree the Tree object that should be filled with the Application data
+	 * @param applicationTree
+	 *            the Tree object that should be filled with the Application data
 	 * @see #setApplicationManager(ApplicationManager)
 	 */
 	synchronized void setApplicationTree(final Tree applicationTree) {
@@ -90,7 +93,8 @@ class ApplicationTreeUpdater implements ApplicationManagerListener {
 	/**
 	 * Fills the tree with the given ApplicationInformation. Old information is discarded first.
 	 * 
-	 * @param applications the Applications that should be displayed
+	 * @param applications
+	 *            the Applications that should be displayed
 	 */
 	private synchronized void fillTree(final Collection<ApplicationInformation> applications) {
 		LOGGER.entry(applications);

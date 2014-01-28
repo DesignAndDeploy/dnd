@@ -53,14 +53,15 @@ class UpdateButtonActivator implements ServerStateListener {
 		});
 		LOGGER.exit();
 	}
-	
+
 	@Override
-	public void serverStateChanged(final ServerState state, final ConnectionManager connectionManager, final UDPMulticastBeacon beacon) {
+	public void serverStateChanged(final ServerState state, final ConnectionManager connectionManager,
+			final UDPMulticastBeacon beacon) {
 		switch (state) {
 		case RUNNING:
 			setState(true);
 			break;
-			
+
 		case STOPPED:
 			setState(false);
 			break;
