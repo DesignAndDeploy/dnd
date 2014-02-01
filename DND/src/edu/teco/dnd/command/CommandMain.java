@@ -2,7 +2,12 @@ package edu.teco.dnd.command;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +18,10 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.ModelPackage;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
+import edu.teco.dnd.server.AddressBasedServerConfig;
 import edu.teco.dnd.server.ServerManager;
+import edu.teco.dnd.server.TCPUDPServerManager;
+import edu.teco.dnd.util.NetConnection;
 
 /**
  * This class offers the option to create and deploy a distribution of an already existing application via command line.
@@ -74,15 +82,16 @@ public class CommandMain {
 	 */
 	public static final String CREATE = "--create";
 
+	private static final UUID uuid = UUID.randomUUID();
 	private static String path;
-	private static String multicast;
-	private static String announce;
-	private static String listen;
-	private static int default_interval = 5;
+	private static InetSocketAddress listen;
+	private static NetConnection multicast;
+	private static InetSocketAddress announce;
+	private static int announceInterval = 5;
 	private static String createOrDeploy;
 
 	private static Collection<FunctionBlockModel> functionBlocks;
-	private static ServerManager serverManager;
+	private static ServerManager<AddressBasedServerConfig> serverManager;
 
 	/**
 	 * The main method.
@@ -116,12 +125,14 @@ public class CommandMain {
 		blockLoader.loadBlocks();
 		functionBlocks = blockLoader.getBlocks();
 
-		ServerManager.getDefault().startServer(multicast, listen, announce, default_interval);
+		serverManager = new TCPUDPServerManager();
+		serverManager.startServer(new AddressBasedServerConfig(uuid, Collections.singletonList(listen), Collections
+				.singletonList(multicast), Collections.singletonList(announce), announceInterval));
 
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
-		ServerManager.getDefault().getModuleManager().addListener(moduleRegistrator);
+		serverManager.getModuleManager().addListener(moduleRegistrator);
 
-		CommandLoop loop = new CommandLoop(functionBlocks, blockLoader.getApplicationName());
+		CommandLoop loop = new CommandLoop(functionBlocks, blockLoader.getApplicationName(), serverManager);
 		loop.loop(createOrDeploy);
 
 		exit();
@@ -143,21 +154,21 @@ public class CommandMain {
 				}
 				announceInput = true;
 				i++;
-				announce = args[i];
+				announce = getInetSocketAddress(args[i]);
 			} else if (args[i].equals(LISTEN)) {
 				if (listenInput) {
 					exitTooMany(LISTEN);
 				}
 				listenInput = true;
 				i++;
-				listen = args[i];
+				listen = getInetSocketAddress(args[i]);
 			} else if (args[i].equals(MULTICAST)) {
 				if (multicastInput) {
 					exitTooMany(MULTICAST);
 				}
 				multicastInput = true;
 				i++;
-				multicast = args[i];
+				multicast = getNetConnection(args[i]);
 			} else if (args[i].equals(PATH)) {
 				if (pathInput) {
 					exitTooMany(PATH);
@@ -199,6 +210,33 @@ public class CommandMain {
 
 		if (!(pathInput && multicastInput && listenInput && announceInput)) {
 			exitFalseInput();
+		}
+	}
+
+	private static InetSocketAddress getInetSocketAddress(final String string) {
+		final String[] splitted = string.split(":");
+		if (splitted.length != 2) {
+			return null;
+		}
+		try {
+			return new InetSocketAddress(splitted[0], Integer.valueOf(splitted[1]));
+		} catch (final NumberFormatException e) {
+			return null;
+		}
+	}
+
+	private static NetConnection getNetConnection(String string) {
+		final String[] splitted = string.split(":");
+		if (splitted.length != 3) {
+			return null;
+		}
+		try {
+			return new NetConnection(new InetSocketAddress(splitted[0], Integer.valueOf(splitted[1])),
+					NetworkInterface.getByName(splitted[2]));
+		} catch (final NumberFormatException e) {
+			return null;
+		} catch (final SocketException e) {
+			return null;
 		}
 	}
 

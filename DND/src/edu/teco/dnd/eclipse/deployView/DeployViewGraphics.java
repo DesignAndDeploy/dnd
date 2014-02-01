@@ -20,8 +20,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
-import edu.teco.dnd.server.ServerManager;
 
 /**
  * This class is responsible for creating the graphical representations of the buttons, tables, text fields and so on in
@@ -195,7 +195,7 @@ public class DeployViewGraphics {
 		data.horizontalAlignment = SWT.FILL;
 		serverButton = new Button(parent, SWT.NONE);
 		serverButton.setLayoutData(data);
-		if (ServerManager.getDefault().isRunning()) {
+		if (Activator.getDefault().getServerManager().isRunning()) {
 			serverButton.setText(Messages.DEPLOYGRAPHICS_STOP_SERVER);
 		} else {
 			serverButton.setText(Messages.DEPLOYGRAPHICS_START_SERVER);

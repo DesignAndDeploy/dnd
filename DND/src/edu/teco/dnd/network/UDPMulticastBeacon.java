@@ -416,6 +416,7 @@ public class UDPMulticastBeacon {
 		} finally {
 			channelLock.writeLock().unlock();
 		}
+		shutdownFuture.check();
 		LOGGER.exit();
 	}
 

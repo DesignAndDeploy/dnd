@@ -28,7 +28,7 @@ public class ModuleView extends ViewPart {
 		LOGGER.entry(site, memento);
 		super.init(site, memento);
 
-		final ServerManager serverManager = Activator.getDefault().getServerManager();
+		final ServerManager<?> serverManager = Activator.getDefault().getServerManager();
 		startStopButtonActivator.setServerManager(serverManager);
 		moduleTableUpdater.setServerManager(serverManager);
 		LOGGER.exit();

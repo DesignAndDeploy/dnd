@@ -74,7 +74,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
 
-	private ServerManager serverManager;
+	private ServerManager<?> serverManager;
 	private ModuleManager manager;
 
 	private ArrayList<UUID> idList = new ArrayList<UUID>();
@@ -107,7 +107,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 		LOGGER.entry(site, input);
 		setSite(site);
 		setInput(input);
-		serverManager = ServerManager.getDefault();
+		serverManager = Activator.getDefault().getServerManager();
 		serverManager.addServerStateListener(this);
 		manager = serverManager.getModuleManager();
 		manager.addListener(this);
@@ -133,7 +133,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 	 * Invoked whenever the UpdateModules Button is pressed.
 	 */
 	protected void updateModules() {
-		if (ServerManager.getDefault().isRunning()) {
+		if (Activator.getDefault().getServerManager().isRunning()) {
 			manager.update();
 		} else {
 			warn(Messages.DEPLOY_SERVER_NOT_RUNNING);
@@ -285,7 +285,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 		new Thread() {
 			@Override
 			public void run() {
-				if (ServerManager.getDefault().isRunning()) {
+				if (Activator.getDefault().getServerManager().isRunning()) {
 					Activator.getDefault().shutdownServer();
 				} else {
 					Activator.getDefault().startServer();
@@ -305,9 +305,11 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 					locationConstraints));
 		}
 
+		final Collection<ModuleInfo> modules =
+				Activator.getDefault().getServerManager().getModuleManager().getModules();
 		Distribution dist = null;
 		try {
-			dist = DistributionCreator.createDistribution(functionBlocks, constraints);
+			dist = DistributionCreator.createDistribution(functionBlocks, constraints, modules);
 		} catch (NoBlocksException e) {
 			warn(Messages.DEPLOY_NO_BLOCKS);
 			LOGGER.exit();

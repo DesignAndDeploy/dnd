@@ -19,7 +19,7 @@ class StartStopButtonActivator implements ServerStateListener {
 			new TypecastingWidgetDataStore<ServerAction>(ServerAction.class, "server action");
 
 	private Button startStopButton = null;
-	private ServerManager serverManager = null;
+	private ServerManager<?> serverManager = null;
 
 	synchronized void setStartStopButton(final Button startStopButton) {
 		LOGGER.entry(startStopButton);
@@ -30,7 +30,7 @@ class StartStopButtonActivator implements ServerStateListener {
 		LOGGER.exit();
 	}
 
-	synchronized void setServerManager(final ServerManager serverManager) {
+	synchronized void setServerManager(final ServerManager<?> serverManager) {
 		LOGGER.entry(serverManager);
 		if (serverManager != null) {
 			serverManager.removeServerStateListener(this);

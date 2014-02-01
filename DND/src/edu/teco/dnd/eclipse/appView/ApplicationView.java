@@ -37,7 +37,7 @@ public class ApplicationView extends ViewPart {
 		LOGGER.entry(site, memento);
 		super.init(site, memento);
 
-		ServerManager serverManager = Activator.getDefault().getServerManager();
+		ServerManager<?> serverManager = Activator.getDefault().getServerManager();
 		serverManager.addServerStateListener(updateButtonActivator);
 		final ApplicationManager applicationManager = serverManager.getApplicationManager();
 		applicationTreeUpdater.setApplicationManager(applicationManager);
@@ -82,7 +82,7 @@ public class ApplicationView extends ViewPart {
 		updateButtonActivator.setUpdateButton(button);
 		button.addSelectionListener(new UpdateListener());
 
-		final ServerManager serverManager = Activator.getDefault().getServerManager();
+		final ServerManager<?> serverManager = Activator.getDefault().getServerManager();
 		updateButtonActivator.setState(serverManager.isRunning());
 	}
 

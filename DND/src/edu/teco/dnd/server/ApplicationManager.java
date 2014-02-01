@@ -48,7 +48,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	 * @param serverManager
 	 *            the ServerManager that should be used
 	 */
-	public ApplicationManager(final ServerManager serverManager) {
+	public ApplicationManager(final ServerManager<?> serverManager) {
 		LOGGER.entry(serverManager);
 		serverManager.addServerStateListener(this);
 		LOGGER.exit();

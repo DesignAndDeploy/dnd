@@ -3,6 +3,11 @@ package edu.teco.dnd.eclipse;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +19,10 @@ import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
 import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
+import edu.teco.dnd.server.AddressBasedServerConfig;
 import edu.teco.dnd.server.ServerManager;
+import edu.teco.dnd.server.TCPUDPServerManager;
+import edu.teco.dnd.util.NetConnection;
 
 public class Activator extends AbstractUIPlugin {
 
@@ -35,7 +43,8 @@ public class Activator extends AbstractUIPlugin {
 
 	private static Activator plugin;
 
-	private static final ServerManager serverManager = ServerManager.getDefault();
+	private ServerManager<AddressBasedServerConfig> serverManager = null;
+	private UUID uuid = null;
 
 	static {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
@@ -50,7 +59,8 @@ public class Activator extends AbstractUIPlugin {
 		LOGGER.entry(context);
 		super.start(context);
 		plugin = this;
-
+		serverManager = new TCPUDPServerManager();
+		uuid = UUID.randomUUID();
 		LOGGER.exit();
 	}
 
@@ -59,11 +69,12 @@ public class Activator extends AbstractUIPlugin {
 		LOGGER.entry();
 		super.stop(context);
 		plugin = null;
-
+		serverManager = null;
+		uuid = null;
 		LOGGER.exit();
 	}
-	
-	public ServerManager getServerManager() {
+
+	public ServerManager<AddressBasedServerConfig> getServerManager() {
 		return serverManager;
 	}
 
@@ -79,11 +90,10 @@ public class Activator extends AbstractUIPlugin {
 	 * somewhere else.
 	 */
 	public void startServer() {
-		String multicastAddress = getAddress(PreferencesNetwork.MULTICAST_PREFERENCE, 3);
-		String listenAddress = getAddress(PreferencesNetwork.LISTEN_PREFERENCE, 2);
-		String announceAddress = getAddress(PreferencesNetwork.ANNOUNCE_PREFERENCE, 2);
-		int interval = getPreferenceStore().getInt(PreferencesNetwork.BEACON_PREFERENCE);
-		serverManager.startServer(multicastAddress, listenAddress, announceAddress, interval);
+		final AddressBasedServerConfig serverConfig =
+				new AddressBasedServerConfig(uuid, getListenAddresses(), getMulticastAddresses(),
+						getAnnounceAddresses(), getAnnounceInterval());
+		serverManager.startServer(serverConfig);
 	}
 
 	public void shutdownServer() {
@@ -98,16 +108,78 @@ public class Activator extends AbstractUIPlugin {
 		store.setDefault(PreferencesNetwork.BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
 	}
 
-	private String getAddress(String type, int split) {
-		final String[] items = getPreferenceStore().getString(type).split(" ");
-		for (final String item : items) {
-			final String[] parts = item.split(":", split);
-			if (parts.length != split) {
-				continue;
-			}
-			return item;
-		}
-		return null;
+	/**
+	 * Returns the listen addresses stored in the Eclipse preferences.
+	 * 
+	 * @return the listen addresses stored in the Eclipse preferences
+	 */
+	private Collection<InetSocketAddress> getListenAddresses() {
+		return getInetSocketAddresses(getPreference(PreferencesNetwork.LISTEN_PREFERENCE).split(" "));
 	}
 
+	/**
+	 * Returns the multicast addresses stored in the Eclipse preferences.
+	 * 
+	 * @return the multicast addresses stored in the Eclipse preferences
+	 */
+	private Collection<NetConnection> getMulticastAddresses() {
+		return getNetConnections(getPreference(PreferencesNetwork.MULTICAST_PREFERENCE).split(" "));
+	}
+
+	/**
+	 * Returns the announce addresses stored in the Eclipse preferences.
+	 * 
+	 * @return the announce addresses stored in the Eclipse preferences
+	 */
+	private Collection<InetSocketAddress> getAnnounceAddresses() {
+		return getInetSocketAddresses(getPreference(PreferencesNetwork.ANNOUNCE_PREFERENCE).split(" "));
+	}
+
+	private Collection<InetSocketAddress> getInetSocketAddresses(final String[] addresses) {
+		final Collection<InetSocketAddress> result = new ArrayList<InetSocketAddress>(addresses.length);
+		for (final String address : addresses) {
+			final String[] splittedAddress = address.split(":");
+			if (splittedAddress.length != 2) {
+				continue;
+			}
+			try {
+				result.add(new InetSocketAddress(splittedAddress[0], Integer.valueOf(splittedAddress[1])));
+			} catch (final NumberFormatException e) {
+				continue;
+			}
+		}
+		return result;
+	}
+
+	private Collection<NetConnection> getNetConnections(final String[] connections) {
+		final Collection<NetConnection> result = new ArrayList<NetConnection>(connections.length);
+		for (final String connection : connections) {
+			final String[] splittedAddress = connection.split(":");
+			if (splittedAddress.length != 3) {
+				continue;
+			}
+			try {
+				result.add(new NetConnection(new InetSocketAddress(splittedAddress[0], Integer
+						.valueOf(splittedAddress[1])), NetworkInterface.getByName(splittedAddress[2])));
+			} catch (final NumberFormatException e) {
+				continue;
+			} catch (final SocketException e) {
+				continue;
+			}
+		}
+		return result;
+	}
+
+	private String getPreference(final String preferenceName) {
+		return getPreferenceStore().getString(preferenceName);
+	}
+
+	/**
+	 * Returns the announce interval stored in the Eclipse preferences.
+	 * 
+	 * @return the announce interval stored in the Eclipse preferences
+	 */
+	private int getAnnounceInterval() {
+		return getPreferenceStore().getInt(PreferencesNetwork.BEACON_PREFERENCE);
+	}
 }

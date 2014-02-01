@@ -31,7 +31,7 @@ class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 			"module uuid");
 
 	private Table moduleTable = null;
-	private ServerManager serverManager = null;
+	private ServerManager<?> serverManager = null;
 
 	void setModuleTable(final Table moduleTable) {
 		LOGGER.entry(moduleTable);
@@ -52,7 +52,7 @@ class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 		LOGGER.exit();
 	}
 
-	void setServerManager(final ServerManager newServerManager) {
+	void setServerManager(final ServerManager<?> newServerManager) {
 		LOGGER.entry(newServerManager);
 		DisplayUtil.getDisplay().syncExec(new Runnable() {
 			@Override

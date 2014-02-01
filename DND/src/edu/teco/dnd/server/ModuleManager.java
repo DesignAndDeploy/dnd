@@ -37,7 +37,7 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 	 * @param serverManager
 	 *            the ServerManager that should be used
 	 */
-	public ModuleManager(final ServerManager serverManager) {
+	public ModuleManager(final ServerManager<?> serverManager) {
 		serverManager.addServerStateListener(this);
 	}
 
