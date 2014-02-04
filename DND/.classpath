@@ -40,9 +40,9 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/junit-4.11-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/netty-all-4.0.13.Final.jar" sourcepath="lib/netty-all-4.0.13.Final-sources.jar">
+	<classpathentry kind="lib" path="lib/netty-all-4.0.15.Final.jar" sourcepath="lib/netty-all-4.0.15.Final-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.13.Final-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DND/lib/netty-all-4.0.15.Final-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
