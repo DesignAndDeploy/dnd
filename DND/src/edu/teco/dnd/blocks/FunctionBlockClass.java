@@ -20,16 +20,29 @@ import org.apache.bcel.util.Repository;
 
 import edu.teco.dnd.util.FieldIterable;
 
-// TODO: check if performance can be improved by caching block type, inputs, outputs, etc
+/**
+ * Represents a (statically inspected) {@link FunctionBlock} class. This method should not be instantiated directly,
+ * instead use a {@link FunctionBlockClassFactory}.
+ */
 public class FunctionBlockClass {
-	public static final Pattern SIMPLE_CLASS_NAME_PATTERN = Pattern.compile("^(?:.*\\.)([^.]*)$");
-
 	private static final Pattern GENERIC_ARGUMENT_PATTERN = Pattern.compile("<L([^;]*);");
 
 	private final JavaClass blockClass;
-
 	private final Repository repository;
 
+	/**
+	 * Initializes a new FunctionBlockClass. This should normally not be called directly, instead use a
+	 * {@link FunctionBlockClassFactory}.
+	 * 
+	 * @param repository
+	 *            the Repository that should be used to load the class
+	 * @param className
+	 *            the name of the class
+	 * @throws ClassNotFoundException
+	 *             if the class is not found
+	 * @throws IllegalArgumentException
+	 *             if the class is not a {@link FunctionBlock}
+	 */
 	public FunctionBlockClass(final Repository repository, final String className) throws ClassNotFoundException {
 		this.repository = repository;
 		this.blockClass = repository.loadClass(className);
@@ -58,31 +71,47 @@ public class FunctionBlockClass {
 		return false;
 	}
 
+	/**
+	 * Returns all inputs defined by the FunctionBlock. The Map returned uses the name of the input as the key and the
+	 * class of the input as the value.
+	 * 
+	 * @return the inputs defined by the FunctionBlock. Maps from input name to input class
+	 * @throws ClassNotFoundException
+	 *             if any of the classes used by the inputs could not be loaded
+	 */
 	public Map<String, JavaClass> getInputs() throws ClassNotFoundException {
 		final Map<String, JavaClass> inputs = new HashMap<String, JavaClass>();
 		for (final Field field : new FieldIterable(blockClass)) {
 			if (isInputField(field)) {
 				final String name = field.getName();
 				if (!inputs.containsKey(name)) {
-					inputs.put(field.getName(), getInputType(field));	
+					inputs.put(field.getName(), getInputType(field));
 				}
 			}
 		}
 		return inputs;
 	}
 
-	private boolean isInputField(final Field field) throws ClassNotFoundException {
+	private boolean isInputField(final Field field) {
 		return !field.isStatic() && isInput(field.getType());
 	}
 
-	private boolean isInput(final Type type) throws ClassNotFoundException {
+	private boolean isInput(final Type type) {
 		return type instanceof ObjectType && Input.class.getName().equals(((ObjectType) type).getClassName());
 	}
 
 	private JavaClass getInputType(final Field field) throws ClassNotFoundException {
 		return getClassOfGenericArgument(field);
 	}
-	
+
+	/**
+	 * Returns all inputs defined by the FunctionBlock. The Map returned uses the name of the input as the key and the
+	 * class of the input as the value.
+	 * 
+	 * @return the inputs defined by the FunctionBlock. Maps from input name to input class
+	 * @throws ClassNotFoundException
+	 *             if any of the classes used by the inputs could not be loaded
+	 */
 	public Map<String, JavaClass> getOutputs() throws ClassNotFoundException {
 		final Map<String, JavaClass> outputs = new HashMap<String, JavaClass>();
 		for (final Field field : new FieldIterable(blockClass)) {
@@ -95,20 +124,20 @@ public class FunctionBlockClass {
 		}
 		return outputs;
 	}
-	
-	private boolean isOutputField(final Field field) throws ClassNotFoundException {
+
+	private boolean isOutputField(final Field field) {
 		return !field.isStatic() && isOutput(field.getType());
 	}
-	
-	private boolean isOutput(final Type type) throws ClassNotFoundException {
+
+	private boolean isOutput(final Type type) {
 		return type instanceof ObjectType && Output.class.getName().equals(((ObjectType) type).getClassName());
 	}
-	
-	public JavaClass getOutputType(final Field field) throws ClassNotFoundException {
+
+	private JavaClass getOutputType(final Field field) throws ClassNotFoundException {
 		return getClassOfGenericArgument(field);
 	}
 
-	public JavaClass getClassOfGenericArgument(final Field field) throws ClassNotFoundException {
+	private JavaClass getClassOfGenericArgument(final Field field) throws ClassNotFoundException {
 		final Signature signature = getSignature(field);
 		JavaClass argumentClass = null;
 		if (signature != null) {
@@ -117,7 +146,7 @@ public class FunctionBlockClass {
 		return argumentClass;
 	}
 
-	public Signature getSignature(final Field field) {
+	private Signature getSignature(final Field field) {
 		for (final Attribute attribute : field.getAttributes()) {
 			if (attribute instanceof Signature) {
 				return (Signature) attribute;
@@ -126,7 +155,7 @@ public class FunctionBlockClass {
 		return null;
 	}
 
-	public static String getClassNameOfGenericArgument(final Signature signature) {
+	private static String getClassNameOfGenericArgument(final Signature signature) {
 		final Matcher matcher = GENERIC_ARGUMENT_PATTERN.matcher(signature.getSignature());
 		matcher.find();
 		String className = matcher.group(1);
@@ -136,7 +165,12 @@ public class FunctionBlockClass {
 		return className;
 	}
 
-	public String getBlockType() throws ClassNotFoundException {
+	/**
+	 * Returns the block type defined by the FunctionBlock. May be null.
+	 * 
+	 * @return the block type as defined by the FunctionBlock or null if not found
+	 */
+	public String getBlockType() {
 		final Field blockTypeField = getBlockTypeField();
 		String blockType = null;
 		if (blockTypeField != null) {
@@ -145,7 +179,7 @@ public class FunctionBlockClass {
 		return blockType;
 	}
 
-	private Field getBlockTypeField() throws ClassNotFoundException {
+	private Field getBlockTypeField() {
 		for (final Field field : new FieldIterable(blockClass)) {
 			if (isBlockTypeField(field)) {
 				return field;
@@ -154,11 +188,16 @@ public class FunctionBlockClass {
 		return null;
 	}
 
-	private boolean isBlockTypeField(final Field field) throws ClassNotFoundException {
+	private boolean isBlockTypeField(final Field field) {
 		return isConstant(field) && isString(field.getType()) && "BLOCK_TYPE".equals(field.getName());
 	}
-	
-	public Map<String, String> getOptions() throws ClassNotFoundException {
+
+	/**
+	 * Returns the options defined by the FunctionBlock. The result maps from option name to default value.
+	 * 
+	 * @return the options as defined by the FunctionBlock. Maps from option name to default value.
+	 */
+	public Map<String, String> getOptions() {
 		final Map<String, String> options = new HashMap<String, String>();
 		for (final Field field : new FieldIterable(blockClass)) {
 			if (isOptionField(field)) {
@@ -170,15 +209,15 @@ public class FunctionBlockClass {
 		}
 		return options;
 	}
-	
-	private boolean isOptionField(final Field field) throws ClassNotFoundException {
+
+	private boolean isOptionField(final Field field) {
 		return isConstant(field) && isString(field.getType()) && field.getName().startsWith("OPTION_");
 	}
-	
+
 	private String getOptionName(final Field field) {
 		return field.getName().replaceFirst("^OPTION_", "");
 	}
-	
+
 	private String getDefaultOptionValue(final Field field) {
 		return getStringConstant(field);
 	}
@@ -187,7 +226,7 @@ public class FunctionBlockClass {
 		return field.isStatic() && field.isFinal();
 	}
 
-	private boolean isString(final Type type) throws ClassNotFoundException {
+	private boolean isString(final Type type) {
 		return type instanceof ObjectType && String.class.getName().equals(((ObjectType) type).getClassName());
 	}
 
@@ -212,12 +251,23 @@ public class FunctionBlockClass {
 				(ConstantUtf8) constantPool.getConstant(constantString.getStringIndex(), Constants.CONSTANT_Utf8);
 		return constantUtf8.getBytes();
 	}
-	
+
+	/**
+	 * Returns the name of the class represented by this object.
+	 * 
+	 * @return the name of the class represented by this object
+	 */
 	public String getClassName() {
 		return blockClass.getClassName();
 	}
-	
-	public String getSimplifiedClassName(){
+
+	/**
+	 * Creates a simplified class name. Currently only strips the package name, but may be improved later on to handle
+	 * inner classes and similar cases.
+	 * 
+	 * @return a simplified class name
+	 */
+	public String getSimplifiedClassName() {
 		String className = blockClass.getClassName();
 		try {
 			className = className.substring(className.lastIndexOf(".") + 1);
