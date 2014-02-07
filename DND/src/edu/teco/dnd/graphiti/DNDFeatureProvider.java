@@ -147,12 +147,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 */
 	private void registerDefaultTypes() {
 		final FunctionBlockClassFactory factory;
-		try {
-			factory = new FunctionBlockClassFactory(SyntheticRepository.getInstance());
-		} catch (final ClassNotFoundException e) {
-			LOGGER.catching(Level.WARN, e);
-			return;
-		}
+		factory = new FunctionBlockClassFactory(SyntheticRepository.getInstance());
 		for (Class<?> type : DEFAULT_TYPES) {
 			try {
 				createFeatureFactory.registerBlockType(factory.getFunctionBlockClass(type));
@@ -179,11 +174,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		if (!factoryInitialised) {
 			final Set<IPath> ipaths = getProjectClassPath();
 			repository = SyntheticRepository.getInstance(new ClassPath(StringUtil.joinIterable(ipaths, ":")));
-			try {
-				blockFactory = new FunctionBlockClassFactory(repository);
-			} catch (final ClassNotFoundException e) {
-				LOGGER.catching(e);
-			}
+			blockFactory = new FunctionBlockClassFactory(repository);
 			registerDefaultTypes();
 			final Set<File> paths = new HashSet<File>();
 			for (final IPath ipath : getProjectClassPath()) {

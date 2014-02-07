@@ -15,15 +15,15 @@ public class FunctionBlockClassFactory {
 	private final ConcurrentMap<String, FunctionBlockClass> blocks =
 			new ConcurrentHashMap<String, FunctionBlockClass>();
 
-	public FunctionBlockClassFactory(final Repository repository) throws ClassNotFoundException {
+	public FunctionBlockClassFactory(final Repository repository) {
 		this.repository = new SynchronizedBCELRepository(repository);
 	}
 
-	public FunctionBlockClassFactory(final ClassPath classPath) throws ClassNotFoundException {
+	public FunctionBlockClassFactory(final ClassPath classPath) {
 		this(SyntheticRepository.getInstance(classPath));
 	}
 
-	public FunctionBlockClassFactory(final String classPath) throws ClassNotFoundException {
+	public FunctionBlockClassFactory(final String classPath) {
 		this(new ClassPath(classPath));
 	}
 
