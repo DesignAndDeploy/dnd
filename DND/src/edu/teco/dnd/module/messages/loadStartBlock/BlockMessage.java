@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import edu.teco.dnd.blocks.ValueDestination;
+import edu.teco.dnd.blocks.InputDescription;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
@@ -42,7 +42,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	/**
 	 * outputs the block is supposed to have after starting.
 	 */
-	public final Map<String, Set<ValueDestination>> outputs;
+	public final Map<String, Set<InputDescription>> outputs;
 
 	/**
 	 * place in the allowed block hierarchy this block is supposed to occupy.
@@ -69,17 +69,17 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
 	public BlockMessage(UUID msgUuid, UUID appId, String blockClass, String blockName, UUID blockUUID,
-			Map<String, String> options, Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
+			Map<String, String> options, Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
 		super(msgUuid, appId);
 		this.blockClass = blockClass;
 		this.blockName = blockName;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
-		this.outputs = new HashMap<String, Set<ValueDestination>>();
-		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
-			final Collection<ValueDestination> destinations = output.getValue();
+		this.outputs = new HashMap<String, Set<InputDescription>>();
+		for (final Entry<String, Collection<InputDescription>> output : outputs.entrySet()) {
+			final Collection<InputDescription> destinations = output.getValue();
 			if (destinations != null) {
-				this.outputs.put(output.getKey(), new HashSet<ValueDestination>(destinations));
+				this.outputs.put(output.getKey(), new HashSet<InputDescription>(destinations));
 			}
 		}
 		this.scheduleToId = scheduledToId;
@@ -103,17 +103,17 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
 	public BlockMessage(UUID appId, String blockClass, String blockName, UUID blockUUID, Map<String, String> options,
-			Map<String, Collection<ValueDestination>> outputs, int scheduledToId) {
+			Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
 		super(appId);
 		this.blockClass = blockClass;
 		this.blockName = blockName;
 		this.blockUUID = blockUUID;
 		this.options = new HashMap<String, String>(options);
-		this.outputs = new HashMap<String, Set<ValueDestination>>();
-		for (final Entry<String, Collection<ValueDestination>> output : outputs.entrySet()) {
-			final Collection<ValueDestination> destinations = output.getValue();
+		this.outputs = new HashMap<String, Set<InputDescription>>();
+		for (final Entry<String, Collection<InputDescription>> output : outputs.entrySet()) {
+			final Collection<InputDescription> destinations = output.getValue();
 			if (destinations != null) {
-				this.outputs.put(output.getKey(), new HashSet<ValueDestination>(destinations));
+				this.outputs.put(output.getKey(), new HashSet<InputDescription>(destinations));
 			}
 		}
 		this.scheduleToId = scheduledToId;

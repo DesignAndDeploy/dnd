@@ -20,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
-import edu.teco.dnd.blocks.ValueDestination;
+import edu.teco.dnd.blocks.InputDescription;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.InputModel;
@@ -532,11 +532,11 @@ public class Deploy {
 		for (final OptionModel option : block.getOptions()) {
 			options.put(option.getName(), option.getValue());
 		}
-		final Map<String, Collection<ValueDestination>> outputs = new HashMap<String, Collection<ValueDestination>>();
+		final Map<String, Collection<InputDescription>> outputs = new HashMap<String, Collection<InputDescription>>();
 		for (final OutputModel output : block.getOutputs()) {
-			final Collection<ValueDestination> destinations = new ArrayList<ValueDestination>();
+			final Collection<InputDescription> destinations = new ArrayList<InputDescription>();
 			for (final InputModel input : output.getInputs()) {
-				destinations.add(new ValueDestination(input.getFunctionBlock().getID(), input.getName()));
+				destinations.add(new InputDescription(input.getFunctionBlock().getID(), input.getName()));
 			}
 			if (!destinations.isEmpty()) {
 				outputs.put(output.getName(), destinations);

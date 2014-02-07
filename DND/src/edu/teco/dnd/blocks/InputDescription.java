@@ -2,11 +2,11 @@ package edu.teco.dnd.blocks;
 
 import java.util.UUID;
 
-public class ValueDestination {
+public class InputDescription {
 	private final UUID block;
 	private final String input;
 
-	public ValueDestination(final UUID block, final String input) {
+	public InputDescription(final UUID block, final String input) {
 		this.block = block;
 		this.input = input;
 	}
@@ -39,7 +39,7 @@ public class ValueDestination {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		ValueDestination other = (ValueDestination) obj;
+		InputDescription other = (InputDescription) obj;
 		if (block == null) {
 			if (other.block != null) {
 				return false;

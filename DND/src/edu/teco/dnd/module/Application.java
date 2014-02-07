@@ -26,7 +26,7 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.blocks.OutputTarget;
-import edu.teco.dnd.blocks.ValueDestination;
+import edu.teco.dnd.blocks.InputDescription;
 import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
 import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.network.ConnectionManager;
@@ -327,9 +327,9 @@ public class Application {
 	 *            the outputs to set on the Block.
 	 */
 	private void initializeOutputs(final FunctionBlockSecurityDecorator securityDecorator,
-			final Map<String, Set<ValueDestination>> outputs) {
+			final Map<String, Set<InputDescription>> outputs) {
 		final Map<String, Output<? extends Serializable>> blockOutputs = securityDecorator.getOutputs();
-		for (final Entry<String, Set<ValueDestination>> output : outputs.entrySet()) {
+		for (final Entry<String, Set<InputDescription>> output : outputs.entrySet()) {
 			if (!blockOutputs.containsKey(output.getKey())) {
 				continue;
 			}
@@ -598,20 +598,20 @@ public class Application {
 
 	// TODO insert javadoc here.
 	class ApplicationOutputTarget implements OutputTarget<Serializable> {
-		private final Set<ValueDestination> destinations;
+		private final Set<InputDescription> destinations;
 
 		/**
 		 * 
 		 * @param destinations
 		 *            places connected to this output. Where values are supposed to be send when they are send.
 		 */
-		public ApplicationOutputTarget(final Collection<ValueDestination> destinations) {
-			this.destinations = new HashSet<ValueDestination>(destinations);
+		public ApplicationOutputTarget(final Collection<InputDescription> destinations) {
+			this.destinations = new HashSet<InputDescription>(destinations);
 		}
 
 		@Override
 		public void setValue(Serializable value) {
-			for (final ValueDestination destination : destinations) {
+			for (final InputDescription destination : destinations) {
 				sendValue(destination.getBlock(), destination.getInput(), value);
 			}
 		}
