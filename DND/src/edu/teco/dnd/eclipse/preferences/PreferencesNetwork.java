@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -184,9 +185,10 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		return prefList;
 	}
 
-	private IntervalEditor initBeaconInterval(Composite parent) {
-		IntervalEditor editor =
-				new IntervalEditor(BEACON_PREFERENCE, Messages.PreferencesNetwork_BEACON_INTERVAL, parent); //$NON-NLS-1$
+	private IntegerFieldEditor initBeaconInterval(Composite parent) {
+		IntegerFieldEditor editor =
+				new IntegerFieldEditor(BEACON_PREFERENCE, Messages.PreferencesNetwork_BEACON_INTERVAL, parent); //$NON-NLS-1$
+		editor.setValidRange(1, Integer.MAX_VALUE);
 		editor.setPreferenceStore(getPreferenceStore());
 		getPreferenceStore().setDefault(BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
 		return editor;
