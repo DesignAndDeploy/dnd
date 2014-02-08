@@ -7,7 +7,9 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -597,79 +599,79 @@ public class DeployEditorGraphics {
 	}
 
 	private void createListeners(final DeployEditor view) {
-		serverButton.addSelectionListener(new DeploySelectionAdapter(view) {
+		serverButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().toggleServer();
+				view.toggleServer();
 			}
 		});
 
-		deploymentTable.addSelectionListener(new DeploySelectionAdapter(view) {
+		deploymentTable.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().blockModelSelected();
+				view.blockModelSelected();
 			}
 		});
 
-		updateModulesButton.addSelectionListener(new DeploySelectionAdapter(view) {
+		updateModulesButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().updateModules();
+				view.updateModules();
 			}
 		});
 
-		updateBlocksButton.addSelectionListener(new DeploySelectionAdapter(view) {
+		updateBlocksButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().updateBlocks();
+				view.updateBlocks();
 			}
 		});
 
-		moduleCombo.addSelectionListener(new DeploySelectionAdapter(view) {
+		moduleCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().moduleSelected();
+				view.moduleSelected();
 			}
 		});
 
-		distributeButton.addSelectionListener(new DeploySelectionAdapter(view) {
+		distributeButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().distribute();
+				view.distribute();
 			}
 		});
 
-		deployButton.addSelectionListener(new DeploySelectionAdapter(view) {
+		deployButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (cancelDeploy) {
 					DeployEditorProgress.cancelDeploying();
 					deploymentFinished(false);
 				} else {
-					getView().deploy();
+					view.deploy();
 				}
 			}
 		});
 
-		saveConstraintsButton.addSelectionListener(new DeploySelectionAdapter(view) {
+		saveConstraintsButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getView().saveConstraints();
+				view.saveConstraints();
 			}
 		});
 
-		blockNameText.addKeyListener(new DeployKeyAdapter(view) {
+		blockNameText.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode == ENTER) {
-					getView().saveConstraints();
+					view.saveConstraints();
 				}
 			}
 		});
 
-		locationsText.addKeyListener(new DeployKeyAdapter(view) {
+		locationsText.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode == ENTER) {
-					getView().saveConstraints();
+					view.saveConstraints();
 				}
 			}
 		});
