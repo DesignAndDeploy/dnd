@@ -19,11 +19,11 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
  * 
  * @author philipp
  */
-public class DNDUpdateBlockNameFeature extends AbstractUpdateFeature {
+public class UpdateBlockNameFeature extends AbstractUpdateFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDUpdateBlockNameFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(UpdateBlockNameFeature.class);
 
 	/**
 	 * Initializes a new DNDUpdateOptionFeature.
@@ -31,7 +31,7 @@ public class DNDUpdateBlockNameFeature extends AbstractUpdateFeature {
 	 * @param fp
 	 *            the FeatureProvider
 	 */
-	public DNDUpdateBlockNameFeature(final IFeatureProvider fp) {
+	public UpdateBlockNameFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 

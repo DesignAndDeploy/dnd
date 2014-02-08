@@ -73,11 +73,11 @@ import edu.teco.dnd.util.StringUtil;
 /**
  * Provides the features that are used by the editor.
  */
-public class DNDFeatureProvider extends DefaultFeatureProvider {
+public class FeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDFeatureProvider.class);
+	private static final Logger LOGGER = LogManager.getLogger(FeatureProvider.class);
 
 	private Resource resource = null;
 
@@ -99,7 +99,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	/**
 	 * Feature factory for block create features.
 	 */
-	private final DNDCreateFeatureFactory createFeatureFactory = new DNDCreateFeatureFactory();
+	private final CreateFeatureFactory createFeatureFactory = new CreateFeatureFactory();
 
 	/**
 	 * Used to inspect classes (including loading through {@link #blockFactory}.
@@ -123,7 +123,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 *            the diagram type provider this feature provider belongs to
 	 * @throws ClassNotFoundException
 	 */
-	public DNDFeatureProvider(final IDiagramTypeProvider dtp) throws ClassNotFoundException {
+	public FeatureProvider(final IDiagramTypeProvider dtp) throws ClassNotFoundException {
 		super(dtp);
 		LOGGER.info("DNDFeatureProvider created successfully");
 	}
@@ -221,9 +221,9 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	public final IAddFeature getAddFeature(final IAddContext context) {
 		LOGGER.entry(context);
 		if (context instanceof IAddConnectionContext) {
-			return new DNDAddDataConnectionFeature(this);
+			return new AddDataConnectionFeature(this);
 		} else if (context.getNewObject() instanceof FunctionBlockModel) {
-			return new DNDAddBlockFeature(this);
+			return new AddBlockFeature(this);
 		}
 		return super.getAddFeature(context);
 	}
@@ -240,7 +240,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		PictogramElement pictogramElement = context.getPictogramElement();
 		Object bo = getBusinessObjectForPictogramElement(pictogramElement);
 		if (bo instanceof FunctionBlockModel) {
-			return new DNDLayoutBlockFeature(this);
+			return new LayoutBlockFeature(this);
 		}
 		return super.getLayoutFeature(context);
 	}
@@ -257,15 +257,15 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		PictogramElement pe = context.getPictogramElement();
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		if (bo instanceof OptionModel) {
-			return new DNDUpdateOptionFeature(this);
+			return new UpdateOptionFeature(this);
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 			if (TypePropertyUtil.isPositionText(ga)) {
-				return new DNDUpdatePositionFeature(this);
+				return new UpdatePositionFeature(this);
 			} else if (TypePropertyUtil.isBlockNameText(ga)) {
-				return new DNDUpdateBlockNameFeature(this);
+				return new UpdateBlockNameFeature(this);
 			} else if (TypePropertyUtil.isBlockShape(ga)) {
-				return new DNDUpdateBlockFeature(this);
+				return new UpdateBlockFeature(this);
 			}
 		}
 		return super.getUpdateFeature(context);
@@ -278,7 +278,7 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	 */
 	@Override
 	public final ICreateConnectionFeature[] getCreateConnectionFeatures() {
-		return new ICreateConnectionFeature[] { new DNDCreateDataConnectionFeature(this) };
+		return new ICreateConnectionFeature[] { new CreateDataConnectionFeature(this) };
 	}
 
 	/**
@@ -295,13 +295,13 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 		Object bo = getBusinessObjectForPictogramElement(pe);
 		IDirectEditingFeature feature = null;
 		if (bo instanceof OptionModel) {
-			feature = new DNDEditOptionFeature(this);
+			feature = new EditOptionFeature(this);
 		} else if (bo instanceof FunctionBlockModel) {
 			GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
 			if (TypePropertyUtil.isBlockNameText(ga)) {
-				feature = new DNDEditBlockNameFeature(this);
+				feature = new EditBlockNameFeature(this);
 			} else if (TypePropertyUtil.isPositionText(ga)) {
-				feature = new DNDEditPositionFeature(this);
+				feature = new EditPositionFeature(this);
 			}
 		}
 		if (feature == null) {
@@ -314,14 +314,14 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 	@Override
 	public final IRemoveFeature getRemoveFeature(final IRemoveContext context) {
 		if (context.getPictogramElement() instanceof Connection) {
-			return new DNDRemoveDataConnectionFeature(this);
+			return new RemoveDataConnectionFeature(this);
 		}
 		return super.getRemoveFeature(context);
 	}
 
 	@Override
 	public final ICustomFeature[] getCustomFeatures(final ICustomContext context) {
-		return new ICustomFeature[] { new DNDDebugFeature(this), new DNDCustomUpdateFeature(this) };
+		return new ICustomFeature[] { new DebugFeature(this), new CustomUpdateFeature(this) };
 	}
 
 	@Override

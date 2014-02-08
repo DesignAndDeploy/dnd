@@ -1,26 +1,21 @@
 package edu.teco.dnd.graphiti;
 
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.context.IDirectEditingContext;
 import org.eclipse.graphiti.features.impl.AbstractDirectEditingFeature;
-import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
-import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.graphiti.model.OptionModel;
 
 /**
  * Direct editing feature for {@link Option}s.
  */
-public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
+public class EditOptionFeature extends AbstractDirectEditingFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDEditPositionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(EditOptionFeature.class);
 
 	/**
 	 * Passes the feature provider to the super constructor.
@@ -28,7 +23,7 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDEditPositionFeature(final IFeatureProvider fp) {
+	public EditOptionFeature(final FeatureProvider fp) {
 		super(fp);
 	}
 
@@ -44,12 +39,7 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 		LOGGER.entry(context);
 		PictogramElement pe = context.getPictogramElement();
 		Object bo = getBusinessObjectForPictogramElement(pe);
-		if (!(bo instanceof FunctionBlockModel)) {
-			LOGGER.exit(false);
-			return false;
-		}
-		GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
-		if (!TypePropertyUtil.isPositionText(ga)) {
+		if (!(bo instanceof OptionModel)) {
 			LOGGER.exit(false);
 			return false;
 		}
@@ -77,9 +67,8 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 	@Override
 	public String getInitialValue(final IDirectEditingContext context) {
 		LOGGER.entry(context);
-		FunctionBlockModel block =
-				(FunctionBlockModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
-		String value = block.getPosition();
+		OptionModel option = (OptionModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
+		String value = (String) option.getValue();
 		LOGGER.exit(value);
 		return value;
 	}
@@ -95,11 +84,6 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 	 */
 	@Override
 	public String checkValueValid(final String value, final IDirectEditingContext context) {
-		try {
-			Pattern.compile(value);
-		} catch (PatternSyntaxException e) {
-			return Messages.Graphiti_NOT_A_REGEX;
-		}
 		return null;
 	}
 
@@ -115,14 +99,9 @@ public class DNDEditPositionFeature extends AbstractDirectEditingFeature {
 	public void setValue(final String value, final IDirectEditingContext context) {
 		LOGGER.entry(value, context);
 		PictogramElement pe = context.getPictogramElement();
-		FunctionBlockModel block =
-				(FunctionBlockModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
-		block.setPosition(value);
+		OptionModel option = (OptionModel) getBusinessObjectForPictogramElement(context.getPictogramElement());
+		option.setValue(value);
 		updatePictogramElement(pe);
-
-		DNDFeatureProvider provider = (DNDFeatureProvider) getFeatureProvider();
-		provider.updateEMFResourcePosition(block.getID(), value);
-		
 		LOGGER.exit();
 	}
 }

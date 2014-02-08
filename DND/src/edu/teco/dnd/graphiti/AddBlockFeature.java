@@ -29,11 +29,11 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 /**
  * Adds a graphical representation for a FunctionBlock.
  */
-public class DNDAddBlockFeature extends AbstractAddShapeFeature {
+public class AddBlockFeature extends AbstractAddShapeFeature {
 	/**
 	 * Logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDAddBlockFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(AddBlockFeature.class);
 
 	/**
 	 * Key to distinguish between text fields.
@@ -159,7 +159,7 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDAddBlockFeature(final IFeatureProvider fp) {
+	public AddBlockFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -379,9 +379,9 @@ public class DNDAddBlockFeature extends AbstractAddShapeFeature {
 		{
 			LOGGER.debug("adding options"); //$NON-NLS-1$
 			int pos =
-					DNDAddBlockFeature.CONNECTION_OFFSET
+					AddBlockFeature.CONNECTION_OFFSET
 							+ Math.max(addedBlock.getInputs().size(), addedBlock.getOutputs().size())
-							* (DNDAddBlockFeature.CONNECTION_SIZE + DNDAddBlockFeature.CONNECTION_SPACE);
+							* (AddBlockFeature.CONNECTION_SIZE + AddBlockFeature.CONNECTION_SPACE);
 			for (Object optionObject : addedBlock.getOptions()) {
 				final OptionModel option = (OptionModel) optionObject;
 				LOGGER.trace("adding {} at {}", option, pos); //$NON-NLS-1$

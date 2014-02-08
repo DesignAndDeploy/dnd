@@ -7,14 +7,14 @@ import org.eclipse.graphiti.features.impl.DefaultMoveShapeFeature;
 /**
  * Controls if a move is valid.
  */
-public class DNDMoveBlockFeature extends DefaultMoveShapeFeature {
+public class MoveBlockFeature extends DefaultMoveShapeFeature {
 	/**
 	 * Passes the feature provider to the super constructor.
 	 * 
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDMoveBlockFeature(final IFeatureProvider fp) {
+	public MoveBlockFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 

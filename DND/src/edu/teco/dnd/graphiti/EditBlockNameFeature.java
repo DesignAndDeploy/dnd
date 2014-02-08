@@ -16,11 +16,11 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 /**
  * Direct editing feature for {@link Option}s.
  */
-public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
+public class EditBlockNameFeature extends AbstractDirectEditingFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDEditBlockNameFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(EditBlockNameFeature.class);
 
 	/**
 	 * Passes the feature provider to the super constructor.
@@ -28,7 +28,7 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDEditBlockNameFeature(final IFeatureProvider fp) {
+	public EditBlockNameFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -120,7 +120,7 @@ public class DNDEditBlockNameFeature extends AbstractDirectEditingFeature {
 		block.setBlockName(value);
 		updatePictogramElement(pe);
 		
-		DNDFeatureProvider provider = (DNDFeatureProvider) getFeatureProvider();
+		FeatureProvider provider = (FeatureProvider) getFeatureProvider();
 		provider.updateEMFResourceName(block.getID(), value);
 		
 		LOGGER.exit();

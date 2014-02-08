@@ -12,11 +12,11 @@ import edu.teco.dnd.blocks.FunctionBlockClass;
 /**
  * A factory for function block create features.
  */
-public final class DNDCreateFeatureFactory {
+public final class CreateFeatureFactory {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDCreateFeatureFactory.class);
+	private static final Logger LOGGER = LogManager.getLogger(CreateFeatureFactory.class);
 
 	/**
 	 * Registered block types.
@@ -33,7 +33,7 @@ public final class DNDCreateFeatureFactory {
 	 *            the class of the FunctionBlock. Must not be null.
 	 * @return a create feature for the FunctionBlock
 	 */
-	public DNDCreateBlockFeature getCreateFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
+	public CreateBlockFeature getCreateFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
 		if (blockClass == null) {
 			LOGGER.warn("{} was passed to getCreateFeature", blockClass);
 			throw new IllegalArgumentException("type is invalid");
@@ -42,7 +42,7 @@ public final class DNDCreateFeatureFactory {
 			LOGGER.debug("adding type {}", blockClass);
 		}
 		blockClasses.add(blockClass);
-		return new DNDCreateBlockFeature(fp, blockClass);
+		return new CreateBlockFeature(fp, blockClass);
 	}
 
 	/**
@@ -52,10 +52,10 @@ public final class DNDCreateFeatureFactory {
 	 *            the IFeatureProvider to use
 	 * @return all create features
 	 */
-	public Set<DNDCreateBlockFeature> getCreateFeatures(final IFeatureProvider fp) {
-		Set<DNDCreateBlockFeature> features = new HashSet<DNDCreateBlockFeature>(blockClasses.size());
+	public Set<CreateBlockFeature> getCreateFeatures(final IFeatureProvider fp) {
+		Set<CreateBlockFeature> features = new HashSet<CreateBlockFeature>(blockClasses.size());
 		for (final FunctionBlockClass blockClass : blockClasses) {
-			features.add(new DNDCreateBlockFeature(fp, blockClass));
+			features.add(new CreateBlockFeature(fp, blockClass));
 		}
 		return features;
 	}

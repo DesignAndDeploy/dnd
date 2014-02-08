@@ -18,11 +18,11 @@ import edu.teco.dnd.graphiti.model.OptionModel;
  * 
  * @author philipp
  */
-public class DNDUpdateOptionFeature extends AbstractUpdateFeature {
+public class UpdateOptionFeature extends AbstractUpdateFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDUpdateOptionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(UpdateOptionFeature.class);
 
 	/**
 	 * Initializes a new DNDUpdateOptionFeature.
@@ -30,7 +30,7 @@ public class DNDUpdateOptionFeature extends AbstractUpdateFeature {
 	 * @param fp
 	 *            the FeatureProvider
 	 */
-	public DNDUpdateOptionFeature(final IFeatureProvider fp) {
+	public UpdateOptionFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 

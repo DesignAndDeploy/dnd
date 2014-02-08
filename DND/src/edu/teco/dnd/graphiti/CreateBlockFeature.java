@@ -19,7 +19,7 @@ import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
 /**
  * This feature is used to create new FunctionBlocks.
  */
-public class DNDCreateBlockFeature extends AbstractCreateFeature {
+public class CreateBlockFeature extends AbstractCreateFeature {
 	/**
 	 * The type of blocks created by this feature.
 	 */
@@ -33,7 +33,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 * @param blockClass
 	 *            the type of FunctionBlocks to create
 	 */
-	public DNDCreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
+	public CreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
 		super(fp, blockClass == null ? "null" : blockClass.getSimplifiedClassName(), Messages.Graphiti_createBlock_CREATE_DESCRIPTION
 				+ (blockClass == null ? "null" : blockClass.getClassName())); //$NON-NLS-1$
 		
@@ -68,7 +68,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 			return null;
 		}
 
-		Resource resource = ((DNDFeatureProvider) getFeatureProvider()).getEMFResource();
+		Resource resource = ((FeatureProvider) getFeatureProvider()).getEMFResource();
 		resource.getContents().add(newBlock);
 
 		addGraphicalRepresentation(context, newBlock);
@@ -95,7 +95,7 @@ public class DNDCreateBlockFeature extends AbstractCreateFeature {
 	 * @return a TransactionalEditingDomain or null if creating one failed
 	 */
 	private static final TransactionalEditingDomain createEditingDomain() {
-		final ClassLoader loader = DNDCreateBlockFeature.class.getClassLoader();
+		final ClassLoader loader = CreateBlockFeature.class.getClassLoader();
 
 		// version for Graphiti <0.9.0. Calls DiagramEditorFactory.createResourceSetAndEditingDomain()
 		Class<?> diagramEditorFactoryClass = null;

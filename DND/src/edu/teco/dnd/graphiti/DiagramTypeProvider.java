@@ -8,30 +8,30 @@ import org.eclipse.graphiti.tb.IToolBehaviorProvider;
 /**
  * Provides a FeatureProvider and a ToolBehaviorProvider.
  */
-public class DNDDiagramTypeProvider extends AbstractDiagramTypeProvider {
-	private static final Logger LOGGER = LogManager.getLogger(DNDDiagramTypeProvider.class);
+public class DiagramTypeProvider extends AbstractDiagramTypeProvider {
+	private static final Logger LOGGER = LogManager.getLogger(DiagramTypeProvider.class);
 
 	/**
-	 * Sets the FeatureProvider to {@link DNDFeatureProvider}.
+	 * Sets the FeatureProvider to {@link FeatureProvider}.
 	 * 
 	 * @throws ClassNotFoundException
 	 */
-	public DNDDiagramTypeProvider() {
+	public DiagramTypeProvider() {
 		super();
 		try {
-			setFeatureProvider(new DNDFeatureProvider(this));
+			setFeatureProvider(new FeatureProvider(this));
 		} catch (final ClassNotFoundException e) {
 			LOGGER.catching(e);
 		}
 	}
 
 	/**
-	 * Returns {@link DNDToolBehaviorProvider} as a ToolBehaviorProvider.
+	 * Returns {@link ToolBehaviorProvider} as a ToolBehaviorProvider.
 	 * 
-	 * @return {@link DNDToolBehaviorProvider}
+	 * @return {@link ToolBehaviorProvider}
 	 */
 	@Override
 	public final IToolBehaviorProvider[] getAvailableToolBehaviorProviders() {
-		return new IToolBehaviorProvider[] { new DNDToolBehaviorProvider(this) };
+		return new IToolBehaviorProvider[] { new ToolBehaviorProvider(this) };
 	}
 }

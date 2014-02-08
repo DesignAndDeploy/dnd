@@ -15,11 +15,11 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
  * @author jung
  * 
  */
-public class DNDCustomUpdateFeature extends AbstractCustomFeature {
+public class CustomUpdateFeature extends AbstractCustomFeature {
 
 	IFeatureProvider featureProv;
 
-	public DNDCustomUpdateFeature(IFeatureProvider fp) {
+	public CustomUpdateFeature(IFeatureProvider fp) {
 		super(fp);
 		featureProv = fp;
 	}
@@ -64,11 +64,11 @@ public class DNDCustomUpdateFeature extends AbstractCustomFeature {
 				if (pe.getGraphicsAlgorithm() instanceof Text) {
 					Text text = (Text) pe.getGraphicsAlgorithm();
 					if (TypePropertyUtil.isBlockNameText(text) && newName != null) {
-						DNDUpdateBlockNameFeature updateBlockName = new DNDUpdateBlockNameFeature(featureProv);
+						UpdateBlockNameFeature updateBlockName = new UpdateBlockNameFeature(featureProv);
 						updateBlockName.update(context);
 						this.hasDoneChanges = true;
 					} else if (TypePropertyUtil.isPositionText(text) && newPosition != null) {
-						DNDUpdatePositionFeature updatePosition = new DNDUpdatePositionFeature(featureProv);
+						UpdatePositionFeature updatePosition = new UpdatePositionFeature(featureProv);
 						updatePosition.update(context);
 						this.hasDoneChanges = true;
 					}

@@ -20,11 +20,11 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
  * 
  * @author philipp
  */
-public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
+public class UpdatePositionFeature extends AbstractUpdateFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDUpdatePositionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(UpdatePositionFeature.class);
 
 	/**
 	 * Initializes a new DNDUpdateOptionFeature.
@@ -32,7 +32,7 @@ public class DNDUpdatePositionFeature extends AbstractUpdateFeature {
 	 * @param fp
 	 *            the FeatureProvider
 	 */
-	public DNDUpdatePositionFeature(final IFeatureProvider fp) {
+	public UpdatePositionFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 

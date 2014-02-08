@@ -20,9 +20,9 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
  * @author jung
  * 
  */
-public class DNDDoubleClickFeature extends AbstractCustomFeature {
+public class DoubleClickFeature extends AbstractCustomFeature {
 
-	public DNDDoubleClickFeature(IFeatureProvider fp) {
+	public DoubleClickFeature(IFeatureProvider fp) {
 		super(fp);
 		// TODO Auto-generated constructor stub
 	}

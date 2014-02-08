@@ -28,11 +28,11 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 /**
  * Layouts a block after resizing.
  */
-public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
+public class LayoutBlockFeature extends AbstractLayoutFeature {
 	/**
 	 * Logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDLayoutBlockFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(LayoutBlockFeature.class);
 
 	/**
 	 * Minimum width of a block.
@@ -50,7 +50,7 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDLayoutBlockFeature(final IFeatureProvider fp) {
+	public LayoutBlockFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
@@ -122,10 +122,10 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 		}
 
 		int minHeight =
-				DNDAddBlockFeature.CONNECTION_OFFSET
+				AddBlockFeature.CONNECTION_OFFSET
 						+ (Math.max(functionBlock.getInputs().size(), functionBlock.getOutputs().size()) + functionBlock
 								.getOptions().size())
-						* (DNDAddBlockFeature.CONNECTION_SIZE + DNDAddBlockFeature.CONNECTION_SPACE);
+						* (AddBlockFeature.CONNECTION_SIZE + AddBlockFeature.CONNECTION_SPACE);
 		LOGGER.trace("minimum height is {}");
 		if (containerGa.getHeight() < minHeight) {
 			if (LOGGER.isDebugEnabled()) {
@@ -152,39 +152,39 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 			} else if (ga instanceof Text) {
 				switch (((Text) ga).getHorizontalAlignment()) {
 				case ALIGNMENT_LEFT:
-					if (DNDAddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(ga,
-							DNDAddBlockFeature.CONNECTION_KEY))) {
+					if (AddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(ga,
+							AddBlockFeature.CONNECTION_KEY))) {
 						if (LOGGER.isTraceEnabled()) {
-							LOGGER.trace("{} set to half width {}", ga, width / 2 - DNDAddBlockFeature.CONNECTION_SIZE
-									- 2 * DNDAddBlockFeature.CONNECTION_EXTRA);
+							LOGGER.trace("{} set to half width {}", ga, width / 2 - AddBlockFeature.CONNECTION_SIZE
+									- 2 * AddBlockFeature.CONNECTION_EXTRA);
 						}
-						gaService.setWidth(ga, width / 2 - DNDAddBlockFeature.CONNECTION_SIZE - 3
-								* DNDAddBlockFeature.CONNECTION_EXTRA);
+						gaService.setWidth(ga, width / 2 - AddBlockFeature.CONNECTION_SIZE - 3
+								* AddBlockFeature.CONNECTION_EXTRA);
 					} else {
 						if (LOGGER.isTraceEnabled()) {
-							LOGGER.trace("{} set to half width {}", ga, width / 2 - 3 * DNDAddBlockFeature.OPTION_EXTRA);
+							LOGGER.trace("{} set to half width {}", ga, width / 2 - 3 * AddBlockFeature.OPTION_EXTRA);
 						}
-						gaService.setWidth(ga, width / 2 - 2 * DNDAddBlockFeature.OPTION_EXTRA);
+						gaService.setWidth(ga, width / 2 - 2 * AddBlockFeature.OPTION_EXTRA);
 					}
 					break;
 				case ALIGNMENT_RIGHT:
-					if (DNDAddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(ga,
-							DNDAddBlockFeature.CONNECTION_KEY))) {
+					if (AddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(ga,
+							AddBlockFeature.CONNECTION_KEY))) {
 						if (LOGGER.isTraceEnabled()) {
 							LOGGER.trace("{} set to half width {} and moved to {}", ga,
-									2 * DNDAddBlockFeature.OPTION_EXTRA, 2 * DNDAddBlockFeature.OPTION_EXTRA);
+									2 * AddBlockFeature.OPTION_EXTRA, 2 * AddBlockFeature.OPTION_EXTRA);
 						}
-						gaService.setWidth(ga, width / 2 - 2 * DNDAddBlockFeature.CONNECTION_SIZE
-								- DNDAddBlockFeature.CONNECTION_EXTRA * 5);
-						gaService.setLocation(ga, width / 2 + DNDAddBlockFeature.CONNECTION_SIZE + 2
-								* DNDAddBlockFeature.CONNECTION_EXTRA, ga.getY());
+						gaService.setWidth(ga, width / 2 - 2 * AddBlockFeature.CONNECTION_SIZE
+								- AddBlockFeature.CONNECTION_EXTRA * 5);
+						gaService.setLocation(ga, width / 2 + AddBlockFeature.CONNECTION_SIZE + 2
+								* AddBlockFeature.CONNECTION_EXTRA, ga.getY());
 					} else {
 						if (LOGGER.isTraceEnabled()) {
 							LOGGER.trace("{} set to half width {} and moved to {}", ga,
-									2 * DNDAddBlockFeature.OPTION_EXTRA, 2 * DNDAddBlockFeature.OPTION_EXTRA);
+									2 * AddBlockFeature.OPTION_EXTRA, 2 * AddBlockFeature.OPTION_EXTRA);
 						}
-						gaService.setWidth(ga, width / 2 - 2 * DNDAddBlockFeature.OPTION_EXTRA);
-						gaService.setLocation(ga, width / 2 + DNDAddBlockFeature.OPTION_EXTRA, ga.getY());
+						gaService.setWidth(ga, width / 2 - 2 * AddBlockFeature.OPTION_EXTRA);
+						gaService.setLocation(ga, width / 2 + AddBlockFeature.OPTION_EXTRA, ga.getY());
 					}
 					break;
 				default:
@@ -206,9 +206,9 @@ public class DNDLayoutBlockFeature extends AbstractLayoutFeature {
 			if (anchor.getLink().getBusinessObjects().get(0) instanceof OutputModel) {
 				FixPointAnchor fixPointAnchor = (FixPointAnchor) anchor;
 				Point location = fixPointAnchor.getLocation();
-				if (location.getX() != width - DNDAddBlockFeature.CONNECTION_SIZE / 2) {
-					fixPointAnchor.setLocation(gaService.createPoint(width - DNDAddBlockFeature.CONNECTION_SIZE / 2
-							- DNDAddBlockFeature.CONNECTION_EXTRA, location.getY()));
+				if (location.getX() != width - AddBlockFeature.CONNECTION_SIZE / 2) {
+					fixPointAnchor.setLocation(gaService.createPoint(width - AddBlockFeature.CONNECTION_SIZE / 2
+							- AddBlockFeature.CONNECTION_EXTRA, location.getY()));
 					changed = true;
 				}
 			}

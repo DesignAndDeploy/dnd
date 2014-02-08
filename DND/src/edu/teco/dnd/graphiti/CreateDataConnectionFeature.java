@@ -18,11 +18,11 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 /**
  * Creates a new data connection.
  */
-public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeature {
+public class CreateDataConnectionFeature extends AbstractCreateConnectionFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDCreateDataConnectionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(CreateDataConnectionFeature.class);
 
 	private String name;
 	
@@ -34,7 +34,7 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDCreateDataConnectionFeature(final DNDFeatureProvider fp) {
+	public CreateDataConnectionFeature(final FeatureProvider fp) {
 		super(fp, Messages.Graphiti_CREATE_CONNECTION, Messages.Graphiti_CREATE_CONNECTION_DESCRIPTION);
 		this.name = Messages.Graphiti_CREATE_CONNECTION;
 		this.description = Messages.Graphiti_CREATE_CONNECTION_DESCRIPTION;
@@ -57,10 +57,10 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 		Object sourceBo = getBusinessObjectForPictogramElement(sourceAnchor);
 		Object targetBo = getBusinessObjectForPictogramElement(targetAnchor);
 		if (sourceBo instanceof OutputModel && targetBo instanceof InputModel) {
-			return ((OutputModel) sourceBo).isCompatible(((DNDFeatureProvider) getFeatureProvider()).getRepository(),
+			return ((OutputModel) sourceBo).isCompatible(((FeatureProvider) getFeatureProvider()).getRepository(),
 					(InputModel) targetBo);
 		} else if (sourceBo instanceof InputModel && targetBo instanceof OutputModel) {
-			return ((InputModel) sourceBo).isCompatible(((DNDFeatureProvider) getFeatureProvider()).getRepository(),
+			return ((InputModel) sourceBo).isCompatible(((FeatureProvider) getFeatureProvider()).getRepository(),
 					(OutputModel) targetBo);
 		}
 		return false;
@@ -103,7 +103,7 @@ public class DNDCreateDataConnectionFeature extends AbstractCreateConnectionFeat
 		if (input.getOutput() != null) {
 			LOGGER.info("Removing old connection"); //$NON-NLS-1$
 			IRemoveContext removeContext = new RemoveContext(targetAnchor.getIncomingConnections().get(0));
-			IRemoveFeature removeFeature = new DNDRemoveDataConnectionFeature(getFeatureProvider());
+			IRemoveFeature removeFeature = new RemoveDataConnectionFeature(getFeatureProvider());
 			if (removeFeature.canExecute(removeContext)) {
 				removeFeature.execute(removeContext);
 			} else {

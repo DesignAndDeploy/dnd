@@ -28,14 +28,14 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 /**
  * Provides the palette and the selection border.
  */
-public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
+public class ToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	/**
 	 * Passes the diagram type to the super constructor.
 	 * 
 	 * @param diagramTypeProvider
 	 *            the diagram type this tool behavior provider belongs to
 	 */
-	public DNDToolBehaviorProvider(final DNDDiagramTypeProvider diagramTypeProvider) {
+	public ToolBehaviorProvider(final DiagramTypeProvider diagramTypeProvider) {
 		super(diagramTypeProvider);
 	}
 
@@ -49,8 +49,8 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		List<IPaletteCompartmentEntry> palette = new ArrayList<IPaletteCompartmentEntry>();
 		PaletteCompartmentEntry connections = new PaletteCompartmentEntry(Messages.Graphiti_PALETTE_CONNECTIONS, null);
 		palette.add(connections);
-		DNDCreateDataConnectionFeature dataConnectionFeature =
-				new DNDCreateDataConnectionFeature((DNDFeatureProvider) getFeatureProvider());
+		CreateDataConnectionFeature dataConnectionFeature =
+				new CreateDataConnectionFeature((FeatureProvider) getFeatureProvider());
 		ConnectionCreationToolEntry connectionCreationToolEntry =
 				new ConnectionCreationToolEntry(dataConnectionFeature.getName(),
 						dataConnectionFeature.getDescription(), null, null);
@@ -60,9 +60,9 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		Map<String, List<ICreateFeature>> categories = new HashMap<String, List<ICreateFeature>>();
 		for (ICreateFeature cf : getFeatureProvider().getCreateFeatures()) {
 			String category = Messages.Graphiti_PALETTE_OTHER;
-			if (cf instanceof DNDCreateBlockFeature) {
+			if (cf instanceof CreateBlockFeature) {
 				category = Messages.Graphiti_PALETTE_BLOCKS;
-				String[] classname = ((DNDCreateBlockFeature) cf).getBlockClass().getClassName().split("\\.");
+				String[] classname = ((CreateBlockFeature) cf).getBlockClass().getClassName().split("\\.");
 				if (classname.length >= 2) {
 					category = classname[classname.length - 2];
 				}
@@ -155,7 +155,7 @@ public class DNDToolBehaviorProvider extends DefaultToolBehaviorProvider {
     @Override
     public ICustomFeature getDoubleClickFeature(IDoubleClickContext context) {
     	ICustomFeature customFeature =
-            new DNDDoubleClickFeature(getFeatureProvider());
+            new DoubleClickFeature(getFeatureProvider());
         if (customFeature.canExecute(context)) {
             return customFeature;
         }

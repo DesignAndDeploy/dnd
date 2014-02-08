@@ -12,7 +12,7 @@
    <extension
          point="org.eclipse.graphiti.ui.diagramTypeProviders">
       <diagramTypeProvider
-            class="edu.teco.dnd.graphiti.DNDDiagramTypeProvider"
+            class="edu.teco.dnd.graphiti.DiagramTypeProvider"
             id="edu.teco.dnd.graphiti.DNDDiagramTypeProvider"
             name="Data Flow Editor">
 	      <diagramType

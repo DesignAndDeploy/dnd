@@ -20,11 +20,11 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 /**
  * Adds a representation for a data connection.
  */
-public class DNDAddDataConnectionFeature extends AbstractAddFeature {
+public class AddDataConnectionFeature extends AbstractAddFeature {
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDAddDataConnectionFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(AddDataConnectionFeature.class);
 
 	/**
 	 * Passes the feature provider to the super constructor.
@@ -32,7 +32,7 @@ public class DNDAddDataConnectionFeature extends AbstractAddFeature {
 	 * @param fp
 	 *            the feature provider
 	 */
-	public DNDAddDataConnectionFeature(final IFeatureProvider fp) {
+	public AddDataConnectionFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 

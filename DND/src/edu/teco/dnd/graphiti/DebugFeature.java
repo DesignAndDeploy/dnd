@@ -15,12 +15,12 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 /**
  * This class is used for logging informations on graphiti stuff.
  */
-public class DNDDebugFeature extends AbstractCustomFeature {
+public class DebugFeature extends AbstractCustomFeature {
 
 	/**
 	 * Loggs the information.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDDebugFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(DebugFeature.class);
 
 	/**
 	 * Initializes a new DNDDebugFeature.
@@ -28,7 +28,7 @@ public class DNDDebugFeature extends AbstractCustomFeature {
 	 * @param fp
 	 *            The FeatureProvider
 	 */
-	public DNDDebugFeature(final IFeatureProvider fp) {
+	public DebugFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 

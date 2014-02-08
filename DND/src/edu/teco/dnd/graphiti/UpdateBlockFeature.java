@@ -18,12 +18,12 @@ import org.eclipse.graphiti.mm.pictograms.Shape;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
 
-public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
+public class UpdateBlockFeature extends AbstractUpdateFeature {
 
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DNDUpdateBlockNameFeature.class);
+	private static final Logger LOGGER = LogManager.getLogger(UpdateBlockNameFeature.class);
 
 	/**
 	 * Initializes a new DNDUpdateOptionFeature.
@@ -31,7 +31,7 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 	 * @param fp
 	 *            the FeatureProvider
 	 */
-	public DNDUpdateBlockFeature(final IFeatureProvider fp) {
+	public UpdateBlockFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 	
@@ -68,7 +68,7 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 				}
 			}
 		}
-		if (((DNDFeatureProvider) getFeatureProvider()).emfResourceChanged()){
+		if (((FeatureProvider) getFeatureProvider()).emfResourceChanged()){
 			reason = Reason.createTrueReason("Resource modified");
 			return reason;
 		}
@@ -81,8 +81,8 @@ public class DNDUpdateBlockFeature extends AbstractUpdateFeature {
 	@Override
 	public boolean update(IUpdateContext context) {
 		LOGGER.entry(context);
-		boolean changeNeeded = ((DNDFeatureProvider) getFeatureProvider()).emfResourceChanged();
-		((DNDFeatureProvider) getFeatureProvider()).updateEMFResource();
+		boolean changeNeeded = ((FeatureProvider) getFeatureProvider()).emfResourceChanged();
+		((FeatureProvider) getFeatureProvider()).updateEMFResource();
 		
 		PictogramElement pe = context.getPictogramElement();
 		IFeatureProvider provider = getFeatureProvider();
