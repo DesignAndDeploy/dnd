@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
@@ -20,7 +19,7 @@ import edu.teco.dnd.util.FutureNotifier;
 public class DeployEditorProgress {
 
 	private static FutureNotifier<Void> n;
-	
+
 	public static void startDeploying(final String appName, final Deploy deploy,
 			final Map<FunctionBlockModel, BlockTarget> mapBlockToTarget) {
 		Collection<ModuleInfo> modules = new ArrayList<ModuleInfo>();
@@ -46,7 +45,7 @@ public class DeployEditorProgress {
 	 * platform shutdown and allows the plugin to cancel the jobs itself.
 	 */
 	public static void cancelDeploying() {
-		if (n != null && !n.isDone()){
+		if (n != null && !n.isDone()) {
 			n.cancel(true);
 		}
 	}
