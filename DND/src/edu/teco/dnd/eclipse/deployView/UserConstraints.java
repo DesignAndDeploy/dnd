@@ -1,10 +1,12 @@
-package edu.teco.dnd.deploy;
+package edu.teco.dnd.eclipse.deployView;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import edu.teco.dnd.deploy.Constraint;
+import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;

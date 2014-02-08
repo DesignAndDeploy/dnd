@@ -40,7 +40,6 @@ import edu.teco.dnd.deploy.Constraint;
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
-import edu.teco.dnd.deploy.UserConstraints;
 import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.EclipseUtil;
