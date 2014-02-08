@@ -16,7 +16,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
-import edu.teco.dnd.module.ModuleMain;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.AddressBasedServerConfig;
@@ -30,16 +29,6 @@ public class Activator extends AbstractUIPlugin {
 	 * The logger for this class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(Activator.class);
-
-	/**
-	 * The default port to listen on for incoming connections.
-	 */
-	public static final int DEFAULT_LISTEN_PORT = 5000;
-
-	/**
-	 * The default address used for multicast.
-	 */
-	public static final InetSocketAddress DEFAULT_MULTICAST_ADDRESS = ModuleMain.DEFAULT_MULTICAST_ADDRESS;
 
 	private static Activator plugin;
 
