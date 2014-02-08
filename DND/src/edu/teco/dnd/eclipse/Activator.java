@@ -15,8 +15,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import edu.teco.dnd.eclipse.preferences.Preferences;
-import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
 import edu.teco.dnd.module.ModuleID;
+import edu.teco.dnd.eclipse.preferences.NetworkPreferences;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.AddressBasedServerConfig;
@@ -99,10 +99,10 @@ public class Activator extends AbstractUIPlugin {
 
 	@Override
 	protected void initializeDefaultPreferences(IPreferenceStore store) {
-		store.setDefault(PreferencesNetwork.LISTEN_PREFERENCE, "");
-		store.setDefault(PreferencesNetwork.MULTICAST_PREFERENCE, "");
-		store.setDefault(PreferencesNetwork.ANNOUNCE_PREFERENCE, "");
-		store.setDefault(PreferencesNetwork.BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
+		store.setDefault(NetworkPreferences.LISTEN_PREFERENCE, "");
+		store.setDefault(NetworkPreferences.MULTICAST_PREFERENCE, "");
+		store.setDefault(NetworkPreferences.ANNOUNCE_PREFERENCE, "");
+		store.setDefault(NetworkPreferences.BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the listen addresses stored in the Eclipse preferences
 	 */
 	private Collection<InetSocketAddress> getListenAddresses() {
-		return getInetSocketAddresses(getPreference(PreferencesNetwork.LISTEN_PREFERENCE).split(" "));
+		return getInetSocketAddresses(getPreference(NetworkPreferences.LISTEN_PREFERENCE).split(" "));
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the multicast addresses stored in the Eclipse preferences
 	 */
 	private Collection<NetConnection> getMulticastAddresses() {
-		return getNetConnections(getPreference(PreferencesNetwork.MULTICAST_PREFERENCE).split(" "));
+		return getNetConnections(getPreference(NetworkPreferences.MULTICAST_PREFERENCE).split(" "));
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the announce addresses stored in the Eclipse preferences
 	 */
 	private Collection<InetSocketAddress> getAnnounceAddresses() {
-		return getInetSocketAddresses(getPreference(PreferencesNetwork.ANNOUNCE_PREFERENCE).split(" "));
+		return getInetSocketAddresses(getPreference(NetworkPreferences.ANNOUNCE_PREFERENCE).split(" "));
 	}
 
 	private Collection<InetSocketAddress> getInetSocketAddresses(final String[] addresses) {
@@ -177,6 +177,6 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the announce interval stored in the Eclipse preferences
 	 */
 	private int getAnnounceInterval() {
-		return getPreferenceStore().getInt(PreferencesNetwork.BEACON_PREFERENCE);
+		return getPreferenceStore().getInt(NetworkPreferences.BEACON_PREFERENCE);
 	}
 }
