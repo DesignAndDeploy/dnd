@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +17,7 @@ import edu.teco.dnd.util.FutureNotifier;
  * @author jung
  * 
  */
-public class DeployViewProgress {
+public class DeployEditorProgress {
 
 	private static FutureNotifier<Void> n;
 	

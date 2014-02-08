@@ -1,16 +1,16 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import org.eclipse.swt.events.KeyAdapter;
 
 public class DeployKeyAdapter extends KeyAdapter{
-	private DeployView view;
+	private DeployEditor view;
 	
-	public DeployKeyAdapter(DeployView view){
+	public DeployKeyAdapter(DeployEditor view){
 		super();
 		this.view = view;
 	}
 	
-	public DeployView getView(){
+	public DeployEditor getView(){
 		return view;
 	}
 	

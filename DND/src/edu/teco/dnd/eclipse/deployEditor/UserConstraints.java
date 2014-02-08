@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import java.util.Collections;
 import java.util.HashMap;

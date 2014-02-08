@@ -1,9 +1,9 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "edu.teco.dnd.eclipse.deployView.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "edu.teco.dnd.eclipse.deployEditor.messages"; //$NON-NLS-1$
 	public static String DEPLOY_BLOCKUPDATE_COMPLETE;
 	public static String DEPLOY_COLON;
 	public static String DEPLOY_COLUMN1_TOOLTIP;

@@ -1,17 +1,17 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import org.eclipse.swt.events.SelectionAdapter;
 
 public class DeploySelectionAdapter extends SelectionAdapter {
 
-	private DeployView view;
+	private DeployEditor view;
 	
-	public DeploySelectionAdapter(DeployView view){
+	public DeploySelectionAdapter(DeployEditor view){
 		super();
 		this.view = view;
 	}
 	
-	public DeployView getView(){
+	public DeployEditor getView(){
 		return view;
 	}
 	

@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,7 +31,7 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
  * @author jung
  * 
  */
-public class DeployViewGraphics {
+public class DeployEditorGraphics {
 
 	/**
 	 * Key code for the 'enter' key.
@@ -98,7 +98,7 @@ public class DeployViewGraphics {
 	private Map<FunctionBlockModel, TableItem> blockToItem;
 	private List<String> infoTexts;
 
-	public DeployViewGraphics(Composite parent) {
+	public DeployEditorGraphics(Composite parent) {
 		this.parent = parent;
 		cancelDeploy = false;
 		infoTexts = new LinkedList<String>();
@@ -114,7 +114,7 @@ public class DeployViewGraphics {
 		parent.setLayout(layout);
 	}
 
-	protected void initializeWidgets(final DeployView view) {
+	protected void initializeWidgets(final DeployEditor view) {
 		createAppNameLabel();
 		createServerButton();
 		createBlockModelSpecsLabel();
@@ -596,7 +596,7 @@ public class DeployViewGraphics {
 		blockToItem.remove(model);
 	}
 
-	private void createListeners(final DeployView view) {
+	private void createListeners(final DeployEditor view) {
 		serverButton.addSelectionListener(new DeploySelectionAdapter(view) {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -643,7 +643,7 @@ public class DeployViewGraphics {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (cancelDeploy) {
-					DeployViewProgress.cancelDeploying();
+					DeployEditorProgress.cancelDeploying();
 					deploymentFinished(false);
 				} else {
 					getView().deploy();

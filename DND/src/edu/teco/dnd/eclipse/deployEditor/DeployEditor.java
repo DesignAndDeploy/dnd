@@ -1,4 +1,4 @@
-package edu.teco.dnd.eclipse.deployView;
+package edu.teco.dnd.eclipse.deployEditor;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -66,12 +66,12 @@ import edu.teco.dnd.util.StringUtil;
  * also create a distribution and deploy the function blocks on the modules.
  * 
  */
-public class DeployView extends EditorPart implements ServerStateListener, ModuleManagerListener {
+public class DeployEditor extends EditorPart implements ServerStateListener, ModuleManagerListener {
 
 	/**
 	 * The logger for this class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(DeployView.class);
+	private static final Logger LOGGER = LogManager.getLogger(DeployEditor.class);
 
 	private ServerManager<?> serverManager;
 	private ModuleManager manager;
@@ -83,7 +83,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 	private Map<FunctionBlockModel, BlockTarget> mapBlockToTarget;
 
 	private Resource resource;
-	private DeployViewGraphics graphicsManager;
+	private DeployEditorGraphics graphicsManager;
 
 	private boolean newConstraints;
 
@@ -119,7 +119,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 		LOGGER.entry(parent);
 		functionBlocks = new ArrayList<FunctionBlockModel>();
 
-		graphicsManager = new DeployViewGraphics(parent);
+		graphicsManager = new DeployEditorGraphics(parent);
 		graphicsManager.initializeParent();
 		graphicsManager.initializeWidgets(this);
 
@@ -380,7 +380,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 			}
 		});
 
-		DeployViewProgress.startDeploying(graphicsManager.getAppName(), deploy, mapBlockToTarget);
+		DeployEditorProgress.startDeploying(graphicsManager.getAppName(), deploy, mapBlockToTarget);
 		graphicsManager.deploymentStarted();
 		resetDeployment();
 		LOGGER.exit();
@@ -748,7 +748,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 				if (widgetsInitialized) {
 					graphicsManager.serverOnline();
 
-					synchronized (DeployView.this) {
+					synchronized (DeployEditor.this) {
 						while (!idList.isEmpty()) {
 							removeID(idList.get(0)); // TODO: Unschön, aber geht
 														// hoffentlich?
@@ -766,7 +766,7 @@ public class DeployView extends EditorPart implements ServerStateListener, Modul
 				if (widgetsInitialized) {
 					graphicsManager.serverOffline();
 					resetDeployment();
-					synchronized (DeployView.this) {
+					synchronized (DeployEditor.this) {
 						while (!idList.isEmpty()) {
 							removeID(idList.get(0)); // TODO: Unschön, aber geht
 														// hoffentlich?
