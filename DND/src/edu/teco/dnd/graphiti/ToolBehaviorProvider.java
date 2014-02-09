@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.graphiti.features.ICreateFeature;
-import org.eclipse.graphiti.features.context.IDoubleClickContext;
 import org.eclipse.graphiti.features.context.IPictogramElementContext;
-import org.eclipse.graphiti.features.custom.ICustomFeature;
 import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
@@ -151,15 +149,4 @@ public class ToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		return data;
 
 	}
-	
-    @Override
-    public ICustomFeature getDoubleClickFeature(IDoubleClickContext context) {
-    	ICustomFeature customFeature =
-            new DoubleClickFeature(getFeatureProvider());
-        if (customFeature.canExecute(context)) {
-            return customFeature;
-        }
-        return super.getDoubleClickFeature(context);
-    }
- 
 }
