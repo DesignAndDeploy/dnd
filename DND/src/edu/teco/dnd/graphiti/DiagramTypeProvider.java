@@ -1,7 +1,5 @@
 package edu.teco.dnd.graphiti;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.dt.AbstractDiagramTypeProvider;
 import org.eclipse.graphiti.tb.IToolBehaviorProvider;
 
@@ -9,8 +7,6 @@ import org.eclipse.graphiti.tb.IToolBehaviorProvider;
  * Provides a FeatureProvider and a ToolBehaviorProvider.
  */
 public class DiagramTypeProvider extends AbstractDiagramTypeProvider {
-	private static final Logger LOGGER = LogManager.getLogger(DiagramTypeProvider.class);
-
 	/**
 	 * Sets the FeatureProvider to {@link FeatureProvider}.
 	 * 
@@ -18,11 +14,7 @@ public class DiagramTypeProvider extends AbstractDiagramTypeProvider {
 	 */
 	public DiagramTypeProvider() {
 		super();
-		try {
-			setFeatureProvider(new FeatureProvider(this));
-		} catch (final ClassNotFoundException e) {
-			LOGGER.catching(e);
-		}
+		setFeatureProvider(new FeatureProvider(this));
 	}
 
 	/**

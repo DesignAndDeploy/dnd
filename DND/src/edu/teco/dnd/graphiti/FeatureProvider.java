@@ -123,7 +123,7 @@ public class FeatureProvider extends DefaultFeatureProvider {
 	 *            the diagram type provider this feature provider belongs to
 	 * @throws ClassNotFoundException
 	 */
-	public FeatureProvider(final IDiagramTypeProvider dtp) throws ClassNotFoundException {
+	public FeatureProvider(final IDiagramTypeProvider dtp) {
 		super(dtp);
 		LOGGER.info("DNDFeatureProvider created successfully");
 	}
