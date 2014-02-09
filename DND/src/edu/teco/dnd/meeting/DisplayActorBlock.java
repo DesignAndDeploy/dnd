@@ -11,13 +11,11 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This FunctionBlock is used to put a String on a display.
  * 
  */
-@BlockType("Meeting")
 public class DisplayActorBlock extends FunctionBlock {
 	/**
 	 * Used for serialization.

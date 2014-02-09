@@ -5,13 +5,11 @@ import java.util.Map;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This class is an operating {@link FunctionBlock} that uses a temperature it gets to control the heating.
  * 
  */
-@BlockType("Temperature")
 public class TemperatureOperatorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -2352500913660771287L;
 

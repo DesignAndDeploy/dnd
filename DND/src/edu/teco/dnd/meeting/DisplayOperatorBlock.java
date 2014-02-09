@@ -5,13 +5,11 @@ import java.util.Map;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This operating FunctionBlock controls the messages that are to be shown on a display.
  * 
  */
-@BlockType("Meeting")
 public class DisplayOperatorBlock extends FunctionBlock {
 	/**
 	 * 

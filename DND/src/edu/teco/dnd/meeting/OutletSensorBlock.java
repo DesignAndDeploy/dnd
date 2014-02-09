@@ -5,14 +5,12 @@ import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.OutletReader;
 import edu.teco.dnd.uPart.SensorException;
 
 /**
  * This {@link FunctionBlock} is used to detect the use of an outlet.
  */
-@BlockType("Meeting")
 public class OutletSensorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -5476105010804335530L;
 

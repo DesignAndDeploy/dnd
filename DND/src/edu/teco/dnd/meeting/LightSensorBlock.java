@@ -5,7 +5,6 @@ import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.SensorException;
 import edu.teco.dnd.uPart.UPartReader;
 
@@ -13,7 +12,6 @@ import edu.teco.dnd.uPart.UPartReader;
  * This class represents a {@link FunctionBlock} that can read a light sensor.
  * 
  */
-@BlockType("Meeting")
 public class LightSensorBlock extends FunctionBlock {
 	/**
 	 * 

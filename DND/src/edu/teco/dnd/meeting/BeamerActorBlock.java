@@ -4,14 +4,12 @@ import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.BeamerControl;
 
 /**
  * This FunctionBlock serves to control the Beamer.
  * 
  */
-@BlockType("Meeting")
 public class BeamerActorBlock extends FunctionBlock {
 	/**
 	 * 

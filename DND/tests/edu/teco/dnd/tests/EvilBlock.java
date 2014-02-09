@@ -13,14 +13,12 @@ import java.util.UUID;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This operating FunctionBlock is the pure evil!!!!
  * 
  */
 @SuppressWarnings("unused")
-@BlockType("EVIL")
 public class EvilBlock extends FunctionBlock {
 	private static final boolean DO_DUMP_STACK = false;
 	private static final boolean DO_EVIL_ON_MODULE_ONLY = false;

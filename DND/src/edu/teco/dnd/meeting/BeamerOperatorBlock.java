@@ -5,13 +5,11 @@ import java.util.Map;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This operating FunctionBlock is used to control the Beamer.
  * 
  */
-@BlockType("Meeting")
 public class BeamerOperatorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -889186768492376346L;
 

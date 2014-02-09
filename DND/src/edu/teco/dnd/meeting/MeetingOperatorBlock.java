@@ -5,13 +5,11 @@ import java.util.Map;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 
 /**
  * This operating {@link FunctionBlock} detects if the room is occupied and informs other operating blocks.
  * 
  */
-@BlockType("Meeting")
 public class MeetingOperatorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -2809039301791126409L;
 

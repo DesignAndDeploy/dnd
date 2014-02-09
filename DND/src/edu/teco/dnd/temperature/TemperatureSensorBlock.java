@@ -5,14 +5,12 @@ import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Output;
-import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.SensorException;
 import edu.teco.dnd.uPart.UPartReader;
 
 /**
  * This class represents a {@link FunctionBlock} that can read a temperature sensor.
  */
-@BlockType("Temperature")
 public class TemperatureSensorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -1362359340515519805L;
 

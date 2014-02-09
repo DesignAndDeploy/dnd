@@ -4,14 +4,12 @@ import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.OutletControl;
 
 /**
  * This FunctionBlock serves to control the Beamer.
  * 
  */
-@BlockType("Meeting")
 public class OutletActorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -8839932451597237481L;
 

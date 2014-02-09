@@ -5,7 +5,6 @@ import java.util.Map;
 
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.Input;
-import edu.teco.dnd.graphiti.BlockType;
 import edu.teco.dnd.uPart.HeaterControl;
 import edu.teco.dnd.uPart.SensorException;
 
@@ -13,7 +12,6 @@ import edu.teco.dnd.uPart.SensorException;
  * This acting {@link FunctionBlock} is used to turn the heating on / off.
  * 
  */
-@BlockType("Temperature")
 public class TemperatureActorBlock extends FunctionBlock {
 	private static final long serialVersionUID = -9221185917263406514L;
 
