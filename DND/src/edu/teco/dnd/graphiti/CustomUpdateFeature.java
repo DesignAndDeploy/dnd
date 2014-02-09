@@ -1,8 +1,12 @@
 package edu.teco.dnd.graphiti;
 
 import org.eclipse.graphiti.features.IFeatureProvider;
+import org.eclipse.graphiti.features.IUpdateFeature;
 import org.eclipse.graphiti.features.context.ICustomContext;
+import org.eclipse.graphiti.features.context.IUpdateContext;
+import org.eclipse.graphiti.features.context.impl.UpdateContext;
 import org.eclipse.graphiti.features.custom.AbstractCustomFeature;
+import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
@@ -16,24 +20,10 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
  * 
  */
 public class CustomUpdateFeature extends AbstractCustomFeature {
-
-	IFeatureProvider featureProv;
-
+	private boolean hasDoneChanges = false;
+	
 	public CustomUpdateFeature(IFeatureProvider fp) {
 		super(fp);
-		featureProv = fp;
-	}
-
-	private boolean hasDoneChanges = false;
-
-	@Override
-	public String getName() {
-		return Messages.Graphiti_UPDATE_CUSTOM;
-	}
-
-	@Override
-	public String getDescription() {
-		return Messages.Graphiti_UPDATE_CUSTOM_DESCRIPTION;
 	}
 
 	@Override
@@ -58,29 +48,47 @@ public class CustomUpdateFeature extends AbstractCustomFeature {
 			Object bo = getBusinessObjectForPictogramElement(pes[0]);
 			if (bo instanceof FunctionBlockModel) {
 				FunctionBlockModel model = (FunctionBlockModel) bo;
-				String newName = model.getBlockName();
-				String newPosition = model.getPosition();
 				PictogramElement pe = context.getInnerPictogramElement();
-				if (pe.getGraphicsAlgorithm() instanceof Text) {
-					Text text = (Text) pe.getGraphicsAlgorithm();
-					if (TypePropertyUtil.isBlockNameText(text) && newName != null) {
-						UpdateBlockNameFeature updateBlockName = new UpdateBlockNameFeature(featureProv);
-						updateBlockName.update(context);
-						this.hasDoneChanges = true;
-					} else if (TypePropertyUtil.isPositionText(text) && newPosition != null) {
-						UpdatePositionFeature updatePosition = new UpdatePositionFeature(featureProv);
-						updatePosition.update(context);
-						this.hasDoneChanges = true;
-					}
+				if (needsUpdate(model, pe)) {
+					final IUpdateContext updateContext = new UpdateContext(pe);
+					IUpdateFeature updateFeature = getFeatureProvider().getUpdateFeature(updateContext);
+					updateFeature.update(updateContext);
+					this.hasDoneChanges |= updateFeature.hasDoneChanges();
 				}
 			}
 		}
 	}
 
+	private static boolean needsUpdate(final FunctionBlockModel model, final PictogramElement pe) {
+		assert model != null;
+		assert pe != null;
+
+		final GraphicsAlgorithm ga = pe.getGraphicsAlgorithm();
+		if (ga instanceof Text) {
+			final Text text = (Text) ga;
+			final String value = text.getValue();
+			if (TypePropertyUtil.isBlockNameText(text)) {
+				return value != model.getBlockName();
+			} else if (TypePropertyUtil.isPositionText(text)) {
+				return value != model.getPosition();
+			}
+		}
+
+		return false;
+	}
+
 	@Override
 	public boolean hasDoneChanges() {
 		return this.hasDoneChanges;
-
 	}
 
+	@Override
+	public String getName() {
+		return Messages.Graphiti_UPDATE_CUSTOM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Messages.Graphiti_UPDATE_CUSTOM_DESCRIPTION;
+	}
 }
