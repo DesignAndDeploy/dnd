@@ -17,24 +17,16 @@ import org.eclipse.graphiti.mm.pictograms.Shape;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
-
+/**
+ * Used to update the graphical representation of a {@link FunctionBlockModel}.
+ */
 public class UpdateBlockFeature extends AbstractUpdateFeature {
-
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(UpdateBlockNameFeature.class);
 
-	/**
-	 * Initializes a new DNDUpdateOptionFeature.
-	 * 
-	 * @param fp
-	 *            the FeatureProvider
-	 */
 	public UpdateBlockFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
-	
+
 	@Override
 	public boolean canUpdate(IUpdateContext context) {
 		LOGGER.entry(context);
@@ -57,22 +49,22 @@ public class UpdateBlockFeature extends AbstractUpdateFeature {
 		IFeatureProvider provider = getFeatureProvider();
 		ContainerShape shape = (ContainerShape) pe;
 		IReason reason = null;
-		for (Shape child : shape.getChildren()){
+		for (Shape child : shape.getChildren()) {
 			UpdateContext childContext = new UpdateContext(child);
 			IUpdateFeature feature = provider.getUpdateFeature(childContext);
-			if (feature != null){
+			if (feature != null) {
 				reason = feature.updateNeeded(childContext);
-				if (reason.toBoolean()){
+				if (reason.toBoolean()) {
 					reason = Reason.createTrueReason("Update needed for at least one block value");
 					return reason;
 				}
 			}
 		}
-		if (((FeatureProvider) getFeatureProvider()).emfResourceChanged()){
+		if (((FeatureProvider) getFeatureProvider()).emfResourceChanged()) {
 			reason = Reason.createTrueReason("Resource modified");
 			return reason;
 		}
-		
+
 		reason = Reason.createFalseReason();
 		LOGGER.exit(reason);
 		return reason;
@@ -83,20 +75,20 @@ public class UpdateBlockFeature extends AbstractUpdateFeature {
 		LOGGER.entry(context);
 		boolean changeNeeded = ((FeatureProvider) getFeatureProvider()).emfResourceChanged();
 		((FeatureProvider) getFeatureProvider()).updateEMFResource();
-		
+
 		PictogramElement pe = context.getPictogramElement();
 		IFeatureProvider provider = getFeatureProvider();
 		ContainerShape shape = (ContainerShape) pe;
 		IReason reason = null;
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
 		Resource rec = block.eResource();
-		
-		for (Shape child : shape.getChildren()){
+
+		for (Shape child : shape.getChildren()) {
 			UpdateContext childContext = new UpdateContext(child);
 			IUpdateFeature feature = provider.getUpdateFeature(childContext);
-			if (feature != null){
+			if (feature != null) {
 				reason = feature.updateNeeded(childContext);
-				if (reason.toBoolean() || rec.isModified() || changeNeeded){
+				if (reason.toBoolean() || rec.isModified() || changeNeeded) {
 					feature.update(childContext);
 				}
 			}
@@ -104,5 +96,4 @@ public class UpdateBlockFeature extends AbstractUpdateFeature {
 		LOGGER.exit(true);
 		return true;
 	}
-
 }

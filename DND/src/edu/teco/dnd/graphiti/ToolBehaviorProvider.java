@@ -24,24 +24,13 @@ import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
- * Provides the palette and the selection border.
+ * Provides the palette (available {@link FunctionBlockModel}s), tool tips and context buttons.
  */
 public class ToolBehaviorProvider extends DefaultToolBehaviorProvider {
-	/**
-	 * Passes the diagram type to the super constructor.
-	 * 
-	 * @param diagramTypeProvider
-	 *            the diagram type this tool behavior provider belongs to
-	 */
 	public ToolBehaviorProvider(final DiagramTypeProvider diagramTypeProvider) {
 		super(diagramTypeProvider);
 	}
 
-	/**
-	 * Returns the palette entries to show.
-	 * 
-	 * @return the palette entries to show
-	 */
 	@Override
 	public IPaletteCompartmentEntry[] getPalette() {
 		List<IPaletteCompartmentEntry> palette = new ArrayList<IPaletteCompartmentEntry>();
@@ -72,7 +61,7 @@ public class ToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		}
 		List<String> categoryList = new ArrayList<String>(categories.keySet());
 		Collections.sort(categoryList);
-		
+
 		for (String category : categoryList) {
 			PaletteCompartmentEntry pce = new PaletteCompartmentEntry(category, null);
 			List<ICreateFeature> cfs = categories.get(category);
@@ -111,12 +100,12 @@ public class ToolBehaviorProvider extends DefaultToolBehaviorProvider {
 			OutputModel output = (OutputModel) bo;
 			name =
 					output.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT
-							+ simplifyName(output.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$
+							+ getClassName(output.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (bo instanceof InputModel) {
 			InputModel input = (InputModel) bo;
 			name =
 					input.getName() + Messages.Graphiti_SPACE + Messages.Graphiti_BRACE_LEFT
-							+ simplifyName(input.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							+ getClassName(input.getType()) + Messages.Graphiti_BRACE_RIGHT; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} else if (ga instanceof Text) {
 			name = ((Text) ga).getValue();
 		}
@@ -128,17 +117,17 @@ public class ToolBehaviorProvider extends DefaultToolBehaviorProvider {
 	}
 
 	/**
-	 * Simplyfies a name by cutting off parts of it.
+	 * Returns the class name part of a name that includes the package.
 	 * 
-	 * @param name
-	 *            name to simplify
-	 * @return simplified name
+	 * @param fullName
+	 *            name with package.
+	 * @return class name without the package prefix
 	 */
-	private static String simplifyName(final String name) {
-		if (name == null) {
+	private static String getClassName(final String fullName) {
+		if (fullName == null) {
 			return null;
 		}
-		return name.substring(name.lastIndexOf('.') + 1);
+		return fullName.substring(fullName.lastIndexOf('.') + 1);
 	}
 
 	@Override
@@ -147,6 +136,5 @@ public class ToolBehaviorProvider extends DefaultToolBehaviorProvider {
 		PictogramElement pe = context.getPictogramElement();
 		setGenericContextButtons(data, pe, CONTEXT_BUTTON_DELETE | CONTEXT_BUTTON_UPDATE);
 		return data;
-
 	}
 }

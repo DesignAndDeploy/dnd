@@ -16,37 +16,17 @@ import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
- * Creates a new data connection.
+ * Creates a connection between an Output and an Input.
+ * 
+ * @see AddDataConnectionFeature
  */
 public class CreateDataConnectionFeature extends AbstractCreateConnectionFeature {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(CreateDataConnectionFeature.class);
 
-	private String name;
-	
-	private String description;
-	
-	/**
-	 * Passes the feature provider to the super constructor.
-	 * 
-	 * @param fp
-	 *            the feature provider
-	 */
 	public CreateDataConnectionFeature(final FeatureProvider fp) {
 		super(fp, Messages.Graphiti_CREATE_CONNECTION, Messages.Graphiti_CREATE_CONNECTION_DESCRIPTION);
-		this.name = Messages.Graphiti_CREATE_CONNECTION;
-		this.description = Messages.Graphiti_CREATE_CONNECTION_DESCRIPTION;
 	}
 
-	/**
-	 * Whether or not a connection can be created.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return whether or not the connection can be created
-	 */
 	@Override
 	public boolean canCreate(final ICreateConnectionContext context) {
 		Anchor sourceAnchor = context.getSourceAnchor();
@@ -66,13 +46,6 @@ public class CreateDataConnectionFeature extends AbstractCreateConnectionFeature
 		return false;
 	}
 
-	/**
-	 * Whether or not a connection can be started.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return whether or not a connection can be started
-	 */
 	@Override
 	public boolean canStartConnection(final ICreateConnectionContext context) {
 		if (!(context.getSourceAnchor() instanceof FixPointAnchor)) {
@@ -82,13 +55,6 @@ public class CreateDataConnectionFeature extends AbstractCreateConnectionFeature
 		return bo instanceof InputModel || bo instanceof OutputModel;
 	}
 
-	/**
-	 * Creates a new data connection.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return the new connection
-	 */
 	@Override
 	public Connection create(final ICreateConnectionContext context) {
 		Anchor sourceAnchor = context.getSourceAnchor();
@@ -114,12 +80,12 @@ public class CreateDataConnectionFeature extends AbstractCreateConnectionFeature
 		AddConnectionContext addContext = new AddConnectionContext(sourceAnchor, targetAnchor);
 		return (Connection) getFeatureProvider().addIfPossible(addContext);
 	}
-	
-	public String getName(){
-		return this.name;
+
+	public String getName() {
+		return Messages.Graphiti_CREATE_CONNECTION;
 	}
 
-	public String getDescription(){
-		return this.description;
+	public String getDescription() {
+		return Messages.Graphiti_CREATE_CONNECTION_DESCRIPTION;
 	}
 }

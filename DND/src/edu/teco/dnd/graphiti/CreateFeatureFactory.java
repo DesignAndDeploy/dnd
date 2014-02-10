@@ -10,17 +10,11 @@ import org.eclipse.graphiti.features.IFeatureProvider;
 import edu.teco.dnd.blocks.FunctionBlockClass;
 
 /**
- * A factory for function block create features.
+ * A factory for {@link CreateBlockFeature}s.
  */
 public final class CreateFeatureFactory {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(CreateFeatureFactory.class);
 
-	/**
-	 * Registered block types.
-	 */
 	private Set<FunctionBlockClass> blockClasses = new HashSet<FunctionBlockClass>();
 
 	/**

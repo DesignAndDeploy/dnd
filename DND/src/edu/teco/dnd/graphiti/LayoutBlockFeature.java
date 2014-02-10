@@ -26,41 +26,19 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
- * Layouts a block after resizing.
+ * Fixes the layout of a {@link FunctionBlockModel}’s graphical representation. This is called after
+ * {@link AddBlockFeature adding} or resizing a FunctionBlockModel.
  */
 public class LayoutBlockFeature extends AbstractLayoutFeature {
-	/**
-	 * Logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(LayoutBlockFeature.class);
 
-	/**
-	 * Minimum width of a block.
-	 */
 	public static final int MINIMUM_WIDTH = 250;
-
-	/**
-	 * Extra space for the name.
-	 */
 	public static final int NAME_EXTRA_SPACE = 10;
 
-	/**
-	 * Passes the feature provider to the super constructor.
-	 * 
-	 * @param fp
-	 *            the feature provider
-	 */
 	public LayoutBlockFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
-	/**
-	 * If the given context can be layouted.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return whether or not the feature can be used
-	 */
 	@Override
 	public final boolean canLayout(final ILayoutContext context) {
 		LOGGER.entry(context);
@@ -79,13 +57,6 @@ public class LayoutBlockFeature extends AbstractLayoutFeature {
 		}
 	}
 
-	/**
-	 * Layouts the given context.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return whether or not anything was changed
-	 */
 	@Override
 	public final boolean layout(final ILayoutContext context) {
 		LOGGER.entry(context);
@@ -155,8 +126,8 @@ public class LayoutBlockFeature extends AbstractLayoutFeature {
 					if (AddBlockFeature.CONNECTION_VALUE.equals(Graphiti.getPeService().getPropertyValue(ga,
 							AddBlockFeature.CONNECTION_KEY))) {
 						if (LOGGER.isTraceEnabled()) {
-							LOGGER.trace("{} set to half width {}", ga, width / 2 - AddBlockFeature.CONNECTION_SIZE
-									- 2 * AddBlockFeature.CONNECTION_EXTRA);
+							LOGGER.trace("{} set to half width {}", ga, width / 2 - AddBlockFeature.CONNECTION_SIZE - 2
+									* AddBlockFeature.CONNECTION_EXTRA);
 						}
 						gaService.setWidth(ga, width / 2 - AddBlockFeature.CONNECTION_SIZE - 3
 								* AddBlockFeature.CONNECTION_EXTRA);
@@ -218,13 +189,6 @@ public class LayoutBlockFeature extends AbstractLayoutFeature {
 		return changed;
 	}
 
-	/**
-	 * Returns the Text element containing the name of the block.
-	 * 
-	 * @param containerShape
-	 *            the containerShape of the block
-	 * @return the Text graphics algorithm representing the name
-	 */
 	private Text getName(final ContainerShape containerShape) {
 		LOGGER.entry(containerShape);
 		for (Shape shape : containerShape.getChildren()) {
