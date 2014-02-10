@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -371,22 +373,27 @@ public class FeatureProvider extends DefaultFeatureProvider {
 	public synchronized void updateEMFResource() {
 		Resource newResource = getNewEMFResource();
 
-		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
+		Map<UUID, FunctionBlockModel> oldModels = new HashMap<UUID, FunctionBlockModel>();
 		for (EObject obj : resource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
-				oldModels.add((FunctionBlockModel) obj);
+				final FunctionBlockModel oldBlock = (FunctionBlockModel) obj;
+				oldModels.put(oldBlock.getID(), oldBlock);
 			}
 		}
 
 		for (EObject obj : newResource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
-				for (FunctionBlockModel oldModel : oldModels) {
-					if (oldModel.getID().equals(newModel.getID())) {
-						oldModel.setPosition(newModel.getPosition());
-						oldModel.setBlockName(newModel.getBlockName());
-					}
+				final FunctionBlockModel oldModel = oldModels.get(newModel.getID());
+				if (oldModel != null) {
+					oldModel.setPosition(newModel.getPosition());
+					oldModel.setBlockName(newModel.getBlockName());
 				}
+
+				/*
+				 * FIXME: Does not handle new/removed blocks. Does not handle changes to anything besides name and
+				 * position
+				 */
 			}
 		}
 	}
