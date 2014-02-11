@@ -2,8 +2,6 @@ package edu.teco.dnd.graphiti;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -373,14 +371,7 @@ public class FeatureProvider extends DefaultFeatureProvider {
 	public synchronized void updateEMFResource() {
 		Resource newResource = getNewEMFResource();
 
-		Map<UUID, FunctionBlockModel> oldModels = new HashMap<UUID, FunctionBlockModel>();
-		for (EObject obj : resource.getContents()) {
-			if (obj instanceof FunctionBlockModel) {
-				final FunctionBlockModel oldBlock = (FunctionBlockModel) obj;
-				oldModels.put(oldBlock.getID(), oldBlock);
-			}
-		}
-
+		final Map<UUID, FunctionBlockModel> oldModels = getModelMap(resource);
 		for (EObject obj : newResource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
@@ -463,26 +454,30 @@ public class FeatureProvider extends DefaultFeatureProvider {
 	public synchronized boolean emfResourceChanged() {
 		Resource newResource = getNewEMFResource();
 
-		Collection<FunctionBlockModel> oldModels = new ArrayList<FunctionBlockModel>();
-		for (EObject obj : resource.getContents()) {
-			if (obj instanceof FunctionBlockModel) {
-				oldModels.add((FunctionBlockModel) obj);
-			}
-		}
-
+		final Map<UUID, FunctionBlockModel> oldModels = getModelMap(resource);
 		for (EObject obj : newResource.getContents()) {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
-				for (FunctionBlockModel oldModel : oldModels) {
-					if (isEquals(newModel.getID(), oldModel.getID())
-							&& !(isEquals(newModel.getPosition(), newModel.getPosition()) && isEquals(
-									newModel.getBlockName(), oldModel.getBlockName()))) {
-						return true;
-					}
+				final FunctionBlockModel oldModel = oldModels.get(newModel.getID());
+				if (oldModel != null
+						&& !(isEquals(newModel.getPosition(), newModel.getPosition()) && isEquals(
+								newModel.getBlockName(), oldModel.getBlockName()))) {
+					return true;
 				}
 			}
 		}
 		return false;
+	}
+
+	private Map<UUID, FunctionBlockModel> getModelMap(final Resource resource) {
+		final Map<UUID, FunctionBlockModel> modelMap = new HashMap<UUID, FunctionBlockModel>();
+		for (EObject obj : resource.getContents()) {
+			if (obj instanceof FunctionBlockModel) {
+				final FunctionBlockModel oldBlock = (FunctionBlockModel) obj;
+				modelMap.put(oldBlock.getID(), oldBlock);
+			}
+		}
+		return modelMap;
 	}
 
 	private static boolean isEquals(final Object obj, final Object other) {
