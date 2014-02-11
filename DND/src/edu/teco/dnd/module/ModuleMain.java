@@ -125,7 +125,7 @@ public final class ModuleMain {
 			registerHandlerAdapter(moduleConfig, tcpConnectionManager, module);
 		}
 
-		System.out.println("ModuleInfo is up and running.");
+		System.out.println("Module is up and running.");
 
 	}
 
