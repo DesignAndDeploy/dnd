@@ -14,7 +14,6 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.InetSocketAddress;
@@ -32,10 +31,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -48,6 +46,8 @@ import edu.teco.dnd.network.messages.BeaconMessageDeserializer;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.tcp.GsonCodec;
 import edu.teco.dnd.network.tcp.MessageAdapter;
+import edu.teco.dnd.util.DefaultFutureNotifier;
+import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.InetSocketAddressAdapter;
 
 /**
@@ -99,9 +99,7 @@ public class UDPMulticastBeacon {
 	 */
 	private final ReadWriteLock channelLock = new ReentrantReadWriteLock();
 
-	private final Condition shutdownCondition = channelLock.writeLock().newCondition();
-
-	private final Future<Void> shutdownFuture = new ShutdownFuture();
+	private final ShutdownFuture shutdownFuture = new ShutdownFuture();
 
 	/**
 	 * The listeners that will be informed when a beacon is received.
@@ -135,7 +133,7 @@ public class UDPMulticastBeacon {
 	 *            the unit for interval
 	 */
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
-			final EventExecutorGroup executor, final UUID uuid, final long interval, final TimeUnit unit) {
+			final ScheduledExecutorService executor, final UUID uuid, final long interval, final TimeUnit unit) {
 		beacon =
 				new AtomicReference<BeaconMessage>(new BeaconMessage(uuid, Collections.<InetSocketAddress> emptyList()));
 
@@ -162,7 +160,7 @@ public class UDPMulticastBeacon {
 			@Override
 			protected void initChannel(final DatagramChannel channel) {
 				channel.pipeline().addLast(datagramPacketWrapper).addLast(stringEncoder).addLast(stringDecoder)
-						.addLast(gsonCodec).addLast(executor, beaconHandler);
+						.addLast(gsonCodec).addLast(beaconHandler);
 
 				// Move TARGET_ADDRESS from channel context to handler context
 				channel.pipeline().context(DatagramPacketWrapper.class).attr(DatagramPacketWrapper.TARGET_ADDRESS)
@@ -185,7 +183,7 @@ public class UDPMulticastBeacon {
 	 *            the UUID to announce
 	 */
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
-			final EventExecutorGroup executor, final UUID uuid) {
+			final ScheduledExecutorService executor, final UUID uuid) {
 		this(factory, group, executor, uuid, DEFAULT_INTERVAL, DEFAULT_INTERVAL_UNIT);
 	}
 
@@ -245,12 +243,7 @@ public class UDPMulticastBeacon {
 				} finally {
 					channelLock.writeLock().unlock();
 				}
-				channelLock.writeLock().lock();
-				try {
-					shutdownCondition.signalAll();
-				} finally {
-					channelLock.writeLock().unlock();
-				}
+				shutdownFuture.check();
 			}
 		});
 	}
@@ -423,6 +416,7 @@ public class UDPMulticastBeacon {
 		} finally {
 			channelLock.writeLock().unlock();
 		}
+		shutdownFuture.check();
 		LOGGER.exit();
 	}
 
@@ -469,7 +463,7 @@ public class UDPMulticastBeacon {
 		return true;
 	}
 
-	public Future<Void> getShutdownFuture() {
+	public FutureNotifier<Void> getShutdownFuture() {
 		return shutdownFuture;
 	}
 
@@ -506,51 +500,19 @@ public class UDPMulticastBeacon {
 		}
 	};
 
-	private class ShutdownFuture implements Future<Void> {
-		@Override
-		public boolean cancel(boolean mayInterruptIfRunning) {
-			return false;
-		}
-
-		@Override
-		public Void get() throws InterruptedException {
-			channelLock.writeLock().lock();
-			try {
-				while (!isDone()) {
-					shutdownCondition.await();
-				}
-			} finally {
-				channelLock.writeLock().unlock();
-			}
-			return null;
-		}
-
-		@Override
-		public Void get(final long timeout, final TimeUnit unit) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isCancelled() {
-			return false;
-		}
-
-		@Override
-		public boolean isDone() {
+	private class ShutdownFuture extends DefaultFutureNotifier<Void> {
+		private void check() {
 			channelLock.readLock().lock();
 			try {
-				if (!shutdown) {
-					return false;
-				}
 				for (final Channel channel : channels.values()) {
 					if (!channel.closeFuture().isDone()) {
-						return false;
+						return;
 					}
 				}
+				setSuccess(null);
 			} finally {
 				channelLock.readLock().unlock();
 			}
-			return true;
 		}
 	}
 }

@@ -23,4 +23,9 @@ public class NetConnection {
 	public NetworkInterface getInterface() {
 		return interf;
 	}
+
+	@Override
+	public String toString() {
+		return "NetConnection[address=" + address + ",interf=" + interf + "]";
+	}
 }

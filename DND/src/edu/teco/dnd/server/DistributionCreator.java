@@ -24,8 +24,8 @@ import edu.teco.dnd.module.ModuleInfo;
 public class DistributionCreator {
 
 	public static Distribution createDistribution(Collection<FunctionBlockModel> blocks,
-			Collection<Constraint> constraints) throws NoBlocksException, NoModulesException {
-		Collection<ModuleInfo> modules = ServerManager.getDefault().getModuleManager().getModules();
+			Collection<Constraint> constraints, final Collection<ModuleInfo> modules) throws NoBlocksException,
+			NoModulesException {
 		if (blocks == null || blocks.isEmpty()) {
 			throw new NoBlocksException();
 		}

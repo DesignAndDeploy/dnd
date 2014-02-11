@@ -14,7 +14,6 @@ import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.server.DistributionCreator;
-import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.NoBlocksException;
 import edu.teco.dnd.server.NoModulesException;
 import edu.teco.dnd.server.ServerManager;
@@ -48,11 +47,12 @@ public class CommandLoop {
 
 	String appName;
 	Distribution dist;
-	ModuleManager moduleManager;
 	Collection<FunctionBlockModel> blocks;
 
-	public CommandLoop(Collection<FunctionBlockModel> functionBlocks, String appName) {
-		moduleManager = ServerManager.getDefault().getModuleManager();
+	private final ServerManager<?> serverManager;
+
+	public CommandLoop(Collection<FunctionBlockModel> functionBlocks, String appName, ServerManager<?> serverManager) {
+		this.serverManager = serverManager;
 		blocks = functionBlocks;
 		this.appName = appName;
 	}
@@ -87,11 +87,11 @@ public class CommandLoop {
 	 * @return
 	 */
 	private Distribution createDistribution() {
-		Collection<ModuleInfo> modules = moduleManager.getModules();
+		Collection<ModuleInfo> modules = serverManager.getModuleManager().getModules();
 
 		Distribution dist = null;
 		try {
-			dist = DistributionCreator.createDistribution(blocks, null);
+			dist = DistributionCreator.createDistribution(blocks, null, modules);
 		} catch (NoBlocksException e) {
 			System.out.println("Function Block Loading not implemented yet.");
 		} catch (NoModulesException e) {
@@ -128,7 +128,7 @@ public class CommandLoop {
 						Pattern.compile("com\\.google\\.gson\\..*"), Pattern.compile("org\\.apache\\.bcel\\..*"),
 						Pattern.compile("io\\.netty\\..*"), Pattern.compile("org\\.apache\\.logging\\.log4j")));
 		final Deploy deploy =
-				new Deploy(ServerManager.getDefault().getConnectionManager(), dist.getMapping(), appName, dependencies);
+				new Deploy(serverManager.getConnectionManager(), dist.getMapping(), appName, dependencies);
 		// TODO: I don't know if this will be needed by DeployView. It can be used to wait until the deployment finishes
 		// or to run code at that point
 		deploy.getDeployFutureNotifier().addListener(new FutureListener<FutureNotifier<? super Void>>() {
@@ -188,9 +188,9 @@ public class CommandLoop {
 	/**
 	 * Called whenever Program is closed regularly (by user or because there's nothing more to do).
 	 */
-	private static void exit() {
-		if (ServerManager.getDefault().isRunning()) {
-			ServerManager.getDefault().shutdownServer();
+	private void exit() {
+		if (serverManager.isRunning()) {
+			serverManager.shutdownServer();
 		}
 	}
 
