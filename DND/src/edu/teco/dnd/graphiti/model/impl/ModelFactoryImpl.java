@@ -179,8 +179,6 @@ public class ModelFactoryImpl extends EFactoryImpl implements ModelFactory {
 		return super.convertToString(eDataType, instanceValue);
 	}
 
-
-
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 

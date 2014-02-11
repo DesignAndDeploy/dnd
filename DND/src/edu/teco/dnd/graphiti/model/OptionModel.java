@@ -2,7 +2,6 @@ package edu.teco.dnd.graphiti.model;
 
 import org.eclipse.emf.ecore.EObject;
 
-// TODO: regenerate model
 /**
  * @model
  */

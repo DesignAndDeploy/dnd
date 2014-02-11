@@ -123,7 +123,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String POSITION_EDEFAULT = Messages.BLOCK_DEFAULT_POSITION;
+	protected static final String POSITION_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getPosition() <em>Position</em>}' attribute. <!-- begin-user-doc --> <!--
@@ -143,7 +143,7 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String BLOCK_NAME_EDEFAULT = Messages.BLOCK_DEFAULT_BLOCKNAME;
+	protected static final String BLOCK_NAME_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getBlockName() <em>Block Name</em>}' attribute. <!-- begin-user-doc --> <!--
@@ -554,15 +554,15 @@ public class FunctionBlockModelImpl extends EObjectImpl implements FunctionBlock
 			return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(Messages.BLOCK_TOSTRING_TYPE);
+		result.append(" (type: ");
 		result.append(type);
-		result.append(Messages.BLOCK_TOSTRING_ID);
+		result.append(", iD: ");
 		result.append(iD);
-		result.append(Messages.BLOCK_TOSTRING_POSITION);
+		result.append(", position: ");
 		result.append(position);
-		result.append(Messages.BLOCK_TOSTRING_BLOCKNAME);
+		result.append(", blockName: ");
 		result.append(blockName);
-		result.append(Messages.BLOCK_TOSTRING_BLOCKCLASS);
+		result.append(", blockClass: ");
 		result.append(blockClass);
 		result.append(')');
 		return result.toString();
