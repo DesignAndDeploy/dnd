@@ -476,15 +476,22 @@ public class DNDFeatureProvider extends DefaultFeatureProvider {
 			if (obj instanceof FunctionBlockModel) {
 				FunctionBlockModel newModel = (FunctionBlockModel) obj;
 				for (FunctionBlockModel oldModel : oldModels) {
-					if (oldModel.getID().equals(newModel.getID())
-							&& !(oldModel.getPosition().equals(newModel.getPosition()) && oldModel.getBlockName()
-									.equals(newModel.getBlockName()))) {
+					if (isEquals(newModel.getID(), oldModel.getID())
+							&& !(isEquals(newModel.getPosition(), newModel.getPosition()) && isEquals(
+									newModel.getBlockName(), oldModel.getBlockName()))) {
 						return true;
 					}
 				}
 			}
 		}
 		return false;
+	}
+
+	private static boolean isEquals(final Object obj, final Object other) {
+		if (obj == null) {
+			return other == null;
+		}
+		return obj.equals(other);
 	}
 
 	/**
