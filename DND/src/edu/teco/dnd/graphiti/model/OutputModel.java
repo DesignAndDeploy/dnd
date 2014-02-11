@@ -4,7 +4,13 @@ import org.apache.bcel.util.Repository;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.Input;
+import edu.teco.dnd.blocks.Output;
+
 /**
+ * Represents an {@link Output} of a {@link FunctionBlock}.
+ * 
  * @model
  */
 public interface OutputModel extends EObject {
@@ -61,5 +67,15 @@ public interface OutputModel extends EObject {
 	 */
 	void setType(String value);
 
+	/**
+	 * Checks if an {@link Input} is compatible with this Output. An Input is compatible if it takes either the type
+	 * this Output sends or any supertype of it.
+	 * 
+	 * @param repository
+	 *            the Repository used for inspecting the classes
+	 * @param input
+	 *            the Input to check
+	 * @return true if the input is compatible
+	 */
 	boolean isCompatible(Repository repository, InputModel input);
 }

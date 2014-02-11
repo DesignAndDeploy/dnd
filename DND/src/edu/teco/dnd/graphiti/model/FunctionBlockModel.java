@@ -5,11 +5,22 @@ import java.util.UUID;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.deploy.Deploy;
+import edu.teco.dnd.graphiti.DiagramTypeProvider;
+import edu.teco.dnd.module.Application;
+
 /**
+ * Represents all information of a {@link FunctionBlock} needed by the {@link DiagramTypeProvider graph editor} and
+ * {@link Deploy}. This is used in the Eclipse plugin to build {@link Application}s from FunctionBlocks.
+ * 
  * @model
  */
 public interface FunctionBlockModel extends EObject {
 	/**
+	 * The type of the FunctionBlock. This is used to group FunctionBlocks.
+	 * 
+	 * @return the type of this FunctionBlock
 	 * @model
 	 */
 	String getType();
@@ -41,6 +52,8 @@ public interface FunctionBlockModel extends EObject {
 	EList<OptionModel> getOptions();
 
 	/**
+	 * Returns the <code>UUID</code> identifying the FunctionBlock.
+	 * 
 	 * @model
 	 */
 	UUID getID();
