@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.killApp;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -15,32 +14,23 @@ public class KillAppAck extends Response {
 	public static final String MESSAGE_TYPE = "kill ack";
 
 	/**
-	 * UUID of the application that was supposed to be killed.
+	 * ID of the application that was supposed to be killed.
 	 */
-	public UUID appId;
+	public ApplicationID applicationID;
 
 	/**
 	 * 
-	 * @param appId
-	 *            UUID of the application that was supposed to be killed.
+	 * @param applicationID
+	 *            ID of the application that was supposed to be killed.
 	 */
-	public KillAppAck(UUID appId) {
-		this.appId = appId;
-	}
-
-	/**
-	 * 
-	 * @param msg
-	 *            message that triggered this nak.
-	 */
-	public KillAppAck(KillAppMessage msg) {
-		this.appId = msg.getApplicationID();
+	public KillAppAck(ApplicationID applicationID) {
+		this.applicationID = applicationID;
 	}
 
 	@SuppressWarnings("unused")
 	/* for gson */
 	private KillAppAck() {
-		appId = null;
+		applicationID = null;
 	}
 
 	/*
@@ -52,7 +42,7 @@ public class KillAppAck extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
+		result = prime * result + ((applicationID == null) ? 0 : applicationID.hashCode());
 		return result;
 	}
 
@@ -73,11 +63,11 @@ public class KillAppAck extends Response {
 			return false;
 		}
 		KillAppAck other = (KillAppAck) obj;
-		if (appId == null) {
-			if (other.appId != null) {
+		if (applicationID == null) {
+			if (other.applicationID != null) {
 				return false;
 			}
-		} else if (!appId.equals(other.appId)) {
+		} else if (!applicationID.equals(other.applicationID)) {
 			return false;
 		}
 		return true;
@@ -90,7 +80,8 @@ public class KillAppAck extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "KillAppAck [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()=" + getUUID() + "]";
+		return "KillAppAck [applicationID=" + applicationID + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+				+ getUUID() + "]";
 	}
 
 }

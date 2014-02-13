@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.GsonBuilder;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.BeaconListener;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
@@ -232,13 +233,13 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	@Override
-	public <T extends Message> void addHandler(final UUID appid, final Class<? extends T> msgType,
+	public <T extends Message> void addHandler(final ApplicationID appid, final Class<? extends T> msgType,
 			final MessageHandler<? super T> handler, final Executor executor) {
 		messageDispatcher.setHandler(msgType, handler, appid, executor);
 	}
 
 	@Override
-	public <T extends Message> void addHandler(final UUID appid, final Class<? extends T> msgType,
+	public <T extends Message> void addHandler(final ApplicationID appid, final Class<? extends T> msgType,
 			final MessageHandler<? super T> handler) {
 		messageDispatcher.setHandler(msgType, handler, appid);
 	}

@@ -50,7 +50,7 @@ public class ValueNak extends Response {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            ID of application sending/receiving this value.
 	 * @param errorType
 	 *            type of error that occurred.
@@ -59,7 +59,7 @@ public class ValueNak extends Response {
 	 * @param input
 	 *            name of input this value was meant for.
 	 */
-	public ValueNak(UUID appId, ErrorType errorType, UUID blockId, String input) {
+	public ValueNak(ErrorType errorType, UUID blockId, String input) {
 		if (errorType == null) {
 			errorType = ErrorType.OTHER;
 		}

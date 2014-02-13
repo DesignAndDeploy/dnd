@@ -2,9 +2,9 @@ package edu.teco.dnd.network.tcp;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
@@ -27,8 +27,8 @@ import edu.teco.dnd.network.messages.Message;
  */
 // TODO: add methods to remove handlers
 public class HandlersByApplicationID<T extends Message> {
-	private final Map<UUID, MessageHandlerWithExecutor<? super T>> handlersWithExecutors =
-			new HashMap<UUID, MessageHandlerWithExecutor<? super T>>();
+	private final Map<ApplicationID, MessageHandlerWithExecutor<? super T>> handlersWithExecutors =
+			new HashMap<ApplicationID, MessageHandlerWithExecutor<? super T>>();
 
 	/**
 	 * Sets the default handler with the default Executor.
@@ -60,7 +60,7 @@ public class HandlersByApplicationID<T extends Message> {
 	 * @param handler
 	 *            the handler to use for that Application
 	 */
-	public void setHandler(final UUID applicationID, final MessageHandler<? super T> handler) {
+	public void setHandler(final ApplicationID applicationID, final MessageHandler<? super T> handler) {
 		setHandler(applicationID, handler, null);
 	}
 
@@ -76,7 +76,7 @@ public class HandlersByApplicationID<T extends Message> {
 	 *            calling thread).
 	 */
 	@SuppressWarnings("unchecked")
-	public void setHandler(final UUID applicationID, final MessageHandler<? super T> handler, final Executor executor) {
+	public void setHandler(final ApplicationID applicationID, final MessageHandler<? super T> handler, final Executor executor) {
 		if (applicationID == null) {
 			throw new IllegalArgumentException("applicationID must not be null");
 		}
@@ -98,7 +98,7 @@ public class HandlersByApplicationID<T extends Message> {
 	 * @param applicationID the ID of the Application
 	 * @return the handler that should be used for that Application. May be null.
 	 */
-	public MessageHandlerWithExecutor<T> getHandlerWithExecutor(final UUID applicationID) {
+	public MessageHandlerWithExecutor<T> getHandlerWithExecutor(final ApplicationID applicationID) {
 		final MessageHandlerWithExecutor<T> applicationSpecifcHandler = getApplicationSpecificHandlerWithExecutor(applicationID);
 		if (applicationSpecifcHandler == null) {
 			return getDefaultHandlerWithExecutor();
@@ -122,7 +122,7 @@ public class HandlersByApplicationID<T extends Message> {
 	 * @return the handler for the given Application ID. May be null.
 	 */
 	@SuppressWarnings("unchecked")
-	public MessageHandlerWithExecutor<T> getApplicationSpecificHandlerWithExecutor(final UUID applicationID) {
+	public MessageHandlerWithExecutor<T> getApplicationSpecificHandlerWithExecutor(final ApplicationID applicationID) {
 		return (MessageHandlerWithExecutor<T>) handlersWithExecutors.get(applicationID);
 	}
 
@@ -135,10 +135,10 @@ public class HandlersByApplicationID<T extends Message> {
 	 * @param applicationID
 	 *            the ID of the Application
 	 * @return the handler that should be used for that Application. May be null.
-	 * @deprecated Use {@link #getHandlerWithExecutor(UUID)} instead.
+	 * @deprecated Use {@link #getHandlerWithExecutor(ApplicationID)} instead.
 	 */
 	@Deprecated
-	public MessageHandler<T> getHandler(final UUID applicationID) {
+	public MessageHandler<T> getHandler(final ApplicationID applicationID) {
 		final MessageHandler<T> applicationSpecificHandler = getApplicationSpecificHandler(applicationID);
 		if (applicationSpecificHandler == null) {
 			return getDefaultHandler();
@@ -163,11 +163,11 @@ public class HandlersByApplicationID<T extends Message> {
 	 * @param applicationID
 	 *            the Application ID to check
 	 * @return the handler for the given Application ID. May be null.
-	 * @deprecated Use {@link #getApplicationSpecificHandlerWithExecutor(UUID)} instead.
+	 * @deprecated Use {@link #getApplicationSpecificHandlerWithExecutor(ApplicationID)} instead.
 	 */
 	@SuppressWarnings("unchecked")
 	@Deprecated
-	public MessageHandler<T> getApplicationSpecificHandler(final UUID applicationID) {
+	public MessageHandler<T> getApplicationSpecificHandler(final ApplicationID applicationID) {
 		final MessageHandlerWithExecutor<T> handlerWithExecutor = (MessageHandlerWithExecutor<T>) handlersWithExecutors.get(applicationID);
 		if (handlerWithExecutor == null) {
 			return null;

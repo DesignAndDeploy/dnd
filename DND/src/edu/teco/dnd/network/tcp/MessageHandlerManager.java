@@ -1,11 +1,11 @@
 package edu.teco.dnd.network.tcp;
 
 import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
 
@@ -67,7 +67,7 @@ public class MessageHandlerManager {
 	 * @param applicationID
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
-			final UUID applicationID) {
+			final ApplicationID applicationID) {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
 		synchronized (messageClassHandlers) {
 			messageClassHandlers.setHandler(applicationID, handler);
@@ -82,7 +82,7 @@ public class MessageHandlerManager {
 	 * @param applicationID
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
-			final UUID applicationID, final Executor executor) {
+			final ApplicationID applicationID, final Executor executor) {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
 		synchronized (messageClassHandlers) {
 			messageClassHandlers.setHandler(applicationID, handler, executor);
@@ -133,7 +133,7 @@ public class MessageHandlerManager {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends Message> MessageHandlerWithExecutor<T> getHandler(final Class<T> messageClass,
-			final UUID applicationID) {
+			final ApplicationID applicationID) {
 		final HandlersByApplicationID<T> messageClassHandlers = getHandlersForClass(messageClass);
 		MessageHandlerWithExecutor<T> handler = null;
 		synchronized (messageClassHandlers) {

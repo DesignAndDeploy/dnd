@@ -32,9 +32,9 @@ public class StartApplicationMessageHandler implements MessageHandler<StartAppli
 		try {
 			module.startApp(message.getApplicationID());
 		} catch (IllegalArgumentException e) {
-			return new StartApplicationNak(message);
+			return new StartApplicationNak(message.getApplicationID());
 		}
-		return new StartApplicationAck(message);
+		return new StartApplicationAck(message.getApplicationID());
 	}
 
 }

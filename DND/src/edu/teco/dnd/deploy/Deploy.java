@@ -26,6 +26,7 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OptionModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationAck;
 import edu.teco.dnd.module.messages.joinStartApp.JoinApplicationMessage;
@@ -98,9 +99,9 @@ public class Deploy {
 	private final String appName;
 
 	/**
-	 * The UUID of the application.
+	 * The ID of the application.
 	 */
-	private final UUID appId;
+	private final ApplicationID applicationID;
 
 	/**
 	 * Used to resolve dependencies.
@@ -150,23 +151,23 @@ public class Deploy {
 	 *            the name of the Application
 	 * @param dependencies
 	 *            used to resolve Dependencies
-	 * @param appId
-	 *            the UUID of the Application
+	 * @param applicationID
+	 *            the ID of the Application
 	 */
 	public Deploy(final ConnectionManager connectionManager, final Map<FunctionBlockModel, BlockTarget> distribution,
-			final String name, final Dependencies dependencies, final UUID appId) {
-		LOGGER.entry(connectionManager, distribution, name, dependencies, appId);
+			final String name, final Dependencies dependencies, final ApplicationID applicationID) {
+		LOGGER.entry(connectionManager, distribution, name, dependencies, applicationID);
 		this.connectionManager = connectionManager;
 		this.distribution = distribution;
 		this.appName = name;
 		this.dependencies = dependencies;
-		this.appId = appId;
+		this.applicationID = applicationID;
 		this.moduleMap = MapUtil.invertMap(getModuleMapping());
 		LOGGER.exit();
 	}
 
 	/**
-	 * Creates a new Deploy object with a random UUID.
+	 * Creates a new Deploy object with a random ID.
 	 * 
 	 * @param connectionManager
 	 *            the ConnectionManager to use
@@ -179,7 +180,7 @@ public class Deploy {
 	 */
 	public Deploy(final ConnectionManager connectionManager, final Map<FunctionBlockModel, BlockTarget> distribution,
 			final String name, final Dependencies dependencies) {
-		this(connectionManager, distribution, name, dependencies, UUID.randomUUID());
+		this(connectionManager, distribution, name, dependencies, new ApplicationID());
 	}
 
 	/**
@@ -226,12 +227,12 @@ public class Deploy {
 	}
 
 	/**
-	 * Returns the UUID of the Application.
+	 * Returns the ID of the Application.
 	 * 
-	 * @return the UUID of the Application
+	 * @return the ID of the Application
 	 */
-	public UUID getApplicationUUID() {
-		return this.appId;
+	public ApplicationID getApplicationID() {
+		return this.applicationID;
 	}
 
 	/**
@@ -343,15 +344,15 @@ public class Deploy {
 	private FutureNotifier<Response> sendJoin(final UUID moduleUUID) {
 		LOGGER.entry(moduleUUID);
 		final FutureNotifier<Response> futureNotifier =
-				connectionManager.sendMessage(moduleUUID, new JoinApplicationMessage(appName, appId));
+				connectionManager.sendMessage(moduleUUID, new JoinApplicationMessage(appName, applicationID));
 		LOGGER.exit(futureNotifier);
 		return futureNotifier;
 	}
 
 	/**
 	 * This method is called when a ModuleInfo's Response to a {@link JoinApplicationMessage} is received. If a positive
-	 * Response is received {@link #sendClasses(ModuleInfo)} is called, otherwise {@link #deployFutureNotifier} is marked as
-	 * failed.
+	 * Response is received {@link #sendClasses(ModuleInfo)} is called, otherwise {@link #deployFutureNotifier} is
+	 * marked as failed.
 	 * 
 	 * @param future
 	 *            the FutureNotifier for the Response
@@ -397,7 +398,7 @@ public class Deploy {
 		listenerLock.readLock().lock();
 		try {
 			for (final DeployListener listener : listeners) {
-				listener.moduleJoined(appId, moduleUUID);
+				listener.moduleJoined(applicationID, moduleUUID);
 			}
 		} finally {
 			listenerLock.readLock().unlock();
@@ -439,13 +440,13 @@ public class Deploy {
 		}
 		LOGGER.trace("sending class {} to module {}", classFile, moduleUUID);
 		return connectionManager.sendMessage(moduleUUID, new LoadClassMessage(classFile.getClassName(), classData,
-				appId));
+				applicationID));
 	}
 
 	/**
 	 * This method is called when a FutureNotifier for Responses to {@link LoadClassMessage}s has finished. If a
-	 * positive Reponse is received {@link #sendBlocks(ModuleInfo)} is called, otherwise {@link #deployFutureNotifier} is
-	 * marked as failed.
+	 * positive Reponse is received {@link #sendBlocks(ModuleInfo)} is called, otherwise {@link #deployFutureNotifier}
+	 * is marked as failed.
 	 * 
 	 * @param future
 	 *            the FutureNotifier that returns the Responses
@@ -493,7 +494,7 @@ public class Deploy {
 		listenerLock.readLock().lock();
 		try {
 			for (final DeployListener listener : listeners) {
-				listener.moduleLoadedClasses(appId, moduleUUID);
+				listener.moduleLoadedClasses(applicationID, moduleUUID);
 			}
 		} finally {
 			listenerLock.readLock().unlock();
@@ -542,13 +543,15 @@ public class Deploy {
 				outputs.put(output.getName(), destinations);
 			}
 		}
-		final BlockMessage blockMsg = new BlockMessage(appId, block.getBlockClass(), block.getBlockName(), block.getID(), options, outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
+		final BlockMessage blockMsg =
+				new BlockMessage(applicationID, block.getBlockClass(), block.getBlockName(), block.getID(), options,
+						outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
 		return connectionManager.sendMessage(moduleUUID, blockMsg);
 	}
 
 	/**
-	 * This method is called when all {@link FunctionBlock} that are assigned to a ModuleInfo have been sent. If a positive
-	 * Response was received {@link #unfinishedModules} is decremented. If it is zero afterwards
+	 * This method is called when all {@link FunctionBlock} that are assigned to a ModuleInfo have been sent. If a
+	 * positive Response was received {@link #unfinishedModules} is decremented. If it is zero afterwards
 	 * {@link #sendStartApplication()} is called. If a negative Response is received {@link #deployFutureNotifier} is
 	 * marked as failed.
 	 * 
@@ -568,7 +571,8 @@ public class Deploy {
 			for (final Response response : future.getNow()) {
 				if (!(response instanceof BlockAck)) {
 					if (response instanceof BlockNak) {
-						deployFutureNotifier.setFailure0(new BlockNotAcceptedException(((BlockNak) response).getErrorMessage()));
+						deployFutureNotifier.setFailure0(new BlockNotAcceptedException(((BlockNak) response)
+								.getErrorMessage()));
 					} else {
 						deployFutureNotifier.setFailure0(null);
 					}
@@ -605,7 +609,7 @@ public class Deploy {
 		listenerLock.readLock().lock();
 		try {
 			for (final DeployListener listener : listeners) {
-				listener.moduleLoadedBlocks(appId, moduleUUID);
+				listener.moduleLoadedBlocks(applicationID, moduleUUID);
 			}
 		} finally {
 			listenerLock.readLock().unlock();
@@ -624,7 +628,7 @@ public class Deploy {
 		for (final ModuleInfo module : moduleMap.keySet()) {
 			final UUID moduleUUID = module.getUUID();
 			final FutureNotifier<Response> futureNotifier =
-					connectionManager.sendMessage(module.getUUID(), new StartApplicationMessage(appId));
+					connectionManager.sendMessage(module.getUUID(), new StartApplicationMessage(applicationID));
 			futureNotifier.addListener(new FutureListener<FutureNotifier<Response>>() {
 				@Override
 				public void operationComplete(final FutureNotifier<Response> future) {
@@ -680,7 +684,7 @@ public class Deploy {
 		listenerLock.readLock().lock();
 		try {
 			for (final DeployListener listener : listeners) {
-				listener.moduleStarted(appId, moduleUUID);
+				listener.moduleStarted(applicationID, moduleUUID);
 			}
 		} finally {
 			listenerLock.readLock().unlock();
@@ -697,7 +701,7 @@ public class Deploy {
 		listenerLock.readLock().lock();
 		try {
 			for (final DeployListener listener : listeners) {
-				listener.deployFailed(appId, cause);
+				listener.deployFailed(applicationID, cause);
 			}
 		} finally {
 			listenerLock.readLock().unlock();
@@ -707,7 +711,7 @@ public class Deploy {
 	private void killApplication() {
 		LOGGER.info("killing failed application");
 		for (final ModuleInfo module : moduleMap.keySet()) {
-			final KillAppMessage killAppMsg = new KillAppMessage(appId);
+			final KillAppMessage killAppMsg = new KillAppMessage(applicationID);
 			connectionManager.sendMessage(module.getUUID(), killAppMsg);
 		}
 	}

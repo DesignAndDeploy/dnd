@@ -33,9 +33,9 @@ public class LoadClassMessageHandler implements MessageHandler<LoadClassMessage>
 		try {
 			associatedApp.loadClass(message.className, message.classByteCode);
 		} catch (Exception e) {
-			return new LoadClassNak(message.className, message.getApplicationID());
+			return new LoadClassNak(message.className);
 		}
-		return new LoadClassAck(message.className, message.getApplicationID());
+		return new LoadClassAck(message.className);
 	}
 
 }

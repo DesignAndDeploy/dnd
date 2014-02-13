@@ -18,6 +18,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import edu.teco.dnd.module.Application;
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.util.Base64;
 
@@ -69,11 +70,11 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 		}
 		final JsonObject jsonObject = json.getAsJsonObject();
 
-		final UUID appId = context.deserialize(jsonObject.get("appId"), UUID.class);
+		final ApplicationID applicationID = context.deserialize(jsonObject.get("applicationID"), ApplicationID.class);
 		final UUID blockUuid = context.deserialize(jsonObject.get("blockUuid"), UUID.class);
 		final String input = context.deserialize(jsonObject.get("input"), String.class);
 
-		ClassLoader loader = getClassLoaderForApplication(appId);
+		ClassLoader loader = getClassLoaderForApplication(applicationID);
 		Serializable value = null;
 		try {
 			value = (Serializable) Base64.decodeToObject(jsonObject.get("value").getAsString(), Base64.NO_OPTIONS, loader);
@@ -83,16 +84,16 @@ public class ValueMessageAdapter implements JsonDeserializer<ValueMessage>, Json
 			throw LOGGER.throwing(new JsonParseException("could not find class of value", e));
 		}
 
-		return new ValueMessage(appId, blockUuid, input, value);
+		return new ValueMessage(applicationID, blockUuid, input, value);
 	}
 
-	private ClassLoader getClassLoaderForApplication(final UUID applicationID) {
-		LOGGER.entry(applicationID);
+	private ClassLoader getClassLoaderForApplication(final ApplicationID appId) {
+		LOGGER.entry(appId);
 		if (module == null) {
 			return LOGGER.exit(null);
 		}
 
-		final Application application = module.getApplication(applicationID);
+		final Application application = module.getApplication(appId);
 		if (application == null) {
 			return LOGGER.exit(null);
 		}

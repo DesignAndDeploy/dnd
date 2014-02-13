@@ -142,7 +142,7 @@ class ApplicationTreeUpdater implements ServerStateListener, ApplicationManagerL
 
 		LOGGER.debug("adding TableItem for {} to {}", applicationInformation, applicationTree);
 		final TreeItem applicationItem = new TreeItem(tree, SWT.NONE);
-		applicationItem.setText(0, applicationInformation.getName() + " (" + applicationInformation.getID() + ")");
+		applicationItem.setText(0, applicationInformation.getName() + " (" + applicationInformation.getID().getUUID() + ")");
 		APPLICATION_INFORMATION_STORE.store(applicationItem, applicationInformation);
 		for (final UUID moduleUUID : applicationInformation.getModules()) {
 			addModule(applicationItem, applicationInformation, moduleUUID);

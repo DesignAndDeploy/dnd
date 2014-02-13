@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.DefaultResponse;
@@ -46,8 +47,8 @@ public class ClientMessageDispatcherTest {
 	@Mock
 	private Message genericMessage;
 
-	private static UUID applicationID1;
-	private static UUID applicationID2;
+	private static ApplicationID applicationID1;
+	private static ApplicationID applicationID2;
 	@Mock
 	private ApplicationSpecificMessage applicationSpecificMessage1;
 	@Mock
@@ -63,8 +64,8 @@ public class ClientMessageDispatcherTest {
 		remoteUUID = UUID.randomUUID();
 
 		final UniqueUUIDUtil uuidUtil = new UniqueUUIDUtil();
-		applicationID1 = uuidUtil.getNewUUID();
-		applicationID2 = uuidUtil.getNewUUID();
+		applicationID1 = new ApplicationID(uuidUtil.getNewUUID());
+		applicationID2 = new ApplicationID(uuidUtil.getNewUUID());
 	}
 
 	@Before

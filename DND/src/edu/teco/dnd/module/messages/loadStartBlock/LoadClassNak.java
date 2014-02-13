@@ -1,7 +1,5 @@
 package edu.teco.dnd.module.messages.loadStartBlock;
 
-import java.util.UUID;
-
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -15,10 +13,6 @@ public class LoadClassNak extends Response {
 	public static final String MESSAGE_TYPE = "load class nak";
 
 	/**
-	 * Application the code was supposed to be loaded into.
-	 */
-	public UUID appId;
-	/**
 	 * name of the class we wanted to load.
 	 */
 	public String className;
@@ -27,19 +21,15 @@ public class LoadClassNak extends Response {
 	 * 
 	 * @param className
 	 *            name of the class we wanted to load.
-	 * @param appId
-	 *            Application the code was supposed to be loaded into.
 	 */
-	public LoadClassNak(String className, UUID appId) {
+	public LoadClassNak(String className) {
 		this.className = className;
-		this.appId = appId;
 	}
 
 	@SuppressWarnings("unused")
 	/* for gson */
 	private LoadClassNak() {
 		className = null;
-		appId = null;
 	}
 
 	/*
@@ -51,7 +41,6 @@ public class LoadClassNak extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
 		result = prime * result + ((className == null) ? 0 : className.hashCode());
 		return result;
 	}
@@ -73,13 +62,6 @@ public class LoadClassNak extends Response {
 			return false;
 		}
 		LoadClassNak other = (LoadClassNak) obj;
-		if (appId == null) {
-			if (other.appId != null) {
-				return false;
-			}
-		} else if (!appId.equals(other.appId)) {
-			return false;
-		}
 		if (className == null) {
 			if (other.className != null) {
 				return false;
@@ -97,8 +79,8 @@ public class LoadClassNak extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "LoadClassNak [appId=" + appId + ", className=" + className + ", getSourceUUID()=" + getSourceUUID()
-				+ ", getUUID()=" + getUUID() + "]";
+		return "LoadClassNak [className=" + className + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+				+ getUUID() + "]";
 	}
 
 }

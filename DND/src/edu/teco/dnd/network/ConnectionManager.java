@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.util.FutureNotifier;
@@ -19,7 +20,8 @@ public interface ConnectionManager {
 	/**
 	 * The application ID that is used if no application ID was specified.
 	 */
-	public static final UUID APPID_DEFAULT = UUID.fromString("00000000-0000-0000-0000-000000000000");
+	public static final ApplicationID APPID_DEFAULT = new ApplicationID(
+			UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
 	/**
 	 * Sends a message to the given ModuleInfo.
@@ -48,7 +50,7 @@ public interface ConnectionManager {
 	 * @param executor
 	 *            the executor that should execute {@link MessageHandler#handleMessage(Message)}. Can be null.
 	 */
-	public <T extends Message> void addHandler(UUID appid, Class<? extends T> msgType,
+	public <T extends Message> void addHandler(ApplicationID appid, Class<? extends T> msgType,
 			MessageHandler<? super T> handler, Executor executor);
 
 	/**
@@ -63,7 +65,7 @@ public interface ConnectionManager {
 	 * @param handler
 	 *            the handler that should receive the Messages
 	 */
-	public <T extends Message> void addHandler(UUID appid, Class<? extends T> msgType, MessageHandler<? super T> handler);
+	public <T extends Message> void addHandler(ApplicationID appid, Class<? extends T> msgType, MessageHandler<? super T> handler);
 
 	/**
 	 * Adds an handler for the {@link #APPID_DEFAULT}. If another handler was registered for the ID it is replaced.

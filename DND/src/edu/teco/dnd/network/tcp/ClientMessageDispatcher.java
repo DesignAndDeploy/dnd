@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.DefaultResponse;
@@ -108,7 +109,7 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 	 *            the Application ID the handler should be registered for
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
-			final UUID applicationID) {
+			final ApplicationID applicationID) {
 		LOGGER.debug("setting handler for {} with application ID {} to {}", messageClass, applicationID, handler);
 		handlers.setHandler(messageClass, handler, applicationID);
 	}
@@ -130,7 +131,7 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 	 *            the Executor that should be used to execute the MessageHandler
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
-			final UUID applicationID, final Executor executor) {
+			final ApplicationID applicationID, final Executor executor) {
 		LOGGER.debug("setting handler for {} with application ID {} to {} with executor {}", messageClass,
 				applicationID, handler, executor);
 		handlers.setHandler(messageClass, handler, applicationID, executor);

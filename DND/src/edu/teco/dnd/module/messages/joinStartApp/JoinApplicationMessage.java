@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.joinStartApp;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.Message;
 
 /**
@@ -16,24 +15,25 @@ public class JoinApplicationMessage extends Message {
 	public static final String MESSAGE_TYPE = "join application";
 
 	/**
-	 * UUID of the application to join in.
+	 * ID of the application to join in.
 	 */
-	public UUID appId;
+	public ApplicationID applicationID;
+
 	/**
 	 * human readable name of the application to join
 	 */
 	public String name;
 
-	public JoinApplicationMessage(String name, UUID appId) {
+	public JoinApplicationMessage(String name, ApplicationID applicationID) {
 		this.name = name;
-		this.appId = appId;
+		this.applicationID = applicationID;
 	}
 
 	@SuppressWarnings("unused")
 	/* for gson */
 	private JoinApplicationMessage() {
 		name = null;
-		appId = null;
+		applicationID = null;
 	}
 
 	/*
@@ -45,7 +45,7 @@ public class JoinApplicationMessage extends Message {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
+		result = prime * result + ((applicationID == null) ? 0 : applicationID.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -67,11 +67,11 @@ public class JoinApplicationMessage extends Message {
 			return false;
 		}
 		JoinApplicationMessage other = (JoinApplicationMessage) obj;
-		if (appId == null) {
-			if (other.appId != null) {
+		if (applicationID == null) {
+			if (other.applicationID != null) {
 				return false;
 			}
-		} else if (!appId.equals(other.appId)) {
+		} else if (!applicationID.equals(other.applicationID)) {
 			return false;
 		}
 		if (name == null) {
@@ -91,7 +91,8 @@ public class JoinApplicationMessage extends Message {
 	 */
 	@Override
 	public String toString() {
-		return "JoinApplicationMessage [appId=" + appId + ", name=" + name + ", getUUID()=" + getUUID() + "]";
+		return "JoinApplicationMessage [applicationID=" + applicationID + ", name=" + name + ", getUUID()=" + getUUID()
+				+ "]";
 	}
 
 }

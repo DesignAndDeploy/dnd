@@ -3,6 +3,7 @@ package edu.teco.dnd.module.messages.generalModule;
 import java.util.UUID;
 
 import edu.teco.dnd.network.MessageHandler;
+import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
 
@@ -16,7 +17,11 @@ public class MissingApplicationHandler implements MessageHandler<Message> {
 
 	@Override
 	public Response handleMessage(UUID remoteUUID, Message message) {
-		return new MissingApplicationNak(remoteUUID);
+		if (message instanceof ApplicationSpecificMessage) {
+			return new MissingApplicationNak(((ApplicationSpecificMessage) message).getApplicationID());
+		} else {
+			return new MissingApplicationNak();
+		}
 	}
 
 }

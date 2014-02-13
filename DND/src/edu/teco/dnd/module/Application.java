@@ -57,7 +57,7 @@ public class Application {
 		CREATED, RUNNING, STOPPED
 	}
 
-	private final UUID applicationID;
+	private final ApplicationID applicationID;
 	private final String name;
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
 	private final ConnectionManager connMan;
@@ -83,7 +83,7 @@ public class Application {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            UUID of this application
 	 * @param name
 	 *            Human readable name of this application
@@ -99,10 +99,10 @@ public class Application {
 	 *            The module ApplicationManager used for callbacks to de/increase allowedBlockmaps
 	 * 
 	 */
-	public Application(final UUID appId, final String name, final ConnectionManager connMan,
+	public Application(final ApplicationID applicationID, final String name, final ConnectionManager connMan,
 			final ThreadFactory threadFactory, final int maxThreadsPerApp, final ModuleBlockManager moduleBlockManager,
 			final HashStorage<byte[]> byteCodeStorage) {
-		this.applicationID = appId;
+		this.applicationID = applicationID;
 		this.name = name;
 		this.byteCodeStorage = byteCodeStorage;
 		this.classLoader = new ApplicationClassLoader();
@@ -560,7 +560,7 @@ public class Application {
 	 * 
 	 * @return the UUID of this application
 	 */
-	public UUID getApplicationID() {
+	public ApplicationID getApplicationID() {
 		return applicationID;
 	}
 

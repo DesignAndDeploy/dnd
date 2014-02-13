@@ -3,6 +3,7 @@ package edu.teco.dnd.module.messages.values;
 import java.io.Serializable;
 import java.util.UUID;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
@@ -31,7 +32,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            ID of the application this is part of
 	 * @param functionBlock
 	 *            ID of the block this is to be send to.
@@ -40,8 +41,8 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	 * @param value
 	 *            The actual value.
 	 */
-	public ValueMessage(UUID appId, UUID functionBlock, String input, Serializable value) {
-		super(appId);
+	public ValueMessage(ApplicationID applicationID, UUID functionBlock, String input, Serializable value) {
+		super(applicationID);
 		this.blockId = functionBlock;
 		this.input = input;
 		this.value = value;

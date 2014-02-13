@@ -31,7 +31,9 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 
 	@Override
 	public Response handleMessage(UUID remoteUUID, BlockMessage message) {
-		final BlockDescription blockDescription = new BlockDescription(message.blockClass, message.blockName, message.blockUUID, message.options, message.outputs, message.scheduleToId);
+		final BlockDescription blockDescription =
+				new BlockDescription(message.blockClass, message.blockName, message.blockUUID, message.options,
+						message.outputs, message.scheduleToId);
 		try {
 			module.scheduleBlock(message.getApplicationID(), blockDescription);
 		} catch (final ClassNotFoundException e) {

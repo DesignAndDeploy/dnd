@@ -1,8 +1,8 @@
 package edu.teco.dnd.module.messages.loadStartBlock;
 
 import java.util.Arrays;
-import java.util.UUID;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
@@ -30,11 +30,11 @@ public class LoadClassMessage extends ApplicationSpecificMessage {
 	 *            Name of the class to be loaded.
 	 * @param classByteCode
 	 *            bytecode of said class
-	 * @param appId
+	 * @param applicationID
 	 *            id of the application class is supposed to be loaded into.
 	 */
-	public LoadClassMessage(String className, byte[] classByteCode, UUID appId) {
-		super(appId);
+	public LoadClassMessage(String className, byte[] classByteCode, ApplicationID applicationID) {
+		super(applicationID);
 		this.className = className;
 		this.classByteCode = classByteCode;
 	}

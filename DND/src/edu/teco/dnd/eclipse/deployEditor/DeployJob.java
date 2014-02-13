@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DeployListener;
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.ModuleInfo;
 
 public class DeployJob extends Job {
@@ -71,39 +72,40 @@ public class DeployJob extends Job {
 
 		deploy.addListener(new DeployListener() {
 			@Override
-			public void moduleJoined(UUID appId, UUID moduleUUID) {
+			public void moduleJoined(ApplicationID applicationID, UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} joined Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} joined Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_JOIN_MODULE);
 				}
 			}
 
 			@Override
-			public void moduleLoadedClasses(UUID appId, UUID moduleUUID) {
+			public void moduleLoadedClasses(ApplicationID applicationID, UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} loaded all classes for Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} loaded all classes for Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_LOAD_CLASSES);
 				}
 			}
 
 			@Override
-			public void moduleLoadedBlocks(UUID appId, UUID moduleUUID) {
+			public void moduleLoadedBlocks(ApplicationID applicationID, UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} loaded all FunctionBlocks for Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} loaded all FunctionBlocks for Application {}", moduleUUID,
+							applicationID);
 					monitor.worked(STEPS_LOAD_BLOCKS);
 				}
 			}
 
 			@Override
-			public void moduleStarted(final UUID appId, final UUID moduleUUID) {
+			public void moduleStarted(final ApplicationID applicationID, final UUID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} started the Application {}", moduleUUID, appId);
+					LOGGER.debug("ModuleInfo {} started the Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_START_MODULE);
 				}
 			}
 
 			@Override
-			public void deployFailed(UUID appId, Throwable cause) {
+			public void deployFailed(ApplicationID appId, Throwable cause) {
 				LOGGER.debug("deploying Application {} failed: {}", appId, cause);
 				monitor.setCanceled(true);
 			}

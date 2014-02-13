@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import edu.teco.dnd.blocks.InputDescription;
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
@@ -53,7 +54,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * 
 	 * @param msgUuid
 	 *            UUID of this message.
-	 * @param appId
+	 * @param applicationID
 	 *            ID of the application this message is to be sent to.
 	 * @param blockClass
 	 *            the Class of the block to be started.
@@ -68,9 +69,9 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * @param scheduledToId
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
-	public BlockMessage(UUID msgUuid, UUID appId, String blockClass, String blockName, UUID blockUUID,
+	public BlockMessage(UUID msgUuid, ApplicationID applicationID, String blockClass, String blockName, UUID blockUUID,
 			Map<String, String> options, Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
-		super(msgUuid, appId);
+		super(msgUuid, applicationID);
 		this.blockClass = blockClass;
 		this.blockName = blockName;
 		this.blockUUID = blockUUID;
@@ -87,7 +88,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            ID of the application this message is to be sent to.
 	 * @param blockClass
 	 *            the Class of the block to be started.
@@ -102,9 +103,9 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * @param scheduledToId
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
-	public BlockMessage(UUID appId, String blockClass, String blockName, UUID blockUUID, Map<String, String> options,
-			Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
-		super(appId);
+	public BlockMessage(ApplicationID applicationID, String blockClass, String blockName, UUID blockUUID,
+			Map<String, String> options, Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
+		super(applicationID);
 		this.blockClass = blockClass;
 		this.blockName = blockName;
 		this.blockUUID = blockUUID;

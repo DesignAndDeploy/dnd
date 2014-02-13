@@ -40,9 +40,9 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	private static final Logger LOGGER = LogManager.getLogger(ValueSender.class);
 
 	/**
-	 * The UUID of the Application the block belongs to.
+	 * The ID of the Application the block belongs to.
 	 */
-	private final UUID appId;
+	private final ApplicationID applicationID;
 
 	/**
 	 * The UUID of the FunctionBlock this object sends values to.
@@ -77,15 +77,15 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 	/**
 	 * Initializes a new ValueSender.
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            the UUID of the Application
 	 * @param targetBlockID
 	 *            the UUID of the FunctionBlock this object should send values to
 	 * @param connectionManager
 	 *            the ConnectionManager that will be used to send messages
 	 */
-	public ValueSender(final UUID appId, final UUID targetBlockID, final ConnectionManager connectionManager) {
-		this.appId = appId;
+	public ValueSender(final ApplicationID applicationID, final UUID targetBlockID, final ConnectionManager connectionManager) {
+		this.applicationID = applicationID;
 		this.targetBlockID = targetBlockID;
 		this.connectionManager = connectionManager;
 	}
@@ -148,7 +148,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		} catch (UserSuppliedCodeException e) {
 			// ignore.
 		}
-		connectionManager.sendMessage(modUUID, new ValueMessage(appId, targetBlockID, targetInput, value));
+		connectionManager.sendMessage(modUUID, new ValueMessage(applicationID, targetBlockID, targetInput, value));
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class ValueSender implements FutureListener<FutureNotifier<UUID>> {
 		futureNotifier.addListener(this);
 		final WhoHasBlockResponseListener blockFoundResponseListener = new WhoHasBlockResponseListener(futureNotifier);
 		for (final UUID modUUID : modules) {
-			connectionManager.sendMessage(modUUID, new WhoHasBlockMessage(appId, targetBlockID)).addListener(
+			connectionManager.sendMessage(modUUID, new WhoHasBlockMessage(applicationID, targetBlockID)).addListener(
 					blockFoundResponseListener);
 		}
 

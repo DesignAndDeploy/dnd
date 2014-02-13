@@ -2,6 +2,7 @@ package edu.teco.dnd.module.messages.values;
 
 import java.util.UUID;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
@@ -19,13 +20,13 @@ public class WhoHasBlockMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            Id of the application executing the block.
 	 * @param blockId
 	 *            Id of the block being looked for.
 	 */
-	public WhoHasBlockMessage(UUID appId, UUID blockId) {
-		super(appId);
+	public WhoHasBlockMessage(ApplicationID applicationID, UUID blockId) {
+		super(applicationID);
 		this.blockId = blockId;
 	}
 

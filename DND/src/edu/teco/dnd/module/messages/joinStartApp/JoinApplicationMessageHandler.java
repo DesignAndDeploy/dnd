@@ -31,11 +31,11 @@ public class JoinApplicationMessageHandler implements MessageHandler<JoinApplica
 	@Override
 	public Response handleMessage(UUID remoteUUID, JoinApplicationMessage message) {
 		try {
-			module.joinApplication(message.appId, remoteUUID, message.name);
+			module.joinApplication(message.applicationID, remoteUUID, message.name);
 		} catch (Exception e) {
-			return new JoinApplicationNak(message.name, message.appId);
+			return new JoinApplicationNak(message.name, message.applicationID);
 		}
-		return new JoinApplicationAck(message.name, message.appId);
+		return new JoinApplicationAck(message.name, message.applicationID);
 	}
 
 }

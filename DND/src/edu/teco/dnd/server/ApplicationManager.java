@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
 import edu.teco.dnd.module.messages.infoReq.ApplicationInformationResponse;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationInformationMessage;
@@ -37,7 +38,8 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	private ConnectionManager connectionManager;
-	private final Map<UUID, ApplicationInformation> applications = new HashMap<UUID, ApplicationInformation>();
+	private final Map<ApplicationID, ApplicationInformation> applications =
+			new HashMap<ApplicationID, ApplicationInformation>();
 	private final Collection<ApplicationManagerListener> listeners = new ArrayList<ApplicationManagerListener>();
 	private final Set<UUID> knownModules = new HashSet<UUID>();
 
@@ -132,7 +134,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	 *            the ID of the Application to kill. Must be known to this manager.
 	 * @return a FutureNotifier that completes successfully iff the Application is killed
 	 */
-	public FutureNotifier<Void> killApplication(final UUID applicationID) {
+	public FutureNotifier<Void> killApplication(final ApplicationID applicationID) {
 		ApplicationInformation applicationInformation = null;
 		synchronized (this) {
 			applicationInformation = applications.get(applicationID);
@@ -242,7 +244,8 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 		public void operationComplete(final FutureNotifier<Collection<Response>> future) {
 			LOGGER.entry(future);
 			if (future.isSuccess()) {
-				final Map<UUID, ApplicationInformation> applications = new HashMap<UUID, ApplicationInformation>();
+				final Map<ApplicationID, ApplicationInformation> applications =
+						new HashMap<ApplicationID, ApplicationInformation>();
 
 				for (final Response response : future.getNow()) {
 					LOGGER.trace("Handling Response {}", response);
@@ -255,7 +258,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 							(ApplicationInformationResponse) response;
 					for (ApplicationInformation application : applicationListResponse.getApplications()) {
 						LOGGER.trace("Adding application {}", application);
-						final UUID applicationID = application.getID();
+						final ApplicationID applicationID = application.getID();
 						final ApplicationInformation oldApplicationInformation = applications.get(applicationID);
 						if (oldApplicationInformation != null) {
 							LOGGER.trace("merging {} with {}", application, oldApplicationInformation);

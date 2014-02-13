@@ -8,13 +8,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import edu.teco.dnd.module.ApplicationID;
+
 /**
  * Stores information about a single application.
  * 
  * @author Philipp Adolf
  */
 public class ApplicationInformation {
-	private final UUID id;
+	private final ApplicationID id;
 	private final String name;
 	private final Map<UUID, Collection<BlockInformation>> blocksByModules;
 
@@ -28,7 +30,8 @@ public class ApplicationInformation {
 	 * @param blocks
 	 *            the FunctionBlocks belonging to the Application
 	 */
-	public ApplicationInformation(final UUID id, final String name, final Collection<? extends BlockInformation> blocks) {
+	public ApplicationInformation(final ApplicationID id, final String name,
+			final Collection<? extends BlockInformation> blocks) {
 		this.id = id;
 		this.name = name;
 
@@ -71,7 +74,7 @@ public class ApplicationInformation {
 		return new ApplicationInformation(id, name, newBlocks);
 	}
 
-	public UUID getID() {
+	public ApplicationID getID() {
 		return id;
 	}
 
