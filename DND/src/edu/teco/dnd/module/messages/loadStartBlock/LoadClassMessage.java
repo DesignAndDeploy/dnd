@@ -31,7 +31,7 @@ public class LoadClassMessage extends ApplicationSpecificMessage {
 	 * @param classByteCode
 	 *            bytecode of said class
 	 * @param applicationID
-	 *            id of the application class is supposed to be loaded into.
+	 *            ID of the application the class is supposed to be loaded into.
 	 */
 	public LoadClassMessage(String className, byte[] classByteCode, ApplicationID applicationID) {
 		super(applicationID);

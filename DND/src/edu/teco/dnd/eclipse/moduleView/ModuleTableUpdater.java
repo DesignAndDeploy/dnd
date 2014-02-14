@@ -1,7 +1,5 @@
 package edu.teco.dnd.eclipse.moduleView;
 
-import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
@@ -10,6 +8,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
@@ -27,8 +26,8 @@ import edu.teco.dnd.server.ServerStateListener;
 class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleTableUpdater.class);
 
-	public static TypecastingWidgetDataStore<UUID> MODULE_UUID_STORE = new TypecastingWidgetDataStore<UUID>(UUID.class,
-			"module uuid");
+	public static TypecastingWidgetDataStore<ModuleID> MODULE_ID_STORE = new TypecastingWidgetDataStore<ModuleID>(
+			ModuleID.class, "module id");
 
 	private Table moduleTable = null;
 	private ServerManager<?> serverManager = null;
@@ -87,7 +86,7 @@ class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 				if (moduleTable == null || module == null) {
 					return;
 				}
-				final int index = getIndex(moduleTable, module.getUUID());
+				final int index = getIndex(moduleTable, module.getID());
 				if (index < 0) {
 					addModule(moduleTable, module);
 				}
@@ -107,7 +106,7 @@ class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 				if (moduleTable == null || module == null) {
 					return;
 				}
-				final int index = getIndex(moduleTable, module.getUUID());
+				final int index = getIndex(moduleTable, module.getID());
 				if (index >= 0) {
 					moduleTable.remove(index);
 				}
@@ -127,7 +126,7 @@ class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 				if (moduleTable == null || module == null) {
 					return;
 				}
-				final int index = getIndex(moduleTable, module.getUUID());
+				final int index = getIndex(moduleTable, module.getID());
 				TableItem item = null;
 				if (index < 0) {
 					item = addModule(moduleTable, module);
@@ -179,14 +178,14 @@ class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 		assert item != null;
 		assert moduleInfo != null;
 
-		MODULE_UUID_STORE.store(item, moduleInfo.getUUID());
-		item.setText(0, "" + moduleInfo.getUUID());
+		MODULE_ID_STORE.store(item, moduleInfo.getID());
+		item.setText(0, "" + moduleInfo.getID());
 		item.setText(1, "" + moduleInfo.getName());
 		item.setText(2, "" + moduleInfo.getLocation());
 		LOGGER.exit();
 	}
 
-	private int getIndex(final Table moduleTable, final UUID moduleID) {
+	private int getIndex(final Table moduleTable, final ModuleID moduleID) {
 		LOGGER.entry(moduleTable, moduleID);
 		assert moduleTable != null;
 		assert moduleID != null;
@@ -199,9 +198,9 @@ class ModuleTableUpdater implements ServerStateListener, ModuleManagerListener {
 		return LOGGER.exit(-1);
 	}
 
-	private UUID getModuleID(final TableItem item) {
+	private ModuleID getModuleID(final TableItem item) {
 		LOGGER.entry(item);
 		assert item != null;
-		return LOGGER.exit(MODULE_UUID_STORE.retrieve(item));
+		return LOGGER.exit(MODULE_ID_STORE.retrieve(item));
 	}
 }

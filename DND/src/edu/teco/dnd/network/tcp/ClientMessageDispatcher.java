@@ -50,12 +50,12 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 
 	private final MessageHandlerManager handlers = new MessageHandlerManager();
 
-	private final RemoteUUIDResolver remoteUUIDResolver;
+	private final RemoteIDResolver remoteIDResolver;
 	private final ResponseFutureManager responseFutureManager;
 
-	public ClientMessageDispatcher(final RemoteUUIDResolver remoteUUIDResolver,
+	public ClientMessageDispatcher(final RemoteIDResolver remoteIDResolver,
 			final ResponseFutureManager responseFutureManager) {
-		this.remoteUUIDResolver = remoteUUIDResolver;
+		this.remoteIDResolver = remoteIDResolver;
 		this.responseFutureManager = responseFutureManager;
 	}
 
@@ -195,7 +195,7 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 			LOGGER.entry(message, messageHandler, channel);
 			Response response = null;
 			try {
-				response = messageHandler.handleMessage(remoteUUIDResolver.getRemoteUUID(channel), message);
+				response = messageHandler.handleMessage(remoteIDResolver.getRemoteID(channel), message);
 			} catch (final Throwable t) {
 				LOGGER.catching(t);
 			}

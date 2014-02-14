@@ -1,11 +1,10 @@
 package edu.teco.dnd.module.messages.values;
 
-import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.Application;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -23,28 +22,28 @@ public class WhoHasFuncBlockHandler implements MessageHandler<WhoHasBlockMessage
 	 */
 	private final Application app;
 	/**
-	 * The UUID of the module this is executed upon.
+	 * The ID of the module this is executed upon.
 	 */
-	private final UUID ownModUuid;
+	private final ModuleID ownModuleID;
 
 	/**
 	 * 
 	 * @param app
 	 *            The app this is in regard to.
-	 * @param ownModUuid
-	 *            The moduleId this is executed upon. If block found obviously also the id that is returned as having
+	 * @param ownModuleID
+	 *            The ModuleId this is executed upon. If block found obviously also the id that is returned as having
 	 *            this block.
 	 */
-	public WhoHasFuncBlockHandler(Application app, UUID ownModUuid) {
+	public WhoHasFuncBlockHandler(Application app, ModuleID ownModuleID) {
 		this.app = app;
-		this.ownModUuid = ownModUuid;
+		this.ownModuleID = ownModuleID;
 	}
 
 	@Override
-	public Response handleMessage(UUID remoteUUID, WhoHasBlockMessage message) {
-		LOGGER.entry(remoteUUID, message);
+	public Response handleMessage(ModuleID remoteID, WhoHasBlockMessage message) {
+		LOGGER.entry(remoteID, message);
 		if (app.hasFunctionBlockWithID(message.blockId)) {
-			return new BlockFoundResponse(ownModUuid);
+			return new BlockFoundResponse(ownModuleID);
 		} else {
 			LOGGER.trace("received who has msg for {}", message.blockId);
 			return null;

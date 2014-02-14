@@ -1,17 +1,17 @@
 package edu.teco.dnd.server;
 
-import java.util.UUID;
+import edu.teco.dnd.module.ModuleID;
 
 /**
  * A configuration for the servers managed by a {@link ServerManager}.
  */
 public interface ServerConfig {
 	/**
-	 * Returns the UUID the server should use.
+	 * Returns the ID the server should use.
 	 * 
-	 * @return the UUID the server should use
+	 * @return the ID the server should use
 	 */
-	UUID getModuleUUID();
+	ModuleID getModuleID();
 
 	/**
 	 * Returns the time between two announcements. This is only used if the servers do regular announces of their

@@ -1,7 +1,5 @@
 package edu.teco.dnd.eclipse.deployEditor;
 
-import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -12,6 +10,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DeployListener;
 import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
 
 public class DeployJob extends Job {
@@ -48,14 +47,14 @@ public class DeployJob extends Job {
 			+ STEPS_START_MODULE;
 
 	private ModuleInfo module;
-	private UUID id;
+	private ModuleID id;
 	private Deploy deploy;
 	private IProgressMonitor m;
 
 	public DeployJob(String name, ModuleInfo m, Deploy d) {
 		super("Deploying " + name + "...");
 		this.module = m;
-		this.id = m.getUUID();
+		this.id = m.getID();
 		this.deploy = d;
 	}
 
@@ -68,11 +67,11 @@ public class DeployJob extends Job {
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
 		m = monitor;
-		monitor.beginTask("Deploy on: " + module.getName() + " : " + module.getUUID().toString(), STEPS_PER_MODULE);
+		monitor.beginTask("Deploy on: " + module.getName() + " : " + module.getID().toString(), STEPS_PER_MODULE);
 
 		deploy.addListener(new DeployListener() {
 			@Override
-			public void moduleJoined(ApplicationID applicationID, UUID moduleUUID) {
+			public void moduleJoined(ApplicationID applicationID, ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
 					LOGGER.debug("ModuleInfo {} joined Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_JOIN_MODULE);
@@ -80,7 +79,7 @@ public class DeployJob extends Job {
 			}
 
 			@Override
-			public void moduleLoadedClasses(ApplicationID applicationID, UUID moduleUUID) {
+			public void moduleLoadedClasses(ApplicationID applicationID, ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
 					LOGGER.debug("ModuleInfo {} loaded all classes for Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_LOAD_CLASSES);
@@ -88,7 +87,7 @@ public class DeployJob extends Job {
 			}
 
 			@Override
-			public void moduleLoadedBlocks(ApplicationID applicationID, UUID moduleUUID) {
+			public void moduleLoadedBlocks(ApplicationID applicationID, ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
 					LOGGER.debug("ModuleInfo {} loaded all FunctionBlocks for Application {}", moduleUUID,
 							applicationID);
@@ -97,7 +96,7 @@ public class DeployJob extends Job {
 			}
 
 			@Override
-			public void moduleStarted(final ApplicationID applicationID, final UUID moduleUUID) {
+			public void moduleStarted(final ApplicationID applicationID, final ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
 					LOGGER.debug("ModuleInfo {} started the Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_START_MODULE);

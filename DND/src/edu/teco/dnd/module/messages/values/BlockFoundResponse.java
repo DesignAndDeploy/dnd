@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.values;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -14,14 +13,14 @@ public class BlockFoundResponse extends Response {
 
 	public static final String MESSAGE_TYPE = "block found";
 
-	public final UUID moduleId;
+	public final ModuleID moduleId;
 
 	/**
 	 * The UUID of the module the block we were looking for is on.
 	 * 
 	 * @param moduleId
 	 */
-	public BlockFoundResponse(UUID moduleId) {
+	public BlockFoundResponse(ModuleID moduleId) {
 		this.moduleId = moduleId;
 	}
 

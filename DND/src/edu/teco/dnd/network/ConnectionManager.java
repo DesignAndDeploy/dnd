@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 
 import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.util.FutureNotifier;
@@ -24,17 +25,17 @@ public interface ConnectionManager {
 			UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
 	/**
-	 * Sends a message to the given ModuleInfo.
+	 * Sends a message to the given Module.
 	 * 
-	 * @param uuid
-	 *            the UUID of the module the message should be sent to
+	 * @param moduleID
+	 *            the ID of the module the message should be sent to
 	 * @param message
 	 *            the message that should be sent
 	 * @return a FutureNotifier that will return the Response for the message. If this method is called to send a
 	 *         Response the FutureNotifier will only reflect whether or not sending the Response to the connected client
 	 *         has succeeded. The result will always be null in this case.
 	 */
-	public FutureNotifier<Response> sendMessage(UUID uuid, Message message);
+	public FutureNotifier<Response> sendMessage(ModuleID moduleID, Message message);
 
 	/**
 	 * Adds an handler for a given application ID. If another handler was registered for the ID it is replaced.
@@ -101,7 +102,7 @@ public interface ConnectionManager {
 	 * 
 	 * @return a collection of connected modules
 	 */
-	public Collection<UUID> getConnectedModules();
+	public Collection<ModuleID> getConnectedModules();
 
 	/**
 	 * Adds a listener that is informed if new connections are made or old connections are lost.

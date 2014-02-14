@@ -2,13 +2,15 @@ package edu.teco.dnd.server;
 
 import java.util.UUID;
 
+import edu.teco.dnd.module.ModuleID;
+
 public class BlockInformation {
 	private final UUID id;
 	private final String name;
 	private final String blockClass;
-	private final UUID moduleID;
+	private final ModuleID moduleID;
 	
-	public BlockInformation(final UUID id, final String name, final String blockClass, final UUID moduleID) {
+	public BlockInformation(final UUID id, final String name, final String blockClass, final ModuleID moduleID) {
 		this.id = id;
 		this.name = name;
 		this.blockClass = blockClass;
@@ -35,7 +37,7 @@ public class BlockInformation {
 		return blockClass;
 	}
 	
-	public UUID getModuleID() {
+	public ModuleID getModuleID() {
 		return moduleID;
 	}
 

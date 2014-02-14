@@ -179,7 +179,7 @@ public final class ModuleMain {
 		clientBootstrap.channel(NioSocketChannel.class);
 		final TCPConnectionManager tcpConnMan =
 				new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap),
-						new ClientBootstrapChannelFactory(clientBootstrap), applicationGroup, moduleConfig.getUuid());
+						new ClientBootstrapChannelFactory(clientBootstrap), applicationGroup, moduleConfig.getModuleID());
 		for (final InetSocketAddress address : moduleConfig.getListen()) {
 			tcpConnMan.startListening(address);
 		}
@@ -189,7 +189,7 @@ public final class ModuleMain {
 			public OioDatagramChannel newChannel() {
 				return new OioDatagramChannel();
 			}
-		}, beaconGroup, applicationGroup, moduleConfig.getUuid(), moduleConfig.getAnnounceInterval(), TimeUnit.SECONDS);
+		}, beaconGroup, applicationGroup, moduleConfig.getModuleID(), moduleConfig.getAnnounceInterval(), TimeUnit.SECONDS);
 		udpMulticastBeacon.addListener(tcpConnMan);
 		final List<InetSocketAddress> announce = Arrays.asList(moduleConfig.getAnnounce());
 		udpMulticastBeacon.setAnnounceAddresses(announce);
@@ -217,7 +217,7 @@ public final class ModuleMain {
 
 		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
 		tcpConnMan.addHandler(RequestApplicationInformationMessage.class,
-				new RequestApplicationInformationMessageHandler(moduleConfig.getUuid(), module));
+				new RequestApplicationInformationMessageHandler(moduleConfig.getModuleID(), module));
 		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
 		tcpConnMan.addHandler(LoadClassMessage.class, new MissingApplicationHandler());

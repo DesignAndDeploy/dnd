@@ -1,8 +1,7 @@
 package edu.teco.dnd.deploy;
 
-import java.util.UUID;
-
 import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 
 /**
  * A listener for {@link Deploy} that is updated when the status of the deployment changes.
@@ -15,40 +14,40 @@ public interface DeployListener {
 	 * 
 	 * @param applicationID
 	 *            the ID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleJoined(ApplicationID applicationID, UUID moduleUUID);
+	void moduleJoined(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called when a ModuleInfo has loaded all classes it needs successfully.
 	 * 
 	 * @param applicationID
 	 *            the ID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleLoadedClasses(ApplicationID applicationID, UUID moduleUUID);
+	void moduleLoadedClasses(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called when a ModuleInfo has loaded its blocks successfully.
 	 * 
 	 * @param applicationID
 	 *            the ID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleLoadedBlocks(ApplicationID applicationID, UUID moduleUUID);
+	void moduleLoadedBlocks(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called when a ModuleInfo has started the application successfully.
 	 * 
 	 * @param applicationID
 	 *            the ID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleStarted(ApplicationID applicationID, UUID moduleUUID);
+	void moduleStarted(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called if the deployment fails. Other methods of the listener may still be called afterwards due

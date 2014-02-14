@@ -3,7 +3,6 @@ package edu.teco.dnd.module;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -86,8 +85,8 @@ public class Module {
 	 *            (human readable) name of the application
 	 * 
 	 */
-	public void joinApplication(final ApplicationID applicationID, UUID deployingAgentId, String name) {
-		LOGGER.info("joining app {} ({}), as requested by {}", name, applicationID, deployingAgentId);
+	public void joinApplication(final ApplicationID applicationID, String name) {
+		LOGGER.info("joining app {} ({})", name, applicationID);
 
 		shutdownLock.readLock().lock();
 		try {
@@ -141,7 +140,7 @@ public class Module {
 		connMan.addHandler(applicationID, KillAppMessage.class, new KillAppMessageHandler(this), executor);
 		connMan.addHandler(applicationID, ValueMessage.class, new ValueMessageHandler(application), executor);
 		connMan.addHandler(applicationID, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(application,
-				moduleConfig.getUuid()));
+				moduleConfig.getModuleID()));
 	}
 
 	/**

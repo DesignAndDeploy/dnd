@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,6 +39,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.codecs.DatagramPacketWrapper;
 import edu.teco.dnd.network.messages.BeaconMessage;
 import edu.teco.dnd.network.messages.BeaconMessageDeserializer;
@@ -125,17 +125,17 @@ public class UDPMulticastBeacon {
 	 *            the EventLoopGroup to use for channels and the timer
 	 * @param executor
 	 *            the executor for application code and a timer for regularly sending the beacon
-	 * @param uuid
-	 *            the UUID to announce
+	 * @param moduleID
+	 *            the ModuleID to announce
 	 * @param interval
 	 *            the interval at which to send beacons
 	 * @param unit
 	 *            the unit for interval
 	 */
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
-			final ScheduledExecutorService executor, final UUID uuid, final long interval, final TimeUnit unit) {
+			final ScheduledExecutorService executor, final ModuleID moduleID, final long interval, final TimeUnit unit) {
 		beacon =
-				new AtomicReference<BeaconMessage>(new BeaconMessage(uuid, Collections.<InetSocketAddress> emptyList()));
+				new AtomicReference<BeaconMessage>(new BeaconMessage(moduleID, Collections.<InetSocketAddress> emptyList()));
 
 		executor.scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -179,12 +179,12 @@ public class UDPMulticastBeacon {
 	 *            the EventLoopGroup to use for channels and the timer
 	 * @param executor
 	 *            the executor for application code and a timer for regularly sending the beacon
-	 * @param uuid
-	 *            the UUID to announce
+	 * @param moduleID
+	 *            the ModuleID to announce
 	 */
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
-			final ScheduledExecutorService executor, final UUID uuid) {
-		this(factory, group, executor, uuid, DEFAULT_INTERVAL, DEFAULT_INTERVAL_UNIT);
+			final ScheduledExecutorService executor, final ModuleID moduleID) {
+		this(factory, group, executor, moduleID, DEFAULT_INTERVAL, DEFAULT_INTERVAL_UNIT);
 	}
 
 	/**
@@ -362,7 +362,7 @@ public class UDPMulticastBeacon {
 	 *            the addresses to send with the beacon
 	 */
 	public void setAnnounceAddresses(final List<InetSocketAddress> addresses) {
-		final BeaconMessage newBeacon = new BeaconMessage(beacon.get().getModuleUUID(), addresses);
+		final BeaconMessage newBeacon = new BeaconMessage(beacon.get().getModuleID(), addresses);
 		LOGGER.debug("doing lazy set on beacon to {}", newBeacon);
 		beacon.lazySet(newBeacon);
 	}
@@ -477,7 +477,7 @@ public class UDPMulticastBeacon {
 	// maybe queue them and empty the queue at a fixed interval (every second or so)
 	private void handleBeacon(final BeaconMessage beacon) {
 		LOGGER.entry(beacon);
-		if (this.beacon.get().getModuleUUID().equals(beacon.getUUID())) {
+		if (this.beacon.get().getModuleID().equals(beacon.getModuleID())) {
 			LOGGER.exit();
 			return;
 		}

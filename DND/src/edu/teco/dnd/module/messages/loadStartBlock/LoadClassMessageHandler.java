@@ -1,8 +1,7 @@
 package edu.teco.dnd.module.messages.loadStartBlock;
 
-import java.util.UUID;
-
 import edu.teco.dnd.module.Application;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -29,7 +28,7 @@ public class LoadClassMessageHandler implements MessageHandler<LoadClassMessage>
 	}
 
 	@Override
-	public Response handleMessage(UUID remoteUUID, LoadClassMessage message) {
+	public Response handleMessage(ModuleID remoteUUID, LoadClassMessage message) {
 		try {
 			associatedApp.loadClass(message.className, message.classByteCode);
 		} catch (Exception e) {

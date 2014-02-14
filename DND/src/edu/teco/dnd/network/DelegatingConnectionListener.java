@@ -3,11 +3,12 @@ package edu.teco.dnd.network;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import edu.teco.dnd.module.ModuleID;
 
 public class DelegatingConnectionListener implements ConnectionListener {
 	private static final Logger LOGGER = LogManager.getLogger(DelegatingConnectionListener.class);
@@ -40,11 +41,11 @@ public class DelegatingConnectionListener implements ConnectionListener {
 	}
 
 	@Override
-	public void connectionEstablished(final UUID uuid) {
+	public void connectionEstablished(final ModuleID moduleID) {
 		for (final ConnectionListener listener : listeners.get()) {
-			LOGGER.debug("calling connectionEstablished({}) on {}", uuid, listener);
+			LOGGER.debug("calling connectionEstablished({}) on {}", moduleID, listener);
 			try {
-				listener.connectionEstablished(uuid);
+				listener.connectionEstablished(moduleID);
 			} catch (final Throwable t) {
 				LOGGER.catching(t);
 			}
@@ -52,11 +53,11 @@ public class DelegatingConnectionListener implements ConnectionListener {
 	}
 
 	@Override
-	public void connectionClosed(final UUID uuid) {
+	public void connectionClosed(final ModuleID moduleID) {
 		for (final ConnectionListener listener : listeners.get()) {
-			LOGGER.debug("calling connectionClosed({}) on {}", uuid, listener);
+			LOGGER.debug("calling connectionClosed({}) on {}", moduleID, listener);
 			try {
-				listener.connectionClosed(uuid);
+				listener.connectionClosed(moduleID);
 			} catch (final Throwable t) {
 				LOGGER.catching(t);
 			}

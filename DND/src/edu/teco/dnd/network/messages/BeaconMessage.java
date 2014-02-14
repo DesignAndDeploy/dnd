@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import edu.teco.dnd.module.ModuleID;
+
 public class BeaconMessage extends Message {
 	/**
 	 * The type of this message.
@@ -15,7 +17,7 @@ public class BeaconMessage extends Message {
 	/**
 	 * The UUID of the module that send this message.
 	 */
-	private final UUID moduleUUID;
+	private final ModuleID moduleID;
 
 	/**
 	 * The addresses of the module that send this message.
@@ -27,15 +29,15 @@ public class BeaconMessage extends Message {
 	 * 
 	 * @param uuid
 	 *            the UUID of this Message
-	 * @param moduleUUID
-	 *            the UUID of the module
+	 * @param moduleID
+	 *            the ID of the module
 	 * @param addresses
 	 *            the addresses the module that can be used to initiate a connection. The list is copied to make it
 	 *            unmodifiable. Can be null to use an empty list.
 	 */
-	public BeaconMessage(final UUID uuid, final UUID moduleUUID, final List<InetSocketAddress> addresses) {
+	public BeaconMessage(final UUID uuid, final ModuleID moduleID, final List<InetSocketAddress> addresses) {
 		super(uuid);
-		this.moduleUUID = moduleUUID;
+		this.moduleID = moduleID;
 		if (addresses == null) {
 			this.addresses = Collections.unmodifiableList(Collections.<InetSocketAddress> emptyList());
 		} else {
@@ -46,14 +48,14 @@ public class BeaconMessage extends Message {
 	/**
 	 * Initializes a new BeaconMessage.
 	 * 
-	 * @param moduleUUID
-	 *            the UUID of the module
+	 * @param moduleID
+	 *            the ID of the module
 	 * @param addresses
 	 *            the addresses the module that can be used to initiate a connection. The list is copied to make it
 	 *            unmodifiable. Can be null to use an empty list.
 	 */
-	public BeaconMessage(final UUID moduleUUID, final List<InetSocketAddress> addresses) {
-		this.moduleUUID = moduleUUID;
+	public BeaconMessage(final ModuleID moduleID, final List<InetSocketAddress> addresses) {
+		this.moduleID = moduleID;
 		if (addresses == null) {
 			this.addresses = Collections.unmodifiableList(Collections.<InetSocketAddress> emptyList());
 		} else {
@@ -69,13 +71,8 @@ public class BeaconMessage extends Message {
 		this(null, null);
 	}
 
-	/**
-	 * Returns the UUID of the module.
-	 * 
-	 * @return the UUID of the module
-	 */
-	public UUID getModuleUUID() {
-		return moduleUUID;
+	public ModuleID getModuleID() {
+		return moduleID;
 	}
 
 	/**
@@ -90,7 +87,7 @@ public class BeaconMessage extends Message {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append("BeaconMessage[uuid=").append(moduleUUID).append(",addresses=").append(addresses).append("]");
+		sb.append("BeaconMessage[uuid=").append(moduleID).append(",addresses=").append(addresses).append("]");
 		return sb.toString();
 	}
 }

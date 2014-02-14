@@ -4,8 +4,8 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.util.NetConnection;
 
 /**
@@ -16,7 +16,7 @@ import edu.teco.dnd.util.NetConnection;
  * NAT if it has been configured to forward the necessary ports).
  */
 public class AddressBasedServerConfig implements ServerConfig {
-	private final UUID moduleUUID;
+	private final ModuleID moduleID;
 	private final Collection<InetSocketAddress> listenAddresses;
 	private final Collection<NetConnection> multicastAddresses;
 	private final Collection<InetSocketAddress> announceAddresses;
@@ -25,8 +25,8 @@ public class AddressBasedServerConfig implements ServerConfig {
 	/**
 	 * Initializes a new AddressBasedServerConfig.
 	 * 
-	 * @param moduleUUID
-	 *            the UUID of the Module
+	 * @param moduleID
+	 *            the ID of the Module
 	 * @param listenAddresses
 	 *            the addresses the servers should listen on
 	 * @param multicastAddresses
@@ -36,10 +36,10 @@ public class AddressBasedServerConfig implements ServerConfig {
 	 * @param announceInterval
 	 *            time between two announcements
 	 */
-	public AddressBasedServerConfig(final UUID moduleUUID, final Collection<InetSocketAddress> listenAddresses,
+	public AddressBasedServerConfig(final ModuleID moduleID, final Collection<InetSocketAddress> listenAddresses,
 			final Collection<NetConnection> multicastAddresses, final Collection<InetSocketAddress> announceAddresses,
 			int announceInterval) {
-		this.moduleUUID = moduleUUID;
+		this.moduleID = moduleID;
 		this.listenAddresses = Collections.unmodifiableCollection(new ArrayList<InetSocketAddress>(listenAddresses));
 		this.multicastAddresses = Collections.unmodifiableCollection(new ArrayList<NetConnection>(multicastAddresses));
 		this.announceAddresses =
@@ -48,8 +48,8 @@ public class AddressBasedServerConfig implements ServerConfig {
 	}
 
 	@Override
-	public UUID getModuleUUID() {
-		return moduleUUID;
+	public ModuleID getModuleID() {
+		return moduleID;
 	}
 
 	public Collection<InetSocketAddress> getListenAddresses() {
@@ -71,7 +71,7 @@ public class AddressBasedServerConfig implements ServerConfig {
 
 	@Override
 	public String toString() {
-		return "AddressBasedServerConfig[moduleUUID=" + moduleUUID + ",listenAddresses=" + listenAddresses
+		return "AddressBasedServerConfig[moduleID=" + moduleID + ",listenAddresses=" + listenAddresses
 				+ ",multicastAddresses=" + multicastAddresses + ",announceAddresses=" + announceAddresses
 				+ ",announceInterval=" + announceInterval + "]";
 	}

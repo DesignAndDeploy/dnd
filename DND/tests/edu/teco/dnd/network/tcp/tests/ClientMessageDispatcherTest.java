@@ -19,19 +19,20 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.DefaultResponse;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.network.tcp.ClientMessageDispatcher;
-import edu.teco.dnd.network.tcp.RemoteUUIDResolver;
+import edu.teco.dnd.network.tcp.RemoteIDResolver;
 import edu.teco.dnd.network.tcp.ResponseFutureManager;
 import edu.teco.dnd.util.UniqueUUIDUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClientMessageDispatcherTest {
-	private static UUID remoteUUID;
+	private static ModuleID remoteID;
 
 	@Mock
 	private Channel channel;
@@ -61,7 +62,7 @@ public class ClientMessageDispatcherTest {
 
 	@BeforeClass
 	public static void setupIDs() {
-		remoteUUID = UUID.randomUUID();
+		remoteID = new ModuleID();
 
 		final UniqueUUIDUtil uuidUtil = new UniqueUUIDUtil();
 		applicationID1 = new ApplicationID(uuidUtil.getNewUUID());
@@ -71,8 +72,8 @@ public class ClientMessageDispatcherTest {
 	@Before
 	public void setupDispatcher() {
 		when(channelHandlerContext.channel()).thenReturn(channel);
-		final RemoteUUIDResolver resolver = mock(RemoteUUIDResolver.class);
-		when(resolver.getRemoteUUID(channel)).thenReturn(remoteUUID);
+		final RemoteIDResolver resolver = mock(RemoteIDResolver.class);
+		when(resolver.getRemoteID(channel)).thenReturn(remoteID);
 		dispatcher = new ClientMessageDispatcher(resolver, responseFutureManager);
 	}
 
@@ -100,7 +101,7 @@ public class ClientMessageDispatcherTest {
 
 	@Test
 	public void testDefaultResponseWhenException() throws Exception {
-		when(handler1.handleMessage(any(UUID.class), any(Message.class))).thenThrow(new Exception());
+		when(handler1.handleMessage(any(ModuleID.class), any(Message.class))).thenThrow(new Exception());
 		dispatcher.setDefaultHandler(Message.class, handler1);
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
@@ -110,7 +111,7 @@ public class ClientMessageDispatcherTest {
 
 	@Test
 	public void testDefaultResponseWhenNull() throws Exception {
-		when(handler1.handleMessage(any(UUID.class), any(Message.class))).thenReturn(null);
+		when(handler1.handleMessage(any(ModuleID.class), any(Message.class))).thenReturn(null);
 		dispatcher.setDefaultHandler(Message.class, handler1);
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
@@ -121,7 +122,7 @@ public class ClientMessageDispatcherTest {
 	@Test
 	public void testResponseSent() throws Exception {
 		final Response response = mock(Response.class);
-		when(handler1.handleMessage(any(UUID.class), any(Message.class))).thenReturn(response);
+		when(handler1.handleMessage(any(ModuleID.class), any(Message.class))).thenReturn(response);
 		dispatcher.setDefaultHandler(Message.class, handler1);
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
@@ -132,7 +133,7 @@ public class ClientMessageDispatcherTest {
 	@Test
 	public void testResponseSourceUUIDSet() throws Exception {
 		final Response response = mock(Response.class);
-		when(handler1.handleMessage(any(UUID.class), any(Message.class))).thenReturn(response);
+		when(handler1.handleMessage(any(ModuleID.class), any(Message.class))).thenReturn(response);
 		dispatcher.setDefaultHandler(Message.class, handler1);
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
@@ -146,7 +147,7 @@ public class ClientMessageDispatcherTest {
 
 		dispatcher.channelRead(channelHandlerContext, genericMessage);
 
-		verify(handler1).handleMessage(remoteUUID, genericMessage);
+		verify(handler1).handleMessage(remoteID, genericMessage);
 	}
 
 	@Test
@@ -155,7 +156,7 @@ public class ClientMessageDispatcherTest {
 
 		dispatcher.channelRead(channelHandlerContext, applicationSpecificMessage1);
 
-		verify(handler1).handleMessage(remoteUUID, applicationSpecificMessage1);
+		verify(handler1).handleMessage(remoteID, applicationSpecificMessage1);
 	}
 
 	@Test
@@ -165,7 +166,7 @@ public class ClientMessageDispatcherTest {
 
 		dispatcher.channelRead(channelHandlerContext, applicationSpecificMessage1);
 
-		verify(handler1).handleMessage(remoteUUID, applicationSpecificMessage1);
+		verify(handler1).handleMessage(remoteID, applicationSpecificMessage1);
 		verifyZeroInteractions(handler2);
 	}
 
@@ -177,8 +178,8 @@ public class ClientMessageDispatcherTest {
 		dispatcher.channelRead(channelHandlerContext, applicationSpecificMessage1);
 		dispatcher.channelRead(channelHandlerContext, applicationSpecificMessage2);
 
-		verify(handler1).handleMessage(remoteUUID, applicationSpecificMessage1);
-		verify(handler2).handleMessage(remoteUUID, applicationSpecificMessage2);
+		verify(handler1).handleMessage(remoteID, applicationSpecificMessage1);
+		verify(handler2).handleMessage(remoteID, applicationSpecificMessage2);
 	}
 
 	@Test

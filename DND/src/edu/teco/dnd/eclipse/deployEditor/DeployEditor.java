@@ -44,6 +44,7 @@ import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.EclipseUtil;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
@@ -76,7 +77,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 	private ServerManager<?> serverManager;
 	private ModuleManager manager;
 
-	private ArrayList<UUID> idList = new ArrayList<UUID>();
+	private ArrayList<ModuleID> idList = new ArrayList<ModuleID>();
 
 	private Collection<FunctionBlockModel> functionBlocks;
 
@@ -90,9 +91,9 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 	private boolean widgetsInitialized = false;
 	private int selectedIndex; // Index of selected field of moduleCombo
 								// = index in idList + 1
-	private UUID selectedID;
+	private ModuleID selectedID;
 	private FunctionBlockModel selectedBlockModel;
-	private Map<FunctionBlockModel, UUID> moduleConstraints = new HashMap<FunctionBlockModel, UUID>();
+	private Map<FunctionBlockModel, ModuleID> moduleConstraints = new HashMap<FunctionBlockModel, ModuleID>();
 	private Map<FunctionBlockModel, String> locationConstraints = new HashMap<FunctionBlockModel, String>();
 
 	private URL[] classPath = new URL[0];
@@ -255,7 +256,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 	 *            new Block.
 	 */
 	private synchronized void replaceBlock(FunctionBlockModel oldBlock, FunctionBlockModel newBlock) {
-		UUID module = moduleConstraints.get(oldBlock);
+		ModuleID module = moduleConstraints.get(oldBlock);
 		moduleConstraints.remove(oldBlock);
 		locationConstraints.remove(oldBlock);
 
@@ -300,7 +301,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 		LOGGER.entry();
 		Collection<Constraint> constraints = new ArrayList<Constraint>();
 		synchronized (this) {
-			constraints.add(new UserConstraints(new HashMap<FunctionBlockModel, UUID>(moduleConstraints),
+			constraints.add(new UserConstraints(new HashMap<FunctionBlockModel, ModuleID>(moduleConstraints),
 					locationConstraints));
 		}
 
@@ -493,7 +494,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 	 * @param id
 	 *            the ID to add
 	 */
-	private synchronized void addID(final UUID id) {
+	private synchronized void addID(final ModuleID id) {
 		LOGGER.entry(id);
 		if (!idList.contains(id)) {
 			LOGGER.trace("id {} is new, adding", id); //$NON-NLS-1$
@@ -512,7 +513,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 	 * @param id
 	 *            the ID to remove
 	 */
-	private synchronized void removeID(final UUID id) {
+	private synchronized void removeID(final ModuleID id) {
 		LOGGER.entry(id);
 		int idIndex = idList.indexOf(id);
 		if (idIndex >= 0) {
@@ -676,7 +677,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
-					addID(module.getUUID());
+					addID(module.getID());
 				}
 			}
 		});
@@ -690,7 +691,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 			@Override
 			public void run() {
 				if (widgetsInitialized) {
-					removeID(module.getUUID());
+					removeID(module.getID());
 				}
 			}
 		});
@@ -704,7 +705,7 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 			@Override
 			public synchronized void run() {
 				if (widgetsInitialized) {
-					final UUID moduleID = module.getUUID();
+					final ModuleID moduleID = module.getID();
 					if (!idList.contains(moduleID)) {
 						addID(moduleID);
 					}

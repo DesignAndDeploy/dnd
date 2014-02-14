@@ -3,11 +3,11 @@ package edu.teco.dnd.module.config;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.util.NetConnection;
 
 /**
@@ -61,7 +61,7 @@ public abstract class ConfigReader {
 	/**
 	 * @return the uuid of this module.
 	 */
-	public abstract UUID getUuid();
+	public abstract ModuleID getModuleID();
 
 	/**
 	 * @return the maximum number of allowed processes per application

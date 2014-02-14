@@ -22,8 +22,6 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.concurrent.EventExecutorGroup;
 
-import java.util.UUID;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.HelloMessage;
 import edu.teco.dnd.network.tcp.ClientChannelInitializer;
 import edu.teco.dnd.network.tcp.ClientChannelManager;
@@ -47,15 +46,15 @@ public class ClientChannelInitializerTest {
 	@Mock
 	private EventExecutorGroup messageHandlerGroup;
 
-	private UUID localUUID;
+	private ModuleID localID;
 	private ClientChannelInitializer initializer;
 
 	private MockPipeline pipeline = new MockPipeline();
 
 	@Before
 	public void setup() {
-		localUUID = UUID.randomUUID();
-		initializer = new ClientChannelInitializer(manager, localUUID);
+		localID = new ModuleID();
+		initializer = new ClientChannelInitializer(manager, localID);
 
 		when(channel.pipeline()).thenReturn(pipeline);
 	}
@@ -188,6 +187,6 @@ public class ClientChannelInitializerTest {
 			fail("sent " + sentObject + " of class " + sentObject.getClass() + " instead of HelloMessage");
 		}
 		final HelloMessage msg = (HelloMessage) sentObject;
-		assertEquals(localUUID, msg.getModuleUUID());
+		assertEquals(localID, msg.getModuleID());
 	}
 }

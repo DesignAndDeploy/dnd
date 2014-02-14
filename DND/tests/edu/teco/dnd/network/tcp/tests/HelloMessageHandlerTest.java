@@ -22,6 +22,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 import edu.teco.dnd.network.messages.HelloMessage;
 import edu.teco.dnd.network.tcp.ClientChannelManager;
@@ -33,9 +34,9 @@ public class HelloMessageHandlerTest {
 	@Mock
 	private ChannelHandlerContext channelHandlerContext;
 
-	private UUID localUUID;
-	private UUID lowerUUID;
-	private UUID higherUUID;
+	private ModuleID localUUID;
+	private ModuleID lowerUUID;
+	private ModuleID higherUUID;
 
 	@Mock
 	private ClientChannelManager clientChannelManager;
@@ -55,9 +56,9 @@ public class HelloMessageHandlerTest {
 		}
 		Collections.sort(uuids);
 
-		lowerUUID = uuids.get(0);
-		localUUID = uuids.get(1);
-		higherUUID = uuids.get(2);
+		lowerUUID = new ModuleID(uuids.get(0));
+		localUUID = new ModuleID(uuids.get(1));
+		higherUUID = new ModuleID(uuids.get(2));
 
 		handler = new HelloMessageHandler(clientChannelManager, localUUID);
 	}
@@ -83,7 +84,7 @@ public class HelloMessageHandlerTest {
 		handler.channelRead(channelHandlerContext, new HelloMessage(higherUUID, 0));
 
 		final InOrder inOrder = inOrder(clientChannelManager);
-		inOrder.verify(clientChannelManager).setRemoteUUID(channelHandlerContext.channel(), higherUUID);
+		inOrder.verify(clientChannelManager).setRemoteID(channelHandlerContext.channel(), higherUUID);
 		inOrder.verify(clientChannelManager).setActiveIfFirst(channelHandlerContext.channel());
 		verify(channelHandlerContext, times(1)).writeAndFlush(any(ConnectionEstablishedMessage.class));
 		verify(channelHandlerContext, never()).write(any());
@@ -96,7 +97,7 @@ public class HelloMessageHandlerTest {
 		handler.channelRead(channelHandlerContext, new HelloMessage(higherUUID, 0));
 
 		final InOrder inOrder = inOrder(clientChannelManager);
-		inOrder.verify(clientChannelManager).setRemoteUUID(channelHandlerContext.channel(), higherUUID);
+		inOrder.verify(clientChannelManager).setRemoteID(channelHandlerContext.channel(), higherUUID);
 		inOrder.verify(clientChannelManager).setActiveIfFirst(channelHandlerContext.channel());
 		verify(channelHandlerContext).close();
 		verify(channelHandlerContext, never()).write(any());
@@ -107,7 +108,7 @@ public class HelloMessageHandlerTest {
 	public void testMaster() throws Exception {
 		handler.channelRead(channelHandlerContext, new HelloMessage(lowerUUID, 0));
 
-		verify(clientChannelManager).setRemoteUUID(channelHandlerContext.channel(), lowerUUID);
+		verify(clientChannelManager).setRemoteID(channelHandlerContext.channel(), lowerUUID);
 		verify(channelHandlerContext, never()).close();
 		verify(channelHandlerContext, never()).write(any());
 		verify(channelHandlerContext, never()).writeAndFlush(any());

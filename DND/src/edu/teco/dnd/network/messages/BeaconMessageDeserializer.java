@@ -12,6 +12,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+import edu.teco.dnd.module.ModuleID;
+
 /**
  * A deserializer for {@link BeaconMessage}s that uses the public constructor so that <code>addresses</code> is kept
  * unmodifiable.
@@ -34,11 +36,11 @@ public class BeaconMessageDeserializer implements JsonDeserializer<BeaconMessage
 			uuid = null;
 		}
 
-		final UUID moduleUUID;
-		if (jsonObject.has("moduleUUID")) {
-			moduleUUID = context.deserialize(jsonObject.get("moduleUUID"), UUID.class);
+		final ModuleID moduleID;
+		if (jsonObject.has("moduleID")) {
+			moduleID = context.deserialize(jsonObject.get("moduleID"), ModuleID.class);
 		} else {
-			moduleUUID = null;
+			moduleID = null;
 		}
 
 		final ArrayList<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
@@ -55,6 +57,6 @@ public class BeaconMessageDeserializer implements JsonDeserializer<BeaconMessage
 			}
 		}
 
-		return new BeaconMessage(uuid, moduleUUID, addresses);
+		return new BeaconMessage(uuid, moduleID, addresses);
 	}
 }
