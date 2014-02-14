@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.values;
 
-import java.util.UUID;
-
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -35,9 +34,9 @@ public class ValueNak extends Response {
 
 	public static final String MESSAGE_TYPE = "value nak";
 	/**
-	 * UUID of the Block the Value was meant for.
+	 * ID of the Block the Value was meant for.
 	 */
-	public final UUID blockId;
+	public final FunctionBlockID blockID;
 	/**
 	 * Name of the Input the Value was meant for.
 	 */
@@ -54,17 +53,17 @@ public class ValueNak extends Response {
 	 *            ID of application sending/receiving this value.
 	 * @param errorType
 	 *            type of error that occurred.
-	 * @param blockId
-	 *            Id of block this value was meant for.
+	 * @param blockID
+	 *            ID of block this value was meant for.
 	 * @param input
 	 *            name of input this value was meant for.
 	 */
-	public ValueNak(ErrorType errorType, UUID blockId, String input) {
+	public ValueNak(ErrorType errorType, FunctionBlockID blockID, String input) {
 		if (errorType == null) {
 			errorType = ErrorType.OTHER;
 		}
 		this.errorType = errorType;
-		this.blockId = blockId;
+		this.blockID = blockID;
 		this.input = input;
 	}
 
@@ -77,7 +76,7 @@ public class ValueNak extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
+		result = prime * result + ((blockID == null) ? 0 : blockID.hashCode());
 		result = prime * result + ((errorType == null) ? 0 : errorType.hashCode());
 		result = prime * result + ((input == null) ? 0 : input.hashCode());
 		return result;
@@ -100,11 +99,11 @@ public class ValueNak extends Response {
 			return false;
 		}
 		ValueNak other = (ValueNak) obj;
-		if (blockId == null) {
-			if (other.blockId != null) {
+		if (blockID == null) {
+			if (other.blockID != null) {
 				return false;
 			}
-		} else if (!blockId.equals(other.blockId)) {
+		} else if (!blockID.equals(other.blockID)) {
 			return false;
 		}
 		if (errorType != other.errorType) {
@@ -127,7 +126,7 @@ public class ValueNak extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "ValueNak [blockId=" + blockId + ", input=" + input + ", errorType=" + errorType + ", getSourceUUID()="
+		return "ValueNak [blockId=" + blockID + ", input=" + input + ", errorType=" + errorType + ", getSourceUUID()="
 				+ getSourceUUID() + ", getUUID()=" + getUUID() + "]";
 	}
 

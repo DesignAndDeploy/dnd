@@ -1,31 +1,30 @@
 package edu.teco.dnd.server;
 
-import java.util.UUID;
-
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.module.ModuleID;
 
 public class BlockInformation {
-	private final UUID id;
+	private final FunctionBlockID id;
 	private final String name;
 	private final String blockClass;
 	private final ModuleID moduleID;
 	
-	public BlockInformation(final UUID id, final String name, final String blockClass, final ModuleID moduleID) {
+	public BlockInformation(final FunctionBlockID id, final String name, final String blockClass, final ModuleID moduleID) {
 		this.id = id;
 		this.name = name;
 		this.blockClass = blockClass;
 		this.moduleID = moduleID;
 	}
 	
-	public BlockInformation(final UUID blockID, final String name, final String blockClass) {
+	public BlockInformation(final FunctionBlockID blockID, final String name, final String blockClass) {
 		this(blockID, name, blockClass, null);
 	}
 	
-	public BlockInformation(final UUID blockID) {
+	public BlockInformation(final FunctionBlockID blockID) {
 		this(blockID, null, null, null);
 	}
 	
-	public UUID getID() {
+	public FunctionBlockID getID() {
 		return id;
 	}
 	

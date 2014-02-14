@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -15,6 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.module.messages.values.BlockFoundResponse;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
@@ -27,8 +27,8 @@ import edu.teco.dnd.util.ReferenceIterator;
 
 /**
  * Provides functionality to send values to a remote FunctionBlock. This includes searching for the FunctionBlock using
- * its ModuleID and buffering values until the ModuleInfo on which the FunctionBlock is running is found. Values are cached
- * using SoftReferences so they may get garbage collected before the ModuleInfo is found.
+ * its ModuleID and buffering values until the ModuleInfo on which the FunctionBlock is running is found. Values are
+ * cached using SoftReferences so they may get garbage collected before the ModuleInfo is found.
  * 
  * @author Philipp Adolf
  */
@@ -45,9 +45,9 @@ public class ValueSender implements FutureListener<FutureNotifier<ModuleID>> {
 	private final ApplicationID applicationID;
 
 	/**
-	 * The UUID of the FunctionBlock this object sends values to.
+	 * The ID of the FunctionBlock this object sends values to.
 	 */
-	private final UUID targetBlockID;
+	private final FunctionBlockID targetBlockID;
 
 	/**
 	 * The ConnectionManager that will be used to send messages.
@@ -80,11 +80,12 @@ public class ValueSender implements FutureListener<FutureNotifier<ModuleID>> {
 	 * @param applicationID
 	 *            the ID of the Application
 	 * @param targetBlockID
-	 *            the UUID of the FunctionBlock this object should send values to
+	 *            the ID of the FunctionBlock this object should send values to
 	 * @param connectionManager
 	 *            the ConnectionManager that will be used to send messages
 	 */
-	public ValueSender(final ApplicationID applicationID, final UUID targetBlockID, final ConnectionManager connectionManager) {
+	public ValueSender(final ApplicationID applicationID, final FunctionBlockID targetBlockID,
+			final ConnectionManager connectionManager) {
 		this.applicationID = applicationID;
 		this.targetBlockID = targetBlockID;
 		this.connectionManager = connectionManager;

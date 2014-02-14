@@ -1,17 +1,15 @@
 package edu.teco.dnd.blocks;
 
-import java.util.UUID;
-
 public class InputDescription {
-	private final UUID block;
+	private final FunctionBlockID block;
 	private final String input;
 
-	public InputDescription(final UUID block, final String input) {
+	public InputDescription(final FunctionBlockID block, final String input) {
 		this.block = block;
 		this.input = input;
 	}
 
-	public UUID getBlock() {
+	public FunctionBlockID getBlock() {
 		return this.block;
 	}
 

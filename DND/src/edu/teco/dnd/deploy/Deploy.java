@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.blocks.InputDescription;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
@@ -537,21 +538,22 @@ public class Deploy {
 		for (final OutputModel output : block.getOutputs()) {
 			final Collection<InputDescription> destinations = new ArrayList<InputDescription>();
 			for (final InputModel input : output.getInputs()) {
-				destinations.add(new InputDescription(input.getFunctionBlock().getID(), input.getName()));
+				destinations.add(new InputDescription(new FunctionBlockID(input.getFunctionBlock().getID()), input
+						.getName()));
 			}
 			if (!destinations.isEmpty()) {
 				outputs.put(output.getName(), destinations);
 			}
 		}
 		final BlockMessage blockMsg =
-				new BlockMessage(applicationID, block.getBlockClass(), block.getBlockName(), block.getID(), options,
-						outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
+				new BlockMessage(applicationID, block.getBlockClass(), block.getBlockName(), new FunctionBlockID(
+						block.getID()), options, outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
 		return connectionManager.sendMessage(moduleID, blockMsg);
 	}
 
 	/**
-	 * This method is called when all {@link FunctionBlock} that are assigned to a Module have been sent. If a
-	 * positive Response was received {@link #unfinishedModules} is decremented. If it is zero afterwards
+	 * This method is called when all {@link FunctionBlock} that are assigned to a Module have been sent. If a positive
+	 * Response was received {@link #unfinishedModules} is decremented. If it is zero afterwards
 	 * {@link #sendStartApplication()} is called. If a negative Response is received {@link #deployFutureNotifier} is
 	 * marked as failed.
 	 * 

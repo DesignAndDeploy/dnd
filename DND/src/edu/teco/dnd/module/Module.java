@@ -172,7 +172,7 @@ public class Module {
 				app = runningApps.get(applicationID);
 			}
 			if (app == null) {
-				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockUUID
+				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockID
 						+ " for non-existant Application " + applicationID);
 			}
 			app.scheduleBlock(blockDescription);
@@ -252,7 +252,7 @@ public class Module {
 			app.shutdown();
 
 			for (final FunctionBlockSecurityDecorator block : app.getFunctionBlocksById().values()) {
-				moduleBlockManager.removeBlock(new ApplicationBlockID(block.getBlockUUID(), appId));
+				moduleBlockManager.removeBlock(new ApplicationBlockID(block.getBlockID(), appId));
 			}
 
 			runningApps.remove(appId);

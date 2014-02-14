@@ -51,7 +51,7 @@ public class ModuleBlockManager {
 			if (!holder.tryAdd(block.getBlockType())) {
 				throw LOGGER.throwing(new BlockTypeHolderFullException(holder + " is already full"));
 			}
-			spotOccupiedByBlock.put(new ApplicationBlockID(block.getBlockUUID(), applicationID), blockTypeHolderId);
+			spotOccupiedByBlock.put(new ApplicationBlockID(block.getBlockID(), applicationID), blockTypeHolderId);
 		}
 		LOGGER.exit();
 	}

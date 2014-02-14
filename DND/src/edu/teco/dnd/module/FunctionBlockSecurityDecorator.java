@@ -2,9 +2,9 @@ package edu.teco.dnd.module;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.UUID;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
 
@@ -46,19 +46,19 @@ public class FunctionBlockSecurityDecorator {
 	/**
 	 * wrapper for doInit on FunctionBlocks. just wrapped for security.
 	 * 
-	 * @param blockUUID
-	 *            see FunctionBlock.doInit() .
+	 * @param blockID
+	 *            see {@link FunctionBlock#doInit(FunctionBlockID, String)}
 	 * @param blockName
-	 *            see FunctionBlock.doInit().
+	 *            see {@link FunctionBlock#doInit(FunctionBlockID, String)}
 	 * @throws UserSuppliedCodeException
 	 *             if an error occurred in the block code.
 	 */
-	public void doInit(final UUID blockUUID, final String blockName) throws UserSuppliedCodeException {
+	public void doInit(final FunctionBlockID blockID, final String blockName) throws UserSuppliedCodeException {
 		try {
-			this.block.doInit(blockUUID, blockName);
+			this.block.doInit(blockID, blockName);
 		} catch (Throwable e) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
-			throw new UserSuppliedCodeException("an exception was thrown while calling doInit on block " + blockUUID);
+			throw new UserSuppliedCodeException("an exception was thrown while calling doInit on block " + blockID);
 		}
 	}
 
@@ -76,7 +76,7 @@ public class FunctionBlockSecurityDecorator {
 		} catch (Throwable t) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling init on block "
-					+ block.getBlockUUID());
+					+ block.getBlockID());
 		}
 	}
 
@@ -92,7 +92,7 @@ public class FunctionBlockSecurityDecorator {
 		} catch (Throwable t) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling shutdown on block "
-					+ block.getBlockUUID());
+					+ block.getBlockID());
 		}
 	}
 
@@ -108,7 +108,7 @@ public class FunctionBlockSecurityDecorator {
 		} catch (Throwable t) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling update on block "
-					+ block.getBlockUUID());
+					+ block.getBlockID());
 		}
 	}
 
@@ -128,8 +128,8 @@ public class FunctionBlockSecurityDecorator {
 	 * 
 	 * @return UUID of the block this FunctionBlockSecurityDecorator contains.
 	 */
-	public UUID getBlockUUID() {
-		return block.getBlockUUID();
+	public FunctionBlockID getBlockID() {
+		return block.getBlockID();
 	}
 
 	/**

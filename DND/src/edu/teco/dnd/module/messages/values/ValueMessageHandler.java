@@ -33,18 +33,18 @@ public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 	public Response handleMessage(ModuleID remoteID, ValueMessage message) {
 		Response returnMsg = null;
 		try {
-			associatedApp.receiveValue(message.blockId, message.input, message.value);
+			associatedApp.receiveValue(message.blockID, message.input, message.value);
 		} catch (NonExistentFunctionblockException e) {
 			returnMsg =
-					new ValueNak(ValueNak.ErrorType.WRONG_MODULE, message.blockId,
+					new ValueNak(ValueNak.ErrorType.WRONG_MODULE, message.blockID,
 							message.input);
 		} catch (NonExistentInputException e) {
 			returnMsg =
-					new ValueNak(ValueNak.ErrorType.INVALID_INPUT, message.blockId,
+					new ValueNak(ValueNak.ErrorType.INVALID_INPUT, message.blockID,
 							message.input);
 		} catch (Exception e) {
 			returnMsg =
-					new ValueNak(ValueNak.ErrorType.OTHER, message.blockId, message.input);
+					new ValueNak(ValueNak.ErrorType.OTHER, message.blockID, message.input);
 		}
 
 		if (returnMsg == null) {

@@ -33,7 +33,7 @@ public class RequestApplicationInformationMessageHandler implements
 		for (final Application application : module.getRunningApps().values()) {
 			final Collection<BlockInformation> blocks = new ArrayList<BlockInformation>();
 			for (final FunctionBlockSecurityDecorator block : application.getFunctionBlocksById().values()) {
-				blocks.add(new BlockInformation(block.getBlockUUID(), block.getBlockName(), block.getBlockType(),
+				blocks.add(new BlockInformation(block.getBlockID(), block.getBlockName(), block.getBlockType(),
 						moduleID));
 			}
 			applications.add(new ApplicationInformation(application.getApplicationID(), application.getName(), blocks));

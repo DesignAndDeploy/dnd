@@ -31,7 +31,7 @@ public class BlockMessageHandler implements MessageHandler<BlockMessage> {
 	@Override
 	public Response handleMessage(ModuleID remoteID, BlockMessage message) {
 		final BlockDescription blockDescription =
-				new BlockDescription(message.blockClass, message.blockName, message.blockUUID, message.options,
+				new BlockDescription(message.blockClass, message.blockName, message.blockID, message.options,
 						message.outputs, message.scheduleToId);
 		try {
 			module.scheduleBlock(message.getApplicationID(), blockDescription);

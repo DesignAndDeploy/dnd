@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -23,10 +22,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.blocks.Input;
+import edu.teco.dnd.blocks.InputDescription;
 import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.blocks.OutputTarget;
-import edu.teco.dnd.blocks.InputDescription;
 import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
 import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.network.ConnectionManager;
@@ -74,12 +74,13 @@ public class Application {
 	/**
 	 * A Map from FunctionBlock UUID to matching ValueSender. Not used for local FunctionBlocks.
 	 */
-	private final ConcurrentMap<UUID, ValueSender> valueSenders = new ConcurrentHashMap<UUID, ValueSender>();
+	private final ConcurrentMap<FunctionBlockID, ValueSender> valueSenders =
+			new ConcurrentHashMap<FunctionBlockID, ValueSender>();
 
 	private final ApplicationClassLoader classLoader;
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
-	private final ConcurrentMap<UUID, FunctionBlockSecurityDecorator> functionBlocksById =
-			new ConcurrentHashMap<UUID, FunctionBlockSecurityDecorator>();
+	private final ConcurrentMap<FunctionBlockID, FunctionBlockSecurityDecorator> functionBlocksById =
+			new ConcurrentHashMap<FunctionBlockID, FunctionBlockSecurityDecorator>();
 
 	/**
 	 * 
@@ -151,7 +152,7 @@ public class Application {
 	 * @param value
 	 *            the value to be send.
 	 */
-	public void sendValue(final UUID funcBlock, final String input, final Serializable value) {
+	public void sendValue(final FunctionBlockID funcBlock, final String input, final Serializable value) {
 		if (funcBlock == null) {
 			throw new IllegalArgumentException("funcBlock must not be null");
 		}
@@ -179,7 +180,7 @@ public class Application {
 	 * @param value
 	 *            see sendValue but sanitized
 	 */
-	private void sanitizedSendValue(final UUID funcBlock, final String input, final Serializable value) {
+	private void sanitizedSendValue(final FunctionBlockID funcBlock, final String input, final Serializable value) {
 
 		if (hasFunctionBlockWithID(funcBlock)) { // block is local
 			try {
@@ -205,7 +206,7 @@ public class Application {
 	 * @return the ValueSender for the given FunctionBlock
 	 */
 	// FIXME: Need a way to clean up old value senders
-	private ValueSender getValueSender(final UUID funcBlock) {
+	private ValueSender getValueSender(final FunctionBlockID funcBlock) {
 		ValueSender valueSender = valueSenders.get(funcBlock);
 		if (valueSender == null) {
 			valueSender = new ValueSender(applicationID, funcBlock, connMan);
@@ -265,7 +266,7 @@ public class Application {
 			final FunctionBlockSecurityDecorator securityDecorator =
 					createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
 			LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
-			securityDecorator.doInit(blockDescription.blockUUID, blockDescription.blockName);
+			securityDecorator.doInit(blockDescription.blockID, blockDescription.blockName);
 
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
@@ -421,7 +422,7 @@ public class Application {
 			}
 
 			// FIXME: if two blocks share the UUID, blocks get lost
-			functionBlocksById.put(block.getBlockUUID(), block);
+			functionBlocksById.put(block.getBlockID(), block);
 
 			long period = block.getUpdateInterval();
 			try {
@@ -453,7 +454,7 @@ public class Application {
 	 *             If the FunctionBlock is being executed but does not have an input of said name.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void receiveValue(final UUID funcBlockId, String inputName, Serializable value)
+	public void receiveValue(final FunctionBlockID funcBlockId, String inputName, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
 		currentStateLock.readLock().lock();
 		try {
@@ -588,11 +589,11 @@ public class Application {
 		return scheduledThreadPool;
 	}
 
-	public Map<UUID, FunctionBlockSecurityDecorator> getFunctionBlocksById() {
-		return new HashMap<UUID, FunctionBlockSecurityDecorator>(functionBlocksById);
+	public Map<FunctionBlockID, FunctionBlockSecurityDecorator> getFunctionBlocksById() {
+		return new HashMap<FunctionBlockID, FunctionBlockSecurityDecorator>(functionBlocksById);
 	}
 
-	public boolean hasFunctionBlockWithID(UUID blockId) {
+	public boolean hasFunctionBlockWithID(FunctionBlockID blockId) {
 		return functionBlocksById.containsKey(blockId);
 	}
 

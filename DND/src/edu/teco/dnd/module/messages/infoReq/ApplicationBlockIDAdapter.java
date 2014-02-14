@@ -15,6 +15,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.module.ApplicationID;
 
 /**
@@ -41,16 +42,16 @@ public class ApplicationBlockIDAdapter implements JsonSerializer<ApplicationBloc
 		}
 
 		final JsonObject obj = (JsonObject) json;
-		final JsonElement blockUUID = obj.get("blockUUID");
+		final JsonElement blockID = obj.get("blockID");
 		final JsonElement applicationID = obj.get("applicationID");
-		if (blockUUID == null || applicationID == null) {
+		if (blockID == null || applicationID == null) {
 			LOGGER.exit();
-			throw new JsonParseException("blockUUID/applicationID missing");
+			throw new JsonParseException("blockID/applicationID missing");
 		}
 
-		if (!blockUUID.isJsonPrimitive() || !((JsonPrimitive) blockUUID).isString()) {
+		if (!blockID.isJsonPrimitive() || !((JsonPrimitive) blockID).isString()) {
 			LOGGER.exit();
-			throw new JsonParseException("blockUUID is not a string");
+			throw new JsonParseException("blockID is not a string");
 		}
 		if (!applicationID.isJsonPrimitive() || !((JsonPrimitive) applicationID).isString()) {
 			LOGGER.exit();
@@ -58,7 +59,7 @@ public class ApplicationBlockIDAdapter implements JsonSerializer<ApplicationBloc
 		}
 
 		final ApplicationBlockID applicationBlockID =
-				new ApplicationBlockID(UUID.fromString(blockUUID.getAsString()), new ApplicationID(
+				new ApplicationBlockID(new FunctionBlockID(UUID.fromString(blockID.getAsString())), new ApplicationID(
 						UUID.fromString(applicationID.getAsString())));
 		LOGGER.exit(applicationBlockID);
 		return applicationBlockID;
@@ -68,7 +69,7 @@ public class ApplicationBlockIDAdapter implements JsonSerializer<ApplicationBloc
 	public JsonElement serialize(ApplicationBlockID src, Type typeOfSrc, JsonSerializationContext context) {
 		LOGGER.entry(src, typeOfSrc, context);
 		final JsonObject obj = new JsonObject();
-		obj.addProperty("blockUUID", src.getBlockUUID().toString());
+		obj.addProperty("blockID", src.getBlockID().toString());
 		obj.add("applicationID",
 				context.serialize(src.getApplicationID() == null ? null : src.getApplicationID().getUUID()));
 		LOGGER.exit(obj);

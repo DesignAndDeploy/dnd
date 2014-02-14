@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.infoReq;
 
-import java.util.UUID;
-
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.module.ApplicationID;
 
 /**
@@ -13,23 +12,23 @@ import edu.teco.dnd.module.ApplicationID;
  * 
  */
 public class ApplicationBlockID {
-	private UUID blockID;
+	private FunctionBlockID blockID;
 	private ApplicationID applicationID;
 
 	/**
 	 * Creates a new BlocKID to uniquely identify a function block.
 	 * 
-	 * @param blockUUID
-	 *            UUID of the function block.
+	 * @param blockID
+	 *            ID of the function block.
 	 * @param applicationID
 	 *            ID of the application this instance of the block belongs to.
 	 */
-	public ApplicationBlockID(UUID blockUUID, ApplicationID applicationID) {
-		this.blockID = blockUUID;
+	public ApplicationBlockID(FunctionBlockID blockID, ApplicationID applicationID) {
+		this.blockID = blockID;
 		this.applicationID = applicationID;
 	}
 
-	public UUID getBlockUUID() {
+	public FunctionBlockID getBlockID() {
 		return this.blockID;
 	}
 
