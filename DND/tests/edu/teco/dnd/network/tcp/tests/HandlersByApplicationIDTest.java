@@ -3,7 +3,6 @@ package edu.teco.dnd.network.tcp.tests;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 import org.junit.Before;
@@ -13,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.tcp.HandlersByApplicationID;
@@ -22,9 +22,9 @@ import edu.teco.dnd.util.UniqueUUIDUtil;
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("deprecation")
 public class HandlersByApplicationIDTest {
-	private static UUID applicationID1;
+	private static ApplicationID applicationID1;
 
-	private static UUID applicationID2;
+	private static ApplicationID applicationID2;
 
 	@Mock
 	private MessageHandler<Message> handler1;
@@ -43,8 +43,8 @@ public class HandlersByApplicationIDTest {
 	@BeforeClass
 	public static void setupApplicationID() {
 		final UniqueUUIDUtil util = new UniqueUUIDUtil();
-		applicationID1 = util.getNewUUID();
-		applicationID2 = util.getNewUUID();
+		applicationID1 = new ApplicationID(util.getNewUUID());
+		applicationID2 = new ApplicationID(util.getNewUUID());
 	}
 
 	@Before

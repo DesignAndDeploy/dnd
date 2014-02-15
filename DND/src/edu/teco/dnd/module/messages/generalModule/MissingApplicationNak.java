@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.generalModule;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -18,24 +17,19 @@ public class MissingApplicationNak extends Response {
 	public static final String MESSAGE_TYPE = "missing app nak";
 
 	/**
-	 * UUID that the original message was for.
+	 * ID of the Application that the original message was for.
 	 */
-	public UUID appId;
+	public ApplicationID applicationID;
 
 	/**
-	 * @param appId
-	 *            UUID that the original message was for.
+	 * @param applicationID
+	 *            ID of the Application that the original message was for.
 	 */
-	public MissingApplicationNak(UUID appId) {
-		this.appId = appId;
+	public MissingApplicationNak(ApplicationID applicationID) {
+		this.applicationID = applicationID;
 	}
 
-	/**
-	 * private constructor for gson.
-	 */
-	@SuppressWarnings("unused")
-	/* for gson */
-	private MissingApplicationNak() {
-		appId = null;
+	public MissingApplicationNak() {
+		this(null);
 	}
 }

@@ -7,7 +7,6 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +15,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.AddressBasedServerConfig;
@@ -33,7 +33,7 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 
 	private ServerManager<AddressBasedServerConfig> serverManager = null;
-	private UUID uuid = null;
+	private ModuleID moduleID = null;
 
 	static {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
@@ -49,7 +49,7 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		serverManager = new TCPUDPServerManager();
-		uuid = UUID.randomUUID();
+		moduleID = new ModuleID();
 		LOGGER.exit();
 	}
 
@@ -59,7 +59,7 @@ public class Activator extends AbstractUIPlugin {
 		super.stop(context);
 		plugin = null;
 		serverManager = null;
-		uuid = null;
+		moduleID = null;
 		LOGGER.exit();
 	}
 
@@ -80,7 +80,7 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void startServer() {
 		final AddressBasedServerConfig serverConfig =
-				new AddressBasedServerConfig(uuid, getListenAddresses(), getMulticastAddresses(),
+				new AddressBasedServerConfig(moduleID, getListenAddresses(), getMulticastAddresses(),
 						getAnnounceAddresses(), getAnnounceInterval());
 		serverManager.startServer(serverConfig);
 	}

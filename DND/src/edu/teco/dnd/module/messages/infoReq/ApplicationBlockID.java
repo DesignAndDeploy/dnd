@@ -1,6 +1,7 @@
 package edu.teco.dnd.module.messages.infoReq;
 
-import java.util.UUID;
+import edu.teco.dnd.blocks.FunctionBlockID;
+import edu.teco.dnd.module.ApplicationID;
 
 /**
  * This class represents a unique ID for each instance of a function block. That way, all blocks can have the same UUID
@@ -11,28 +12,28 @@ import java.util.UUID;
  * 
  */
 public class ApplicationBlockID {
-	private UUID blockID;
-	private UUID appID;
+	private FunctionBlockID blockID;
+	private ApplicationID applicationID;
 
 	/**
 	 * Creates a new BlocKID to uniquely identify a function block.
 	 * 
-	 * @param blockUUID
-	 *            UUID of the function block.
-	 * @param appID
+	 * @param blockID
+	 *            ID of the function block.
+	 * @param applicationID
 	 *            ID of the application this instance of the block belongs to.
 	 */
-	public ApplicationBlockID(UUID blockUUID, UUID appID) {
-		this.blockID = blockUUID;
-		this.appID = appID;
+	public ApplicationBlockID(FunctionBlockID blockID, ApplicationID applicationID) {
+		this.blockID = blockID;
+		this.applicationID = applicationID;
 	}
 
-	public UUID getBlockUUID() {
+	public FunctionBlockID getBlockID() {
 		return this.blockID;
 	}
 
-	public UUID getAppID() {
-		return this.appID;
+	public ApplicationID getApplicationID() {
+		return this.applicationID;
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class ApplicationBlockID {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((appID == null) ? 0 : appID.hashCode());
+		result = prime * result + ((applicationID == null) ? 0 : applicationID.hashCode());
 		result = prime * result + ((blockID == null) ? 0 : blockID.hashCode());
 		return result;
 	}
@@ -58,10 +59,10 @@ public class ApplicationBlockID {
 		if (getClass() != obj.getClass())
 			return false;
 		ApplicationBlockID other = (ApplicationBlockID) obj;
-		if (appID == null) {
-			if (other.appID != null)
+		if (applicationID == null) {
+			if (other.applicationID != null)
 				return false;
-		} else if (!appID.equals(other.appID))
+		} else if (!applicationID.equals(other.applicationID))
 			return false;
 		if (blockID == null) {
 			if (other.blockID != null)

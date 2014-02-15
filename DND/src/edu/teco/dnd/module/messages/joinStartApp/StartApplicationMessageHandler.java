@@ -1,8 +1,7 @@
 package edu.teco.dnd.module.messages.joinStartApp;
 
-import java.util.UUID;
-
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -28,13 +27,13 @@ public class StartApplicationMessageHandler implements MessageHandler<StartAppli
 	}
 
 	@Override
-	public Response handleMessage(UUID remoteUUID, StartApplicationMessage message) {
+	public Response handleMessage(ModuleID remoteID, StartApplicationMessage message) {
 		try {
 			module.startApp(message.getApplicationID());
 		} catch (IllegalArgumentException e) {
-			return new StartApplicationNak(message);
+			return new StartApplicationNak(message.getApplicationID());
 		}
-		return new StartApplicationAck(message);
+		return new StartApplicationAck(message.getApplicationID());
 	}
 
 }

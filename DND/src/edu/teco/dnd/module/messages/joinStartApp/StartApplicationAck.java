@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.joinStartApp;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -15,32 +14,23 @@ public class StartApplicationAck extends Response {
 	public static final String MESSAGE_TYPE = "start application ack";
 
 	/**
-	 * UUID of the started App.
+	 * ID of the started App.
 	 */
-	public UUID appId;
+	public ApplicationID applicationID;
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            UUID of the started App.
 	 */
-	public StartApplicationAck(UUID appId) {
-		this.appId = appId;
-	}
-
-	/**
-	 * 
-	 * @param msg
-	 *            the message that triggered this reply.
-	 */
-	public StartApplicationAck(StartApplicationMessage msg) {
-		this.appId = msg.getApplicationID();
+	public StartApplicationAck(ApplicationID applicationID) {
+		this.applicationID = applicationID;
 	}
 
 	@SuppressWarnings("unused")
 	/* for gson */
 	private StartApplicationAck() {
-		appId = null;
+		applicationID = null;
 	}
 
 	/*
@@ -52,7 +42,7 @@ public class StartApplicationAck extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
+		result = prime * result + ((applicationID == null) ? 0 : applicationID.hashCode());
 		return result;
 	}
 
@@ -73,11 +63,11 @@ public class StartApplicationAck extends Response {
 			return false;
 		}
 		StartApplicationAck other = (StartApplicationAck) obj;
-		if (appId == null) {
-			if (other.appId != null) {
+		if (applicationID == null) {
+			if (other.applicationID != null) {
 				return false;
 			}
-		} else if (!appId.equals(other.appId)) {
+		} else if (!applicationID.equals(other.applicationID)) {
 			return false;
 		}
 		return true;
@@ -90,7 +80,7 @@ public class StartApplicationAck extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "StartApplicationAck [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+		return "StartApplicationAck [applicationID=" + applicationID + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
 				+ getUUID() + "]";
 	}
 

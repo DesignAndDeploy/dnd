@@ -2,6 +2,8 @@ package edu.teco.dnd.network.messages;
 
 import java.util.UUID;
 
+import edu.teco.dnd.module.ApplicationID;
+
 /**
  * A Message that is specific to an application running on the module.
  * 
@@ -11,30 +13,30 @@ public abstract class ApplicationSpecificMessage extends Message {
 	/**
 	 * The UUID of the Application this Message is intended for.
 	 */
-	private final UUID applicationUUID;
+	private final ApplicationID applicationID;
 
 	/**
 	 * Initializes a new ApplicationSpecificMessage with a given Message UUID and an Application UUID.
 	 * 
 	 * @param uuid
 	 *            the Message UUID
-	 * @param applicationUUID
+	 * @param applicationID
 	 *            the Application UUID
 	 */
-	public ApplicationSpecificMessage(final UUID uuid, final UUID applicationUUID) {
+	public ApplicationSpecificMessage(final UUID uuid, final ApplicationID applicationID) {
 		super(uuid);
-		this.applicationUUID = applicationUUID;
+		this.applicationID = applicationID;
 	}
 
 	/**
 	 * Initializes a new ApplicationSpecificMessage with a given Application UUID.
 	 * 
-	 * @param applicationUUID
+	 * @param applicationID
 	 *            the Application UUID
 	 */
-	public ApplicationSpecificMessage(final UUID applicationUUID) {
+	public ApplicationSpecificMessage(final ApplicationID applicationID) {
 		super();
-		this.applicationUUID = applicationUUID;
+		this.applicationID = applicationID;
 	}
 
 	/**
@@ -42,8 +44,8 @@ public abstract class ApplicationSpecificMessage extends Message {
 	 * 
 	 * @return the ID of the application this message should be delivered to
 	 */
-	public UUID getApplicationID() {
-		return applicationUUID;
+	public ApplicationID getApplicationID() {
+		return applicationID;
 	}
 
 	/*
@@ -55,7 +57,7 @@ public abstract class ApplicationSpecificMessage extends Message {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((applicationUUID == null) ? 0 : applicationUUID.hashCode());
+		result = prime * result + ((applicationID == null) ? 0 : applicationID.hashCode());
 		return result;
 	}
 
@@ -76,11 +78,11 @@ public abstract class ApplicationSpecificMessage extends Message {
 			return false;
 		}
 		ApplicationSpecificMessage other = (ApplicationSpecificMessage) obj;
-		if (applicationUUID == null) {
-			if (other.applicationUUID != null) {
+		if (applicationID == null) {
+			if (other.applicationID != null) {
 				return false;
 			}
-		} else if (!applicationUUID.equals(other.applicationUUID)) {
+		} else if (!applicationID.equals(other.applicationID)) {
 			return false;
 		}
 		return true;
@@ -93,7 +95,7 @@ public abstract class ApplicationSpecificMessage extends Message {
 	 */
 	@Override
 	public String toString() {
-		return "ApplicationSpecificMessage [applicationUUID=" + applicationUUID + ", getUUID()=" + getUUID() + "]";
+		return "ApplicationSpecificMessage [applicationUUID=" + applicationID + ", getUUID()=" + getUUID() + "]";
 	}
 
 }

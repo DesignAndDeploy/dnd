@@ -1,6 +1,7 @@
 package edu.teco.dnd.deploy;
 
-import java.util.UUID;
+import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 
 /**
  * A listener for {@link Deploy} that is updated when the status of the deployment changes.
@@ -11,51 +12,51 @@ public interface DeployListener {
 	/**
 	 * This method is called as soon as a ModuleInfo joined the application successfully.
 	 * 
-	 * @param appId
-	 *            the UUID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param applicationID
+	 *            the ID of the Application
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleJoined(UUID appId, UUID moduleUUID);
+	void moduleJoined(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called when a ModuleInfo has loaded all classes it needs successfully.
 	 * 
-	 * @param appId
-	 *            the UUID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param applicationID
+	 *            the ID of the Application
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleLoadedClasses(UUID appId, UUID moduleUUID);
+	void moduleLoadedClasses(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called when a ModuleInfo has loaded its blocks successfully.
 	 * 
-	 * @param appId
-	 *            the UUID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param applicationID
+	 *            the ID of the Application
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleLoadedBlocks(UUID appId, UUID moduleUUID);
+	void moduleLoadedBlocks(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called when a ModuleInfo has started the application successfully.
 	 * 
-	 * @param appId
-	 *            the UUID of the Application
-	 * @param moduleUUID
-	 *            the UUID of the ModuleInfo
+	 * @param applicationID
+	 *            the ID of the Application
+	 * @param moduleID
+	 *            the ID of the Module
 	 */
-	void moduleStarted(UUID appId, UUID moduleUUID);
+	void moduleStarted(ApplicationID applicationID, ModuleID moduleID);
 
 	/**
 	 * This method is called if the deployment fails. Other methods of the listener may still be called afterwards due
 	 * to race conditions; these calls should be ignored.
 	 * 
-	 * @param appId
-	 *            the UUID of the Application that failed
+	 * @param applicationID
+	 *            the ID of the Application that failed
 	 * @param cause
 	 *            the cause of the failure if know or null otherwise
 	 */
-	void deployFailed(UUID appId, Throwable cause);
+	void deployFailed(ApplicationID applicationID, Throwable cause);
 }

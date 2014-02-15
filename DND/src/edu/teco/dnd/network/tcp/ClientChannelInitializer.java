@@ -15,9 +15,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 import edu.teco.dnd.network.messages.HelloMessage;
 import edu.teco.dnd.network.messages.Message;
@@ -76,10 +76,10 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 	 * @param clientChannelManager
 	 *            a ClientChannelManager that will be used by the {@link HelloMessageHandler}, the
 	 *            {@link ConnectionEstablishedMessageHandler} and for registering new Channels
-	 * @param localUUID
-	 *            the UUID of the client this initializer is running on
+	 * @param localID
+	 *            the ModuleID of the client this initializer is running on
 	 */
-	public ClientChannelInitializer(final ClientChannelManager clientChannelManager, final UUID localUUID) {
+	public ClientChannelInitializer(final ClientChannelManager clientChannelManager, final ModuleID localID) {
 		this.clientChannelManager = clientChannelManager;
 
 		final List<ChannelHandler> handlers = new ArrayList<ChannelHandler>();
@@ -95,12 +95,12 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 		gsonCodec.registerTypeAdapter(Message.class, messageAdapter);
 		handlers.add(gsonCodec);
 
-		handlers.add(new HelloMessageHandler(clientChannelManager, localUUID));
-		handlers.add(new ConnectionEstablishedMessageHandler(clientChannelManager, localUUID));
+		handlers.add(new HelloMessageHandler(clientChannelManager, localID));
+		handlers.add(new ConnectionEstablishedMessageHandler(clientChannelManager, localID));
 
 		defaultHandlers = Collections.unmodifiableList(handlers);
 
-		firstMessage = new HelloMessage(localUUID, MAX_FRAME_LENGTH);
+		firstMessage = new HelloMessage(localID, MAX_FRAME_LENGTH);
 	}
 
 	@Override

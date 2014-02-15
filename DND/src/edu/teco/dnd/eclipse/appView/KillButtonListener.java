@@ -1,7 +1,5 @@
 package edu.teco.dnd.eclipse.appView;
 
-import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -10,6 +8,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.server.ApplicationInformation;
 import edu.teco.dnd.server.ApplicationManager;
 import edu.teco.dnd.util.FutureListener;
@@ -70,7 +69,7 @@ class KillButtonListener extends SelectionAdapter {
 			return;
 		}
 
-		final UUID applicationID = selectedApplication.getID();
+		final ApplicationID applicationID = selectedApplication.getID();
 		final FutureNotifier<Void> killFutureNotifier = killApplication(applicationID);
 		if (killFutureNotifier == null) {
 			LOGGER.exit();
@@ -81,7 +80,7 @@ class KillButtonListener extends SelectionAdapter {
 		LOGGER.exit();
 	}
 
-	private FutureNotifier<Void> killApplication(final UUID applicationID) {
+	private FutureNotifier<Void> killApplication(final ApplicationID applicationID) {
 		LOGGER.entry(applicationID);
 		FutureNotifier<Void> killFutureNotifier;
 		synchronized (this) {
@@ -143,9 +142,9 @@ class KillButtonListener extends SelectionAdapter {
 	 * @author Philipp Adolf
 	 */
 	private final class KillFutureListener implements FutureListener<FutureNotifier<Void>> {
-		private final UUID applicationID;
+		private final ApplicationID applicationID;
 
-		private KillFutureListener(UUID applicationID) {
+		private KillFutureListener(ApplicationID applicationID) {
 			this.applicationID = applicationID;
 		}
 

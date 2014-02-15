@@ -1,8 +1,9 @@
 package edu.teco.dnd.module.messages.values;
 
 import java.io.Serializable;
-import java.util.UUID;
 
+import edu.teco.dnd.blocks.FunctionBlockID;
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.UserSuppliedCodeException;
 import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
@@ -19,7 +20,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	/**
 	 * ID of the block this is to be send to.
 	 */
-	public final UUID blockId;
+	public final FunctionBlockID blockID;
 	/**
 	 * Name of the input this is to be send to.
 	 */
@@ -31,7 +32,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            ID of the application this is part of
 	 * @param functionBlock
 	 *            ID of the block this is to be send to.
@@ -40,9 +41,9 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	 * @param value
 	 *            The actual value.
 	 */
-	public ValueMessage(UUID appId, UUID functionBlock, String input, Serializable value) {
-		super(appId);
-		this.blockId = functionBlock;
+	public ValueMessage(ApplicationID applicationID, FunctionBlockID functionBlock, String input, Serializable value) {
+		super(applicationID);
+		this.blockID = functionBlock;
 		this.input = input;
 		this.value = value;
 	}
@@ -56,7 +57,7 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
+		result = prime * result + ((blockID == null) ? 0 : blockID.hashCode());
 		result = prime * result + ((input == null) ? 0 : input.hashCode());
 		try {
 			result = prime * result + ((value == null) ? 0 : UsercodeWrapper.getHashCode(value));
@@ -86,11 +87,11 @@ public class ValueMessage extends ApplicationSpecificMessage {
 			return false;
 		}
 		ValueMessage other = (ValueMessage) obj;
-		if (blockId == null) {
-			if (other.blockId != null) {
+		if (blockID == null) {
+			if (other.blockID != null) {
 				return false;
 			}
-		} else if (!blockId.equals(other.blockId)) {
+		} else if (!blockID.equals(other.blockID)) {
 			return false;
 		}
 		if (input == null) {
@@ -125,12 +126,12 @@ public class ValueMessage extends ApplicationSpecificMessage {
 	@Override
 	public String toString() {
 		try {
-			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value="
+			return "ValueMessage [blockId=" + blockID + ", input=" + input + ", value="
 					+ UsercodeWrapper.getToString(value) + ", getApplicationID()=" + getApplicationID()
 					+ ", getUUID()=" + getUUID() + "]";
 		} catch (UserSuppliedCodeException e) {
 			e.printStackTrace();
-			return "ValueMessage [blockId=" + blockId + ", input=" + input + ", value=" + "ERROR"
+			return "ValueMessage [blockId=" + blockID + ", input=" + input + ", value=" + "ERROR"
 					+ ", getApplicationID()=" + getApplicationID() + ", getUUID()=" + getUUID() + "]";
 		}
 	}

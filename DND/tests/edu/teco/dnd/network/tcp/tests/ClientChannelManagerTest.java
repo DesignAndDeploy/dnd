@@ -17,7 +17,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
 import java.net.SocketAddress;
-import java.util.UUID;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -28,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.tcp.ClientChannelFactory;
 import edu.teco.dnd.network.tcp.ClientChannelManager;
 
@@ -39,7 +39,7 @@ public class ClientChannelManagerTest {
 	@Mock
 	private ClientChannelFactory clientChannelFactory;
 
-	private UUID remoteUUID = UUID.randomUUID();
+	private ModuleID remoteID = new ModuleID();
 	
 	private ClientChannelManager manager;
 
@@ -111,53 +111,53 @@ public class ClientChannelManagerTest {
 	public void testGetRemoteUUIDUnset() {
 		manager.addChannel(channel1.getChannel());
 
-		assertNull(manager.getRemoteUUID(channel1.getChannel()));
+		assertNull(manager.getRemoteID(channel1.getChannel()));
 	}
 
 	@Test
 	public void testGetRemoteUUID() {
 		manager.addChannel(channel1.getChannel());
 
-		manager.setRemoteUUID(channel1.getChannel(), remoteUUID);
+		manager.setRemoteID(channel1.getChannel(), remoteID);
 
-		assertEquals(remoteUUID, manager.getRemoteUUID(channel1.getChannel()));
+		assertEquals(remoteID, manager.getRemoteID(channel1.getChannel()));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSetRemoteUUIDWithoutAdd() {
-		manager.setRemoteUUID(channel1.getChannel(), remoteUUID);
+		manager.setRemoteID(channel1.getChannel(), remoteID);
 	}
 
 	@Test
 	public void testGetChannelsByRemoteUUID() {
 		manager.addChannel(channel1.getChannel());
-		manager.setRemoteUUID(channel1.getChannel(), remoteUUID);
+		manager.setRemoteID(channel1.getChannel(), remoteID);
 
-		assertThat(manager.getChannels(remoteUUID), hasItem(channel1.getChannel()));
-		assertThat(manager.getChannels(remoteUUID), everyItem(isChannelWithRemoteUUID(remoteUUID)));
+		assertThat(manager.getChannels(remoteID), hasItem(channel1.getChannel()));
+		assertThat(manager.getChannels(remoteID), everyItem(isChannelWithRemoteID(remoteID)));
 	}
 
 	@Test
 	public void testGetMultipleChannelsByRemoteUUID() {
 		manager.addChannel(channel1.getChannel());
-		manager.setRemoteUUID(channel1.getChannel(), remoteUUID);
+		manager.setRemoteID(channel1.getChannel(), remoteID);
 		manager.addChannel(channel2.getChannel());
-		manager.setRemoteUUID(channel2.getChannel(), remoteUUID);
+		manager.setRemoteID(channel2.getChannel(), remoteID);
 
-		assertThat(manager.getChannels(remoteUUID), hasItem(channel1.getChannel()));
-		assertThat(manager.getChannels(remoteUUID), hasItem(channel2.getChannel()));
-		assertThat(manager.getChannels(remoteUUID), everyItem(isChannelWithRemoteUUID(remoteUUID)));
+		assertThat(manager.getChannels(remoteID), hasItem(channel1.getChannel()));
+		assertThat(manager.getChannels(remoteID), hasItem(channel2.getChannel()));
+		assertThat(manager.getChannels(remoteID), everyItem(isChannelWithRemoteID(remoteID)));
 	}
 
 	@Test
 	public void testGetDifferentChannelsByRemoteUUID() {
 		manager.addChannel(channel1.getChannel());
-		manager.setRemoteUUID(channel1.getChannel(), remoteUUID);
+		manager.setRemoteID(channel1.getChannel(), remoteID);
 		manager.addChannel(channel2.getChannel());
 
-		assertThat(manager.getChannels(remoteUUID), hasItem(channel1.getChannel()));
-		assertThat(manager.getChannels(remoteUUID), not(hasItem(channel2.getChannel())));
-		assertThat(manager.getChannels(remoteUUID), everyItem(isChannelWithRemoteUUID(remoteUUID)));
+		assertThat(manager.getChannels(remoteID), hasItem(channel1.getChannel()));
+		assertThat(manager.getChannels(remoteID), not(hasItem(channel2.getChannel())));
+		assertThat(manager.getChannels(remoteID), everyItem(isChannelWithRemoteID(remoteID)));
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class ClientChannelManagerTest {
 	@Test
 	public void testSetActiveIfFirst() {
 		manager.addChannel(channel1.getChannel());
-		manager.setRemoteUUID(channel1.getChannel(), remoteUUID);
+		manager.setRemoteID(channel1.getChannel(), remoteID);
 
 		assertTrue(manager.setActiveIfFirst(channel1.getChannel()));
 
@@ -211,9 +211,9 @@ public class ClientChannelManagerTest {
 	@Test
 	public void testSetActiveIfFirstNotFirst() {
 		manager.addChannel(channel1.getChannel());
-		manager.setRemoteUUID(channel1.getChannel(), remoteUUID);
+		manager.setRemoteID(channel1.getChannel(), remoteID);
 		manager.addChannel(channel2.getChannel());
-		manager.setRemoteUUID(channel2.getChannel(), remoteUUID);
+		manager.setRemoteID(channel2.getChannel(), remoteID);
 		assumeTrue(manager.setActiveIfFirst(channel1.getChannel()));
 
 		assertFalse(manager.setActiveIfFirst(channel2.getChannel()));
@@ -221,30 +221,30 @@ public class ClientChannelManagerTest {
 		assertFalse(manager.isActive(channel2.getChannel()));
 	}
 
-	private Matcher<Channel> isChannelWithRemoteUUID(final UUID uuid) {
-		return new ChannelWithRemoteUUID(uuid);
+	private Matcher<Channel> isChannelWithRemoteID(final ModuleID remoteID) {
+		return new ChannelWithRemoteID(remoteID);
 	}
 
-	private final class ChannelWithRemoteUUID extends TypeSafeMatcher<Channel> {
-		private final UUID remoteUUID;
+	private final class ChannelWithRemoteID extends TypeSafeMatcher<Channel> {
+		private final ModuleID remoteID;
 
-		public ChannelWithRemoteUUID(final UUID remoteUUID) {
-			this.remoteUUID = remoteUUID;
+		public ChannelWithRemoteID(final ModuleID remoteID) {
+			this.remoteID = remoteID;
 		}
 
 		@Override
 		public void describeTo(Description description) {
-			description.appendText("a Channel with remote UUID ");
-			description.appendValue(remoteUUID);
+			description.appendText("a Channel with remote ID ");
+			description.appendValue(remoteID);
 		}
 
 		@Override
 		public boolean matchesSafely(final Channel channel) {
-			final UUID channelRemoteUUID = manager.getRemoteUUID(channel);
-			if (remoteUUID == null) {
+			final ModuleID channelRemoteUUID = manager.getRemoteID(channel);
+			if (remoteID == null) {
 				return channelRemoteUUID == null;
 			} else {
-				return remoteUUID.equals(channelRemoteUUID);
+				return remoteID.equals(channelRemoteUUID);
 			}
 		}
 	}

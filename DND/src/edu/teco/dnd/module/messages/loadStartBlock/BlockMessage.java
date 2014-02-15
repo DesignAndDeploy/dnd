@@ -8,7 +8,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.blocks.InputDescription;
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
@@ -30,9 +32,9 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	public final String blockName;
 
 	/**
-	 * UUID the block is supposed to have after starting.
+	 * ID the block is supposed to have after starting.
 	 */
-	public final UUID blockUUID;
+	public final FunctionBlockID blockID;
 
 	/**
 	 * options the block is supposed to have after starting.
@@ -53,13 +55,13 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * 
 	 * @param msgUuid
 	 *            UUID of this message.
-	 * @param appId
+	 * @param applicationID
 	 *            ID of the application this message is to be sent to.
 	 * @param blockClass
 	 *            the Class of the block to be started.
 	 * @param blockName
 	 *            the name of the block to be started.
-	 * @param blockUUID
+	 * @param blockID
 	 *            the UUID the block is supposed to have after starting.
 	 * @param options
 	 *            the options the block is supposed to have after starting.
@@ -68,12 +70,13 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * @param scheduledToId
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
-	public BlockMessage(UUID msgUuid, UUID appId, String blockClass, String blockName, UUID blockUUID,
-			Map<String, String> options, Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
-		super(msgUuid, appId);
+	public BlockMessage(UUID msgUuid, ApplicationID applicationID, String blockClass, String blockName,
+			FunctionBlockID blockID, Map<String, String> options, Map<String, Collection<InputDescription>> outputs,
+			int scheduledToId) {
+		super(msgUuid, applicationID);
 		this.blockClass = blockClass;
 		this.blockName = blockName;
-		this.blockUUID = blockUUID;
+		this.blockID = blockID;
 		this.options = new HashMap<String, String>(options);
 		this.outputs = new HashMap<String, Set<InputDescription>>();
 		for (final Entry<String, Collection<InputDescription>> output : outputs.entrySet()) {
@@ -87,14 +90,14 @@ public class BlockMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            ID of the application this message is to be sent to.
 	 * @param blockClass
 	 *            the Class of the block to be started.
 	 * @param blockName
 	 *            the name of the block to be started.
-	 * @param blockUUID
-	 *            the UUID the block is supposed to have after starting.
+	 * @param blockID
+	 *            the ID the block is supposed to have after starting.
 	 * @param options
 	 *            the options the block is supposed to have after starting.
 	 * @param outputs
@@ -102,12 +105,12 @@ public class BlockMessage extends ApplicationSpecificMessage {
 	 * @param scheduledToId
 	 *            place in the allowed block hierarchy this block is supposed to occupy.
 	 */
-	public BlockMessage(UUID appId, String blockClass, String blockName, UUID blockUUID, Map<String, String> options,
-			Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
-		super(appId);
+	public BlockMessage(ApplicationID applicationID, String blockClass, String blockName, FunctionBlockID blockID,
+			Map<String, String> options, Map<String, Collection<InputDescription>> outputs, int scheduledToId) {
+		super(applicationID);
 		this.blockClass = blockClass;
 		this.blockName = blockName;
-		this.blockUUID = blockUUID;
+		this.blockID = blockID;
 		this.options = new HashMap<String, String>(options);
 		this.outputs = new HashMap<String, Set<InputDescription>>();
 		for (final Entry<String, Collection<InputDescription>> output : outputs.entrySet()) {
@@ -124,7 +127,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((blockClass == null) ? 0 : blockClass.hashCode());
-		result = prime * result + ((blockUUID == null) ? 0 : blockUUID.hashCode());
+		result = prime * result + ((blockID == null) ? 0 : blockID.hashCode());
 		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
 		result = prime * result + scheduleToId;
@@ -150,11 +153,11 @@ public class BlockMessage extends ApplicationSpecificMessage {
 		} else if (!blockClass.equals(other.blockClass)) {
 			return false;
 		}
-		if (blockUUID == null) {
-			if (other.blockUUID != null) {
+		if (blockID == null) {
+			if (other.blockID != null) {
 				return false;
 			}
-		} else if (!blockUUID.equals(other.blockUUID)) {
+		} else if (!blockID.equals(other.blockID)) {
 			return false;
 		}
 		if (options == null) {
@@ -179,7 +182,7 @@ public class BlockMessage extends ApplicationSpecificMessage {
 
 	@Override
 	public String toString() {
-		return "BlockMessage [blockClass=" + blockClass + ", blockUUID=" + blockUUID + ", options=" + options
+		return "BlockMessage [blockClass=" + blockClass + ", blockID=" + blockID + ", options=" + options
 				+ ", outputs=" + outputs + ", scheduleToId=" + scheduleToId + "]";
 	}
 }

@@ -1,7 +1,6 @@
 package edu.teco.dnd.module;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
@@ -12,7 +11,7 @@ import edu.teco.dnd.module.config.BlockTypeHolder;
  * 
  */
 public class ModuleInfo {
-	private UUID uuid;
+	private ModuleID moduleID;
 	private String name;
 	private String location;
 	private BlockTypeHolder holder;
@@ -20,22 +19,22 @@ public class ModuleInfo {
 	/**
 	 * Creates a new representation of a module.
 	 * 
-	 * @param id
-	 *            UUID of the module.
+	 * @param moduleID
+	 *            the ID of the module.
 	 * @param name
 	 *            Name of the module.
 	 * @param holder
 	 *            BlockTypeHolder of the module.
 	 */
-	public ModuleInfo(UUID id, String name, String location, BlockTypeHolder holder) {
-		this.uuid = id;
+	public ModuleInfo(ModuleID moduleID, String name, String location, BlockTypeHolder holder) {
+		this.moduleID = moduleID;
 		this.name = name;
 		this.location = location;
 		this.holder = holder;
 	}
 
-	public ModuleInfo(final UUID id) {
-		this(id, null, null, null);
+	public ModuleInfo(final ModuleID moduleID) {
+		this(moduleID, null, null, null);
 	}
 
 	/**
@@ -47,9 +46,9 @@ public class ModuleInfo {
 		return this.holder;
 	}
 
-	/** @return uuid of module represented by this. */
-	public UUID getUUID() {
-		return uuid;
+	/** @return the ID of the module represented by this. */
+	public ModuleID getID() {
+		return moduleID;
 	}
 
 	/**
@@ -83,7 +82,7 @@ public class ModuleInfo {
 		result = prime * result + ((holder == null) ? 0 : holder.hashCode());
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		result = prime * result + ((moduleID == null) ? 0 : moduleID.hashCode());
 		return result;
 	}
 
@@ -125,11 +124,11 @@ public class ModuleInfo {
 		} else if (!name.equals(other.name)) {
 			return false;
 		}
-		if (uuid == null) {
-			if (other.uuid != null) {
+		if (moduleID == null) {
+			if (other.moduleID != null) {
 				return false;
 			}
-		} else if (!uuid.equals(other.uuid)) {
+		} else if (!moduleID.equals(other.moduleID)) {
 			return false;
 		}
 		return true;
@@ -137,6 +136,6 @@ public class ModuleInfo {
 
 	@Override
 	public String toString() {
-		return "ModuleInfo[uuid=" + uuid + ",name=" + name + ",location=" + location + "]";
+		return "ModuleInfo[moduleID=" + moduleID + ",name=" + name + ",location=" + location + "]";
 	}
 }

@@ -5,14 +5,14 @@
  * </p>
  * 
  * <p>
- * Messages are sent encoded as JSON objects and are prepended by a 2 byte length field. Each Message object contains a
- * UUID and a field <code>type</code> that specifies the class of the Message (although the field is not the class name;
+ * Messages are sent encoded as JSON objects and are prepended by a 2 byte length field. Each Message object contains an
+ * ID and a field <code>type</code> that specifies the class of the Message (although the field is not the class name;
  * see {@link edu.teco.dnd.network.tcp.MessageAdapter}).
  * </p>
  * 
  * <p>
  * When a new connection is established both clients send a {@link edu.teco.dnd.network.messages.HelloMessage} to inform
- * each other about their UUIDs. The client with the lower UUID acts as a master and decides whether or not to keep the
+ * each other about their IDs. The client with the lower ID acts as a master and decides whether or not to keep the
  * connection. If the connection should be kept a {@link edu.teco.dnd.network.messages.ConnectionEstablishedMessage} is
  * sent, otherwise the Channel is closed.
  * </p>

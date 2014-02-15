@@ -2,7 +2,6 @@ package edu.teco.dnd.module;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,8 +28,8 @@ public class ModuleBlockManager {
 	/**
 	 * Tries to add a FunctionBlock to a BlockTypeHolder.
 	 * 
-	 * @param appId
-	 *            the UUID of the application that is trying to add the block
+	 * @param applicationID
+	 *            the ID of the application that is trying to add the block
 	 * @param block
 	 *            the block that should be added
 	 * @param blockTypeHolderId
@@ -40,9 +39,9 @@ public class ModuleBlockManager {
 	 * @throws BlockTypeHolderFullException
 	 *             if the BlockTypeHolder is already full
 	 */
-	public void addToBlockTypeHolders(final UUID appId, final FunctionBlockSecurityDecorator block,
+	public void addToBlockTypeHolders(final ApplicationID applicationID, final FunctionBlockSecurityDecorator block,
 			final int blockTypeHolderId) throws BlockTypeHolderFullException, NoSuchBlockTypeHolderException {
-		LOGGER.entry(appId, block, blockTypeHolderId);
+		LOGGER.entry(applicationID, block, blockTypeHolderId);
 		final BlockTypeHolder holder = blockTypeHoldersByID.get(blockTypeHolderId);
 		if (holder == null) {
 			throw LOGGER.throwing(new NoSuchBlockTypeHolderException("There is no BlockTypeHolder with ID "
@@ -52,7 +51,7 @@ public class ModuleBlockManager {
 			if (!holder.tryAdd(block.getBlockType())) {
 				throw LOGGER.throwing(new BlockTypeHolderFullException(holder + " is already full"));
 			}
-			spotOccupiedByBlock.put(new ApplicationBlockID(block.getBlockUUID(), appId), blockTypeHolderId);
+			spotOccupiedByBlock.put(new ApplicationBlockID(block.getBlockID(), applicationID), blockTypeHolderId);
 		}
 		LOGGER.exit();
 	}

@@ -113,7 +113,7 @@ public class CommandLoop {
 		Map<FunctionBlockModel, BlockTarget> map = dist.getMapping();
 		for (FunctionBlockModel block : map.keySet()) {
 			ModuleInfo mod = map.get(block).getModule();
-			System.out.println(block.getBlockName() + " mapped to " + mod.getName() + " : " + mod.getUUID().toString());
+			System.out.println(block.getBlockName() + " mapped to " + mod.getName() + " : " + mod.getID().toString());
 		}
 		return true;
 	}

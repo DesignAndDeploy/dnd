@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 import edu.teco.dnd.module.messages.infoReq.RequestModuleInfoMessage;
@@ -26,7 +26,7 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleManager.class);
 
 	private final FutureListener<FutureNotifier<Response>> moduleInfoListener = new ModuleInfoListener();
-	private final Map<UUID, ModuleInfo> modules = new HashMap<UUID, ModuleInfo>();
+	private final Map<ModuleID, ModuleInfo> modules = new HashMap<ModuleID, ModuleInfo>();
 	private final Collection<ModuleManagerListener> listeners = new ArrayList<ModuleManagerListener>();
 	private ConnectionManager connectionManager = null;
 
@@ -44,8 +44,7 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 	/**
 	 * Returns the currently known Modules. The Collection is a copy of the internal data and can be modified freely.
 	 * 
-	 * @return currently known Modules. Only the UUID of the ModuleInfos is guaranteed to be set, other values may be
-	 *         null
+	 * @return currently known Modules. Only the IDs of the Modules are guaranteed to be set, other values may be null
 	 */
 	public synchronized Collection<ModuleInfo> getModules() {
 		return new ArrayList<ModuleInfo>(modules.values());
@@ -113,20 +112,20 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 	}
 
 	@Override
-	public synchronized void connectionEstablished(final UUID uuid) {
+	public synchronized void connectionEstablished(final ModuleID moduleID) {
 		LOGGER.entry();
-		if (!modules.containsKey(uuid)) {
-			final ModuleInfo module = new ModuleInfo(uuid);
-			modules.put(uuid, module);
-			queryModuleInfo(uuid);
+		if (!modules.containsKey(moduleID)) {
+			final ModuleInfo module = new ModuleInfo(moduleID);
+			modules.put(moduleID, module);
+			queryModuleInfo(moduleID);
 			informAllModuleAdded(module);
 		}
 		LOGGER.exit();
 	}
 
-	private synchronized void queryModuleInfo(final UUID uuid) {
+	private synchronized void queryModuleInfo(final ModuleID moduleID) {
 		if (connectionManager != null) {
-			connectionManager.sendMessage(uuid, new RequestModuleInfoMessage()).addListener(moduleInfoListener);
+			connectionManager.sendMessage(moduleID, new RequestModuleInfoMessage()).addListener(moduleInfoListener);
 		}
 	}
 
@@ -149,9 +148,9 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 	}
 
 	@Override
-	public synchronized void connectionClosed(final UUID uuid) {
-		LOGGER.entry(uuid);
-		final ModuleInfo module = modules.remove(uuid);
+	public synchronized void connectionClosed(final ModuleID moduleID) {
+		LOGGER.entry(moduleID);
+		final ModuleInfo module = modules.remove(moduleID);
 		if (module != null) {
 			informAllModuleRemoved(module);
 		}
@@ -176,14 +175,14 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 
 	public synchronized void update() {
 		modules.clear();
-		for (final UUID uuid : connectionManager.getConnectedModules()) {
-			connectionEstablished(uuid);
+		for (final ModuleID moduleID : connectionManager.getConnectedModules()) {
+			connectionEstablished(moduleID);
 		}
 	}
 
 	private synchronized void moduleInfoReceived(final ModuleInfo module) {
 		LOGGER.entry(module);
-		if (modules.put(module.getUUID(), module) == null) {
+		if (modules.put(module.getID(), module) == null) {
 			informAllModuleAdded(module);
 		} else {
 			informAllModuleUpdated(module);

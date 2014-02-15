@@ -4,11 +4,10 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 
 /**
@@ -17,7 +16,7 @@ import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
  * </p>
  * 
  * <p>
- * The handler does some sanity checks for the remote UUID sent with the message and if they are passed marks the
+ * The handler does some sanity checks for the remote ModuleID sent with the message and if they are passed marks the
  * Channel as active.
  * </p>
  * 
@@ -28,11 +27,11 @@ public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHan
 	private static final Logger LOGGER = LogManager.getLogger(ConnectionEstablishedMessageHandler.class);
 
 	private final ClientChannelManager clientChannelManager;
-	private final UUID localUUID;
+	private final ModuleID localID;
 
-	public ConnectionEstablishedMessageHandler(final ClientChannelManager clientChannelManager, final UUID localUUID) {
+	public ConnectionEstablishedMessageHandler(final ClientChannelManager clientChannelManager, final ModuleID localID) {
 		this.clientChannelManager = clientChannelManager;
-		this.localUUID = localUUID;
+		this.localID = localID;
 	}
 
 	@Override
@@ -46,31 +45,31 @@ public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHan
 				return;
 			}
 
-			final UUID storedRemoteUUID = getChannelRemoteUUID(ctx);
-			final UUID messageRemoteUUID = msg.getRemoteUUID();
-			if (storedRemoteUUID != null && !storedRemoteUUID.equals(messageRemoteUUID)) {
-				LOGGER.warn("got ConnectionEstablishedMessage with UUID {}, but UUID {} is already stored for this "
-						+ "connection, closing", messageRemoteUUID, storedRemoteUUID);
+			final ModuleID storedRemoteID = getChannelRemoteID(ctx);
+			final ModuleID messageRemoteID = msg.getRemoteID();
+			if (storedRemoteID != null && !storedRemoteID.equals(messageRemoteID)) {
+				LOGGER.warn("got ConnectionEstablishedMessage with ModuleID {}, but ModuleID {} is already stored for "
+						+ "this connection, closing", messageRemoteID, storedRemoteID);
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
 
-			if (messageRemoteUUID == null) {
-				LOGGER.warn("got ConnectionEtablishedMessage with UUID null, closing");
+			if (messageRemoteID == null) {
+				LOGGER.warn("got ConnectionEtablishedMessage with ModuleID null, closing");
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
 
-			if (localUUID.equals(messageRemoteUUID)) {
-				LOGGER.warn("got ConnectionEstablishedMessage with my own UUID, closing");
+			if (localID.equals(messageRemoteID)) {
+				LOGGER.warn("got ConnectionEstablishedMessage with my own ModuleID, closing");
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
 
-			if (isMasterFor(messageRemoteUUID)) {
+			if (localID.isMasterFor(messageRemoteID)) {
 				LOGGER.warn("got ConnectionEstablishedMessage from a slave, closing");
 				ctx.close();
 				LOGGER.exit();
@@ -78,9 +77,9 @@ public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHan
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("setting channel {} to {} active", ctx.channel(), messageRemoteUUID);
+				LOGGER.debug("setting channel {} to {} active", ctx.channel(), messageRemoteID);
 			}
-			clientChannelManager.setRemoteUUID(ctx.channel(), messageRemoteUUID);
+			clientChannelManager.setRemoteID(ctx.channel(), messageRemoteID);
 			setActive(ctx);
 			LOGGER.exit();
 		}
@@ -94,11 +93,7 @@ public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHan
 		clientChannelManager.setActive(ctx.channel());
 	}
 
-	private UUID getChannelRemoteUUID(final ChannelHandlerContext ctx) {
-		return clientChannelManager.getRemoteUUID(ctx.channel());
-	}
-
-	private boolean isMasterFor(final UUID remoteUUID) {
-		return localUUID.compareTo(remoteUUID) < 0;
+	private ModuleID getChannelRemoteID(final ChannelHandlerContext ctx) {
+		return clientChannelManager.getRemoteID(ctx.channel());
 	}
 }

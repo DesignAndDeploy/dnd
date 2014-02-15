@@ -1,8 +1,7 @@
 package edu.teco.dnd.module.messages.joinStartApp;
 
-import java.util.UUID;
-
 import edu.teco.dnd.module.Module;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -29,13 +28,13 @@ public class JoinApplicationMessageHandler implements MessageHandler<JoinApplica
 	}
 
 	@Override
-	public Response handleMessage(UUID remoteUUID, JoinApplicationMessage message) {
+	public Response handleMessage(ModuleID remoteID, JoinApplicationMessage message) {
 		try {
-			module.joinApplication(message.appId, remoteUUID, message.name);
+			module.joinApplication(message.applicationID, message.name);
 		} catch (Exception e) {
-			return new JoinApplicationNak(message.name, message.appId);
+			return new JoinApplicationNak(message.name, message.applicationID);
 		}
-		return new JoinApplicationAck(message.name, message.appId);
+		return new JoinApplicationAck(message.name, message.applicationID);
 	}
 
 }

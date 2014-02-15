@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 import edu.teco.dnd.network.tcp.ClientChannelManager;
 import edu.teco.dnd.network.tcp.ConnectionEstablishedMessageHandler;
@@ -31,9 +32,9 @@ public class ConnectionEstablishedMessageHandlerTest {
 	@Mock
 	private ClientChannelManager clientChannelManager;
 	
-	private UUID localUUID;
-	private UUID lowerUUID;
-	private UUID higherUUID;
+	private ModuleID localUUID;
+	private ModuleID lowerUUID;
+	private ModuleID higherUUID;
 	
 	private ConnectionEstablishedMessageHandler handler;
 	
@@ -46,9 +47,9 @@ public class ConnectionEstablishedMessageHandlerTest {
 		}
 		Collections.sort(uuids);
 
-		lowerUUID = uuids.get(0);
-		localUUID = uuids.get(1);
-		higherUUID = uuids.get(2);
+		lowerUUID = new ModuleID(uuids.get(0));
+		localUUID = new ModuleID(uuids.get(1));
+		higherUUID = new ModuleID(uuids.get(2));
 		
 		handler = new ConnectionEstablishedMessageHandler(clientChannelManager, localUUID);
 		
@@ -57,7 +58,7 @@ public class ConnectionEstablishedMessageHandlerTest {
 	
 	@Test
 	public void testDifferentUUID() throws Exception {
-		when(clientChannelManager.getRemoteUUID(channelHandlerContext.channel())).thenReturn(lowerUUID);
+		when(clientChannelManager.getRemoteID(channelHandlerContext.channel())).thenReturn(lowerUUID);
 		
 		handler.channelRead(channelHandlerContext, new ConnectionEstablishedMessage(higherUUID));
 

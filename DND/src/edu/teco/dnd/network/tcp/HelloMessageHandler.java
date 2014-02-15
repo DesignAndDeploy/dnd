@@ -5,16 +5,16 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.net.SocketAddress;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 import edu.teco.dnd.network.messages.HelloMessage;
 
 /**
- * Handles incoming {@link HelloMessage}s. This will set the remote UUID in the {@link ClientChannelManager} and, if
+ * Handles incoming {@link HelloMessage}s. This will set the remote ID in the {@link ClientChannelManager} and, if
  * this machine is the master, determine whether or not the connection will be kept. Appropriate Messages will be sent.
  * 
  * @author Philipp Adolf
@@ -24,11 +24,11 @@ public class HelloMessageHandler extends SimpleChannelInboundHandler<HelloMessag
 	private static Logger LOGGER = LogManager.getLogger(HelloMessageHandler.class);
 
 	private final ClientChannelManager clientChannelManager;
-	private final UUID localUUID;
+	private final ModuleID localID;
 
-	public HelloMessageHandler(final ClientChannelManager clientChannelManager, final UUID localUUID) {
+	public HelloMessageHandler(final ClientChannelManager clientChannelManager, final ModuleID localID) {
 		this.clientChannelManager = clientChannelManager;
-		this.localUUID = localUUID;
+		this.localID = localID;
 	}
 
 	@Override
@@ -36,21 +36,21 @@ public class HelloMessageHandler extends SimpleChannelInboundHandler<HelloMessag
 		synchronized (ctx.channel()) {
 			LOGGER.entry(ctx, msg);
 			if (moreThanOneHelloMessage(ctx)) {
-				LOGGER.warn("got more than one HelloMessage from {}/{}", getRemoteUUID(ctx), getRemoteAddress(ctx));
+				LOGGER.warn("got more than one HelloMessage from {}/{}", getRemoteID(ctx), getRemoteAddress(ctx));
 			}
-			final UUID remoteUUID = msg.getModuleUUID();
-			if (remoteUUID == null) {
+			final ModuleID remoteID = msg.getModuleID();
+			if (remoteID == null) {
 				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("got a HelloMessage with module UUID null from {}, disconnecting", getRemoteAddress(ctx));
+					LOGGER.info("got a HelloMessage with module ID null from {}, disconnecting", getRemoteAddress(ctx));
 				}
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
-			if (localUUID.equals(remoteUUID)) {
+			if (localID.equals(remoteID)) {
 				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("got a connection from myself/a ModuleInfo with the same UUID from {}, disconnecting",
-							getRemoteAddress(ctx));
+					LOGGER.info("got a connection from myself/a ModuleInfo with the same ID ({} from {}, disconnecting",
+							localID, getRemoteAddress(ctx));
 				}
 				ctx.close();
 				LOGGER.exit();
@@ -58,16 +58,16 @@ public class HelloMessageHandler extends SimpleChannelInboundHandler<HelloMessag
 			}
 			
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("setting remote UUID of {} to {}", ctx.channel(), remoteUUID);
+				LOGGER.debug("setting remote ID of {} to {}", ctx.channel(), remoteID);
 			}
-			clientChannelManager.setRemoteUUID(ctx.channel(), remoteUUID);
+			clientChannelManager.setRemoteID(ctx.channel(), remoteID);
 
-			if (isMasterFor(remoteUUID)) {
+			if (localID.isMasterFor(remoteID)) {
 				if (clientChannelManager.setActiveIfFirst(ctx.channel())) {
-					LOGGER.debug("sending connection established to {}", remoteUUID);
+					LOGGER.debug("sending connection established to {}", remoteID);
 					sendConnectionEstablished(ctx);
 				} else {
-					LOGGER.debug("connection with {} already established, closing", remoteUUID);
+					LOGGER.debug("connection with {} already established, closing", remoteID);
 					ctx.close();
 				}
 			}
@@ -80,18 +80,14 @@ public class HelloMessageHandler extends SimpleChannelInboundHandler<HelloMessag
 	}
 
 	private boolean moreThanOneHelloMessage(final ChannelHandlerContext ctx) {
-		return getRemoteUUID(ctx) != null;
+		return getRemoteID(ctx) != null;
 	}
 
-	private Object getRemoteUUID(final ChannelHandlerContext ctx) {
-		return clientChannelManager.getRemoteUUID(ctx.channel());
-	}
-
-	private boolean isMasterFor(final UUID remoteUUID) {
-		return localUUID.compareTo(remoteUUID) < 0;
+	private Object getRemoteID(final ChannelHandlerContext ctx) {
+		return clientChannelManager.getRemoteID(ctx.channel());
 	}
 
 	private void sendConnectionEstablished(final ChannelHandlerContext context) {
-		context.writeAndFlush(new ConnectionEstablishedMessage(localUUID));
+		context.writeAndFlush(new ConnectionEstablishedMessage(localID));
 	}
 }

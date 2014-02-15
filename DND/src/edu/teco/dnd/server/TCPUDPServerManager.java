@@ -75,7 +75,7 @@ public class TCPUDPServerManager extends ServerManager<AddressBasedServerConfig>
 
 		final TCPConnectionManager connectionManager =
 				new TCPConnectionManager(serverChannelFactory, clientChannelFactory, scheduledExecutorService,
-						serverConfig.getModuleUUID());
+						serverConfig.getModuleID());
 
 		new TCPProtocol().initialize(connectionManager);
 
@@ -100,7 +100,7 @@ public class TCPUDPServerManager extends ServerManager<AddressBasedServerConfig>
 
 		final UDPMulticastBeacon beacon =
 				new UDPMulticastBeacon(OIO_DATAGRAM_CHANNEL_FACTORY, networkEventLoopGroup, scheduledExecutorService,
-						serverConfig.getModuleUUID(), serverConfig.getAnnounceInterval(), TimeUnit.SECONDS);
+						serverConfig.getModuleID(), serverConfig.getAnnounceInterval(), TimeUnit.SECONDS);
 		beacon.addListener((TCPConnectionManager) getConnectionManager());
 		beacon.setAnnounceAddresses(new ArrayList<InetSocketAddress>(serverConfig.getAnnounceAddresses()));
 

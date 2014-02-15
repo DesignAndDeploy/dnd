@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 import edu.teco.dnd.network.messages.DefaultResponse;
@@ -49,12 +50,12 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 
 	private final MessageHandlerManager handlers = new MessageHandlerManager();
 
-	private final RemoteUUIDResolver remoteUUIDResolver;
+	private final RemoteIDResolver remoteIDResolver;
 	private final ResponseFutureManager responseFutureManager;
 
-	public ClientMessageDispatcher(final RemoteUUIDResolver remoteUUIDResolver,
+	public ClientMessageDispatcher(final RemoteIDResolver remoteIDResolver,
 			final ResponseFutureManager responseFutureManager) {
-		this.remoteUUIDResolver = remoteUUIDResolver;
+		this.remoteIDResolver = remoteIDResolver;
 		this.responseFutureManager = responseFutureManager;
 	}
 
@@ -108,7 +109,7 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 	 *            the Application ID the handler should be registered for
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
-			final UUID applicationID) {
+			final ApplicationID applicationID) {
 		LOGGER.debug("setting handler for {} with application ID {} to {}", messageClass, applicationID, handler);
 		handlers.setHandler(messageClass, handler, applicationID);
 	}
@@ -130,7 +131,7 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 	 *            the Executor that should be used to execute the MessageHandler
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
-			final UUID applicationID, final Executor executor) {
+			final ApplicationID applicationID, final Executor executor) {
 		LOGGER.debug("setting handler for {} with application ID {} to {} with executor {}", messageClass,
 				applicationID, handler, executor);
 		handlers.setHandler(messageClass, handler, applicationID, executor);
@@ -194,7 +195,7 @@ public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message
 			LOGGER.entry(message, messageHandler, channel);
 			Response response = null;
 			try {
-				response = messageHandler.handleMessage(remoteUUIDResolver.getRemoteUUID(channel), message);
+				response = messageHandler.handleMessage(remoteIDResolver.getRemoteID(channel), message);
 			} catch (final Throwable t) {
 				LOGGER.catching(t);
 			}

@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
+
+import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 
 /**
  * Stores information about a single application.
@@ -14,9 +16,9 @@ import java.util.UUID;
  * @author Philipp Adolf
  */
 public class ApplicationInformation {
-	private final UUID id;
+	private final ApplicationID id;
 	private final String name;
-	private final Map<UUID, Collection<BlockInformation>> blocksByModules;
+	private final Map<ModuleID, Collection<BlockInformation>> blocksByModules;
 
 	/**
 	 * Initializes a new ApplicationInformation.
@@ -28,11 +30,12 @@ public class ApplicationInformation {
 	 * @param blocks
 	 *            the FunctionBlocks belonging to the Application
 	 */
-	public ApplicationInformation(final UUID id, final String name, final Collection<? extends BlockInformation> blocks) {
+	public ApplicationInformation(final ApplicationID id, final String name,
+			final Collection<? extends BlockInformation> blocks) {
 		this.id = id;
 		this.name = name;
 
-		final Map<UUID, Collection<BlockInformation>> blockMap = new HashMap<UUID, Collection<BlockInformation>>();
+		final Map<ModuleID, Collection<BlockInformation>> blockMap = new HashMap<ModuleID, Collection<BlockInformation>>();
 		for (final BlockInformation block : blocks) {
 			if (block != null) {
 				addToMapCollection(blockMap, block.getModuleID(), block);
@@ -71,7 +74,7 @@ public class ApplicationInformation {
 		return new ApplicationInformation(id, name, newBlocks);
 	}
 
-	public UUID getID() {
+	public ApplicationID getID() {
 		return id;
 	}
 
@@ -80,11 +83,11 @@ public class ApplicationInformation {
 	}
 
 	/**
-	 * Returns the UUIDs of all Modules that run parts of this Application.
+	 * Returns the IDs of all Modules that run parts of this Application.
 	 * 
-	 * @return the UUIDs of all Modules that run parts of this Application
+	 * @return the IDs of all Modules that run parts of this Application
 	 */
-	public Collection<UUID> getModules() {
+	public Collection<ModuleID> getModules() {
 		return blocksByModules.keySet();
 	}
 
@@ -93,7 +96,7 @@ public class ApplicationInformation {
 	 * 
 	 * @return a Map from ModuleID to FunctionBlocks running on the Module
 	 */
-	public Map<UUID, Collection<BlockInformation>> getBlocksByModules() {
+	public Map<ModuleID, Collection<BlockInformation>> getBlocksByModules() {
 		return blocksByModules;
 	}
 
@@ -117,7 +120,7 @@ public class ApplicationInformation {
 	 *            all FunctionBlocks belonging to this Application running on this Module will be returned
 	 * @return all FunctionBlocks belonging to this Application that run on the given Module
 	 */
-	public Collection<BlockInformation> getBlocks(final UUID moduleID) {
+	public Collection<BlockInformation> getBlocks(final ModuleID moduleID) {
 		final Collection<BlockInformation> blocks = blocksByModules.get(moduleID);
 		if (blocks == null) {
 			return Collections.emptyList();

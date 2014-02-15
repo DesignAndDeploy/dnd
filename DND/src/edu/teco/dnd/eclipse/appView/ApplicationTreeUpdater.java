@@ -2,7 +2,6 @@ package edu.teco.dnd.eclipse.appView;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +11,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.TypecastingWidgetDataStore;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.server.ApplicationInformation;
@@ -142,10 +142,10 @@ class ApplicationTreeUpdater implements ServerStateListener, ApplicationManagerL
 
 		LOGGER.debug("adding TableItem for {} to {}", applicationInformation, applicationTree);
 		final TreeItem applicationItem = new TreeItem(tree, SWT.NONE);
-		applicationItem.setText(0, applicationInformation.getName() + " (" + applicationInformation.getID() + ")");
+		applicationItem.setText(0, applicationInformation.getName() + " (" + applicationInformation.getID().getUUID() + ")");
 		APPLICATION_INFORMATION_STORE.store(applicationItem, applicationInformation);
-		for (final UUID moduleUUID : applicationInformation.getModules()) {
-			addModule(applicationItem, applicationInformation, moduleUUID);
+		for (final ModuleID moduleID : applicationInformation.getModules()) {
+			addModule(applicationItem, applicationInformation, moduleID);
 		}
 
 		LOGGER.exit();
@@ -158,15 +158,15 @@ class ApplicationTreeUpdater implements ServerStateListener, ApplicationManagerL
 	 *            the TreeItem of the Application this Module TreeItem should be added to
 	 * @param applicationInformation
 	 *            the ApplicationInformation for the Application
-	 * @param moduleUUID
-	 *            the UUID of the Module that should be added by this method
+	 * @param moduleID
+	 *            the ID of the Module that should be added by this method
 	 */
 	private void addModule(final TreeItem applicationItem, final ApplicationInformation applicationInformation,
-			final UUID moduleUUID) {
-		LOGGER.trace("adding TableItem for module {} to {}", moduleUUID, applicationItem);
+			final ModuleID moduleID) {
+		LOGGER.trace("adding TableItem for module {} to {}", moduleID, applicationItem);
 		final TreeItem moduleItem = new TreeItem(applicationItem, SWT.NONE);
-		moduleItem.setText("" + moduleUUID);
-		for (final BlockInformation block : applicationInformation.getBlocks(moduleUUID)) {
+		moduleItem.setText("" + moduleID);
+		for (final BlockInformation block : applicationInformation.getBlocks(moduleID)) {
 			addBlock(moduleItem, applicationInformation, block);
 		}
 	}

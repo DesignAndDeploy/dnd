@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.joinStartApp;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
@@ -16,11 +15,11 @@ public class StartApplicationMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            UUID of the application to start.
 	 */
-	public StartApplicationMessage(UUID appId) {
-		super(appId);
+	public StartApplicationMessage(ApplicationID applicationID) {
+		super(applicationID);
 	}
 
 	@Override

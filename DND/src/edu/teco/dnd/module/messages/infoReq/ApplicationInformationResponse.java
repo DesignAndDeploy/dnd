@@ -3,8 +3,8 @@ package edu.teco.dnd.module.messages.infoReq;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.server.ApplicationInformation;
 
@@ -16,14 +16,14 @@ public class ApplicationInformationResponse extends Response {
 
 	final Collection<ApplicationInformation> applications;
 
-	private final UUID moduleID;
+	private final ModuleID moduleID;
 
-	public ApplicationInformationResponse(final UUID moduleID, final Collection<ApplicationInformation> applications) {
+	public ApplicationInformationResponse(final ModuleID moduleID, final Collection<ApplicationInformation> applications) {
 		this.moduleID = moduleID;
 		this.applications = Collections.unmodifiableCollection(new ArrayList<ApplicationInformation>(applications));
 	}
 
-	public UUID getModuleID() {
+	public ModuleID getModuleID() {
 		return moduleID;
 	}
 

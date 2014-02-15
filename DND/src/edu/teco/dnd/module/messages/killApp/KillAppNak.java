@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.killApp;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -15,32 +14,23 @@ public class KillAppNak extends Response {
 	public static final String MESSAGE_TYPE = "kill app nak";
 
 	/**
-	 * App UUID that was supposed to be stopped.
+	 * ApplicationID that was supposed to be stopped.
 	 */
-	public UUID appId;
+	public ApplicationID applicationID;
 
 	/**
 	 * 
-	 * @param appId
-	 *            App UUID that was supposed to be stopped.
+	 * @param applicationID
+	 *            ApplicationID that was supposed to be stopped.
 	 */
-	public KillAppNak(UUID appId) {
-		this.appId = appId;
-	}
-
-	/**
-	 * 
-	 * @param msg
-	 *            Message triggering this reply.
-	 */
-	public KillAppNak(KillAppMessage msg) {
-		this.appId = msg.getApplicationID();
+	public KillAppNak(ApplicationID applicationID) {
+		this.applicationID = applicationID;
 	}
 
 	@SuppressWarnings("unused")
 	/* for gson */
 	private KillAppNak() {
-		appId = null;
+		applicationID = null;
 	}
 
 	/*
@@ -52,7 +42,7 @@ public class KillAppNak extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
+		result = prime * result + ((applicationID == null) ? 0 : applicationID.hashCode());
 		return result;
 	}
 
@@ -73,11 +63,11 @@ public class KillAppNak extends Response {
 			return false;
 		}
 		KillAppNak other = (KillAppNak) obj;
-		if (appId == null) {
-			if (other.appId != null) {
+		if (applicationID == null) {
+			if (other.applicationID != null) {
 				return false;
 			}
-		} else if (!appId.equals(other.appId)) {
+		} else if (!applicationID.equals(other.applicationID)) {
 			return false;
 		}
 		return true;
@@ -90,7 +80,8 @@ public class KillAppNak extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "KillAppNak [appId=" + appId + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()=" + getUUID() + "]";
+		return "KillAppNak [applicationID=" + applicationID + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+				+ getUUID() + "]";
 	}
 
 }

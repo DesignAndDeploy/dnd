@@ -7,7 +7,6 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +16,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.ModelPackage;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.AddressBasedServerConfig;
 import edu.teco.dnd.server.ServerManager;
@@ -82,7 +82,7 @@ public class CommandMain {
 	 */
 	public static final String CREATE = "--create";
 
-	private static final UUID uuid = UUID.randomUUID();
+	private static final ModuleID moduleID = new ModuleID();
 	private static String path;
 	private static InetSocketAddress listen;
 	private static NetConnection multicast;
@@ -126,7 +126,7 @@ public class CommandMain {
 		functionBlocks = blockLoader.getBlocks();
 
 		serverManager = new TCPUDPServerManager();
-		serverManager.startServer(new AddressBasedServerConfig(uuid, Collections.singletonList(listen), Collections
+		serverManager.startServer(new AddressBasedServerConfig(moduleID, Collections.singletonList(listen), Collections
 				.singletonList(multicast), Collections.singletonList(announce), announceInterval));
 
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();

@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.killApp;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.ApplicationSpecificMessage;
 
 /**
@@ -17,12 +16,12 @@ public class KillAppMessage extends ApplicationSpecificMessage {
 
 	/**
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            UUID of the app supposed to be stopped. Note it does not need to be stored in the message, because the
 	 *            message is simply SEND to the appropriate App, which is enough.
 	 */
-	public KillAppMessage(UUID appId) {
-		super(appId);
+	public KillAppMessage(ApplicationID applicationID) {
+		super(applicationID);
 	}
 
 	/* for gson. */

@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 
+import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.blocks.InputDescription;
 
 /**
@@ -18,7 +18,7 @@ import edu.teco.dnd.blocks.InputDescription;
 public class BlockDescription {
 	public final String blockClassName;
 	public final String blockName;
-	public final UUID blockUUID;
+	public final FunctionBlockID blockID;
 	public final Map<String, String> options;
 	public final Map<String, Set<InputDescription>> outputs;
 	public final int blockTypeHolderId;
@@ -36,12 +36,12 @@ public class BlockDescription {
 	 * @param blockTypeHolderId
 	 *            ID of the assigned BlockTypeHolder, aka where to decrease the allowed blocks count.
 	 */
-	public BlockDescription(final String blockClassName, final String blockName, final UUID blockUUID,
+	public BlockDescription(final String blockClassName, final String blockName, final FunctionBlockID blockUUID,
 			final Map<String, String> options, final Map<String, Set<InputDescription>> outputs,
 			final int blockTypeHolderId) {
 		this.blockClassName = blockClassName;
 		this.blockName = blockName;
-		this.blockUUID = blockUUID;
+		this.blockID = blockUUID;
 		this.options = Collections.unmodifiableMap(new HashMap<String, String>(options));
 		final Map<String, Set<InputDescription>> modifiableOutputs = new HashMap<String, Set<InputDescription>>();
 		for (final Entry<String, Set<InputDescription>> entry : outputs.entrySet()) {

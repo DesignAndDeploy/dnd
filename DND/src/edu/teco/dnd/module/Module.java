@@ -3,7 +3,6 @@ package edu.teco.dnd.module;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -47,7 +46,7 @@ public class Module {
 	private final ConnectionManager connMan;
 
 	private final HashStorage<byte[]> byteCodeStorage;
-	private final Map<UUID, Application> runningApps = new HashMap<UUID, Application>();
+	private final Map<ApplicationID, Application> runningApps = new HashMap<ApplicationID, Application>();
 	private final ModuleBlockManager moduleBlockManager;
 
 	private boolean isShuttingDown = false;
@@ -78,7 +77,7 @@ public class Module {
 	/**
 	 * called when a new application is supposed to be started.
 	 * 
-	 * @param appId
+	 * @param applicationID
 	 *            the Id of the app to be started.
 	 * @param deployingAgentId
 	 *            the agent requesting the start of this application.
@@ -86,8 +85,8 @@ public class Module {
 	 *            (human readable) name of the application
 	 * 
 	 */
-	public void joinApplication(final UUID appId, UUID deployingAgentId, String name) {
-		LOGGER.info("joining app {} ({}), as requested by {}", name, appId, deployingAgentId);
+	public void joinApplication(final ApplicationID applicationID, String name) {
+		LOGGER.info("joining app {} ({})", name, applicationID);
 
 		shutdownLock.readLock().lock();
 		try {
@@ -95,13 +94,13 @@ public class Module {
 				return;
 			}
 			synchronized (runningApps) {
-				if (runningApps.containsKey(appId)) {
+				if (runningApps.containsKey(applicationID)) {
 					LOGGER.info("trying to rejoin app that was already joined before.");
 					return;
 				}
 
-				final Application newApp = createApplication(appId, name);
-				runningApps.put(appId, newApp);
+				final Application newApp = createApplication(applicationID, name);
+				runningApps.put(applicationID, newApp);
 
 				registerMessageHandlers(newApp);
 			}
@@ -111,17 +110,17 @@ public class Module {
 	}
 
 	/**
-	 * create a new Application with given UUID and name.
+	 * create a new Application with given ID and name.
 	 * 
-	 * @param appId
-	 *            the uuid of the application to create
+	 * @param applicationID
+	 *            the ID of the application to create
 	 * @param name
 	 *            Human readable name of the application
 	 * @return A reference to the new application object
 	 */
-	private Application createApplication(final UUID appId, final String name) {
-		final IndexedThreadFactory threadFactory = new IndexedThreadFactory("app-" + appId + "-");
-		return new Application(appId, name, connMan, threadFactory, moduleConfig.getMaxThreadsPerApp(),
+	private Application createApplication(final ApplicationID applicationID, final String name) {
+		final IndexedThreadFactory threadFactory = new IndexedThreadFactory("app-" + applicationID.getUUID() + "-");
+		return new Application(applicationID, name, connMan, threadFactory, moduleConfig.getMaxThreadsPerApp(),
 				moduleBlockManager, byteCodeStorage);
 	}
 
@@ -132,22 +131,23 @@ public class Module {
 	 *            the application the message handlers are to be registered for.
 	 */
 	private void registerMessageHandlers(final Application application) {
-		final UUID appId = application.getApplicationID();
+		final ApplicationID applicationID = application.getApplicationID();
 		final Executor executor = application.getThreadPool();
-		connMan.addHandler(appId, LoadClassMessage.class, new LoadClassMessageHandler(application), executor);
-		connMan.addHandler(appId, BlockMessage.class, new BlockMessageHandler(this), executor);
-		connMan.addHandler(appId, StartApplicationMessage.class, new StartApplicationMessageHandler(this), executor);
-		connMan.addHandler(appId, KillAppMessage.class, new KillAppMessageHandler(this), executor);
-		connMan.addHandler(appId, ValueMessage.class, new ValueMessageHandler(application), executor);
-		connMan.addHandler(appId, WhoHasBlockMessage.class,
-				new WhoHasFuncBlockHandler(application, moduleConfig.getUuid()));
+		connMan.addHandler(applicationID, LoadClassMessage.class, new LoadClassMessageHandler(application), executor);
+		connMan.addHandler(applicationID, BlockMessage.class, new BlockMessageHandler(this), executor);
+		connMan.addHandler(applicationID, StartApplicationMessage.class, new StartApplicationMessageHandler(this),
+				executor);
+		connMan.addHandler(applicationID, KillAppMessage.class, new KillAppMessageHandler(this), executor);
+		connMan.addHandler(applicationID, ValueMessage.class, new ValueMessageHandler(application), executor);
+		connMan.addHandler(applicationID, WhoHasBlockMessage.class, new WhoHasFuncBlockHandler(application,
+				moduleConfig.getModuleID()));
 	}
 
 	/**
 	 * Schedules a FunctionBlock to be started, when StartApp() is called.
 	 * 
-	 * @param appId
-	 *            the UUID of the application this block is to be scheduled on.
+	 * @param applicationID
+	 *            the ID of the application this block is to be scheduled on.
 	 * @param blockDescription
 	 *            the information about the block that schould be scheduled.
 	 * @throws UserSuppliedCodeException
@@ -159,9 +159,9 @@ public class Module {
 	 * @throws NoSuchBlockTypeHolderException
 	 * @throws BlockTypeHolderFullException
 	 */
-	public void scheduleBlock(UUID appId, final BlockDescription blockDescription) throws ClassNotFoundException,
-			UserSuppliedCodeException, IllegalArgumentException, BlockTypeHolderFullException,
-			NoSuchBlockTypeHolderException {
+	public void scheduleBlock(ApplicationID applicationID, final BlockDescription blockDescription)
+			throws ClassNotFoundException, UserSuppliedCodeException, IllegalArgumentException,
+			BlockTypeHolderFullException, NoSuchBlockTypeHolderException {
 		shutdownLock.readLock().lock();
 		try {
 			if (isShuttingDown) {
@@ -169,11 +169,11 @@ public class Module {
 			}
 			Application app;
 			synchronized (runningApps) {
-				app = runningApps.get(appId);
+				app = runningApps.get(applicationID);
 			}
 			if (app == null) {
-				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockUUID
-						+ " for non-existant Application " + appId);
+				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockID
+						+ " for non-existant Application " + applicationID);
 			}
 			app.scheduleBlock(blockDescription);
 		} finally {
@@ -185,10 +185,10 @@ public class Module {
 	/**
 	 * called when an app that was scheduled to start before is started. Then does what it says.
 	 * 
-	 * @param appId
-	 *            the UUID of the app to be started.
+	 * @param applicationID
+	 *            the ID of the app to be started.
 	 */
-	public void startApp(UUID appId) {
+	public void startApp(ApplicationID applicationID) {
 		shutdownLock.readLock().lock();
 		try {
 			if (isShuttingDown) {
@@ -196,10 +196,10 @@ public class Module {
 			}
 			Application app;
 			synchronized (runningApps) {
-				app = runningApps.get(appId);
+				app = runningApps.get(applicationID);
 			}
 			if (app == null) {
-				LOGGER.warn("Tried to start non existing app: {}", appId);
+				LOGGER.warn("Tried to start non existing app: {}", applicationID);
 				throw new IllegalArgumentException("tried to start app that does not exist.");
 			}
 			app.start();
@@ -223,8 +223,8 @@ public class Module {
 				moduleShutdownHook.run();
 			}
 			synchronized (runningApps) {
-				for (UUID appId : runningApps.keySet()) {
-					stopApplication(appId);
+				for (ApplicationID applicationID : runningApps.keySet()) {
+					stopApplication(applicationID);
 				}
 			}
 		} finally {
@@ -238,7 +238,7 @@ public class Module {
 	 * @param appId
 	 *            the id of the app to be stopped
 	 */
-	public void stopApplication(UUID appId) {
+	public void stopApplication(ApplicationID appId) {
 		// TODO deregister Message handlers
 		LOGGER.entry(appId);
 		synchronized (runningApps) {
@@ -252,7 +252,7 @@ public class Module {
 			app.shutdown();
 
 			for (final FunctionBlockSecurityDecorator block : app.getFunctionBlocksById().values()) {
-				moduleBlockManager.removeBlock(new ApplicationBlockID(block.getBlockUUID(), appId));
+				moduleBlockManager.removeBlock(new ApplicationBlockID(block.getBlockID(), appId));
 			}
 
 			runningApps.remove(appId);
@@ -263,15 +263,15 @@ public class Module {
 	/**
 	 * @return the runningApps
 	 */
-	public Map<UUID, Application> getRunningApps() {
-		final Map<UUID, Application> result = new HashMap<UUID, Application>();
+	public Map<ApplicationID, Application> getRunningApps() {
+		final Map<ApplicationID, Application> result = new HashMap<ApplicationID, Application>();
 		synchronized (runningApps) {
 			result.putAll(runningApps);
 		}
 		return result;
 	}
 
-	public Application getApplication(final UUID applicationID) {
+	public Application getApplication(final ApplicationID applicationID) {
 		synchronized (runningApps) {
 			return runningApps.get(applicationID);
 		}

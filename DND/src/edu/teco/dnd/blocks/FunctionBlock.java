@@ -24,10 +24,10 @@ public abstract class FunctionBlock implements Serializable {
 	private static final String BLOCK_UPDATE_INTERVAL_FIELD_NAME = "BLOCK_UPDATE_INTERVAL";
 
 	/**
-	 * The UUID of the block. Will be set in {@link #doInit(UUID, String)}. Is used as an indicator to see if doInit has
-	 * been called.
+	 * The ID of the block. Will be set in {@link #doInit(FunctionBlockID, String)}. Is used as an indicator to see if
+	 * doInit has been called.
 	 */
-	private UUID blockUUID = null;
+	private FunctionBlockID blockID = null;
 
 	/**
 	 * The type of the block. Set in {@link #doInit(UUID, String)}.
@@ -58,23 +58,25 @@ public abstract class FunctionBlock implements Serializable {
 	 * Initializes the block. This method queries the block type and update interval and creates the Inputs and Outputs
 	 * of the block.
 	 * 
-	 * @param blockUUID
-	 *            the UUID of the block. Will be stored so that it can be queried later with {@link #getBlockUUID()}.
+	 * @param blockID
+	 *            the ID of the block. Will be stored so that it can be queried later with {@link #getBlockID()}. A
+	 *            random value is used if null.
 	 * @param blockName
 	 *            the Name of the block. Will be stored so that it can be queried later with {@link #getBlockName()}.
 	 * @throws IllegalAccessException
 	 *             if quering a field using reflection fails
 	 */
-	public final synchronized void doInit(final UUID blockUUID, final String blockName) throws IllegalAccessException {
-		if (this.blockUUID != null) {
+	public final synchronized void doInit(final FunctionBlockID blockID, final String blockName)
+			throws IllegalAccessException {
+		if (this.blockID != null) {
 			return;
 		}
 		this.blockName = blockName;
 
-		if (blockUUID == null) {
-			this.blockUUID = UUID.randomUUID();
+		if (blockID == null) {
+			this.blockID = new FunctionBlockID();
 		} else {
-			this.blockUUID = blockUUID;
+			this.blockID = blockID;
 		}
 
 		final Map<String, Output<? extends Serializable>> outputs =
@@ -102,7 +104,7 @@ public abstract class FunctionBlock implements Serializable {
 			this.updateInterval = Long.MIN_VALUE;
 		}
 	}
-	
+
 	private static final boolean isOutput(final Class<?> cls) {
 		return Output.class.isAssignableFrom(cls);
 	}
@@ -117,7 +119,7 @@ public abstract class FunctionBlock implements Serializable {
 	private static final boolean isInput(final Class<?> cls) {
 		return Input.class.isAssignableFrom(cls);
 	}
-	
+
 	private final Input<?> createInput(final Field field) throws IllegalArgumentException, IllegalAccessException {
 		final Input<?> input = new Input<Serializable>();
 		field.setAccessible(true);
@@ -151,8 +153,8 @@ public abstract class FunctionBlock implements Serializable {
 	 * 
 	 * @return the UUID of this block or null if it hasn't been set yet
 	 */
-	public final synchronized UUID getBlockUUID() {
-		return this.blockUUID;
+	public final synchronized FunctionBlockID getBlockID() {
+		return this.blockID;
 	}
 
 	/**
@@ -170,7 +172,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @return the Outputs of the block mapped from their name
 	 */
 	public final synchronized Map<String, Output<? extends Serializable>> getOutputs() {
-		if (blockUUID == null) {
+		if (blockID == null) {
 			throw new IllegalStateException("doInit hasn't been called yet");
 		}
 		return this.outputs;
@@ -182,7 +184,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @return the Inputs of the block mapped from their name
 	 */
 	public final synchronized Map<String, Input<? extends Serializable>> getInputs() {
-		if (blockUUID == null) {
+		if (blockID == null) {
 			throw new IllegalStateException("doInit hasn't been called yet");
 		}
 		return this.inputs;
@@ -194,7 +196,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @return
 	 */
 	public final synchronized String getBlockType() {
-		if (blockUUID == null) {
+		if (blockID == null) {
 			throw new IllegalStateException("doInit hasn't been called yet");
 		}
 		return blockType;
@@ -206,7 +208,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @return the update interval for the block
 	 */
 	public final synchronized long getUpdateInterval() {
-		if (blockUUID == null) {
+		if (blockID == null) {
 			throw new IllegalStateException("doInit hasn't been called yet");
 		}
 		return updateInterval;
@@ -234,10 +236,10 @@ public abstract class FunctionBlock implements Serializable {
 
 	@Override
 	public final int hashCode() {
-		final UUID blockUUID = getBlockUUID();
+		final FunctionBlockID blockID = getBlockID();
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((blockUUID == null) ? 0 : blockUUID.hashCode());
+		result = prime * result + ((blockID == null) ? 0 : blockID.hashCode());
 		return result;
 	}
 
@@ -253,13 +255,13 @@ public abstract class FunctionBlock implements Serializable {
 			return false;
 		}
 		FunctionBlock other = (FunctionBlock) obj;
-		final UUID blockUUID = getBlockUUID();
-		final UUID otherBlockUUID = other.getBlockUUID();
-		if (blockUUID == null) {
-			if (otherBlockUUID != null) {
+		final FunctionBlockID blockID = getBlockID();
+		final FunctionBlockID otherBlockID = other.getBlockID();
+		if (blockID == null) {
+			if (otherBlockID != null) {
 				return false;
 			}
-		} else if (!blockUUID.equals(otherBlockUUID)) {
+		} else if (!blockID.equals(otherBlockID)) {
 			return false;
 		}
 		return true;
@@ -267,11 +269,11 @@ public abstract class FunctionBlock implements Serializable {
 
 	@Override
 	public final String toString() {
-		final UUID blockUUID = getBlockUUID();
-		if (blockUUID == null) {
+		final FunctionBlockID blockID = getBlockID();
+		if (blockID == null) {
 			return "FunctionBlock[class=" + getClass() + "]";
 		} else {
-			return "FunctionBlock[class=" + getClass() + ",blockUUID=" + blockUUID + "]";
+			return "FunctionBlock[class=" + getClass() + ",blockUUID=" + blockID + "]";
 		}
 	}
 }

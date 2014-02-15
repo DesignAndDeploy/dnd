@@ -1,6 +1,6 @@
 package edu.teco.dnd.network.messages;
 
-import java.util.UUID;
+import edu.teco.dnd.module.ModuleID;
 
 /**
  * Message that signals that the sender has accepted the connection.
@@ -13,19 +13,19 @@ public class ConnectionEstablishedMessage extends Message {
 	 */
 	public static final String MESSAGE_TYPE = "connection established";
 	
-	private final UUID remoteUUID;
+	private final ModuleID remoteID;
 	
-	public ConnectionEstablishedMessage(final UUID remoteUUID) {
+	public ConnectionEstablishedMessage(final ModuleID remoteID) {
 		super();
-		this.remoteUUID = remoteUUID;
+		this.remoteID = remoteID;
 	}
 
 	@Override
 	public String toString() {
-		return "ConnectionEstablishedMessage[uuid=" + getUUID() + ",remoteUUID=" + remoteUUID + "]";
+		return "ConnectionEstablishedMessage[uuid=" + getUUID() + ",remoteID=" + remoteID + "]";
 	}
 
-	public UUID getRemoteUUID() {
-		return remoteUUID;
+	public ModuleID getRemoteID() {
+		return remoteID;
 	}
 }

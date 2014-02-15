@@ -1,6 +1,6 @@
 package edu.teco.dnd.network.messages;
 
-import java.util.UUID;
+import edu.teco.dnd.module.ModuleID;
 
 /**
  * This message is sent if a new connection was made to inform the other end who we are.
@@ -14,9 +14,9 @@ public class HelloMessage extends Message {
 	public static final String MESSAGE_TYPE = "hello";
 
 	/**
-	 * The UUID of the module sending the message.
+	 * The ID of the module sending the message.
 	 */
-	private final UUID moduleUUID;
+	private final ModuleID moduleID;
 
 	/**
 	 * The maximum frame size the sending module can receive.
@@ -26,23 +26,23 @@ public class HelloMessage extends Message {
 	/**
 	 * Initializes a new HelloMessage.
 	 * 
-	 * @param uuid
-	 *            the UUID of the sending ModuleInfo
+	 * @param moduleID
+	 *            the ID of the sending ModuleInfo
 	 * @param framesize
 	 *            the maximum frame size the ModuleInfo can receive
 	 */
-	public HelloMessage(final UUID uuid, final int framesize) {
-		this.moduleUUID = uuid;
+	public HelloMessage(final ModuleID moduleID, final int framesize) {
+		this.moduleID = moduleID;
 		this.framesize = framesize;
 	}
 
 	/**
-	 * Returns the UUID of the sending module.
+	 * Returns the ID of the sending module.
 	 * 
-	 * @return the UUID of the sending module
+	 * @return the ID of the sending module
 	 */
-	public UUID getModuleUUID() {
-		return this.moduleUUID;
+	public ModuleID getModuleID() {
+		return this.moduleID;
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class HelloMessage extends Message {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append("HelloMessage[uuid=").append(moduleUUID).append(",framesize=").append(framesize).append("]");
+		sb.append("HelloMessage[moduleID=").append(moduleID).append(",framesize=").append(framesize).append("]");
 		return sb.toString();
 	}
 }

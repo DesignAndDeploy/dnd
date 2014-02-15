@@ -7,12 +7,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
 import edu.teco.dnd.module.messages.infoReq.ApplicationInformationResponse;
 import edu.teco.dnd.module.messages.infoReq.RequestApplicationInformationMessage;
@@ -37,9 +38,10 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	private ConnectionManager connectionManager;
-	private final Map<UUID, ApplicationInformation> applications = new HashMap<UUID, ApplicationInformation>();
+	private final Map<ApplicationID, ApplicationInformation> applications =
+			new HashMap<ApplicationID, ApplicationInformation>();
 	private final Collection<ApplicationManagerListener> listeners = new ArrayList<ApplicationManagerListener>();
-	private final Set<UUID> knownModules = new HashSet<UUID>();
+	private final Set<ModuleID> knownModules = new HashSet<ModuleID>();
 
 	/**
 	 * Initializes a new ApplicationManager. Normally you should just use {@link ServerManager#getApplicationManager()}
@@ -104,15 +106,15 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	}
 
 	@Override
-	public synchronized void connectionEstablished(final UUID uuid) {
-		LOGGER.trace("adding Module {}", uuid);
-		knownModules.add(uuid);
+	public synchronized void connectionEstablished(final ModuleID moduleID) {
+		LOGGER.trace("adding Module {}", moduleID);
+		knownModules.add(moduleID);
 	}
 
 	@Override
-	public synchronized void connectionClosed(final UUID uuid) {
-		LOGGER.trace("removing Module {}", uuid);
-		knownModules.remove(uuid);
+	public synchronized void connectionClosed(final ModuleID moduleID) {
+		LOGGER.trace("removing Module {}", moduleID);
+		knownModules.remove(moduleID);
 	}
 
 	/**
@@ -132,7 +134,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	 *            the ID of the Application to kill. Must be known to this manager.
 	 * @return a FutureNotifier that completes successfully iff the Application is killed
 	 */
-	public FutureNotifier<Void> killApplication(final UUID applicationID) {
+	public FutureNotifier<Void> killApplication(final ApplicationID applicationID) {
 		ApplicationInformation applicationInformation = null;
 		synchronized (this) {
 			applicationInformation = applications.get(applicationID);
@@ -147,7 +149,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 
 		final Collection<FutureNotifier<? extends Response>> futures =
 				new ArrayList<FutureNotifier<? extends Response>>();
-		for (final UUID moduleID : applicationInformation.getModules()) {
+		for (final ModuleID moduleID : applicationInformation.getModules()) {
 			final KillAppMessage killAppMessage = new KillAppMessage(applicationID);
 			futures.add(connectionManager.sendMessage(moduleID, killAppMessage));
 		}
@@ -166,7 +168,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 		final Collection<FutureNotifier<? extends Response>> futures =
 				new ArrayList<FutureNotifier<? extends Response>>(knownModules.size());
 		synchronized (this) {
-			for (final UUID moduleID : knownModules) {
+			for (final ModuleID moduleID : knownModules) {
 				futures.add(connectionManager.sendMessage(moduleID, new RequestApplicationInformationMessage()));
 			}
 		}
@@ -242,7 +244,8 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 		public void operationComplete(final FutureNotifier<Collection<Response>> future) {
 			LOGGER.entry(future);
 			if (future.isSuccess()) {
-				final Map<UUID, ApplicationInformation> applications = new HashMap<UUID, ApplicationInformation>();
+				final Map<ApplicationID, ApplicationInformation> applications =
+						new HashMap<ApplicationID, ApplicationInformation>();
 
 				for (final Response response : future.getNow()) {
 					LOGGER.trace("Handling Response {}", response);
@@ -255,7 +258,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 							(ApplicationInformationResponse) response;
 					for (ApplicationInformation application : applicationListResponse.getApplications()) {
 						LOGGER.trace("Adding application {}", application);
-						final UUID applicationID = application.getID();
+						final ApplicationID applicationID = application.getID();
 						final ApplicationInformation oldApplicationInformation = applications.get(applicationID);
 						if (oldApplicationInformation != null) {
 							LOGGER.trace("merging {} with {}", application, oldApplicationInformation);

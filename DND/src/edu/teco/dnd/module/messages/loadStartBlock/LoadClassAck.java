@@ -1,7 +1,5 @@
 package edu.teco.dnd.module.messages.loadStartBlock;
 
-import java.util.UUID;
-
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -13,10 +11,7 @@ import edu.teco.dnd.network.messages.Response;
 public class LoadClassAck extends Response {
 
 	public static final String MESSAGE_TYPE = "load class ack";
-	/**
-	 * ID of the application the code was loaded on.
-	 */
-	public UUID appId;
+
 	/**
 	 * Name of the class that was loaded.
 	 */
@@ -26,19 +21,15 @@ public class LoadClassAck extends Response {
 	 * 
 	 * @param className
 	 *            name of the class that was loaded
-	 * @param appId
-	 *            the appID this class was loaded into.
 	 */
-	public LoadClassAck(String className, UUID appId) {
+	public LoadClassAck(String className) {
 		this.className = className;
-		this.appId = appId;
 	}
 
 	@SuppressWarnings("unused")
 	/* for gson */
 	private LoadClassAck() {
 		className = null;
-		appId = null;
 	}
 
 	/*
@@ -50,7 +41,6 @@ public class LoadClassAck extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
 		result = prime * result + ((className == null) ? 0 : className.hashCode());
 		return result;
 	}
@@ -72,13 +62,6 @@ public class LoadClassAck extends Response {
 			return false;
 		}
 		LoadClassAck other = (LoadClassAck) obj;
-		if (appId == null) {
-			if (other.appId != null) {
-				return false;
-			}
-		} else if (!appId.equals(other.appId)) {
-			return false;
-		}
 		if (className == null) {
 			if (other.className != null) {
 				return false;
@@ -96,8 +79,8 @@ public class LoadClassAck extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "LoadClassAck [appId=" + appId + ", className=" + className + ", getSourceUUID()=" + getSourceUUID()
-				+ ", getUUID()=" + getUUID() + "]";
+		return "LoadClassAck [className=" + className + ", getSourceUUID()=" + getSourceUUID() + ", getUUID()="
+				+ getUUID() + "]";
 	}
 
 }

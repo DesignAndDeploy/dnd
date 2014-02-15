@@ -14,32 +14,32 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.DelegatingConnectionListener;
 
 /**
  * Manages Channels that are connected to other clients.
  * 
- * This includes storing a Set of all Channels, the UUIDs of the clients they are connected to and whether or not the
+ * This includes storing a Set of all Channels, the IDs of the clients they are connected to and whether or not the
  * Initialization phase has been completed (which makes them active).
  * 
  * All public methods in this class are thread-safe.
  * 
  * @author Philipp Adolf
  */
-public class ClientChannelManager implements RemoteUUIDResolver {
+public class ClientChannelManager implements RemoteIDResolver {
 	private static final Logger LOGGER = LogManager.getLogger(ClientChannelManager.class);
 
-	private static final AttributeKey<UUID> REMOTE_UUID_KEY = AttributeKey.valueOf("remote UUID");
+	private static final AttributeKey<ModuleID> REMOTE_ID_KEY = AttributeKey.valueOf("remote ID");
 	private static final AttributeKey<Boolean> ACTIVE_KEY = AttributeKey.valueOf("active");
 
 	private final Set<Channel> channels = new HashSet<Channel>();
-	private final Map<UUID, Set<Channel>> channelsByRemoteUUID = new HashMap<UUID, Set<Channel>>();
+	private final Map<ModuleID, Set<Channel>> channelsByRemoteID = new HashMap<ModuleID, Set<Channel>>();
 
 	private final DelegatingConnectionListener delegatingConnectionListener = new DelegatingConnectionListener();
 
@@ -78,7 +78,7 @@ public class ClientChannelManager implements RemoteUUIDResolver {
 	 * Adds a Channel to this manager.
 	 * 
 	 * This adds the Channel to the list of known Channels and must be called before using {@link #setActive(Channel)},
-	 * {@link #setActiveIfFirst(Channel)} and {@link #setRemoteUUID(Channel, UUID)}.
+	 * {@link #setActiveIfFirst(Channel)} and {@link #setRemoteID(Channel, ModuleID)}.
 	 * 
 	 * @param channel
 	 *            the Channel to add. Must not be null.
@@ -103,17 +103,17 @@ public class ClientChannelManager implements RemoteUUIDResolver {
 	}
 
 	/**
-	 * Returns all Channels that are connected to a client with the given UUID.
+	 * Returns all Channels that are connected to a client with the given ModuleID.
 	 * 
 	 * This includes both active and non-active Channels.
 	 * 
-	 * @param remoteUUID
-	 *            the UUID to look for
-	 * @return all Channels that have the given UUID set
+	 * @param remoteID
+	 *            the ModuleID to look for
+	 * @return all Channels that have the given ModuleID set
 	 */
-	public Set<Channel> getChannels(final UUID remoteUUID) {
+	public Set<Channel> getChannels(final ModuleID remoteID) {
 		synchronized (channels) {
-			final Set<Channel> channels = channelsByRemoteUUID.get(remoteUUID);
+			final Set<Channel> channels = channelsByRemoteID.get(remoteID);
 			if (channels == null) {
 				return Collections.emptySet();
 			} else {
@@ -135,19 +135,19 @@ public class ClientChannelManager implements RemoteUUIDResolver {
 
 	private void informConnectionClosedIfLast(final Channel channel) {
 		synchronized (channels) {
-			final UUID remoteUUID = getRemoteUUID(channel);
-			final Collection<Channel> activeChannels = getActiveChannels(remoteUUID);
+			final ModuleID remoteID = getRemoteID(channel);
+			final Collection<Channel> activeChannels = getActiveChannels(remoteID);
 
 			if (activeChannels.size() <= 1) {
-				delegatingConnectionListener.connectionClosed(remoteUUID);
+				delegatingConnectionListener.connectionClosed(remoteID);
 			}
 		}
 	}
 
-	private Collection<Channel> getActiveChannels(final UUID remoteUUID) {
+	private Collection<Channel> getActiveChannels(final ModuleID remoteID) {
 		synchronized (channels) {
 			final Collection<Channel> activeChannels = new ArrayList<Channel>();
-			for (final Channel channel : getChannels(remoteUUID)) {
+			for (final Channel channel : getChannels(remoteID)) {
 				if (isActive(channel)) {
 					activeChannels.add(channel);
 				}
@@ -165,28 +165,28 @@ public class ClientChannelManager implements RemoteUUIDResolver {
 	}
 
 	/**
-	 * Sets the Channel to the active state if no other Channel with the same remote UUID is active.
+	 * Sets the Channel to the active state if no other Channel with the same remote ModuleID is active.
 	 * 
-	 * If there is another Channel with the same remote UUID that is active, nothing is done and <code>false</code> is
+	 * If there is another Channel with the same remote ModuleID that is active, nothing is done and <code>false</code> is
 	 * returned. If there is no such Channel the given one is marked active and <code>true</code> is returned. The
 	 * Channel itself is ignored in the active check, so if the given Channel is active but all other Channels with the
-	 * same UUID are inactive <code>true</code> is returned.
+	 * same ModuleID are inactive <code>true</code> is returned.
 	 * 
 	 * @param channel
 	 *            the Channel to check
-	 * @return true if no other Channel with the same UUID was active, false otherwise
+	 * @return true if no other Channel with the same ModuleID was active, false otherwise
 	 * @throws IllegalArgumentException
-	 *             if the given Channel does not have remote UUID set or was not added to this manager
+	 *             if the given Channel does not have remote ModuleID set or was not added to this manager
 	 */
 	public boolean setActiveIfFirst(final Channel channel) {
-		final UUID remoteUUID;
+		final ModuleID remoteID;
 		synchronized (channels) {
-			remoteUUID = getRemoteUUID(channel);
-			if (remoteUUID == null) {
-				throw new IllegalArgumentException("channel " + channel + " does not have an UUID");
+			remoteID = getRemoteID(channel);
+			if (remoteID == null) {
+				throw new IllegalArgumentException("channel " + channel + " does not have a ModuleID");
 			}
 
-			final Collection<Channel> channels = getChannels(remoteUUID);
+			final Collection<Channel> channels = getChannels(remoteID);
 			for (final Channel otherChannel : channels) {
 				if (channel.equals(otherChannel)) {
 					continue;
@@ -200,63 +200,63 @@ public class ClientChannelManager implements RemoteUUIDResolver {
 			setActive(channel);
 		}
 
-		delegatingConnectionListener.connectionEstablished(remoteUUID);
+		delegatingConnectionListener.connectionEstablished(remoteID);
 
 		return true;
 	}
 
 	/**
-	 * Sets the UUID of the client that is on the other end of the Channel.
+	 * Sets the ModuleID of the client that is on the other end of the Channel.
 	 * 
-	 * @param channel the Channel for which the UUID should be set
-	 * @param remoteUUID the UUID of the client on the other end of the Channel
+	 * @param channel the Channel for which the ModuleID should be set
+	 * @param remoteID the ModuleID of the client on the other end of the Channel
 	 * @throws IllegalArgumentException if the Channel was not added to this manager
 	 */
-	public void setRemoteUUID(final Channel channel, final UUID remoteUUID) {
+	public void setRemoteID(final Channel channel, final ModuleID remoteID) {
 		synchronized (channels) {
 			if (!channels.contains(channel)) {
 				throw new IllegalArgumentException("channel " + channel + " was not added to this manager");
 			}
-			removeRemoteUUID(channel);
-			if (remoteUUID != null) {
-				addRemoteUUID(channel, remoteUUID);
+			removeRemoteID(channel);
+			if (remoteID != null) {
+				addRemoteID(channel, remoteID);
 			}
 		}
 	}
 
-	private void removeRemoteUUID(final Channel channel) {
-		final Attribute<UUID> remoteUUIDAttribute = channel.attr(REMOTE_UUID_KEY);
-		final UUID oldUUID = remoteUUIDAttribute.get();
-		remoteUUIDAttribute.remove();
+	private void removeRemoteID(final Channel channel) {
+		final Attribute<ModuleID> remoteIDAttribute = channel.attr(REMOTE_ID_KEY);
+		final ModuleID oldID = remoteIDAttribute.get();
+		remoteIDAttribute.remove();
 
-		if (oldUUID != null) {
-			LOGGER.debug("removing UUID {} from {}", oldUUID, channel);
-			Set<Channel> channelsWithRemoteUUID = channelsByRemoteUUID.get(oldUUID);
-			channelsWithRemoteUUID.remove(channel);
-			if (channelsWithRemoteUUID.isEmpty()) {
-				channelsByRemoteUUID.remove(oldUUID);
+		if (oldID != null) {
+			LOGGER.debug("removing ModuleID {} from {}", oldID, channel);
+			Set<Channel> channelsWithRemoteID = channelsByRemoteID.get(oldID);
+			channelsWithRemoteID.remove(channel);
+			if (channelsWithRemoteID.isEmpty()) {
+				channelsByRemoteID.remove(oldID);
 			}
 		}
 	}
 
-	private void addRemoteUUID(final Channel channel, final UUID remoteUUID) {
-		LOGGER.debug("setting UUID {} for {}", remoteUUID, channel);
-		final Attribute<UUID> remoteUUIDAttribute = channel.attr(REMOTE_UUID_KEY);
-		remoteUUIDAttribute.set(remoteUUID);
+	private void addRemoteID(final Channel channel, final ModuleID remoteID) {
+		LOGGER.debug("setting ModuleID {} for {}", remoteID, channel);
+		final Attribute<ModuleID> remoteIDAttribute = channel.attr(REMOTE_ID_KEY);
+		remoteIDAttribute.set(remoteID);
 
-		Set<Channel> channelsWithRemoteUUID = channelsByRemoteUUID.get(remoteUUID);
-		if (channelsWithRemoteUUID == null) {
-			channelsWithRemoteUUID = new HashSet<Channel>();
-			channelsByRemoteUUID.put(remoteUUID, channelsWithRemoteUUID);
+		Set<Channel> channelsWithRemoteID = channelsByRemoteID.get(remoteID);
+		if (channelsWithRemoteID == null) {
+			channelsWithRemoteID = new HashSet<Channel>();
+			channelsByRemoteID.put(remoteID, channelsWithRemoteID);
 		}
 
-		channelsWithRemoteUUID.add(channel);
+		channelsWithRemoteID.add(channel);
 	}
 
 	@Override
-	public UUID getRemoteUUID(final Channel channel) {
-		final Attribute<UUID> remoteUUIDAttribute = channel.attr(REMOTE_UUID_KEY);
-		return remoteUUIDAttribute.get();
+	public ModuleID getRemoteID(final Channel channel) {
+		final Attribute<ModuleID> remoteIDAttribute = channel.attr(REMOTE_ID_KEY);
+		return remoteIDAttribute.get();
 	}
 	
 	/**
@@ -286,15 +286,15 @@ public class ClientChannelManager implements RemoteUUIDResolver {
 				throw new IllegalArgumentException("channel " + channel + " was not added to this manager");
 			}
 
-			final UUID remoteUUID = getRemoteUUID(channel);
-			final boolean informListeners = (remoteUUID != null && getActiveChannels(remoteUUID).isEmpty());
+			final ModuleID remoteID = getRemoteID(channel);
+			final boolean informListeners = (remoteID != null && getActiveChannels(remoteID).isEmpty());
 
 			final Attribute<Boolean> activeAttribute = channel.attr(ACTIVE_KEY);
 			LOGGER.debug("setting active attribute on {}", channel);
 			activeAttribute.set(true);
 
 			if (informListeners) {
-				delegatingConnectionListener.connectionEstablished(remoteUUID);
+				delegatingConnectionListener.connectionEstablished(remoteID);
 			}
 		}
 	}

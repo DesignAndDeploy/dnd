@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.GsonBuilder;
 
+import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.BeaconListener;
 import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.ConnectionManager;
@@ -41,7 +42,7 @@ import edu.teco.dnd.util.FutureNotifier;
  * like
  * 
  * <pre>
- * TCPConnectionManager mgr = new TCPConnectionManager(serverChannelFactory, clientChannelFactory, localUUID);
+ * TCPConnectionManager mgr = new TCPConnectionManager(serverChannelFactory, clientChannelFactory, localID);
  * mgr.addMessageType(MyAwesomeMessage.class);
  * mgr.addHandler(MyAwesomeMessage.class, new MyAwesomeMessageHandler());
  * mgr.startListening(new InetSocketAddress(4242));
@@ -73,7 +74,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	private final ClientMessageDispatcher messageDispatcher;
 	private final ClientChannelInitializer clientChannelInitializer;
 
-	private final UUID localUUID;
+	private final ModuleID localID;
 
 	private boolean isShuttingDown = false;
 	protected ShutdownFuture shutdownFuture = new ShutdownFuture();
@@ -87,19 +88,19 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 *            a factory that will be used to create listening Channels
 	 * @param clientChannelFactory
 	 *            a factory that will be used to connect to other clients
-	 * @param localUUID
-	 *            the UUID of this client
+	 * @param localID
+	 *            the ModuleID of this client
 	 * @see ServerBootstrapChannelFactory
 	 * @see ClientBootstrapChannelFactory
 	 */
 	public TCPConnectionManager(final ServerChannelFactory serverChannelFactory,
 			final ClientChannelFactory clientChannelFactory, final ScheduledExecutorService invalidatorThread,
-			final UUID localUUID) {
-		this.localUUID = localUUID;
+			final ModuleID localID) {
+		this.localID = localID;
 		responseFutureManager = new ResponseFutureManager();
 		timeoutResponseInvalidator = new TimeoutResponseInvalidator(invalidatorThread, TIMEOUT_DELAY, TIMEOUT_UNIT);
 		clientChannelManager = new ClientChannelManager(clientChannelFactory);
-		clientChannelInitializer = new ClientChannelInitializer(clientChannelManager, localUUID);
+		clientChannelInitializer = new ClientChannelInitializer(clientChannelManager, localID);
 		clientChannelFactory.setChannelInitializer(clientChannelInitializer);
 		messageDispatcher = new ClientMessageDispatcher(clientChannelManager, responseFutureManager);
 		clientChannelInitializer.setMessageHandler(messageDispatcher);
@@ -166,21 +167,24 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 
 	@Override
 	public void beaconFound(final BeaconMessage beacon) {
-		if (localUUID.equals(beacon.getModuleUUID())) {
+		LOGGER.entry(beacon);
+		if (localID.equals(beacon.getModuleID())) {
+			LOGGER.exit();
 			return;
 		}
-		if (!hasActiveChannel(beacon.getModuleUUID())) {
+		if (!hasActiveChannel(beacon.getModuleID())) {
 			for (final InetSocketAddress address : beacon.getAddresses()) {
 				if (address != null) {
 					connectTo(address);
 				}
 			}
 		}
+		LOGGER.exit();
 	}
 
-	private boolean hasActiveChannel(final UUID moduleUUID) {
+	private boolean hasActiveChannel(final ModuleID moduleID) {
 		try {
-			getActiveChannel(moduleUUID);
+			getActiveChannel(moduleID);
 			return true;
 		} catch (final NoSuchElementException e) {
 			return false;
@@ -199,9 +203,9 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	@Override
-	public FutureNotifier<Response> sendMessage(final UUID uuid, final Message message) {
+	public FutureNotifier<Response> sendMessage(final ModuleID moduleID, final Message message) {
 		try {
-			final Channel channel = getActiveChannel(uuid);
+			final Channel channel = getActiveChannel(moduleID);
 			final ResponseFutureNotifier futureNotifier = responseFutureManager.createResponseFuture(message.getUUID());
 			channel.writeAndFlush(message).addListener(new ResponseInvalidator(futureNotifier));
 			timeoutResponseInvalidator.addTimeout(futureNotifier);
@@ -213,32 +217,32 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 
 	/**
 	 * Returns an active Channel that is connected to the given client. If there are multiple active channels for the
-	 * UUID, one of them is returned without any guarantees which one (and subsequent calls for the same UUID may return
-	 * different channels in this case).
+	 * ModuleID, one of them is returned without any guarantees which one (and subsequent calls for the same ModuleID
+	 * may return different channels in this case).
 	 * 
-	 * @param uuid
-	 *            the UUID of the remote ModuleInfo
+	 * @param moduleID
+	 *            the ID of the remote ModuleInfo
 	 * @return an active channel that is connected to the ModuleInfo
 	 * @throws NoSuchElementException
 	 *             if no active connection to the ModuleInfo exists
 	 */
-	private Channel getActiveChannel(final UUID uuid) {
-		for (final Channel channel : clientChannelManager.getChannels(uuid)) {
+	private Channel getActiveChannel(final ModuleID moduleID) {
+		for (final Channel channel : clientChannelManager.getChannels(moduleID)) {
 			if (clientChannelManager.isActive(channel)) {
 				return channel;
 			}
 		}
-		throw new NoSuchElementException("no active channel for " + uuid);
+		throw new NoSuchElementException("no active channel for " + moduleID);
 	}
 
 	@Override
-	public <T extends Message> void addHandler(final UUID appid, final Class<? extends T> msgType,
+	public <T extends Message> void addHandler(final ApplicationID appid, final Class<? extends T> msgType,
 			final MessageHandler<? super T> handler, final Executor executor) {
 		messageDispatcher.setHandler(msgType, handler, appid, executor);
 	}
 
 	@Override
-	public <T extends Message> void addHandler(final UUID appid, final Class<? extends T> msgType,
+	public <T extends Message> void addHandler(final ApplicationID appid, final Class<? extends T> msgType,
 			final MessageHandler<? super T> handler) {
 		messageDispatcher.setHandler(msgType, handler, appid);
 	}
@@ -255,17 +259,17 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	}
 
 	@Override
-	public Collection<UUID> getConnectedModules() {
-		final Set<UUID> moduleUUIDs = new HashSet<UUID>();
+	public Collection<ModuleID> getConnectedModules() {
+		final Set<ModuleID> moduleIDs = new HashSet<ModuleID>();
 		for (final Channel channel : clientChannelManager.getChannels()) {
 			if (clientChannelManager.isActive(channel)) {
-				final UUID moduleUUID = clientChannelManager.getRemoteUUID(channel);
-				if (moduleUUID != null) {
-					moduleUUIDs.add(moduleUUID);
+				final ModuleID moduleID = clientChannelManager.getRemoteID(channel);
+				if (moduleID != null) {
+					moduleIDs.add(moduleID);
 				}
 			}
 		}
-		return moduleUUIDs;
+		return moduleIDs;
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package edu.teco.dnd.module.messages.joinStartApp;
 
-import java.util.UUID;
-
+import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.network.messages.Response;
 
 /**
@@ -16,9 +15,10 @@ public class JoinApplicationAck extends Response {
 	public static final String MESSAGE_TYPE = "join application ack";
 
 	/**
-	 * UUID of the new Application.
+	 * ID of the new Application.
 	 */
-	public final UUID appId;
+	public final ApplicationID applicationID;
+
 	/**
 	 * Human readable name of the new application.
 	 */
@@ -28,12 +28,12 @@ public class JoinApplicationAck extends Response {
 	 * 
 	 * @param name
 	 *            human readable name of the App joined.
-	 * @param appId
+	 * @param applicationID
 	 *            id of the app started.
 	 */
-	public JoinApplicationAck(String name, UUID appId) {
+	public JoinApplicationAck(String name, ApplicationID applicationID) {
 		this.name = name;
-		this.appId = appId;
+		this.applicationID = applicationID;
 	}
 
 	/**
@@ -44,14 +44,14 @@ public class JoinApplicationAck extends Response {
 	 */
 	public JoinApplicationAck(JoinApplicationMessage msg) {
 		this.name = msg.name;
-		this.appId = msg.appId;
+		this.applicationID = msg.applicationID;
 	}
 
 	/** for gson. */
 	@SuppressWarnings("unused")
 	private JoinApplicationAck() {
 		name = null;
-		appId = null;
+		applicationID = null;
 	}
 
 	/*
@@ -63,7 +63,7 @@ public class JoinApplicationAck extends Response {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
+		result = prime * result + ((applicationID == null) ? 0 : applicationID.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -85,11 +85,11 @@ public class JoinApplicationAck extends Response {
 			return false;
 		}
 		JoinApplicationAck other = (JoinApplicationAck) obj;
-		if (appId == null) {
-			if (other.appId != null) {
+		if (applicationID == null) {
+			if (other.applicationID != null) {
 				return false;
 			}
-		} else if (!appId.equals(other.appId)) {
+		} else if (!applicationID.equals(other.applicationID)) {
 			return false;
 		}
 		if (name == null) {
@@ -109,8 +109,8 @@ public class JoinApplicationAck extends Response {
 	 */
 	@Override
 	public String toString() {
-		return "JoinApplicationAck [appId=" + appId + ", name=" + name + ", getSourceUUID()=" + getSourceUUID()
-				+ ", getUUID()=" + getUUID() + "]";
+		return "JoinApplicationAck [applicationID=" + applicationID + ", name=" + name + ", getSourceUUID()="
+				+ getSourceUUID() + ", getUUID()=" + getUUID() + "]";
 	}
 
 }
