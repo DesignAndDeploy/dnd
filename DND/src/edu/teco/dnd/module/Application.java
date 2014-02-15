@@ -243,29 +243,29 @@ public class Application {
 			}
 
 			final FunctionBlockSecurityDecorator securityDecorator =
-					createFunctionBlockSecurityDecorator(blockDescription.blockClassName);
+					createFunctionBlockSecurityDecorator(blockDescription.getBlockClassName());
 			LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
-			securityDecorator.doInit(blockDescription.blockID, blockDescription.blockName);
+			securityDecorator.doInit(blockDescription.getBlockID(), blockDescription.getBlockName());
 
 			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.blockTypeHolderId);
+				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.getBlockTypeHolderID());
 			}
 			moduleBlockManager.addToBlockTypeHolders(applicationID, securityDecorator,
-					blockDescription.blockTypeHolderId);
+					blockDescription.getBlockTypeHolderID());
 
 			if (LOGGER.isTraceEnabled()) {
-				LOGGER.trace("initializing outputs {} on {}", blockDescription.outputs, securityDecorator);
+				LOGGER.trace("initializing outputs {} on {}", blockDescription.getOutputs(), securityDecorator);
 			}
-			initializeOutputs(securityDecorator, blockDescription.outputs);
+			initializeOutputs(securityDecorator, blockDescription.getOutputs());
 
 			if (isRunning()) {
-				startBlock(securityDecorator, blockDescription.options);
+				startBlock(securityDecorator, blockDescription.getOptions());
 			} else {
 				synchronized (scheduledToStart) {
 					LOGGER.trace("adding {} to scheduledToStart");
 					scheduledToStart.add(securityDecorator);
 					LOGGER.trace("saving block options");
-					blockOptions.put(securityDecorator, blockDescription.options);
+					blockOptions.put(securityDecorator, blockDescription.getOptions());
 				}
 			}
 		} finally {

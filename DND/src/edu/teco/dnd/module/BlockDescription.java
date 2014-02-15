@@ -16,32 +16,32 @@ import edu.teco.dnd.blocks.InputDescription;
  * @author Philipp Adolf
  */
 public class BlockDescription {
-	public final String blockClassName;
-	public final String blockName;
-	public final FunctionBlockID blockID;
-	public final Map<String, String> options;
-	public final Map<String, Set<InputDescription>> outputs;
-	public final int blockTypeHolderId;
+	private final String blockClassName;
+	private final String blockName;
+	private final FunctionBlockID blockID;
+	private final Map<String, String> options;
+	private final Map<String, Set<InputDescription>> outputs;
+	private final int blockTypeHolderID;
 
 	/**
 	 * 
 	 * @param blockClassName
 	 *            fully qualified class name of the block.
-	 * @param blockUUID
-	 *            UUID this block will receive.
+	 * @param blockID
+	 *            ID this block will receive.
 	 * @param options
 	 *            options that should be set on this block.
 	 * @param outputs
 	 *            the outputs this block sends values from.
-	 * @param blockTypeHolderId
+	 * @param blockTypeHolderID
 	 *            ID of the assigned BlockTypeHolder, aka where to decrease the allowed blocks count.
 	 */
-	public BlockDescription(final String blockClassName, final String blockName, final FunctionBlockID blockUUID,
+	public BlockDescription(final String blockClassName, final String blockName, final FunctionBlockID blockID,
 			final Map<String, String> options, final Map<String, Set<InputDescription>> outputs,
-			final int blockTypeHolderId) {
+			final int blockTypeHolderID) {
 		this.blockClassName = blockClassName;
 		this.blockName = blockName;
-		this.blockID = blockUUID;
+		this.blockID = blockID;
 		this.options = Collections.unmodifiableMap(new HashMap<String, String>(options));
 		final Map<String, Set<InputDescription>> modifiableOutputs = new HashMap<String, Set<InputDescription>>();
 		for (final Entry<String, Set<InputDescription>> entry : outputs.entrySet()) {
@@ -49,6 +49,30 @@ public class BlockDescription {
 					Collections.unmodifiableSet(new HashSet<InputDescription>(entry.getValue())));
 		}
 		this.outputs = Collections.unmodifiableMap(modifiableOutputs);
-		this.blockTypeHolderId = blockTypeHolderId;
+		this.blockTypeHolderID = blockTypeHolderID;
+	}
+	
+	public String getBlockClassName() {
+		return blockClassName;
+	}
+	
+	public String getBlockName() {
+		return blockName;
+	}
+	
+	public FunctionBlockID getBlockID() {
+		return blockID;
+	}
+	
+	public Map<String, String> getOptions() {
+		return options;
+	}
+	
+	public Map<String, Set<InputDescription>> getOutputs() {
+		return outputs;
+	}
+	
+	public int getBlockTypeHolderID() {
+		return blockTypeHolderID;
 	}
 }

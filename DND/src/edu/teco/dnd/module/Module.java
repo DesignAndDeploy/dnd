@@ -172,7 +172,7 @@ public class Module {
 				app = runningApps.get(applicationID);
 			}
 			if (app == null) {
-				throw new IllegalArgumentException("tried to schedule block " + blockDescription.blockID
+				throw new IllegalArgumentException("tried to schedule block " + blockDescription.getBlockID()
 						+ " for non-existant Application " + applicationID);
 			}
 			app.scheduleBlock(blockDescription);
