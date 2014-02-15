@@ -152,7 +152,7 @@ public class Application {
 	 * @param value
 	 *            the value to be send.
 	 */
-	public void sendValue(final FunctionBlockID funcBlock, final String input, final Serializable value) {
+	private void sendValue(final FunctionBlockID funcBlock, final String input, final Serializable value) {
 		if (funcBlock == null) {
 			throw new IllegalArgumentException("funcBlock must not be null");
 		}
