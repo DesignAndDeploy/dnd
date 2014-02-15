@@ -85,7 +85,7 @@ public class Module {
 	 *            (human readable) name of the application
 	 * 
 	 */
-	public void joinApplication(final ApplicationID applicationID, String name) {
+	public void createNewApplication(final ApplicationID applicationID, String name) {
 		LOGGER.info("joining app {} ({})", name, applicationID);
 
 		shutdownLock.readLock().lock();
@@ -99,10 +99,10 @@ public class Module {
 					return;
 				}
 
-				final Application newApp = createApplication(applicationID, name);
-				runningApps.put(applicationID, newApp);
+				final Application newApplication = instantiateApplication(applicationID, name);
+				runningApps.put(applicationID, newApplication);
 
-				registerMessageHandlers(newApp);
+				registerMessageHandlers(newApplication);
 			}
 		} finally {
 			shutdownLock.readLock().unlock();
@@ -118,7 +118,7 @@ public class Module {
 	 *            Human readable name of the application
 	 * @return A reference to the new application object
 	 */
-	private Application createApplication(final ApplicationID applicationID, final String name) {
+	private Application instantiateApplication(final ApplicationID applicationID, final String name) {
 		final IndexedThreadFactory threadFactory = new IndexedThreadFactory("app-" + applicationID.getUUID() + "-");
 		return new Application(applicationID, name, connMan, threadFactory, moduleConfig.getMaxThreadsPerApp(),
 				moduleBlockManager, byteCodeStorage);

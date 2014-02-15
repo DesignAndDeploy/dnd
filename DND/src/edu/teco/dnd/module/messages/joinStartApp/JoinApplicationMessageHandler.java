@@ -30,7 +30,7 @@ public class JoinApplicationMessageHandler implements MessageHandler<JoinApplica
 	@Override
 	public Response handleMessage(ModuleID remoteID, JoinApplicationMessage message) {
 		try {
-			module.joinApplication(message.applicationID, message.name);
+			module.createNewApplication(message.applicationID, message.name);
 		} catch (Exception e) {
 			return new JoinApplicationNak(message.name, message.applicationID);
 		}
