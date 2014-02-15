@@ -47,15 +47,15 @@ public class FunctionBlockSecurityDecorator {
 	 * wrapper for doInit on FunctionBlocks. just wrapped for security.
 	 * 
 	 * @param blockID
-	 *            see {@link FunctionBlock#doInit(FunctionBlockID, String)}
+	 *            see {@link FunctionBlock#initInternal(FunctionBlockID, String)}
 	 * @param blockName
-	 *            see {@link FunctionBlock#doInit(FunctionBlockID, String)}
+	 *            see {@link FunctionBlock#initInternal(FunctionBlockID, String)}
 	 * @throws UserSuppliedCodeException
 	 *             if an error occurred in the block code.
 	 */
-	public void doInit(final FunctionBlockID blockID, final String blockName) throws UserSuppliedCodeException {
+	public void initInternal(final FunctionBlockID blockID, final String blockName) throws UserSuppliedCodeException {
 		try {
-			this.block.doInit(blockID, blockName);
+			this.block.initInternal(blockID, blockName);
 		} catch (Throwable e) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling doInit on block " + blockID);

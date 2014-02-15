@@ -24,23 +24,23 @@ public abstract class FunctionBlock implements Serializable {
 	private static final String BLOCK_UPDATE_INTERVAL_FIELD_NAME = "BLOCK_UPDATE_INTERVAL";
 
 	/**
-	 * The ID of the block. Will be set in {@link #doInit(FunctionBlockID, String)}. Is used as an indicator to see if
+	 * The ID of the block. Will be set in {@link #initInternal(FunctionBlockID, String)}. Is used as an indicator to see if
 	 * doInit has been called.
 	 */
 	private FunctionBlockID blockID = null;
 
 	/**
-	 * The type of the block. Set in {@link #doInit(UUID, String)}.
+	 * The type of the block. Set in {@link #initInternal(UUID, String)}.
 	 */
 	private String blockType = null;
 
 	/**
-	 * The name of the block. Set in {@link #doInit(UUID, String)}.
+	 * The name of the block. Set in {@link #initInternal(UUID, String)}.
 	 */
 	private String blockName = null;
 
 	/**
-	 * The time between scheduled updates of the block. Set in {@link #doInit(UUID, String)}.
+	 * The time between scheduled updates of the block. Set in {@link #initInternal(UUID, String)}.
 	 */
 	private Long updateInterval = null;
 
@@ -66,7 +66,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @throws IllegalAccessException
 	 *             if quering a field using reflection fails
 	 */
-	public final synchronized void doInit(final FunctionBlockID blockID, final String blockName)
+	public final synchronized void initInternal(final FunctionBlockID blockID, final String blockName)
 			throws IllegalAccessException {
 		if (this.blockID != null) {
 			return;
@@ -149,7 +149,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the UUID of this block. {@link #doInit(UUID, String)} must be called first.
+	 * Returns the UUID of this block. {@link #initInternal(UUID, String)} must be called first.
 	 * 
 	 * @return the UUID of this block or null if it hasn't been set yet
 	 */
@@ -158,7 +158,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the name of this block. {@link #doInit(UUID, String)} must be called first.
+	 * Returns the name of this block. {@link #initInternal(UUID, String)} must be called first.
 	 * 
 	 * @return the name of this block or null if it hasn't been set yet.
 	 */
@@ -167,7 +167,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all Outputs of the block mapped from their name. {@link #doInit(UUID, String)} must be called first.
+	 * Returns all Outputs of the block mapped from their name. {@link #initInternal(UUID, String)} must be called first.
 	 * 
 	 * @return the Outputs of the block mapped from their name
 	 */
@@ -179,7 +179,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all Inputs of the block mapped from their name. {@link #doInit(UUID, String)} must be called first.
+	 * Returns all Inputs of the block mapped from their name. {@link #initInternal(UUID, String)} must be called first.
 	 * 
 	 * @return the Inputs of the block mapped from their name
 	 */
@@ -191,7 +191,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the type of the block. {@link #doInit(UUID, String)} must be called first.
+	 * Returns the type of the block. {@link #initInternal(UUID, String)} must be called first.
 	 * 
 	 * @return
 	 */
@@ -203,7 +203,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the update interval for the block. {@link #doInit(UUID, String)} must be called first.
+	 * Returns the update interval for the block. {@link #initInternal(UUID, String)} must be called first.
 	 * 
 	 * @return the update interval for the block
 	 */

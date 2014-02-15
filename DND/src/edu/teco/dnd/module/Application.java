@@ -245,7 +245,7 @@ public class Application {
 			final FunctionBlockSecurityDecorator securityDecorator =
 					createFunctionBlockSecurityDecorator(blockDescription.getBlockClassName());
 			LOGGER.trace("calling doInit on securityDecorator {}", securityDecorator);
-			securityDecorator.doInit(blockDescription.getBlockID(), blockDescription.getBlockName());
+			securityDecorator.initInternal(blockDescription.getBlockID(), blockDescription.getBlockName());
 
 			if (LOGGER.isTraceEnabled()) {
 				LOGGER.trace("adding {} to ID {}", securityDecorator, blockDescription.getBlockTypeHolderID());
