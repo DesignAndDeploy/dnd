@@ -161,27 +161,6 @@ public class Application {
 		}
 		// sending null is allowed, as some FunctionBlocks may make use of it
 
-		// FIXME: do sanitizing.
-		// double check arguments because this is the only function callable from userspace, that has enhanced
-		// privileges.
-
-		sanitizedSendValue(funcBlock, input, value);
-	}
-
-	/**
-	 * Called by sendValue after the arguments have been properly sanitized to make sure there is no harmfull code in
-	 * them. Function is a way for userApplicationCode to be given advanced privileges. <br>
-	 * <b>Make sure to have double checked every Argument</b>
-	 * 
-	 * @param funcBlock
-	 *            see sendValue but sanitized
-	 * @param input
-	 *            see sendValue but sanitized
-	 * @param value
-	 *            see sendValue but sanitized
-	 */
-	private void sanitizedSendValue(final FunctionBlockID funcBlock, final String input, final Serializable value) {
-
 		if (hasFunctionBlockWithID(funcBlock)) { // block is local
 			try {
 				receiveValue(funcBlock, input, value);
