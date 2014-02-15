@@ -1,5 +1,6 @@
 package edu.teco.dnd.module.messages.values;
 
+import edu.teco.dnd.blocks.InputDescription;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.NonExistentFunctionblockException;
@@ -33,7 +34,7 @@ public class ValueMessageHandler implements MessageHandler<ValueMessage> {
 	public Response handleMessage(ModuleID remoteID, ValueMessage message) {
 		Response returnMsg = null;
 		try {
-			associatedApp.receiveValue(message.blockID, message.input, message.value);
+			associatedApp.receiveValue(new InputDescription(message.blockID, message.input), message.value);
 		} catch (NonExistentFunctionblockException e) {
 			returnMsg =
 					new ValueNak(ValueNak.ErrorType.WRONG_MODULE, message.blockID,

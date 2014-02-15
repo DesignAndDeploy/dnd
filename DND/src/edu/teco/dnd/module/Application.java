@@ -145,33 +145,33 @@ public class Application {
 	 * called from this app, when a value is supposed to be send to another block (potentially on another ModuleInfo).
 	 * 
 	 * 
-	 * @param funcBlock
-	 *            the receiving functionBlock.
-	 * @param input
-	 *            the input on the given block to receive the message.
+	 * @param inputDescription
+	 *            ID of the FunctionBlock and the name of the {@link Input} the value should be sent to
 	 * @param value
 	 *            the value to be send.
 	 */
-	private void sendValue(final FunctionBlockID funcBlock, final String input, final Serializable value) {
-		if (funcBlock == null) {
-			throw new IllegalArgumentException("funcBlock must not be null");
+	private void sendValue(final InputDescription inputDescription, final Serializable value) {
+		if (inputDescription == null) {
+			throw new IllegalArgumentException("inputDescription must not be null");
 		}
-		if (input == null) {
-			throw new IllegalArgumentException("input must not be null");
+		if (inputDescription.getBlock() == null) {
+			throw new IllegalArgumentException("FunctionBlockID must not be null");
+		}
+		if (inputDescription.getInput() == null) {
+			throw new IllegalArgumentException("Input must not be null");
 		}
 		// sending null is allowed, as some FunctionBlocks may make use of it
 
-		if (hasFunctionBlockWithID(funcBlock)) { // block is local
+		if (hasFunctionBlockWithID(inputDescription.getBlock())) { // block is local
 			try {
-				receiveValue(funcBlock, input, value);
-			} catch (NonExistentFunctionblockException e) {
-				// probably racecondition with app killing. Ignore.
-				LOGGER.trace(e);
-			} catch (NonExistentInputException e) {
-				LOGGER.trace("the given input {} does not exist on the local functionBlock {}", input, funcBlock);
+				receiveValue(inputDescription, value);
+			} catch (final NonExistentFunctionblockException e) {
+				LOGGER.catching(e);
+			} catch (final NonExistentInputException e) {
+				LOGGER.catching(e);
 			}
 		} else {
-			getValueSender(funcBlock).sendValue(input, value);
+			getValueSender(inputDescription.getBlock()).sendValue(inputDescription.getInput(), value);
 		}
 	}
 
@@ -421,19 +421,17 @@ public class Application {
 	/**
 	 * passes a received value the given input of a local block.
 	 * 
-	 * @param funcBlockId
-	 *            Id of the block to pass the message to.
+	 * @param inputDescription
+	 *            the {@link FunctionBlockID} and {@link Input} name the value is for
 	 * @param value
 	 *            the value to give to the input.
-	 * @param inputName
-	 *            name of the input this value is directed to.
 	 * @throws NonExistentFunctionblockException
 	 *             If the FunctionBlock is not being executed by this module.
 	 * @throws NonExistentInputException
 	 *             If the FunctionBlock is being executed but does not have an input of said name.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void receiveValue(final FunctionBlockID funcBlockId, String inputName, Serializable value)
+	public void receiveValue(final InputDescription inputDescription, Serializable value)
 			throws NonExistentFunctionblockException, NonExistentInputException {
 		currentStateLock.readLock().lock();
 		try {
@@ -441,15 +439,15 @@ public class Application {
 				throw new IllegalStateException(this + " is not running");
 			}
 
-			final FunctionBlockSecurityDecorator block = functionBlocksById.get(funcBlockId);
+			final FunctionBlockSecurityDecorator block = functionBlocksById.get(inputDescription.getBlock());
 			if (block == null) {
-				throw LOGGER.throwing(new NonExistentFunctionblockException(funcBlockId.toString()));
+				throw LOGGER.throwing(new NonExistentFunctionblockException(inputDescription.getBlock().toString()));
 			}
 
-			final Input input = block.getInputs().get(inputName);
+			final Input input = block.getInputs().get(inputDescription.getInput());
 			if (input == null) {
-				throw LOGGER.throwing(new NonExistentInputException("FunctionBlock " + funcBlockId
-						+ " does not have an input called " + inputName));
+				throw LOGGER.throwing(new NonExistentInputException("FunctionBlock " + inputDescription.getBlock()
+						+ " does not have an input called " + inputDescription.getInput()));
 			}
 			input.setValue(value);
 
@@ -592,7 +590,7 @@ public class Application {
 		@Override
 		public void setValue(Serializable value) {
 			for (final InputDescription destination : destinations) {
-				sendValue(destination.getBlock(), destination.getInput(), value);
+				sendValue(destination, value);
 			}
 		}
 	}
