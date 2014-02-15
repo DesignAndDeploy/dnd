@@ -389,7 +389,7 @@ public class Application {
 			};
 
 			final Future<?> initFuture = scheduledThreadPool.submit(initRunnable);
-			while (initFuture.isDone()) {
+			while (!initFuture.isDone()) {
 				try {
 					initFuture.get();
 				} catch (final InterruptedException e) {
