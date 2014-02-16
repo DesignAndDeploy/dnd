@@ -31,7 +31,7 @@ public class JoinApplicationMessageHandler implements MessageHandler<JoinApplica
 	public Response handleMessage(ModuleID remoteID, JoinApplicationMessage message) {
 		try {
 			module.createNewApplication(message.applicationID, message.name);
-		} catch (Exception e) {
+		} catch (final IllegalArgumentException e) {
 			return new JoinApplicationNak(message.name, message.applicationID);
 		}
 		return new JoinApplicationAck(message.name, message.applicationID);

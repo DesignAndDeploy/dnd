@@ -7,6 +7,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,7 +84,7 @@ public class Module {
 	 *            the agent requesting the start of this application.
 	 * @param name
 	 *            (human readable) name of the application
-	 * 
+	 * @throws IllegalArgumentException
 	 */
 	public void createNewApplication(final ApplicationID applicationID, String name) {
 		LOGGER.info("joining app {} ({})", name, applicationID);
@@ -95,8 +96,8 @@ public class Module {
 			}
 			synchronized (runningApps) {
 				if (runningApps.containsKey(applicationID)) {
-					LOGGER.info("trying to rejoin app that was already joined before.");
-					return;
+					throw LOGGER.throwing(Level.INFO, new IllegalArgumentException("Application with " + applicationID
+							+ " already exists"));
 				}
 
 				final Application newApplication = instantiateApplication(applicationID, name);
