@@ -9,11 +9,11 @@ import edu.teco.dnd.util.NetConnection;
 
 public class ModuleConfigAddressBasedServerConfigAdapter implements AddressBasedServerConfig {
 	private final ModuleConfig configReader;
-	
+
 	public ModuleConfigAddressBasedServerConfigAdapter(final ModuleConfig moduleConfig) {
 		this.configReader = moduleConfig;
 	}
-	
+
 	@Override
 	public ModuleID getModuleID() {
 		return configReader.getModuleID();

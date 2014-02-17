@@ -7,14 +7,13 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 
 /**
- * Used to manage what BlockTypeHolders are used by running blocks. Provides a way to later remove a block from its
- * BlockTypeHolder.
- * 
- * @author Philipp Adolf
+ * Manages the {@link BlockTypeHolder}s of a {@link Module}. Each Module has one ModuleBlockManager that is used to use
+ * and free BlockTypeHolders in a thread-safe way.
  */
 public class ModuleBlockManager {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleBlockManager.class);
@@ -22,6 +21,12 @@ public class ModuleBlockManager {
 	private final Map<Integer, BlockTypeHolder> blockTypeHoldersByID;
 	private final Map<ApplicationBlockID, Integer> spotOccupiedByBlock = new HashMap<ApplicationBlockID, Integer>();
 
+	/**
+	 * Initializes a new ModuleBlockManager.
+	 * 
+	 * @param the
+	 *            root of the {@link BlockTypeHolder} tree used by the {@link Module}
+	 */
 	public ModuleBlockManager(final BlockTypeHolder rootHolder) {
 		this.blockTypeHoldersByID = Collections.unmodifiableMap(createBlockTypeHolderMap(rootHolder));
 	}
@@ -35,12 +40,12 @@ public class ModuleBlockManager {
 	}
 
 	/**
-	 * Tries to add a FunctionBlock to a BlockTypeHolder.
+	 * Tries to add a {@link FunctionBlock} to a BlockTypeHolder.
 	 * 
 	 * @param applicationID
-	 *            the ID of the application that is trying to add the block
+	 *            the ID of the {@link Application} that is trying to add the block
 	 * @param block
-	 *            the block that should be added
+	 *            the {@link FunctionBlockSecurityDecorator} for the FunctionBlock that should be added
 	 * @param blockTypeHolderId
 	 *            the ID of the BlockTypeHolder the block should be added to
 	 * @throws NoSuchBlockTypeHolderException

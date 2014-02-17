@@ -14,7 +14,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.FunctionBlockID;
+import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.module.messages.values.BlockFoundResponse;
 import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
@@ -26,47 +28,22 @@ import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.ReferenceIterator;
 
 /**
- * Provides functionality to send values to a remote FunctionBlock. This includes searching for the FunctionBlock using
- * its ModuleID and buffering values until the ModuleInfo on which the FunctionBlock is running is found. Values are
- * cached using SoftReferences so they may get garbage collected before the ModuleInfo is found.
- * 
- * @author Philipp Adolf
+ * Provides functionality to send values to a remote {@link FunctionBlock}. This includes searching for the
+ * FunctionBlock using its {@link ModuleID} and buffering values until the {@link Module} on which the FunctionBlock is
+ * running is found. Values are cached using {@link SoftReference}s so they may get garbage collected before the Module
+ * is found if RAM is needed.
  */
 // TODO: What should be done if a value gets sent but a negative response is received?
 public class ValueSender implements FutureListener<FutureNotifier<ModuleID>> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(ValueSender.class);
 
-	/**
-	 * The ID of the Application the block belongs to.
-	 */
 	private final ApplicationID applicationID;
-
-	/**
-	 * The ID of the FunctionBlock this object sends values to.
-	 */
 	private final FunctionBlockID targetBlockID;
-
-	/**
-	 * The ConnectionManager that will be used to send messages.
-	 */
 	private final ConnectionManager connectionManager;
 
-	/**
-	 * Values that are queued to be send once the right ModuleInfo is found.
-	 */
 	private final List<Reference<TargetedValue>> pendingValues = new LinkedList<Reference<TargetedValue>>();
 
-	/**
-	 * The ID of the Module that has the target FunctionBlock. null if unknown.
-	 */
 	private ModuleID moduleID = null;
-
-	/**
-	 * Is set to true if queries have been sent out and we're still waiting for the Reponses.
-	 */
 	private boolean queriesPending = false;
 
 	/**
@@ -92,11 +69,11 @@ public class ValueSender implements FutureListener<FutureNotifier<ModuleID>> {
 	}
 
 	/**
-	 * Sends a value to the FunctionBlock. If the ModuleInfo the FunctionBlock is unknown the value is queued to be sent
-	 * later.
+	 * Sends a value to the {@link FunctionBlock}. If the {@link Module} the FunctionBlock is on is unknown the value is
+	 * queued to be sent later.
 	 * 
 	 * @param targetInput
-	 *            the input of the target block the value is for
+	 *            the {@link Input} of the target FunctionBlock the value is for
 	 * @param value
 	 *            the value to send
 	 */
@@ -134,12 +111,12 @@ public class ValueSender implements FutureListener<FutureNotifier<ModuleID>> {
 	}
 
 	/**
-	 * Sends a ValueMessage to the given ModuleInfo.
+	 * Sends a {@link ValueMessage} to the given {@link Module}.
 	 * 
 	 * @param moduleID
-	 *            the ID of the ModuleInfo the message should be send to
+	 *            the ID of the Module the message should be send to
 	 * @param targetInput
-	 *            the name of the input of the FunctionBlock the value is for
+	 *            the name of the {@link Input} of the {@link FunctionBlock} the value is for
 	 * @param value
 	 *            the value to send
 	 */
@@ -155,8 +132,8 @@ public class ValueSender implements FutureListener<FutureNotifier<ModuleID>> {
 	}
 
 	/**
-	 * Sends queries to all connected Modules if the ModuleID for the Module that has the target FunctionBlock is
-	 * unknown and no queries are pending.
+	 * Sends queries to all connected {@link Module}s if the {@link ModuleID} for the Module that has the target
+	 * {@link FunctionBlock} is unknown and no queries are pending.
 	 */
 	private void queryID() {
 		LOGGER.entry();

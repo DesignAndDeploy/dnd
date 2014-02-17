@@ -30,7 +30,7 @@ public class RequestApplicationInformationMessageHandler implements
 	@Override
 	public Response handleMessage(final ModuleID remoteID, final RequestApplicationInformationMessage message) {
 		final Collection<ApplicationInformation> applications = new ArrayList<ApplicationInformation>();
-		for (final Application application : module.getRunningApps().values()) {
+		for (final Application application : module.getApplications().values()) {
 			final Collection<BlockInformation> blocks = new ArrayList<BlockInformation>();
 			for (final FunctionBlockSecurityDecorator block : application.getFunctionBlocksById().values()) {
 				blocks.add(new BlockInformation(block.getBlockID(), block.getBlockName(), block.getBlockType(),

@@ -1,106 +1,70 @@
 package edu.teco.dnd.module;
 
 /**
- * This class is used to wrap calls to certain standard functions. E.g. hashCode() or Equals() of objects that are not
- * trusted. Whenever this methods are used instead of the native calls, a certain amount of additional security is
- * applied.
- * 
- * @author Marvin Marx
- * 
+ * Provides utility methods that wrap {@link Object#toString()}, {@link Object#hashCode()} and
+ * {@link Object#equals(Object)} and catch any {@link Throwable} thrown.
  */
 public final class UsercodeWrapper {
 	/**
-	 * utility class. Should never be instantiated.
+	 * This class should only be used for its static methods, so the constructor is private.
 	 */
 	private UsercodeWrapper() {
 
 	}
 
 	/**
-	 * returns obj.toString(). Should anything but a valid string be returned from this method (including, but not
-	 * limited to thrown exceptions) this will be caught and transformed into a harmless UserSuppliedCodeException.
+	 * Wrapper for {@link Object#toString()} that will catch any {@link Throwable} thrown.
 	 * 
-	 * @param obj
-	 *            the object to call toString on.
-	 * @return obj.toString()
+	 * @param object
+	 *            the object to call <code>toString()</code> on
+	 * @return whatever <code>object.toString()</code> returns
 	 * @throws UserSuppliedCodeException
-	 *             if anything goes wrong while executing toString()
+	 *             if any {@link Throwable} was thrown
 	 */
-	public static String getToString(Object obj) throws UserSuppliedCodeException {
-		String toStr;
+	public static String getToString(Object object) throws UserSuppliedCodeException {
 		try {
-			toStr = obj.toString();
+			return object.toString();
 		} catch (Throwable t) {
-			try {
-				// Otherwise throwing a subclass of Exception, overriding getMessage() to
-				// throw another exception (which has overridden functions) could leak code outside...
-				throw new UserSuppliedCodeException(t.getMessage());
-			} catch (Throwable t2) {
-				throw new UserSuppliedCodeException();
-			}
-		}
-		if (toStr == null) {
-			throw new UserSuppliedCodeException("toString() returned null!");
-		} else {
-			return toStr;
+			// ignoring the Throwable as it could be used to make code being executed without a wrapper like this method
+			throw new UserSuppliedCodeException();
 		}
 	}
 
 	/**
-	 * returns obj.hashCode(). Should anything but a valid int be returned from this method (read: thrown exceptions)
-	 * this will be caught and transformed into a harmless UserSuppliedCodeException.
+	 * Wrapper for {@link Object#hashCode()} that will catch any {@link Throwable} thrown.
 	 * 
-	 * @param obj
-	 *            the object to call hashCode on.
-	 * @return obj.hashCode()
+	 * @param object
+	 *            the object to call <code>hashCode()</code> on
+	 * @return whatever <code>object.hashCode()</code> returns
 	 * @throws UserSuppliedCodeException
-	 *             if anything goes wrong while executing hashCode()
+	 *             if any {@link Throwable} was thrown
 	 */
-	public static int getHashCode(Object obj) throws UserSuppliedCodeException {
-		int hashCode;
+	public static int getHashCode(Object object) throws UserSuppliedCodeException {
 		try {
-			hashCode = obj.hashCode();
+			return object.hashCode();
 		} catch (Throwable t) {
-			// Otherwise throwing a subclass of Exception, overriding getMessage() to
-			// throw another exception (which has overridden functions) could leak code outside...
-			try {
-				throw new UserSuppliedCodeException(t.getMessage());
-			} catch (Throwable t2) {
-				throw new UserSuppliedCodeException();
-			}
+			// ignoring the Throwable as it could be used to make code being executed without a wrapper like this method
+			throw new UserSuppliedCodeException();
 		}
-		return hashCode;
 	}
 
 	/**
-	 * security wrapper for the equals method. Wraps the call which would usually be one.equals(two);
+	 * Wrapper for {@link Object#equals(Object)} that will catch any {@link Throwable} thrown.
 	 * 
-	 * @param one
-	 *            first argument
-	 * @param two
-	 *            second argument to equals
-	 * @return the result of one.equals(two);
+	 * @param object
+	 *            the object to call <code>equals(Object)</code> on
+	 * @param other
+	 *            the parameter for <code>equals(Object)</code> on
+	 * @return the result of <code>object.equals(other)
 	 * @throws UserSuppliedCodeException
-	 *             if there was an unexpected exception.
-	 * @throws IllegalArgumentException
-	 *             if one == null;
+	 *             if any Throwable is thrown
 	 */
-	public static boolean getEquals(Object one, Object two) throws UserSuppliedCodeException, IllegalArgumentException {
-		if (one == null) {
-			throw new IllegalArgumentException("argument one must not be null");
-		}
-		boolean equal;
+	public static boolean getEquals(Object object, Object other) throws UserSuppliedCodeException {
 		try {
-			equal = one.equals(two);
+			return object.equals(other);
 		} catch (Throwable t) {
-			// Otherwise throwing a subclass of Exception, overriding getMessage() to
-			// throw another exception (which has overridden functions) could leak code outside...
-			try {
-				throw new UserSuppliedCodeException(t.getMessage());
-			} catch (Throwable t2) {
-				throw new UserSuppliedCodeException();
-			}
+			// ignoring the Throwable as it could be used to make code being executed without a wrapper like this method
+			throw new UserSuppliedCodeException();
 		}
-		return equal;
 	}
 }
