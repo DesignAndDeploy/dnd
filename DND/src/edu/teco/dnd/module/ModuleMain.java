@@ -1,24 +1,9 @@
 package edu.teco.dnd.module;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ChannelFactory;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.oio.OioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.channel.socket.oio.OioDatagramChannel;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,14 +27,10 @@ import edu.teco.dnd.module.messages.values.ValueMessage;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.module.permissions.ApplicationSecurityManager;
-import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
-import edu.teco.dnd.network.tcp.ClientBootstrapChannelFactory;
-import edu.teco.dnd.network.tcp.ServerBootstrapChannelFactory;
 import edu.teco.dnd.network.tcp.TCPConnectionManager;
-import edu.teco.dnd.server.TCPProtocol;
-import edu.teco.dnd.util.IndexedThreadFactory;
-import edu.teco.dnd.util.NetConnection;
+import edu.teco.dnd.server.TCPUDPServerManager;
 
 /**
  * The main class that is started on a ModuleInfo.
@@ -76,9 +57,6 @@ public final class ModuleMain {
 	 *            ;-)
 	 */
 	public static void main(final String[] args) {
-		final Set<EventLoopGroup> eventLoopGroups = new HashSet<EventLoopGroup>();
-		TCPConnectionManager tcpConnectionManager;
-		final ConfigReader moduleConfig;
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
 		String configPath = DEFAULT_CONFIG_PATH;
@@ -94,11 +72,12 @@ public final class ModuleMain {
 			}
 		}
 
-		moduleConfig = getModuleConfig(configPath);
+		final ConfigReader moduleConfig = getModuleConfig(configPath);
 		if (moduleConfig == null) {
 			System.exit(1);
 		}
-		tcpConnectionManager = prepareNetwork(moduleConfig, eventLoopGroups);
+		final TCPUDPServerManager serverManager = new TCPUDPServerManager();
+		serverManager.startServer(new ConfigReaderAddressBasedServerConfigAdapter(moduleConfig));
 
 		try {
 			System.setSecurityManager(new ApplicationSecurityManager());
@@ -108,20 +87,27 @@ public final class ModuleMain {
 			System.exit(-1);
 		}
 
-		ModuleShutdownHook shutdownHook = new ModuleShutdownHook(eventLoopGroups);
-		synchronized (shutdownHook) {
+		final Runnable shutdownHook = new Runnable() {
+			@Override
+			public void run() {
+				synchronized (ModuleMain.class) {
+					serverManager.shutdownServer();
+				}
+			}
+		};
+		synchronized (ModuleMain.class) {
 			Module module = null;
 			try {
-				module = new Module(moduleConfig, tcpConnectionManager, shutdownHook);
+				module = new Module(moduleConfig, serverManager.getConnectionManager(), shutdownHook);
 			} catch (final NoSuchAlgorithmException e) {
 				System.err.println("Missing algorithm: " + e);
 				System.exit(1);
 			}
-			registerHandlerAdapter(moduleConfig, tcpConnectionManager, module);
+			registerAdditionalAdapters(serverManager.getConnectionManager(), module);
+			registerHandlers(serverManager.getConnectionManager(), moduleConfig, module);
 		}
 
 		System.out.println("Module is up and running.");
-
 	}
 
 	/**
@@ -146,81 +132,22 @@ public final class ModuleMain {
 		return moduleConfig;
 	}
 
-	/**
-	 * prepares the modules network. Notably sets up a TCPConnectionManager according to the given configuration.
-	 * 
-	 * @param moduleConfig
-	 *            the configuration used for setup.
-	 * @param eventLoopGroups
-	 *            set that will be filled with started threadGroups. Can be used to shut them down later.
-	 * @return a newly setup TCPConnectionManager.
-	 */
-	private static TCPConnectionManager prepareNetwork(ConfigReader moduleConfig,
-			final Set<EventLoopGroup> eventLoopGroups) {
-		UDPMulticastBeacon udpMulticastBeacon;
-
-		final EventLoopGroup networkGroup = new NioEventLoopGroup(0, new IndexedThreadFactory("network-"));
-		final EventLoopGroup applicationGroup = new NioEventLoopGroup(0, new IndexedThreadFactory("application-"));
-		final EventLoopGroup beaconGroup = new OioEventLoopGroup(0, new IndexedThreadFactory("beacon-"));
-		eventLoopGroups.add(networkGroup);
-		eventLoopGroups.add(applicationGroup);
-		eventLoopGroups.add(beaconGroup);
-
-		final ServerBootstrap serverBootstrap = new ServerBootstrap();
-		serverBootstrap.group(networkGroup, applicationGroup);
-		serverBootstrap.channel(NioServerSocketChannel.class);
-		final Bootstrap clientBootstrap = new Bootstrap();
-		clientBootstrap.group(networkGroup);
-		clientBootstrap.channel(NioSocketChannel.class);
-		final TCPConnectionManager tcpConnMan =
-				new TCPConnectionManager(new ServerBootstrapChannelFactory(serverBootstrap),
-						new ClientBootstrapChannelFactory(clientBootstrap), applicationGroup, moduleConfig.getModuleID());
-		for (final InetSocketAddress address : moduleConfig.getListen()) {
-			tcpConnMan.startListening(address);
-		}
-
-		udpMulticastBeacon = new UDPMulticastBeacon(new ChannelFactory<OioDatagramChannel>() {
-			@Override
-			public OioDatagramChannel newChannel() {
-				return new OioDatagramChannel();
-			}
-		}, beaconGroup, applicationGroup, moduleConfig.getModuleID(), moduleConfig.getAnnounceInterval(), TimeUnit.SECONDS);
-		udpMulticastBeacon.addListener(tcpConnMan);
-		final List<InetSocketAddress> announce = Arrays.asList(moduleConfig.getAnnounce());
-		udpMulticastBeacon.setAnnounceAddresses(announce);
-		for (final NetConnection address : moduleConfig.getMulticast()) {
-			udpMulticastBeacon.addAddress(address.getInterface(), address.getAddress());
-		}
-
-		return tcpConnMan;
+	private static void registerAdditionalAdapters(final TCPConnectionManager tcpConnectionManager, final Module module) {
+		tcpConnectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
 	}
 
-	/**
-	 * Registers Message Handlers and adapters for the module on the TCPConnectionManager. This is ModuleInfo specific
-	 * and not used by deploy.
-	 * 
-	 * @param moduleConfig
-	 *            the configuration according to which the module is set up.
-	 * @param tcpConnMan
-	 *            TCPConnectionManager to register handlers on.
-	 * @param module
-	 *            the Module the various handlers should use later.
-	 */
-	private static void registerHandlerAdapter(ConfigReader moduleConfig, TCPConnectionManager tcpConnMan, Module module) {
-		new TCPProtocol().initialize(tcpConnMan);
-		tcpConnMan.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
-
-		tcpConnMan.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
-		tcpConnMan.addHandler(RequestApplicationInformationMessage.class,
+	private static void registerHandlers(ConnectionManager connectionManager, ConfigReader moduleConfig, Module module) {
+		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
+		connectionManager.addHandler(RequestApplicationInformationMessage.class,
 				new RequestApplicationInformationMessageHandler(moduleConfig.getModuleID(), module));
-		tcpConnMan.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
+		connectionManager.addHandler(RequestModuleInfoMessage.class, new RequestModuleInfoMsgHandler(moduleConfig));
 
-		tcpConnMan.addHandler(LoadClassMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(BlockMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(StartApplicationMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(KillAppMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(ValueMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(WhoHasBlockMessage.class, new MissingApplicationHandler());
-		tcpConnMan.addHandler(ShutdownModuleMessage.class, new ShutdownModuleHandler(module));
+		connectionManager.addHandler(LoadClassMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(BlockMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(StartApplicationMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(KillAppMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(ValueMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(WhoHasBlockMessage.class, new MissingApplicationHandler());
+		connectionManager.addHandler(ShutdownModuleMessage.class, new ShutdownModuleHandler(module));
 	}
 }
