@@ -19,6 +19,7 @@ import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.AddressBasedServerConfig;
+import edu.teco.dnd.server.SimpleAddressBasedServerConfig;
 import edu.teco.dnd.server.ServerManager;
 import edu.teco.dnd.server.TCPUDPServerManager;
 import edu.teco.dnd.util.NetConnection;
@@ -80,7 +81,7 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void startServer() {
 		final AddressBasedServerConfig serverConfig =
-				new AddressBasedServerConfig(moduleID, getListenAddresses(), getMulticastAddresses(),
+				new SimpleAddressBasedServerConfig(moduleID, getListenAddresses(), getMulticastAddresses(),
 						getAnnounceAddresses(), getAnnounceInterval());
 		serverManager.startServer(serverConfig);
 	}

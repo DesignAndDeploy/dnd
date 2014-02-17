@@ -19,6 +19,7 @@ import edu.teco.dnd.graphiti.model.ModelPackage;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.AddressBasedServerConfig;
+import edu.teco.dnd.server.SimpleAddressBasedServerConfig;
 import edu.teco.dnd.server.ServerManager;
 import edu.teco.dnd.server.TCPUDPServerManager;
 import edu.teco.dnd.util.NetConnection;
@@ -126,7 +127,7 @@ public class CommandMain {
 		functionBlocks = blockLoader.getBlocks();
 
 		serverManager = new TCPUDPServerManager();
-		serverManager.startServer(new AddressBasedServerConfig(moduleID, Collections.singletonList(listen), Collections
+		serverManager.startServer(new SimpleAddressBasedServerConfig(moduleID, Collections.singletonList(listen), Collections
 				.singletonList(multicast), Collections.singletonList(announce), announceInterval));
 
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
