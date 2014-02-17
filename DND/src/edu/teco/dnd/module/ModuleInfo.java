@@ -1,7 +1,5 @@
 package edu.teco.dnd.module;
 
-import java.util.HashMap;
-
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
@@ -49,15 +47,6 @@ public class ModuleInfo {
 	/** @return the ID of the module represented by this. */
 	public ModuleID getID() {
 		return moduleID;
-	}
-
-	/**
-	 * Returns Map from available Types(RegExes) to amount of available slots.
-	 * 
-	 * @return Map from Types to amount of free slots for this type
-	 */
-	public HashMap<String, Integer> getTypes() {
-		return holder.getAllAllowedChildTypes();
 	}
 
 	/** @return human readable name of module. */
