@@ -66,11 +66,6 @@ public final class ModuleMain {
 	public static final String DEFAULT_CONFIG_PATH = "module.cfg";
 
 	/**
-	 * The default address used for multicast.
-	 */
-	public static final InetSocketAddress DEFAULT_MULTICAST_ADDRESS = new InetSocketAddress("225.0.0.1", 5000);
-
-	/**
 	 * Should never be instantiated.
 	 */
 	private ModuleMain() {
