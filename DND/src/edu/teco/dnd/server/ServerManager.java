@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
+import edu.teco.dnd.util.FinishedFutureNotifier;
 import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
 
@@ -40,13 +41,13 @@ public abstract class ServerManager<C extends ServerConfig> {
 	 * @param serverConfig
 	 *            a configuration that describes how the servers should be set up
 	 */
-	public void startServer(final C serverConfig) {
+	public FutureNotifier<?> startServer(final C serverConfig) {
 		synchronized (this) {
 			LOGGER.entry(serverConfig);
 			if (currentState != ServerState.STOPPED) {
 				LOGGER.debug("current state is {}, not starting", currentState);
-				LOGGER.exit();
-				return;
+				return LOGGER
+						.exit(new FinishedFutureNotifier<Void>(new IllegalStateException("server is not stopped")));
 			}
 
 			LOGGER.debug("notifying listeners that we're starting");
@@ -67,7 +68,7 @@ public abstract class ServerManager<C extends ServerConfig> {
 			}
 		});
 
-		LOGGER.exit();
+		return LOGGER.exit(initializeFuture);
 	}
 
 	private synchronized void initializeCompleted() {
@@ -126,11 +127,11 @@ public abstract class ServerManager<C extends ServerConfig> {
 	/**
 	 * Stops the servers. If the servers aren't running nothing is done.
 	 */
-	public synchronized void shutdownServer() {
+	public synchronized FutureNotifier<?> shutdownServer() {
 		LOGGER.entry();
 		if (currentState != ServerState.RUNNING) {
 			LOGGER.debug("current state is {}, not stopping", currentState);
-			return;
+			return LOGGER.exit(new FinishedFutureNotifier<Void>(new IllegalStateException("server is not running")));
 		}
 
 		LOGGER.debug("notifying listeners that we're stopping");
@@ -149,6 +150,8 @@ public abstract class ServerManager<C extends ServerConfig> {
 				}
 			}
 		});
+
+		return LOGGER.exit(deinitializeFuture);
 	}
 
 	private synchronized void deinitializeCompleted() {

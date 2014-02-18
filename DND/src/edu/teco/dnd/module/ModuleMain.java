@@ -31,6 +31,7 @@ import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.network.tcp.TCPConnectionManager;
 import edu.teco.dnd.server.TCPUDPServerManager;
+import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * The main class that is started on a ModuleInfo.
@@ -77,7 +78,8 @@ public final class ModuleMain {
 			System.exit(1);
 		}
 		final TCPUDPServerManager serverManager = new TCPUDPServerManager();
-		serverManager.startServer(new ConfigReaderAddressBasedServerConfigAdapter(moduleConfig));
+		final FutureNotifier<?> serverFuture =
+				serverManager.startServer(new ConfigReaderAddressBasedServerConfigAdapter(moduleConfig));
 
 		try {
 			System.setSecurityManager(new ApplicationSecurityManager());
@@ -95,6 +97,14 @@ public final class ModuleMain {
 				}
 			}
 		};
+
+		try {
+			serverFuture.await();
+		} catch (final InterruptedException e) {
+			LOGGER.error("got interrupted waiting for the server to start");
+			System.exit(-1);
+		}
+
 		synchronized (ModuleMain.class) {
 			Module module = null;
 			try {
