@@ -215,7 +215,11 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	 * method recursively on it's parents.
 	 */
 	public synchronized void increase() {
-		if (amountLeft >= 0) {
+		if (amountLeft < 0) {
+			if (parent != null) {
+				parent.increase();
+			}
+		} else {
 			if (amountLeft < amountAllowed) {
 				if (parent != null) {
 					parent.increase();
