@@ -10,13 +10,15 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.UsercodeWrapper;
 import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 
 /**
- * A SecurityManager used to restrict permissions for FunctionBlocks running on a ModuleInfo.
- * 
- * @author Philipp Adolf
+ * A SecurityManager used to restrict permissions for {@link FunctionBlock}s running on a {@link Module}. It allows
+ * getting the ClassLoader, getting environment variables and getting file system attributes. It also includes a
+ * workaround for the JIT ({@link JITPolicyRule}) and allows methods needed for sending values to FunctionBlocks running
+ * on remote Modules.
  */
 public class ApplicationSecurityManager extends SecurityManager {
 	private static final Logger LOGGER = LogManager.getLogger(ApplicationSecurityManager.class);
@@ -50,15 +52,15 @@ public class ApplicationSecurityManager extends SecurityManager {
 	@Override
 	public void checkPermission(final Permission permission) {
 		LOGGER.entry(permission);
-		
+
 		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		final Boolean policy = rule.getPolicy(permission, stackTrace);
-		
+
 		if (policy == null || policy == true) {
 			LOGGER.exit();
 			return;
 		}
-		
+
 		if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("denying {} for {}", permission, Arrays.asList(stackTrace));
 		}

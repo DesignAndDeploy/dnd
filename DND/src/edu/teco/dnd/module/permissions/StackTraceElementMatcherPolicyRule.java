@@ -12,15 +12,13 @@ import org.apache.logging.log4j.Logger;
  * one of the StackTraceElementMatchers matches, the permission is granted (if the secure list matches) or denied (if
  * the insecure list matches). If both match the permission is granted. If no matcher matches any StackTraceElement,
  * then no decision is made.
- * 
- * @author Philipp Adolf
  */
 public class StackTraceElementMatcherPolicyRule implements PolicyRule {
 	private static final Logger LOGGER = LogManager.getLogger(StackTraceElementMatcherPolicyRule.class);
-	
-	private final CombinedMatcher secureMatcher = new CombinedMatcher();
 
-	private final CombinedMatcher insecureMatcher = new CombinedMatcher();
+	private final AnyMatcher secureMatcher = new AnyMatcher();
+
+	private final AnyMatcher insecureMatcher = new AnyMatcher();
 
 	public void addSecureMatcher(final StackTraceElementMatcher matcher) {
 		secureMatcher.add(matcher);

@@ -6,23 +6,22 @@ import java.security.Permission;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.FunctionBlockSecurityDecorator;
 
 /**
  * A PolicyRule to make JIT work. See Bug #51: When calling a constructor of a class for the 16th time, the Oracle and
  * IcedTea VM switch from interpreted code to JIT'ed native code. For this they create a new ClassLoader, which a
- * FunctionBlock normally is not allowed to do. This PolicyRule grants this permission and "suppressAcccessChecks" if
- * it determines that the JIT is currently working.
+ * {@link FunctionBlock} normally is not allowed to do. This PolicyRule grants this permission and
+ * "suppressAcccessChecks" if it determines that the JIT is currently working.
  * 
  * May need some improvement, at the moment it assumes that java.*, sun.* and edu.teco.dnd.module.permissions.* are
  * safe. Also, a FunctionBlock constructor can probably use both permissions even if it's for something else than the
  * JIT.
- * 
- * @author Philipp Adolf
  */
 public class JITPolicyRule implements PolicyRule {
 	private static final Logger LOGGER = LogManager.getLogger();
-	
+
 	private static final StackTraceElementMatcher SECURE = new MethodMatcher(FunctionBlockSecurityDecorator.class,
 			"<init>");
 
