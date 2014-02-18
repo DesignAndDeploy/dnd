@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
@@ -37,9 +38,9 @@ public class JsonConfig extends ModuleConfig {
 	private UUID uuid = UUID.randomUUID();
 	private int maxAppthreads = 0;
 	private int announceInterval = DEFAULT_ANNOUNCE_INTERVAL;
-	private InetSocketAddress[] listen;
-	private InetSocketAddress[] announce;
-	private NetConnection[] multicast;
+	private Collection<InetSocketAddress> listen;
+	private Collection<InetSocketAddress> announce;
+	private Collection<NetConnection> multicast;
 	private BlockTypeHolder allowedBlocks; // the rootBlock
 	private transient int currentBlockId = 0;
 	private String pathToSaveTo = null;
@@ -198,17 +199,17 @@ public class JsonConfig extends ModuleConfig {
 	}
 
 	@Override
-	public InetSocketAddress[] getListen() {
+	public Collection<InetSocketAddress> getListen() {
 		return listen;
 	}
 
 	@Override
-	public InetSocketAddress[] getAnnounce() {
+	public Collection<InetSocketAddress> getAnnounce() {
 		return announce;
 	}
 
 	@Override
-	public NetConnection[] getMulticast() {
+	public Collection<NetConnection> getMulticast() {
 		return multicast;
 	}
 

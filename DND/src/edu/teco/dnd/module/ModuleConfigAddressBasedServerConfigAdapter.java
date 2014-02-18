@@ -1,7 +1,6 @@
 package edu.teco.dnd.module;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.Collection;
 
 import edu.teco.dnd.module.config.ModuleConfig;
@@ -27,16 +26,16 @@ public class ModuleConfigAddressBasedServerConfigAdapter implements AddressBased
 
 	@Override
 	public Collection<InetSocketAddress> getListenAddresses() {
-		return Arrays.asList(configReader.getListen());
+		return configReader.getListen();
 	}
 
 	@Override
 	public Collection<NetConnection> getMulticastAddresses() {
-		return Arrays.asList(configReader.getMulticast());
+		return configReader.getMulticast();
 	}
 
 	@Override
 	public Collection<InetSocketAddress> getAnnounceAddresses() {
-		return Arrays.asList(configReader.getAnnounce());
+		return configReader.getAnnounce();
 	}
 }

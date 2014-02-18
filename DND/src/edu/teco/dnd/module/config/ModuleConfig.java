@@ -1,6 +1,7 @@
 package edu.teco.dnd.module.config;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.util.NetConnection;
@@ -12,11 +13,11 @@ public abstract class ModuleConfig {
 
 	public abstract String getLocation();
 
-	public abstract InetSocketAddress[] getListen();
+	public abstract Collection<InetSocketAddress> getListen();
 
-	public abstract InetSocketAddress[] getAnnounce();
+	public abstract Collection<InetSocketAddress> getAnnounce();
 
-	public abstract NetConnection[] getMulticast();
+	public abstract Collection<NetConnection> getMulticast();
 
 	public abstract int getAnnounceInterval();
 

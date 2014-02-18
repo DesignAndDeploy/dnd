@@ -3,6 +3,8 @@ package edu.teco.dnd.module.config.tests;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -24,9 +26,9 @@ public class TestConfigReader extends ModuleConfig {
 	private String location;
 	private ModuleID moduleID = new ModuleID();
 	private int maxAppthreads = 0;
-	private InetSocketAddress[] listen;
-	private InetSocketAddress[] announce;
-	private NetConnection[] multicast;
+	private Collection<InetSocketAddress> listen;
+	private Collection<InetSocketAddress> announce;
+	private Collection<NetConnection> multicast;
 	private BlockTypeHolder allowedBlocks; // the rootBlock
 	private int currentBlockId = 0;
 
@@ -53,8 +55,8 @@ public class TestConfigReader extends ModuleConfig {
 	 *            Tree of blockTypes allowed to run (see BlockTypeHolder)
 	 */
 	public TestConfigReader(String name, String location, ModuleID moduleID, int maxAppthreads, boolean allowNIO,
-			InetSocketAddress[] listen, InetSocketAddress[] announce, NetConnection[] multicast,
-			BlockTypeHolder allowedBlocks) {
+			Collection<InetSocketAddress> listen, Collection<InetSocketAddress> announce,
+			Collection<NetConnection> multicast, BlockTypeHolder allowedBlocks) {
 
 		this.name = name;
 		this.location = location;
@@ -83,15 +85,14 @@ public class TestConfigReader extends ModuleConfig {
 		ModuleID moduleID = new ModuleID(UUID.fromString("12345678-9abc-def0-1234-56789abcdef0"));
 		int maxAppthreads = 0;
 
-		InetSocketAddress[] listen = new InetSocketAddress[2];
-		listen[0] = new InetSocketAddress("localhost", 8888);
-		listen[1] = new InetSocketAddress("127.0.0.1", 4242);
-		InetSocketAddress[] announce = new InetSocketAddress[1];
-		announce[0] = new InetSocketAddress("localhost", 8888);
-		NetConnection[] multicast = new NetConnection[1];
-		multicast[0] =
-				new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getNetworkInterfaces()
-						.nextElement());
+		Collection<InetSocketAddress> listen = new ArrayList<InetSocketAddress>();
+		listen.add(new InetSocketAddress("localhost", 8888));
+		listen.add(new InetSocketAddress("127.0.0.1", 4242));
+		Collection<InetSocketAddress> announce = new ArrayList<InetSocketAddress>();
+		announce.add(new InetSocketAddress("localhost", 8888));
+		Collection<NetConnection> multicast = new ArrayList<NetConnection>();
+		multicast.add(new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getNetworkInterfaces()
+						.nextElement()));
 
 		Set<BlockTypeHolder> secondLevelChild = new HashSet<BlockTypeHolder>();
 		secondLevelChild.add(new BlockTypeHolder("child1TYPE", 2));
@@ -131,7 +132,7 @@ public class TestConfigReader extends ModuleConfig {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public String getLocation() {
 		return location;
@@ -148,17 +149,17 @@ public class TestConfigReader extends ModuleConfig {
 	}
 
 	@Override
-	public InetSocketAddress[] getListen() {
+	public Collection<InetSocketAddress> getListen() {
 		return listen;
 	}
 
 	@Override
-	public InetSocketAddress[] getAnnounce() {
+	public Collection<InetSocketAddress> getAnnounce() {
 		return announce;
 	}
 
 	@Override
-	public NetConnection[] getMulticast() {
+	public Collection<NetConnection> getMulticast() {
 		return multicast;
 	}
 
