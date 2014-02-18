@@ -6,7 +6,7 @@ import java.util.Collection;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.util.NetConnection;
 
-public abstract class ModuleConfig {
+public interface ModuleConfig {
 	public abstract ModuleID getModuleID();
 
 	public abstract String getName();

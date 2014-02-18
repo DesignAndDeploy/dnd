@@ -28,7 +28,7 @@ import edu.teco.dnd.util.NetConnectionAdapter;
  * @author Marvin Marx
  * 
  */
-public class JsonConfig extends ModuleConfig {
+public class JsonConfig implements ModuleConfig {
 	private static final transient Logger LOGGER = LogManager.getLogger(JsonConfig.class);
 	private static final transient Gson GSON;
 	private static final int DEFAULT_ANNOUNCE_INTERVAL = 5;

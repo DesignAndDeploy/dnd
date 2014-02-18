@@ -20,7 +20,7 @@ import edu.teco.dnd.util.NetConnection;
  * @author Marvin Marx
  * 
  */
-public class TestConfigReader extends ModuleConfig {
+public class TestConfigReader implements ModuleConfig {
 
 	private String name;
 	private String location;
