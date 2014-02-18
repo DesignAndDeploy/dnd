@@ -33,7 +33,7 @@ public class BlockTypeHolder {
 	/** used during deploy to give exact position to run block on in case of doubt. */
 	private int idNumber = -1;
 	/** null if none. */
-	private Set<BlockTypeHolder> children = null;
+	private final Set<BlockTypeHolder> children = new HashSet<BlockTypeHolder>();
 
 	private transient BlockTypeHolder parent = null;
 
@@ -56,7 +56,6 @@ public class BlockTypeHolder {
 	public BlockTypeHolder(String type, int amount) {
 		// leave node
 		this.type = type;
-		this.children = null;
 		this.amountAllowed = amount;
 		this.amountLeft = amount;
 	}
@@ -72,7 +71,9 @@ public class BlockTypeHolder {
 	public BlockTypeHolder(Set<BlockTypeHolder> childblocks, int amount) {
 		// non leave node
 		this.type = null;
-		this.children = (childblocks == null) ? new HashSet<BlockTypeHolder>() : childblocks;
+		if (childblocks != null) {
+			this.children.addAll(childblocks);
+		}
 		this.amountAllowed = amount;
 		this.amountLeft = amount;
 	}
@@ -86,7 +87,6 @@ public class BlockTypeHolder {
 	public BlockTypeHolder(final int amount) {
 		// non leave node
 		this.type = null;
-		this.children = new HashSet<BlockTypeHolder>();
 		this.amountAllowed = amount;
 		this.amountLeft = amount;
 	}
@@ -115,15 +115,9 @@ public class BlockTypeHolder {
 		if (type != null) {
 			throw new IllegalStateException("Node has type and is not a leave node.");
 		}
-		if (children == null) {
-			children = new HashSet<BlockTypeHolder>();
-		}
 		this.children.addAll(childrenToAdd);
 	}
 
-	/**
-	 * @return childblocks, an return null if leave node.
-	 */
 	public Set<BlockTypeHolder> getChildren() {
 		return children;
 	}
@@ -299,12 +293,8 @@ public class BlockTypeHolder {
 		return allowedChildren;
 	}
 
-	/**
-	 * 
-	 * @return true iff this node is a leaf.
-	 */
 	public boolean isLeaf() {
-		return type != null;
+		return !children.isEmpty();
 	}
 
 	/*

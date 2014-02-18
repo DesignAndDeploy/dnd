@@ -1,47 +1,36 @@
 package edu.teco.dnd.module.config.tests;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.config.BlockTypeHolder;
-import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.util.NetConnection;
 
 /**
- * Mock ConfigReader used to simulate a real configuration for testing purposes.
+ * Mock ModuleConfig used to simulate a real configuration for testing purposes.
  * 
  * @author Marvin Marx
  * 
  */
-public class TestConfigReader extends ConfigReader {
+public class TestConfigReader implements ModuleConfig {
 
 	private String name;
 	private String location;
 	private ModuleID moduleID = new ModuleID();
 	private int maxAppthreads = 0;
-	private boolean allowNIO = true;
-	private InetSocketAddress[] listen;
-	private InetSocketAddress[] announce;
-	private NetConnection[] multicast;
+	private Collection<InetSocketAddress> listen;
+	private Collection<InetSocketAddress> announce;
+	private Collection<NetConnection> multicast;
 	private BlockTypeHolder allowedBlocks; // the rootBlock
 	private int currentBlockId = 0;
-
-	private static final transient Logger LOGGER = LogManager.getLogger(TestConfigReader.class);
-
-	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
-	private transient Map<Integer, BlockTypeHolder> blockIdQuickaccess = new HashMap<Integer, BlockTypeHolder>();
 
 	/**
 	 * set up this mock according to parameters.
@@ -66,21 +55,20 @@ public class TestConfigReader extends ConfigReader {
 	 *            Tree of blockTypes allowed to run (see BlockTypeHolder)
 	 */
 	public TestConfigReader(String name, String location, ModuleID moduleID, int maxAppthreads, boolean allowNIO,
-			InetSocketAddress[] listen, InetSocketAddress[] announce, NetConnection[] multicast,
-			BlockTypeHolder allowedBlocks) {
+			Collection<InetSocketAddress> listen, Collection<InetSocketAddress> announce,
+			Collection<NetConnection> multicast, BlockTypeHolder allowedBlocks) {
 
 		this.name = name;
 		this.location = location;
 		this.moduleID = moduleID;
 		this.maxAppthreads = maxAppthreads;
-		this.allowNIO = allowNIO;
 		this.listen = listen;
 		this.announce = announce;
 		this.multicast = multicast;
 		this.allowedBlocks = allowedBlocks;
 
 		if (allowedBlocks != null) {
-			fillTransientVariables(blockQuickaccess, allowedBlocks);
+			fillTransientVariables(allowedBlocks);
 		}
 	}
 
@@ -97,15 +85,14 @@ public class TestConfigReader extends ConfigReader {
 		ModuleID moduleID = new ModuleID(UUID.fromString("12345678-9abc-def0-1234-56789abcdef0"));
 		int maxAppthreads = 0;
 
-		InetSocketAddress[] listen = new InetSocketAddress[2];
-		listen[0] = new InetSocketAddress("localhost", 8888);
-		listen[1] = new InetSocketAddress("127.0.0.1", 4242);
-		InetSocketAddress[] announce = new InetSocketAddress[1];
-		announce[0] = new InetSocketAddress("localhost", 8888);
-		NetConnection[] multicast = new NetConnection[1];
-		multicast[0] =
-				new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getNetworkInterfaces()
-						.nextElement());
+		Collection<InetSocketAddress> listen = new ArrayList<InetSocketAddress>();
+		listen.add(new InetSocketAddress("localhost", 8888));
+		listen.add(new InetSocketAddress("127.0.0.1", 4242));
+		Collection<InetSocketAddress> announce = new ArrayList<InetSocketAddress>();
+		announce.add(new InetSocketAddress("localhost", 8888));
+		Collection<NetConnection> multicast = new ArrayList<NetConnection>();
+		multicast.add(new NetConnection(new InetSocketAddress("255.0.0.1", 1212), NetworkInterface.getNetworkInterfaces()
+						.nextElement()));
 
 		Set<BlockTypeHolder> secondLevelChild = new HashSet<BlockTypeHolder>();
 		secondLevelChild.add(new BlockTypeHolder("child1TYPE", 2));
@@ -125,38 +112,27 @@ public class TestConfigReader extends ConfigReader {
 	 * fill the internal transient variables of blockTypeHolder which are usually not filled in during storage (and its
 	 * more convenient than to paste it every time we need a mock).
 	 * 
-	 * @param currentBlockQuickaccess
-	 *            blockQuickaccess list. Used for easier retrieval of types.
 	 * @param currentBlock
 	 *            the root of the BlockTypeHolder tree if not called recursively.
 	 */
-	private void fillTransientVariables(Map<String, BlockTypeHolder> currentBlockQuickaccess,
-			final BlockTypeHolder currentBlock) {
+	private void fillTransientVariables(final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
 		currentBlock.setIdNumber(++currentBlockId);
-		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
-		if (children == null) {
-			currentBlockQuickaccess.put(currentBlock.getType(), currentBlock);
-		} else {
+		if (children != null) {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
-				fillTransientVariables(currentBlockQuickaccess, child);
+				fillTransientVariables(child);
 			}
 		}
 
 	}
 
 	@Override
-	public void load(String path) throws IOException {
-		throw LOGGER.throwing(new NotImplementedException());
-	}
-
-	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public String getLocation() {
 		return location;
@@ -169,37 +145,27 @@ public class TestConfigReader extends ConfigReader {
 
 	@Override
 	public int getMaxThreadsPerApp() {
-		return (maxAppthreads > 0) ? maxAppthreads : ConfigReader.DEFAULT_THREADS_PER_APP;
+		return maxAppthreads;
 	}
 
 	@Override
-	public InetSocketAddress[] getListen() {
+	public Collection<InetSocketAddress> getListen() {
 		return listen;
 	}
 
 	@Override
-	public InetSocketAddress[] getAnnounce() {
+	public Collection<InetSocketAddress> getAnnounce() {
 		return announce;
 	}
 
 	@Override
-	public NetConnection[] getMulticast() {
+	public Collection<NetConnection> getMulticast() {
 		return multicast;
 	}
 
 	@Override
 	public BlockTypeHolder getBlockRoot() {
 		return allowedBlocks;
-	}
-
-	@Override
-	public boolean getAllowNIO() {
-		return allowNIO;
-	}
-
-	@Override
-	public Map<Integer, BlockTypeHolder> getAllowedBlocksById() {
-		return blockIdQuickaccess;
 	}
 
 	@Override

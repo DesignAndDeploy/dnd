@@ -1,7 +1,10 @@
 package edu.teco.dnd.module;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +24,20 @@ public class ModuleBlockManager {
 	private final Map<Integer, BlockTypeHolder> blockTypeHoldersByID;
 	private final Map<ApplicationBlockID, Integer> spotOccupiedByBlock = new HashMap<ApplicationBlockID, Integer>();
 
-	public ModuleBlockManager(final Map<Integer, BlockTypeHolder> blockTypeHoldersByID) {
-		this.blockTypeHoldersByID = blockTypeHoldersByID;
+	public ModuleBlockManager(final BlockTypeHolder rootHolder) {
+		this.blockTypeHoldersByID = Collections.unmodifiableMap(createBlockTypeHolderMap(rootHolder));
+	}
+
+	private Map<Integer, BlockTypeHolder> createBlockTypeHolderMap(final BlockTypeHolder rootHolder) {
+		final Map<Integer, BlockTypeHolder> map = new HashMap<Integer, BlockTypeHolder>();
+		final Queue<BlockTypeHolder> queue = new LinkedList<BlockTypeHolder>();
+		queue.add(rootHolder);
+		while (!queue.isEmpty()) {
+			final BlockTypeHolder current = queue.remove();
+			map.put(current.getIdNumber(), current);
+			queue.addAll(current.getChildren());
+		}
+		return map;
 	}
 
 	/**

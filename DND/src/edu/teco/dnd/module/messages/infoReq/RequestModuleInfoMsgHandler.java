@@ -2,7 +2,7 @@ package edu.teco.dnd.module.messages.infoReq;
 
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
-import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Response;
 
@@ -13,7 +13,7 @@ import edu.teco.dnd.network.messages.Response;
  * 
  */
 public class RequestModuleInfoMsgHandler implements MessageHandler<RequestModuleInfoMessage> {
-	private final ConfigReader conf;
+	private final ModuleConfig conf;
 
 	/**
 	 * set up a new handler.
@@ -21,7 +21,7 @@ public class RequestModuleInfoMsgHandler implements MessageHandler<RequestModule
 	 * @param conf
 	 *            the configurationReader used to extract the information about the module.
 	 */
-	public RequestModuleInfoMsgHandler(ConfigReader conf) {
+	public RequestModuleInfoMsgHandler(ModuleConfig conf) {
 		this.conf = conf;
 	}
 
