@@ -10,31 +10,49 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.ModuleID;
 
+/**
+ * A thread-safe implementation of {@link ConnectionListener} that will forward any events to a Set of
+ * ConnectionListeners.
+ */
 public class DelegatingConnectionListener implements ConnectionListener {
 	private static final Logger LOGGER = LogManager.getLogger(DelegatingConnectionListener.class);
-	
-	private final AtomicReference<Set<ConnectionListener>> listeners =
-			new AtomicReference<Set<ConnectionListener>>(Collections.<ConnectionListener> emptySet());
-	
+
+	private final AtomicReference<Set<ConnectionListener>> listeners = new AtomicReference<Set<ConnectionListener>>(
+			Collections.<ConnectionListener> emptySet());
+
+	/**
+	 * Adds a listener atomically. After this method returns <code>listener</code> will receive all events this
+	 * DelegatingConnectionListener receives.
+	 * 
+	 * @param listener
+	 *            the ConnectionListener to add
+	 */
 	public void addListener(final ConnectionListener listener) {
 		Set<ConnectionListener> oldSet;
 		Set<ConnectionListener> newSet;
 		do {
 			oldSet = listeners.get();
 			newSet = new HashSet<ConnectionListener>(oldSet);
-			
+
 			newSet.add(listener);
 		} while (!listeners.compareAndSet(oldSet, Collections.unmodifiableSet(newSet)));
 		LOGGER.debug("added {}", listener);
 	}
-	
+
+	/**
+	 * Removes a listener atomically. Once this method returns <code>listener</code> will no longer receive events from
+	 * this DelegatingConnectionListener.
+	 * 
+	 * @param listener
+	 *            the ConnectionListener to remove
+	 */
 	public void removeListener(final ConnectionListener listener) {
 		Set<ConnectionListener> oldSet;
 		Set<ConnectionListener> newSet;
 		do {
 			oldSet = listeners.get();
 			newSet = new HashSet<ConnectionListener>(oldSet);
-			
+
 			newSet.remove(listener);
 		} while (!listeners.compareAndSet(oldSet, Collections.unmodifiableSet(newSet)));
 		LOGGER.debug("removed {}", listener);

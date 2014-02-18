@@ -4,8 +4,6 @@ import edu.teco.dnd.network.messages.BeaconMessage;
 
 /**
  * A listener that will be informed if a beacon is received. Used by {@link UDPMulticastBeacon}.
- * 
- * @author Philipp Adolf
  */
 public interface BeaconListener {
 	/**

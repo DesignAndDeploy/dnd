@@ -53,23 +53,11 @@ import edu.teco.dnd.util.InetSocketAddressAdapter;
 /**
  * This class can be used to send beacons using UDP multicast. The format of the beacons is explained in the <a
  * href="https://github.com/DesignAndDeploy/dnd/wiki/Network-Protocol#udp-multicast">GitHub wiki</a>.
- * 
- * @author Philipp Adolf
  */
 public class UDPMulticastBeacon {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(UDPMulticastBeacon.class);
 
-	/**
-	 * The default interval to send beacons at.
-	 */
 	public static final long DEFAULT_INTERVAL = 5;
-
-	/**
-	 * The unit for {@link #DEFAULT_INTERVAL}.
-	 */
 	public static final TimeUnit DEFAULT_INTERVAL_UNIT = TimeUnit.SECONDS;
 
 	/**
@@ -77,9 +65,6 @@ public class UDPMulticastBeacon {
 	 */
 	public static final Charset CHARSET = Charset.forName("UTF-8");
 
-	/**
-	 * Factory for new channels.
-	 */
 	private final UDPMulticastChannelFactory channelFactory;
 
 	/**
@@ -89,9 +74,6 @@ public class UDPMulticastBeacon {
 	private final Map<Entry<NetworkInterface, InetSocketAddress>, DatagramChannel> channels =
 			new HashMap<Map.Entry<NetworkInterface, InetSocketAddress>, DatagramChannel>();
 
-	/**
-	 * Is set to true if the beacon should shut down.
-	 */
 	private boolean shutdown = false;
 
 	/**
@@ -101,19 +83,9 @@ public class UDPMulticastBeacon {
 
 	private final ShutdownFuture shutdownFuture = new ShutdownFuture();
 
-	/**
-	 * The listeners that will be informed when a beacon is received.
-	 */
 	private final Set<BeaconListener> listeners = new HashSet<BeaconListener>();
-
-	/**
-	 * Lock used for synchronizing access to {@link #listeners}.
-	 */
 	private final ReadWriteLock listenersLock = new ReentrantReadWriteLock();
 
-	/**
-	 * The beacon to send.
-	 */
 	private final AtomicReference<BeaconMessage> beacon;
 
 	/**
@@ -135,7 +107,8 @@ public class UDPMulticastBeacon {
 	public UDPMulticastBeacon(final ChannelFactory<? extends DatagramChannel> factory, final EventLoopGroup group,
 			final ScheduledExecutorService executor, final ModuleID moduleID, final long interval, final TimeUnit unit) {
 		beacon =
-				new AtomicReference<BeaconMessage>(new BeaconMessage(moduleID, Collections.<InetSocketAddress> emptyList()));
+				new AtomicReference<BeaconMessage>(new BeaconMessage(moduleID,
+						Collections.<InetSocketAddress> emptyList()));
 
 		executor.scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -325,12 +298,6 @@ public class UDPMulticastBeacon {
 		LOGGER.exit();
 	}
 
-	/**
-	 * Adds a listener.
-	 * 
-	 * @param listener
-	 *            the listener to add
-	 */
 	public void addListener(final BeaconListener listener) {
 		listenersLock.writeLock().lock();
 		try {
@@ -340,12 +307,6 @@ public class UDPMulticastBeacon {
 		}
 	}
 
-	/**
-	 * Removes a listener. If the listener wasn't added before, nothing is done.
-	 * 
-	 * @param listener
-	 *            the listener to remove
-	 */
 	public void removeListener(final BeaconListener listener) {
 		listenersLock.writeLock().lock();
 		try {
@@ -355,21 +316,12 @@ public class UDPMulticastBeacon {
 		}
 	}
 
-	/**
-	 * Sets the addresses that will be sent with the beacon.
-	 * 
-	 * @param addresses
-	 *            the addresses to send with the beacon
-	 */
 	public void setAnnounceAddresses(final List<InetSocketAddress> addresses) {
 		final BeaconMessage newBeacon = new BeaconMessage(beacon.get().getModuleID(), addresses);
 		LOGGER.debug("doing lazy set on beacon to {}", newBeacon);
 		beacon.lazySet(newBeacon);
 	}
 
-	/**
-	 * Sends a beacon. This will be automatically called at a fixed interval.
-	 */
 	public void sendBeacon() {
 		final BeaconMessage msg = beacon.get();
 		channelLock.readLock().lock();
@@ -424,36 +376,33 @@ public class UDPMulticastBeacon {
 	 * Returns true if this UDPMulticastBeacon is shutting down or has finished shutting down. This is basically whether
 	 * or not {@link #shutdown()} has been called.
 	 * 
-	 * @return true if this UDPMulticastBeacon is shutting down or has finished shutting down
+	 * @return <code>true</code> if this UDPMulticastBeacon is shutting down or has finished shutting down
 	 */
 	public boolean isShuttingDown() {
 		LOGGER.entry();
 		channelLock.readLock().lock();
 		try {
-			LOGGER.exit(shutdown);
-			return shutdown;
+			return LOGGER.exit(shutdown);
 		} finally {
 			channelLock.readLock().unlock();
 		}
 	}
 
 	/**
-	 * Returns true if this UDPMulticastBeacon has finished shutting down.
+	 * Returns <code>true</code> if this UDPMulticastBeacon has finished shutting down.
 	 * 
-	 * @return true if this UDPMulticastBeacon has finished shutting down
+	 * @return <code>true</code> if this UDPMulticastBeacon has finished shutting down
 	 */
 	public boolean isShutDown() {
 		LOGGER.entry();
 		channelLock.readLock().lock();
 		try {
 			if (!shutdown) {
-				LOGGER.exit(false);
-				return false;
+				return LOGGER.exit(false);
 			}
 			for (final Channel channel : channels.values()) {
 				if (!channel.closeFuture().isDone()) {
-					LOGGER.exit(false);
-					return false;
+					return LOGGER.exit(false);
 				}
 			}
 		} finally {
@@ -467,12 +416,6 @@ public class UDPMulticastBeacon {
 		return shutdownFuture;
 	}
 
-	/**
-	 * Handles incoming beacons.
-	 * 
-	 * @param beacon
-	 *            the beacon that was found
-	 */
 	// TODO: maybe find a way to inform listeners about multiple beacons
 	// maybe queue them and empty the queue at a fixed interval (every second or so)
 	private void handleBeacon(final BeaconMessage beacon) {

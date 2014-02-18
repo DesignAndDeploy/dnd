@@ -1,6 +1,7 @@
 package edu.teco.dnd.network;
 
 import io.netty.bootstrap.ChannelFactory;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
@@ -17,23 +18,15 @@ import java.util.Map.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * A {@link Channel} factory used by {@link UDPMulticastBeacon}.
+ */
 // TODO: replace with subclass of AbstractBootstrap
 public class UDPMulticastChannelFactory {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(UDPMulticastChannelFactory.class);
 
-	/**
-	 * The parent factory.
-	 */
 	private final ChannelFactory<? extends DatagramChannel> parentFactory;
-
 	private final EventLoopGroup eventLoopGroup;
-
-	/**
-	 * The ChannelHandler for new channels.
-	 */
 	private final ChannelHandler handler;
 
 	/**
