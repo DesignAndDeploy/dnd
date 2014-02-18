@@ -1,6 +1,5 @@
 package edu.teco.dnd.module.config;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -226,43 +225,6 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 				LOGGER.warn("more block=>{} freed than marked as in use.", type);
 			}
 		}
-	}
-
-	/**
-	 * Returns a Map that tells which types of functionBlocks and how many each are allowed to run according to this
-	 * node and all it's subnodes.
-	 * 
-	 * @return Map from Types to amount of available slots for function blocks of this type
-	 */
-	public HashMap<String, Integer> getAllAllowedChildTypes() {
-		HashMap<String, Integer> types = new HashMap<String, Integer>();
-		mapAllowedChildTypes(types);
-		return types;
-	}
-
-	/**
-	 * recursively adds all allowed child types and their amount to the map given as parameter.
-	 * 
-	 * @param allowedChildren
-	 *            the map to fill with the allowed child types and their amount.
-	 * @return the now filled map.
-	 */
-	private HashMap<String, Integer> mapAllowedChildTypes(HashMap<String, Integer> allowedChildren) {
-		if (type != null && amountLeft > 0) {
-			if (allowedChildren.containsKey(type)) {
-				int sum = allowedChildren.get(type);
-				sum += amountLeft;
-				allowedChildren.remove(type);
-				allowedChildren.put(type, sum);
-			} else {
-				allowedChildren.put(type, amountLeft);
-			}
-		} else if (children != null) {
-			for (BlockTypeHolder child : children) {
-				allowedChildren = child.mapAllowedChildTypes(allowedChildren);
-			}
-		}
-		return allowedChildren;
 	}
 
 	public boolean isLeaf() {
