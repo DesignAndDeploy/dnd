@@ -11,8 +11,12 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.util.NetConnection;
 
+/**
+ * An implementation of {@link ModuleConfig} that can be loaded from JSON. Use {@link JsonConfigFactory} to load JSON
+ * configurations.
+ */
 public class JsonConfig implements ModuleConfig {
-	private static final transient Logger LOGGER = LogManager.getLogger(JsonConfig.class);
+	private static final Logger LOGGER = LogManager.getLogger(JsonConfig.class);
 
 	private static final int DEFAULT_MAX_APP_THREADS = 3;
 	private static final int DEFAULT_ANNOUNCE_INTERVAL = 5;
@@ -28,9 +32,17 @@ public class JsonConfig implements ModuleConfig {
 	private Collection<NetConnection> multicast;
 	private BlockTypeHolder allowedBlocks;
 
+	/**
+	 * This class should not be instantiated directly. Instead use
+	 * {@link JsonConfigFactory#loadConfiguration(java.net.URI)}.
+	 */
 	private JsonConfig() {
 	}
 
+	/**
+	 * Initializes attributes that are not loaded from the configuration file itself. Also makes the Collections
+	 * unmodifiable.
+	 */
 	void initialize() {
 		LOGGER.entry();
 		normalize();

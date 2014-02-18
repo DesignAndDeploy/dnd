@@ -1,4 +1,6 @@
 /**
- * @author Marvin Marx contains the Classes responsible for loading (unofficially also storing) configuration files.
+ * Provides a way to load {@link edu.teco.dnd.module.config.ModuleConfig configurations} for
+ * {@link edu.teco.dnd.module.Module}s using {@link edu.teco.dnd.module.config.ModuleConfigFactory
+ * ModuleConfigFactories}.
  */
 package edu.teco.dnd.module.config;

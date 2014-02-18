@@ -13,7 +13,6 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
-import edu.teco.dnd.module.config.BlockTypeHolderIterator;
 
 /**
  * <p>
@@ -126,7 +125,7 @@ public class DistributionGenerator {
 			blocks.remove(block);
 
 			for (final ModuleInfo module : modules) {
-				for (final BlockTypeHolder holder : new BlockTypeHolderIterator(module.getHolder())) {
+				for (final BlockTypeHolder holder : module.getHolder()) {
 					if (holder.isLeaf()) {
 						if (isAllowed(start, block, module, holder)) {
 							start.add(block, module, holder);
