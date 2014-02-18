@@ -9,6 +9,9 @@ import java.util.Map;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * An implementation of Netty’s {@link InternalLogger} that forwards log messages to Log4j2.
+ */
 public class Log4j2Logger implements InternalLogger {
 	public static final Map<InternalLogLevel, Level> INTERNAL_TO_LOG4J2_LEVEL;
 
@@ -23,6 +26,11 @@ public class Log4j2Logger implements InternalLogger {
 
 	private final Logger logger;
 
+	/**
+	 * Creates a new instance of this class that uses the given Log4j2 {@link Logger}.
+	 * 
+	 * @param logger log messages sent to this object will be forwared to <code>logger</code>
+	 */
 	public Log4j2Logger(final Logger logger) {
 		this.logger = logger;
 	}
