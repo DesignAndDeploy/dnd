@@ -1,181 +1,91 @@
 package edu.teco.dnd.module.config;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import edu.teco.dnd.module.ModuleID;
-import edu.teco.dnd.util.InetSocketAddressAdapter;
 import edu.teco.dnd.util.NetConnection;
-import edu.teco.dnd.util.NetConnectionAdapter;
 
-/**
- * Concrete implementation of a configuration Reader. Initialized with a Path to a jsonConfiguration file.
- * 
- * @author Marvin Marx
- * 
- */
 public class JsonConfig implements ModuleConfig {
 	private static final transient Logger LOGGER = LogManager.getLogger(JsonConfig.class);
-	private static final transient Gson GSON;
+
+	private static final int DEFAULT_MAX_APP_THREADS = 3;
 	private static final int DEFAULT_ANNOUNCE_INTERVAL = 5;
 
+	// values are initialized with their defaults; If they are missing from the configuration file these values are used
 	private String name;
 	private String location;
-	private UUID uuid = UUID.randomUUID();
-	private int maxAppthreads = 0;
-	private int announceInterval = DEFAULT_ANNOUNCE_INTERVAL;
+	private UUID uuid;
+	private int maxAppthreads;
+	private int announceInterval;
 	private Collection<InetSocketAddress> listen;
 	private Collection<InetSocketAddress> announce;
 	private Collection<NetConnection> multicast;
-	private BlockTypeHolder allowedBlocks; // the rootBlock
-	private transient int currentBlockId = 0;
-	private String pathToSaveTo = null;
+	private BlockTypeHolder allowedBlocks;
 
-	static {
-		GsonBuilder builder = new GsonBuilder();
-		builder.setPrettyPrinting();
-		builder.registerTypeAdapter(InetSocketAddress.class, new InetSocketAddressAdapter());
-		builder.registerTypeAdapter(NetConnection.class, new NetConnectionAdapter());
-		final ExclusionStrategy amountLeftExclusionStrategy = new ExclusionStrategy() {
-			@Override
-			public boolean shouldSkipField(final FieldAttributes f) {
-				return BlockTypeHolder.class.equals(f.getDeclaringClass()) && "amountLeft".equals(f.getName());
-			}
-
-			@Override
-			public boolean shouldSkipClass(final Class<?> clazz) {
-				return false;
-			}
-		};
-		builder.addDeserializationExclusionStrategy(amountLeftExclusionStrategy);
-		builder.addSerializationExclusionStrategy(amountLeftExclusionStrategy);
-		GSON = builder.create();
+	private JsonConfig() {
 	}
 
-	/**
-	 * create an empty Config to set parameters manually.
-	 */
-	public JsonConfig() {
+	void initialize() {
+		LOGGER.entry();
+		normalize();
+		initializeAllowedBlocks();
+		makeCollectionsUnmodifiable();
+		LOGGER.exit();
 	}
 
-	/**
-	 * creates a new JsonConfig, by loading the given file from path and parsing it as Json.
-	 * 
-	 * @param path
-	 *            the path to load from.
-	 * @throws IOException
-	 *             of an error with the file exists.
-	 */
-	public JsonConfig(String path) throws IOException {
-		this.load(path);
+	private void normalize() {
+		name = name == null ? "" : name;
+		location = location == null ? "" : location;
+		uuid = uuid == null ? UUID.randomUUID() : uuid;
+		maxAppthreads = maxAppthreads <= 0 ? DEFAULT_MAX_APP_THREADS : maxAppthreads;
+		announceInterval = announceInterval <= 0 ? DEFAULT_ANNOUNCE_INTERVAL : announceInterval;
+		listen = listen == null ? Collections.<InetSocketAddress> emptyList() : listen;
+		announce = announce == null ? Collections.<InetSocketAddress> emptyList() : announce;
+		multicast = multicast == null ? Collections.<NetConnection> emptyList() : multicast;
 	}
 
-	/**
-	 * Set this configuration to have all the same variables as an old configuration given as parameter.
-	 * 
-	 * @param oldConf
-	 *            the config to set to.
-	 */
-	public void setTo(JsonConfig oldConf) {
-		if (oldConf == null) {
-			LOGGER.warn("Invalid Config to set(config was null)");
-			throw new IllegalArgumentException("oldConf must not be null");
+	private void initializeAllowedBlocks() {
+		LOGGER.entry();
+		if (allowedBlocks == null) {
+			LOGGER.exit();
+			return;
 		}
 
-		this.name = oldConf.name;
-		this.location = oldConf.location;
-		this.maxAppthreads = oldConf.maxAppthreads;
-		if (oldConf.uuid != null) {
-			this.uuid = oldConf.uuid;
-		}
-		this.announceInterval = oldConf.announceInterval;
-		this.listen = oldConf.listen;
-		this.announce = oldConf.announce;
-		this.multicast = oldConf.multicast;
-		this.allowedBlocks = oldConf.allowedBlocks;
-	}
+		int currentBlockId = 0;
+		final Queue<BlockTypeHolder> queue = new LinkedList<BlockTypeHolder>();
+		LOGGER.trace("adding {} to queue", allowedBlocks);
+		queue.add(allowedBlocks);
 
-	public void load(String path) throws IOException {
-		pathToSaveTo = path;
-		FileReader reader = null;
-		try {
-			reader = new FileReader(path);
-			setTo(GSON.fromJson(reader, this.getClass()));
-		} catch (FileNotFoundException e) {
-			LOGGER.catching(Level.WARN, e);
-			throw e;
-		} finally {
-			try {
-				reader.close();
-			} catch (Exception e) {
-				LOGGER.catching(Level.INFO, e);
-			}
-		}
+		while (!queue.isEmpty()) {
+			final BlockTypeHolder currentBlock = queue.remove();
+			LOGGER.trace("initializing {}", currentBlock);
 
-		if (allowedBlocks != null) {
-			fillTransientVariables(allowedBlocks);
-		}
-	}
+			currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
+			currentBlock.setIdNumber(++currentBlockId);
 
-	/**
-	 * After loading the blocks from a stored Json configuration, some parameters remain unset for practical reasons.
-	 * This method fills the parameters recursively.
-	 * 
-	 * @param currentBlock
-	 *            the block currently being worked on. On first (non recursing) invocation this is naturally the root of
-	 *            the tree.
-	 */
-	private void fillTransientVariables(final BlockTypeHolder currentBlock) {
-		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
-		currentBlock.setIdNumber(++currentBlockId);
-		if (!currentBlock.isLeaf()) {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
-				child.setParent(currentBlock);
-				fillTransientVariables(child);
+				if (child != null) {
+					child.setParent(currentBlock);
+					LOGGER.trace("adding {} to queue", child);
+					queue.add(child);
+				}
 			}
 		}
+		LOGGER.exit();
 	}
 
-	public boolean store() {
-		FileWriter writer = null;
-		try {
-			writer = new FileWriter(pathToSaveTo);
-			GSON.toJson(this, writer);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		} finally {
-			try {
-				writer.close();
-			} catch (Exception e) {
-				// ignoring.
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Set the path that the configuration will be safed to upon calling safe().
-	 * 
-	 * @param path
-	 *            the path
-	 */
-	public void setPathToSaveTo(String path) {
-		pathToSaveTo = path;
+	private void makeCollectionsUnmodifiable() {
+		listen = Collections.unmodifiableCollection(listen);
+		announce = Collections.unmodifiableCollection(announce);
+		multicast = Collections.unmodifiableCollection(multicast);
 	}
 
 	@Override

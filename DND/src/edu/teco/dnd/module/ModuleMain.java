@@ -2,14 +2,17 @@ package edu.teco.dnd.module;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.config.JsonConfigFactory;
 import edu.teco.dnd.module.config.ModuleConfig;
-import edu.teco.dnd.module.config.JsonConfig;
+import edu.teco.dnd.module.config.ModuleConfigFactory;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleMessage;
@@ -45,7 +48,9 @@ public final class ModuleMain {
 	/**
 	 * Default path for config file.
 	 */
-	public static final String DEFAULT_CONFIG_PATH = "module.cfg";
+	public static final URI DEFAULT_CONFIG_URI = new File("module.cfg").getAbsoluteFile().toURI();
+	
+	private static final ModuleConfigFactory MODULE_CONFIG_FACTORY = new JsonConfigFactory();
 
 	/**
 	 * Should never be instantiated.
@@ -60,7 +65,7 @@ public final class ModuleMain {
 	public static void main(final String[] args) {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 
-		String configPath = DEFAULT_CONFIG_PATH;
+		URI configURI = DEFAULT_CONFIG_URI;
 		if (args.length > 0) {
 			LOGGER.debug("argument 0 is \"{}\"", args[0]);
 			if ("--help".equals(args[0]) || "-h".equals(args[0])) {
@@ -69,14 +74,22 @@ public final class ModuleMain {
 				System.out.println("\t$pathToConfig the path to the used config file.");
 				System.exit(0);
 			} else {
-				configPath = args[0];
+				try {
+					configURI = URI.create(args[0]);
+				} catch (final IllegalArgumentException e) {
+					configURI = new File(args[0]).getAbsoluteFile().toURI();
+				}
 			}
 		}
 
-		final ModuleConfig moduleConfig = getModuleConfig(configPath);
-		if (moduleConfig == null) {
+		ModuleConfig moduleConfig = null;
+		try {
+			moduleConfig = MODULE_CONFIG_FACTORY.loadConfiguration(configURI);
+		} catch (IOException e) {
+			LOGGER.warn("could not load configuration from {}", configURI);
 			System.exit(1);
 		}
+		
 		final TCPUDPServerManager serverManager = new TCPUDPServerManager();
 		final FutureNotifier<?> serverFuture =
 				serverManager.startServer(new ModuleConfigAddressBasedServerConfigAdapter(moduleConfig));
@@ -118,28 +131,6 @@ public final class ModuleMain {
 		}
 
 		System.out.println("Module is up and running.");
-	}
-
-	/**
-	 * read the configuration file into a ModuleConfig.
-	 * 
-	 * @param configPath
-	 *            path to configuration file
-	 * @return a configReader with the read configuration.
-	 */
-	private static ModuleConfig getModuleConfig(final String configPath) {
-		ModuleConfig moduleConfig = null;
-		try {
-			moduleConfig = new JsonConfig(configPath);
-		} catch (IOException e) {
-			LOGGER.warn("could not open file: \"{}\"", configPath);
-			return null;
-		} catch (Exception e) {
-			LOGGER.warn("could not load config: \"{}\"", configPath);
-			e.printStackTrace();
-			return null;
-		}
-		return moduleConfig;
 	}
 
 	private static void registerAdditionalAdapters(final TCPConnectionManager tcpConnectionManager, final Module module) {
