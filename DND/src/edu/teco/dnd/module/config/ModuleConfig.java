@@ -17,9 +17,9 @@ import edu.teco.dnd.util.NetConnection;
  * @author Marvin Marx
  * 
  */
-public abstract class ConfigReader {
-
-	private static final Logger LOGGER = LogManager.getLogger(ConfigReader.class);
+public abstract class ModuleConfig {
+	private static final Logger LOGGER = LogManager.getLogger(ModuleConfig.class);
+	
 	/**
 	 * default amount of threads each application on a module is allowed to execute if not given in the configuration
 	 * file.

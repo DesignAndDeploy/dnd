@@ -4,15 +4,15 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 
-import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.server.AddressBasedServerConfig;
 import edu.teco.dnd.util.NetConnection;
 
-public class ConfigReaderAddressBasedServerConfigAdapter implements AddressBasedServerConfig {
-	private final ConfigReader configReader;
+public class ModuleConfigAddressBasedServerConfigAdapter implements AddressBasedServerConfig {
+	private final ModuleConfig configReader;
 	
-	public ConfigReaderAddressBasedServerConfigAdapter(final ConfigReader configReader) {
-		this.configReader = configReader;
+	public ModuleConfigAddressBasedServerConfigAdapter(final ModuleConfig moduleConfig) {
+		this.configReader = moduleConfig;
 	}
 	
 	@Override

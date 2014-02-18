@@ -29,7 +29,7 @@ import edu.teco.dnd.util.NetConnectionAdapter;
  * @author Marvin Marx
  * 
  */
-public class JsonConfig extends ConfigReader {
+public class JsonConfig extends ModuleConfig {
 	private static final transient Logger LOGGER = LogManager.getLogger(JsonConfig.class);
 	private static final transient Gson GSON;
 	private static final int DEFAULT_ANNOUNCE_INTERVAL = 5;
@@ -203,7 +203,7 @@ public class JsonConfig extends ConfigReader {
 
 	@Override
 	public int getMaxThreadsPerApp() {
-		return (maxAppthreads > 0) ? maxAppthreads : ConfigReader.DEFAULT_THREADS_PER_APP;
+		return (maxAppthreads > 0) ? maxAppthreads : ModuleConfig.DEFAULT_THREADS_PER_APP;
 	}
 
 	@Override

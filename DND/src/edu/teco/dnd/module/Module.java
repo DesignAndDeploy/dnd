@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
 import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
-import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessageHandler;
@@ -43,7 +43,7 @@ public class Module {
 	 */
 	public static final String BYTE_CODE_HASH_ALGORITHM = "SHA-256";
 
-	private final ConfigReader moduleConfig;
+	private final ModuleConfig moduleConfig;
 	private final ConnectionManager connMan;
 
 	private final HashStorage<byte[]> byteCodeStorage;
@@ -66,7 +66,7 @@ public class Module {
 	 * @throws NoSuchAlgorithmException
 	 *             if the algorithm that is used for the byte code HashStorage. See {@link #BYTE_CODE_HASH_ALGORITHM}.
 	 */
-	public Module(ConfigReader config, ConnectionManager connMan, Runnable shutdownHook)
+	public Module(ModuleConfig config, ConnectionManager connMan, Runnable shutdownHook)
 			throws NoSuchAlgorithmException {
 		this.byteCodeStorage = new HashStorage<byte[]>(new MessageDigestHashAlgorithm(BYTE_CODE_HASH_ALGORITHM));
 		this.moduleShutdownHook = shutdownHook;

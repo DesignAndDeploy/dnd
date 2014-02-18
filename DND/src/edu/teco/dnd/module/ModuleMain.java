@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.module.config.JsonConfig;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationHandler;
 import edu.teco.dnd.module.messages.generalModule.ShutdownModuleHandler;
@@ -73,13 +73,13 @@ public final class ModuleMain {
 			}
 		}
 
-		final ConfigReader moduleConfig = getModuleConfig(configPath);
+		final ModuleConfig moduleConfig = getModuleConfig(configPath);
 		if (moduleConfig == null) {
 			System.exit(1);
 		}
 		final TCPUDPServerManager serverManager = new TCPUDPServerManager();
 		final FutureNotifier<?> serverFuture =
-				serverManager.startServer(new ConfigReaderAddressBasedServerConfigAdapter(moduleConfig));
+				serverManager.startServer(new ModuleConfigAddressBasedServerConfigAdapter(moduleConfig));
 
 		try {
 			System.setSecurityManager(new ApplicationSecurityManager());
@@ -121,14 +121,14 @@ public final class ModuleMain {
 	}
 
 	/**
-	 * read the configuration file into a ConfigReader.
+	 * read the configuration file into a ModuleConfig.
 	 * 
 	 * @param configPath
 	 *            path to configuration file
 	 * @return a configReader with the read configuration.
 	 */
-	private static ConfigReader getModuleConfig(final String configPath) {
-		ConfigReader moduleConfig = null;
+	private static ModuleConfig getModuleConfig(final String configPath) {
+		ModuleConfig moduleConfig = null;
 		try {
 			moduleConfig = new JsonConfig(configPath);
 		} catch (IOException e) {
@@ -146,7 +146,7 @@ public final class ModuleMain {
 		tcpConnectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
 	}
 
-	private static void registerHandlers(ConnectionManager connectionManager, ConfigReader moduleConfig, Module module) {
+	private static void registerHandlers(ConnectionManager connectionManager, ModuleConfig moduleConfig, Module module) {
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
 		connectionManager.addHandler(RequestApplicationInformationMessage.class,
 				new RequestApplicationInformationMessageHandler(moduleConfig.getModuleID(), module));

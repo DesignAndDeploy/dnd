@@ -16,16 +16,16 @@ import org.apache.logging.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.config.BlockTypeHolder;
-import edu.teco.dnd.module.config.ConfigReader;
+import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.util.NetConnection;
 
 /**
- * Mock ConfigReader used to simulate a real configuration for testing purposes.
+ * Mock ModuleConfig used to simulate a real configuration for testing purposes.
  * 
  * @author Marvin Marx
  * 
  */
-public class TestConfigReader extends ConfigReader {
+public class TestConfigReader extends ModuleConfig {
 
 	private String name;
 	private String location;
@@ -169,7 +169,7 @@ public class TestConfigReader extends ConfigReader {
 
 	@Override
 	public int getMaxThreadsPerApp() {
-		return (maxAppthreads > 0) ? maxAppthreads : ConfigReader.DEFAULT_THREADS_PER_APP;
+		return (maxAppthreads > 0) ? maxAppthreads : ModuleConfig.DEFAULT_THREADS_PER_APP;
 	}
 
 	@Override
