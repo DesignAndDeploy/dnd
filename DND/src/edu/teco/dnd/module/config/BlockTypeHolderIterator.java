@@ -1,8 +1,8 @@
 package edu.teco.dnd.module.config;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 
 /**
@@ -33,11 +33,12 @@ public class BlockTypeHolderIterator implements Iterator<BlockTypeHolder>, Itera
 
 	@Override
 	public BlockTypeHolder next() {
-		final BlockTypeHolder next = holders.remove();
-		final Collection<BlockTypeHolder> children = next.getChildren();
-		if (children != null) {
-			holders.addAll(children);
+		if (holders.isEmpty()) {
+			throw new NoSuchElementException();
 		}
+
+		final BlockTypeHolder next = holders.remove();
+		holders.addAll(next.getChildren());
 		return next;
 	}
 

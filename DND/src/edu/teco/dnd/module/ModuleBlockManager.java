@@ -2,9 +2,7 @@ package edu.teco.dnd.module;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,12 +28,8 @@ public class ModuleBlockManager {
 
 	private Map<Integer, BlockTypeHolder> createBlockTypeHolderMap(final BlockTypeHolder rootHolder) {
 		final Map<Integer, BlockTypeHolder> map = new HashMap<Integer, BlockTypeHolder>();
-		final Queue<BlockTypeHolder> queue = new LinkedList<BlockTypeHolder>();
-		queue.add(rootHolder);
-		while (!queue.isEmpty()) {
-			final BlockTypeHolder current = queue.remove();
+		for (final BlockTypeHolder current : rootHolder) {
 			map.put(current.getID(), current);
-			queue.addAll(current.getChildren());
 		}
 		return map;
 	}

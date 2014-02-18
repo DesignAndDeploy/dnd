@@ -2,6 +2,7 @@ package edu.teco.dnd.module.config;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +15,7 @@ import com.google.gson.annotations.SerializedName;
  * 
  * @author Marvin Marx
  */
-public class BlockTypeHolder {
+public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	/**
 	 * logger for this class.
 	 */
@@ -164,7 +165,7 @@ public class BlockTypeHolder {
 		}
 		this.id = id;
 	}
-	
+
 	/**
 	 * Tries to add a block of the given type to this BlockTypeHolder. For this to succeed the type of this holder has
 	 * to match the given type and there has to be a free slot in this BlockTypeHolder and all of its parents. Can be
@@ -318,5 +319,10 @@ public class BlockTypeHolder {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Iterator<BlockTypeHolder> iterator() {
+		return new BlockTypeHolderIterator(this);
 	}
 }

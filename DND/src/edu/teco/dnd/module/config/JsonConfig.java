@@ -3,8 +3,6 @@ package edu.teco.dnd.module.config;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -59,24 +57,14 @@ public class JsonConfig implements ModuleConfig {
 			return;
 		}
 
-		int currentBlockId = 0;
-		final Queue<BlockTypeHolder> queue = new LinkedList<BlockTypeHolder>();
-		LOGGER.trace("adding {} to queue", allowedBlocks);
-		queue.add(allowedBlocks);
-
-		while (!queue.isEmpty()) {
-			final BlockTypeHolder currentBlock = queue.remove();
-			LOGGER.trace("initializing {}", currentBlock);
-
-			currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
-			currentBlock.setID(++currentBlockId);
-
-			for (BlockTypeHolder child : currentBlock.getChildren()) {
-				if (child != null) {
-					child.setParent(currentBlock);
-					LOGGER.trace("adding {} to queue", child);
-					queue.add(child);
-				}
+		int currentBlockId = 1;
+		for (final BlockTypeHolder blockTypeHolder : allowedBlocks) {
+			LOGGER.trace("initializing {}", blockTypeHolder);
+			blockTypeHolder.setAmountLeft(blockTypeHolder.getAmountAllowed());
+			blockTypeHolder.setID(currentBlockId++);
+			
+			for (final BlockTypeHolder child : blockTypeHolder.getChildren()) {
+				child.setParent(blockTypeHolder);
 			}
 		}
 		LOGGER.exit();

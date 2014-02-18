@@ -47,9 +47,10 @@ public class ModuleInfoMessageAdapter implements JsonDeserializer<ModuleInfoMess
 	 *            the root of the tree (if called externally).
 	 */
 	private static void setParents(final BlockTypeHolder blockTypeHolder) {
-		for (final BlockTypeHolder child : blockTypeHolder.getChildren()) {
-			child.setParent(blockTypeHolder);
-			setParents(child);
+		for (final BlockTypeHolder current : blockTypeHolder) {
+			for (final BlockTypeHolder child : current.getChildren()) {
+				child.setParent(current);
+			}
 		}
 	}
 }
