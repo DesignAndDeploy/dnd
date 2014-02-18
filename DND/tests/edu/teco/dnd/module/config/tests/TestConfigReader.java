@@ -1,19 +1,12 @@
 package edu.teco.dnd.module.config.tests;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.module.config.ModuleConfig;
@@ -31,17 +24,11 @@ public class TestConfigReader extends ModuleConfig {
 	private String location;
 	private ModuleID moduleID = new ModuleID();
 	private int maxAppthreads = 0;
-	private boolean allowNIO = true;
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
 	private NetConnection[] multicast;
 	private BlockTypeHolder allowedBlocks; // the rootBlock
 	private int currentBlockId = 0;
-
-	private static final transient Logger LOGGER = LogManager.getLogger(TestConfigReader.class);
-
-	private transient Map<String, BlockTypeHolder> blockQuickaccess = new HashMap<String, BlockTypeHolder>();
-	private transient Map<Integer, BlockTypeHolder> blockIdQuickaccess = new HashMap<Integer, BlockTypeHolder>();
 
 	/**
 	 * set up this mock according to parameters.
@@ -73,14 +60,13 @@ public class TestConfigReader extends ModuleConfig {
 		this.location = location;
 		this.moduleID = moduleID;
 		this.maxAppthreads = maxAppthreads;
-		this.allowNIO = allowNIO;
 		this.listen = listen;
 		this.announce = announce;
 		this.multicast = multicast;
 		this.allowedBlocks = allowedBlocks;
 
 		if (allowedBlocks != null) {
-			fillTransientVariables(blockQuickaccess, allowedBlocks);
+			fillTransientVariables(allowedBlocks);
 		}
 	}
 
@@ -125,31 +111,20 @@ public class TestConfigReader extends ModuleConfig {
 	 * fill the internal transient variables of blockTypeHolder which are usually not filled in during storage (and its
 	 * more convenient than to paste it every time we need a mock).
 	 * 
-	 * @param currentBlockQuickaccess
-	 *            blockQuickaccess list. Used for easier retrieval of types.
 	 * @param currentBlock
 	 *            the root of the BlockTypeHolder tree if not called recursively.
 	 */
-	private void fillTransientVariables(Map<String, BlockTypeHolder> currentBlockQuickaccess,
-			final BlockTypeHolder currentBlock) {
+	private void fillTransientVariables(final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
 		currentBlock.setIdNumber(++currentBlockId);
-		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
-		if (children == null) {
-			currentBlockQuickaccess.put(currentBlock.getType(), currentBlock);
-		} else {
+		if (children != null) {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
-				fillTransientVariables(currentBlockQuickaccess, child);
+				fillTransientVariables(child);
 			}
 		}
 
-	}
-
-	@Override
-	public void load(String path) throws IOException {
-		throw LOGGER.throwing(new NotImplementedException());
 	}
 
 	@Override
@@ -169,7 +144,7 @@ public class TestConfigReader extends ModuleConfig {
 
 	@Override
 	public int getMaxThreadsPerApp() {
-		return (maxAppthreads > 0) ? maxAppthreads : ModuleConfig.DEFAULT_THREADS_PER_APP;
+		return maxAppthreads;
 	}
 
 	@Override
@@ -190,16 +165,6 @@ public class TestConfigReader extends ModuleConfig {
 	@Override
 	public BlockTypeHolder getBlockRoot() {
 		return allowedBlocks;
-	}
-
-	@Override
-	public boolean getAllowNIO() {
-		return allowNIO;
-	}
-
-	@Override
-	public Map<Integer, BlockTypeHolder> getAllowedBlocksById() {
-		return blockIdQuickaccess;
 	}
 
 	@Override

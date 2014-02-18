@@ -5,8 +5,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
@@ -38,7 +36,6 @@ public class JsonConfig extends ModuleConfig {
 	private String location;
 	private UUID uuid = UUID.randomUUID();
 	private int maxAppthreads = 0;
-	private boolean allowNIO = true;
 	private int announceInterval = DEFAULT_ANNOUNCE_INTERVAL;
 	private InetSocketAddress[] listen;
 	private InetSocketAddress[] announce;
@@ -67,8 +64,6 @@ public class JsonConfig extends ModuleConfig {
 		builder.addSerializationExclusionStrategy(amountLeftExclusionStrategy);
 		GSON = builder.create();
 	}
-
-	private transient Map<Integer, BlockTypeHolder> blockIdQuickaccess = new HashMap<Integer, BlockTypeHolder>();
 
 	/**
 	 * create an empty Config to set parameters manually.
@@ -103,7 +98,6 @@ public class JsonConfig extends ModuleConfig {
 		this.name = oldConf.name;
 		this.location = oldConf.location;
 		this.maxAppthreads = oldConf.maxAppthreads;
-		this.allowNIO = oldConf.allowNIO;
 		if (oldConf.uuid != null) {
 			this.uuid = oldConf.uuid;
 		}
@@ -114,7 +108,6 @@ public class JsonConfig extends ModuleConfig {
 		this.allowedBlocks = oldConf.allowedBlocks;
 	}
 
-	@Override
 	public void load(String path) throws IOException {
 		pathToSaveTo = path;
 		FileReader reader = null;
@@ -148,7 +141,6 @@ public class JsonConfig extends ModuleConfig {
 	private void fillTransientVariables(final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
 		currentBlock.setIdNumber(++currentBlockId);
-		blockIdQuickaccess.put(currentBlock.getIdNumber(), currentBlock);
 		if (!currentBlock.isLeaf()) {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				child.setParent(currentBlock);
@@ -157,7 +149,6 @@ public class JsonConfig extends ModuleConfig {
 		}
 	}
 
-	@Override
 	public boolean store() {
 		FileWriter writer = null;
 		try {
@@ -203,7 +194,7 @@ public class JsonConfig extends ModuleConfig {
 
 	@Override
 	public int getMaxThreadsPerApp() {
-		return (maxAppthreads > 0) ? maxAppthreads : ModuleConfig.DEFAULT_THREADS_PER_APP;
+		return maxAppthreads;
 	}
 
 	@Override
@@ -224,16 +215,6 @@ public class JsonConfig extends ModuleConfig {
 	@Override
 	public BlockTypeHolder getBlockRoot() {
 		return allowedBlocks;
-	}
-
-	@Override
-	public Map<Integer, BlockTypeHolder> getAllowedBlocksById() {
-		return blockIdQuickaccess;
-	}
-
-	@Override
-	public boolean getAllowNIO() {
-		return allowNIO;
 	}
 
 	@Override
