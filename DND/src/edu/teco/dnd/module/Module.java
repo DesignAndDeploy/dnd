@@ -72,7 +72,7 @@ public class Module {
 		this.moduleShutdownHook = shutdownHook;
 		this.moduleConfig = config;
 		this.connMan = connMan;
-		this.moduleBlockManager = new ModuleBlockManager(this.moduleConfig.getAllowedBlocksById());
+		this.moduleBlockManager = new ModuleBlockManager(this.moduleConfig.getBlockRoot());
 	}
 
 	/**
