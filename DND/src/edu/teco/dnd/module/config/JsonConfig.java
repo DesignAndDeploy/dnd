@@ -69,7 +69,7 @@ public class JsonConfig implements ModuleConfig {
 			LOGGER.trace("initializing {}", currentBlock);
 
 			currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
-			currentBlock.setIdNumber(++currentBlockId);
+			currentBlock.setID(++currentBlockId);
 
 			for (BlockTypeHolder child : currentBlock.getChildren()) {
 				if (child != null) {

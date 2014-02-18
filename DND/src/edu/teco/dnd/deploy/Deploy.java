@@ -547,7 +547,7 @@ public class Deploy {
 		}
 		final BlockMessage blockMsg =
 				new BlockMessage(applicationID, block.getBlockClass(), block.getBlockName(), new FunctionBlockID(
-						block.getID()), options, outputs, distribution.get(block).getBlockTypeHolder().getIdNumber());
+						block.getID()), options, outputs, distribution.get(block).getBlockTypeHolder().getID());
 		return connectionManager.sendMessage(moduleID, blockMsg);
 	}
 

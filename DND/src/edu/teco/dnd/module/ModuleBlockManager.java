@@ -34,7 +34,7 @@ public class ModuleBlockManager {
 		queue.add(rootHolder);
 		while (!queue.isEmpty()) {
 			final BlockTypeHolder current = queue.remove();
-			map.put(current.getIdNumber(), current);
+			map.put(current.getID(), current);
 			queue.addAll(current.getChildren());
 		}
 		return map;

@@ -117,7 +117,7 @@ public class TestConfigReader implements ModuleConfig {
 	 */
 	private void fillTransientVariables(final BlockTypeHolder currentBlock) {
 		currentBlock.setAmountLeft(currentBlock.getAmountAllowed());
-		currentBlock.setIdNumber(++currentBlockId);
+		currentBlock.setID(++currentBlockId);
 		Set<BlockTypeHolder> children = currentBlock.getChildren();
 		if (children != null) {
 			for (BlockTypeHolder child : currentBlock.getChildren()) {

@@ -1,7 +1,5 @@
 package edu.teco.dnd.module.config;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +29,7 @@ public class BlockTypeHolder {
 	private int amountAllowed = -1;
 	private int amountLeft = -1;
 	/** used during deploy to give exact position to run block on in case of doubt. */
-	private int idNumber = -1;
+	private int id = -1;
 	/** null if none. */
 	private final Set<BlockTypeHolder> children = new HashSet<BlockTypeHolder>();
 
@@ -89,33 +87,6 @@ public class BlockTypeHolder {
 		this.type = null;
 		this.amountAllowed = amount;
 		this.amountLeft = amount;
-	}
-
-	/**
-	 * adds a single child to a non leave node.
-	 * 
-	 * @param child
-	 *            the child to add.
-	 * @throws IllegalStateException
-	 *             if node is a leaf node.
-	 */
-	public void addChild(BlockTypeHolder child) throws IllegalStateException {
-		addChild(Arrays.asList(child));
-	}
-
-	/**
-	 * add a collection of children to a non leaf node.
-	 * 
-	 * @param childrenToAdd
-	 *            a collection of children to add to this block.
-	 * @throws IllegalStateException
-	 *             if node is a leaf node.
-	 */
-	public void addChild(Collection<BlockTypeHolder> childrenToAdd) throws IllegalStateException {
-		if (type != null) {
-			throw new IllegalStateException("Node has type and is not a leave node.");
-		}
-		this.children.addAll(childrenToAdd);
 	}
 
 	public Set<BlockTypeHolder> getChildren() {
@@ -177,21 +148,21 @@ public class BlockTypeHolder {
 	}
 
 	/**
-	 * @return the idNumber
+	 * @return the id
 	 */
-	public int getIdNumber() {
-		return idNumber;
+	public int getID() {
+		return id;
 	}
 
 	/**
-	 * @param idNumber
-	 *            the idNumber to set >= 0
+	 * @param id
+	 *            the id to set >= 0
 	 */
-	public void setIdNumber(int idNumber) {
-		if (idNumber < 0) {
+	public void setID(int id) {
+		if (id < 0) {
 			throw new IllegalArgumentException();
 		}
-		this.idNumber = idNumber;
+		this.id = id;
 	}
 	
 	/**

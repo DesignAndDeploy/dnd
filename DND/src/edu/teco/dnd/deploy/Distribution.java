@@ -377,7 +377,7 @@ public class Distribution {
 			sb.append("BlockTypeHolder[module=");
 			sb.append(module.getID());
 			sb.append(",id=");
-			sb.append(holder.getIdNumber());
+			sb.append(holder.getID());
 			if (holder.isLeaf()) {
 				sb.append(",type='");
 				sb.append(holder.getType());
