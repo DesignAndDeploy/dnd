@@ -1,14 +1,17 @@
 package edu.teco.dnd.network.tcp;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.EventLoopGroup;
 
 import java.net.SocketAddress;
 
 /**
- * An implementation of ServerChannelFactory that uses {@link ServerBootstrap}.
+ * An implementation of {@link ServerChannelFactory} that uses {@link ServerBootstrap}.
  * 
- * <p>The EventLoopGroup and the Channel type of the Bootstrap object have to be set:
+ * <p>
+ * The {@link EventLoopGroup} and the {@link Channel} type of the Bootstrap object have to be set:
  * 
  * <pre>
  * final ServerBootstrap b = new ServerBootstrap();
@@ -16,9 +19,8 @@ import java.net.SocketAddress;
  * b.channel(NioServerSocketChannel.class);
  * ServerBootstrapChannelFactory factory = new ServerBootstrapChannelFactory(b);
  * </pre>
- * </p>
  * 
- * @author Philipp Adolf
+ * </p>
  */
 public class ServerBootstrapChannelFactory implements ServerChannelFactory {
 	private final ServerBootstrap bootstrap;

@@ -11,17 +11,16 @@ import edu.teco.dnd.network.messages.Message;
 
 /**
  * <p>
- * Manages {@link MessageHandler}s for multiple Message classes and Application IDs.
+ * Manages {@link MessageHandler}s for multiple {@link Message} classes and {@link ApplicationID}s.
  * </p>
  * 
  * <p>
- * Handlers can be set for Message classes and can also be set for a specific Application ID only. If a handler is
- * requested it is first check if an Application specific handler for the given Application ID is registered for the
+ * Handlers can be set for Message classes and can also be set for a specific ApplicationIDs only. If a handler is
+ * requested it is first checked if an Application specific handler for the given ApplicationID is registered for the
  * class of the Message. If there is no such handler it is checked if a default handler for the class is registered. If
- * neither of them is found the superclass is checked until a handler is found or Message itself was checked.
+ * neither of them is found the superclass is checked until a handler is found or the class <code>Message</code> itself
+ * was checked.
  * </p>
- * 
- * @author Philipp Adolf
  */
 public class MessageHandlerManager {
 	private final ConcurrentMap<Class<? extends Message>, HandlersByApplicationID<? extends Message>> handlers =
@@ -63,8 +62,11 @@ public class MessageHandlerManager {
 	 * Sets an Application specific handler.
 	 * 
 	 * @param messageClass
+	 *            the class of {@link Message}s the handler is for
 	 * @param handler
+	 *            the handler to add
 	 * @param applicationID
+	 *            the ID of the Application the handler is for
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
 			final ApplicationID applicationID) {
@@ -78,8 +80,13 @@ public class MessageHandlerManager {
 	 * Sets an Application specific handler.
 	 * 
 	 * @param messageClass
+	 *            the class of {@link Message}s the handler is for
 	 * @param handler
+	 *            the handler to add
 	 * @param applicationID
+	 *            the ID of the Application the handler is for
+	 * @param executor
+	 *            an Executor that should be used to run the handler
 	 */
 	public <T extends Message> void setHandler(final Class<T> messageClass, final MessageHandler<? super T> handler,
 			final ApplicationID applicationID, final Executor executor) {
@@ -141,8 +148,7 @@ public class MessageHandlerManager {
 		}
 		if (handler == null) {
 			try {
-				return (MessageHandlerWithExecutor<T>) getHandler(getMessageSuperclass(messageClass),
-						applicationID);
+				return (MessageHandlerWithExecutor<T>) getHandler(getMessageSuperclass(messageClass), applicationID);
 			} catch (final IllegalArgumentException e) {
 				throw new NoSuchElementException("no message handler found");
 			}
@@ -164,8 +170,8 @@ public class MessageHandlerManager {
 	}
 
 	/**
-	 * Returns the superclass of the given class if the superclass is a Message. Throws an IllegalArgumentException
-	 * otherwise.
+	 * Returns the superclass of the given class if the superclass is a {@link Message}. Throws an
+	 * {@link IllegalArgumentException} otherwise.
 	 * 
 	 * @param messageClass
 	 *            the class to check

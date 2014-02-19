@@ -8,8 +8,6 @@ import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * This class can be used if a {@link ChannelFuture} exists, but a {@link FutureNotifier} is needed.
- * 
- * @author Philipp Adolf
  */
 public class ChannelFutureNotifierWrapper extends DefaultFutureNotifier<Void> implements ChannelFutureListener,
 		ChannelFutureNotifier {

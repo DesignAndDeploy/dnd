@@ -6,17 +6,17 @@ import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
 
 /**
- * Always returns an executor that runs the code in the thread calling it.
+ * An implementation of {@link MessageHandlerWithExecutor} that returns an Executor that runs the code in the calling
+ * Thread.
  * 
- * @author Philipp Adolf
- *
- * @param <T> the type of Messages handled by the MessageHandler
+ * @param <T>
+ *            the type of Messages handled by the MessageHandler
  */
 public class MessageHandlerWithDefaultExecutor<T extends Message> implements MessageHandlerWithExecutor<T> {
 	private final MessageHandler<T> messageHandler;
-	
+
 	private static final Executor defaultExecutor = new CurrentThreadExecutor();
-	
+
 	public MessageHandlerWithDefaultExecutor(final MessageHandler<T> messageHandler) {
 		this.messageHandler = messageHandler;
 	}
@@ -30,7 +30,7 @@ public class MessageHandlerWithDefaultExecutor<T extends Message> implements Mes
 	public Executor getExecutor() {
 		return defaultExecutor;
 	}
-	
+
 	private static class CurrentThreadExecutor implements Executor {
 		@Override
 		public void execute(final Runnable command) {

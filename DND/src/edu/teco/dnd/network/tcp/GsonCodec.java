@@ -16,36 +16,20 @@ import com.google.gson.GsonBuilder;
 
 /**
  * A codec that translate from Java objects to JSON representations and vice versa.
- * 
- * @author Philipp Adolf
  */
 @Sharable
 public class GsonCodec extends MessageToMessageCodec<String, Object> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(GsonCodec.class);
 
-	/**
-	 * GsonBuilder used to create Gson objects.
-	 */
 	private final GsonBuilder gsonBuilder;
-
-	/**
-	 * The Gson object used for (de-)serialisation.
-	 */
 	private final AtomicReference<Gson> gson;
-
-	/**
-	 * The type that should be used.
-	 */
 	private final Type type;
 
 	/**
-	 * Creates a new GsonCodec that uses <code>type</code> as the target type for serialization.
+	 * Creates a new GsonCodec that uses <code>type</code> as the target type for (de-)serialization.
 	 * 
 	 * @param type
-	 *            the type to use for serialization
+	 *            the type to use for (de-)serialization
 	 * @param prettyPrint
 	 *            if true, pretty printing is enabled
 	 */
@@ -64,11 +48,12 @@ public class GsonCodec extends MessageToMessageCodec<String, Object> {
 	}
 
 	/**
-	 * Creates a new GsonCodec that uses <code>type</code> as the target type for serialization and that does not use
-	 * pretty printing.
+	 * Creates a new GsonCodec that uses <code>type</code> as the target type for (de-)>serialization and that does not
+	 * use pretty printing.
 	 * 
 	 * @param type
-	 *            the type to use for serialization
+	 *            the type to use for (de-)serialization
+	 * @see #GsonCodec(Type, boolean)
 	 */
 	public GsonCodec(final Type type) {
 		this(type, false);

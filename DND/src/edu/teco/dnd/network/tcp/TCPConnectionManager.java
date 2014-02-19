@@ -34,7 +34,7 @@ import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * <p>
- * An implementation of ConnectionManager that uses TCP connections and sends Messages encoded as JSON obejcts.
+ * An implementation of {@link ConnectionManager} that uses TCP connections and sends Messages encoded as JSON obejcts.
  * </p>
  * 
  * <p>
@@ -56,7 +56,7 @@ import edu.teco.dnd.util.FutureNotifier;
  * </p>
  * 
  * <p>
- * TCPConnectionManager uses Netty 4 for its network code and GSON to serialize Messages to JSON and deserialize them.
+ * TCPConnectionManager uses Netty 4 for its network code and GSON to (de-)serialize Messages to/from JSON.
  * </p>
  * 
  * @author Philipp Adolf
@@ -80,9 +80,7 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	protected ShutdownFuture shutdownFuture = new ShutdownFuture();
 
 	/**
-	 * <p>
 	 * Initializes a new TCPConnectionManager.
-	 * </p>
 	 * 
 	 * @param serverChannelFactory
 	 *            a factory that will be used to create listening Channels
@@ -90,8 +88,6 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 *            a factory that will be used to connect to other clients
 	 * @param localID
 	 *            the ModuleID of this client
-	 * @see ServerBootstrapChannelFactory
-	 * @see ClientBootstrapChannelFactory
 	 */
 	public TCPConnectionManager(final ServerChannelFactory serverChannelFactory,
 			final ClientChannelFactory clientChannelFactory, final ScheduledExecutorService invalidatorThread,
@@ -115,8 +111,9 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 	 * 
 	 * <p>
 	 * This method has to be called before a Message of that type is sent or received, otherwise sending/receiving will
-	 * fail. The type that will be sent encoded in the JSON representation will be taken from the public static final
-	 * String field called MESSAGE_TYPE defined in the class.
+	 * fail. The type that will be sent encoded in the JSON representation will be taken from the
+	 * <code>public static final
+	 * String</code> field called {@value MessageAdapter#DEFAULT_TYPE_FIELD_NAME} defined in the class.
 	 * </p>
 	 * 
 	 * @param cls
@@ -217,14 +214,14 @@ public class TCPConnectionManager implements ConnectionManager, BeaconListener {
 
 	/**
 	 * Returns an active Channel that is connected to the given client. If there are multiple active channels for the
-	 * ModuleID, one of them is returned without any guarantees which one (and subsequent calls for the same ModuleID
-	 * may return different channels in this case).
+	 * {@link ModuleID}, one of them is returned without any guarantees as to which one (and subsequent calls for the
+	 * same ModuleID may return different channels in this case).
 	 * 
 	 * @param moduleID
-	 *            the ID of the remote ModuleInfo
-	 * @return an active channel that is connected to the ModuleInfo
+	 *            the ID of the remote Module
+	 * @return an active channel that is connected to the Module
 	 * @throws NoSuchElementException
-	 *             if no active connection to the ModuleInfo exists
+	 *             if no active connection to the Module exists
 	 */
 	private Channel getActiveChannel(final ModuleID moduleID) {
 		for (final Channel channel : clientChannelManager.getChannels(moduleID)) {

@@ -17,22 +17,21 @@ import edu.teco.dnd.util.JoinedFutureNotifier;
  * Allows to bind to addresses and close all open sockets.
  * 
  * This class is thread-safe.
- * 
- * @author Philipp Adolf
  */
 public class ServerChannelManager {
 	private final Set<Channel> serverChannels = new HashSet<Channel>();
-	
+
 	private final ServerChannelFactory channelFactory;
-	
+
 	public ServerChannelManager(final ServerChannelFactory channelFactory) {
 		this.channelFactory = channelFactory;
 	}
-	
+
 	/**
 	 * Adds a Channel to the list of known Channels.
 	 * 
-	 * @param serverChannel the Channel to add
+	 * @param serverChannel
+	 *            the Channel to add
 	 */
 	private void addChannel(final Channel serverChannel) {
 		synchronized (this) {
@@ -40,34 +39,24 @@ public class ServerChannelManager {
 		}
 		serverChannel.closeFuture().addListener(new CloseFutureListener());
 	}
-	
+
 	/**
 	 * Removes a Channel from the list of known Channels.
 	 * 
-	 * @param serverChannel the Channel to remove
+	 * @param serverChannel
+	 *            the Channel to remove
 	 */
 	private void removeChannel(final Channel serverChannel) {
 		synchronized (this) {
 			serverChannels.remove(serverChannel);
 		}
 	}
-	
-	/**
-	 * Used to remove Channels from this manager once they're closed.
-	 * 
-	 * @author Philipp Adolf
-	 */
-	private class CloseFutureListener implements ChannelFutureListener {
-		@Override
-		public void operationComplete(final ChannelFuture future) throws Exception {
-			removeChannel(future.channel());
-		}
-	}
 
 	/**
 	 * Binds to a new address. The channel is automatically added to this manager.
 	 * 
-	 * @param listenAddress the address to bind to
+	 * @param listenAddress
+	 *            the address to bind to
 	 * @return a ChannelFutureNotifier that will return the Channel
 	 */
 	public ChannelFutureNotifier bind(final SocketAddress listenAddress) {
@@ -89,7 +78,7 @@ public class ServerChannelManager {
 		synchronized (this) {
 			openChannels.addAll(serverChannels);
 		}
-		
+
 		final Collection<FutureNotifier<? extends Void>> closeFutureNotifiers =
 				new ArrayList<FutureNotifier<? extends Void>>(openChannels.size());
 		for (final Channel channel : openChannels) {
@@ -108,6 +97,16 @@ public class ServerChannelManager {
 	public Collection<Channel> getChannels() {
 		synchronized (this) {
 			return new HashSet<Channel>(serverChannels);
+		}
+	}
+
+	/**
+	 * Used to remove Channels from this manager once they're closed.
+	 */
+	private class CloseFutureListener implements ChannelFutureListener {
+		@Override
+		public void operationComplete(final ChannelFuture future) throws Exception {
+			removeChannel(future.channel());
 		}
 	}
 }
