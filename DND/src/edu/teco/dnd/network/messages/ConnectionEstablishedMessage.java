@@ -1,16 +1,13 @@
 package edu.teco.dnd.network.messages;
 
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleID;
 
 /**
- * Message that signals that the sender has accepted the connection.
- * 
- * @author Philipp Adolf
+ * Message that signals that the sender has accepted the connection. Also contains the {@link ModuleID} of the sending
+ * {@link Module}.
  */
 public class ConnectionEstablishedMessage extends Message {
-	/**
-	 * The type of this message.
-	 */
 	public static final String MESSAGE_TYPE = "connection established";
 	
 	private final ModuleID remoteID;

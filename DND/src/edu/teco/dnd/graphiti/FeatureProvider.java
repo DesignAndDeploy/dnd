@@ -71,12 +71,16 @@ import edu.teco.dnd.util.ClassScanner;
 import edu.teco.dnd.util.StringUtil;
 
 /**
- * Provides the features that are used by the editor.
+ * <p>
+ * Provides the Features that control the behavior of the diagram. Every action on the diagram is done via a Feature:
+ * </p>
+ * 
+ * <ul>
+ * <li>Creating elements ({@link CreateBlockFeature}, {@link CreateDataConnectionFeature})</li>
+ * <li>Adding graphical representation of elements ({@link AddBlockFeature}, {@link AddDataConnectionFeature})</li>
+ * <li>
  */
 public class FeatureProvider extends DefaultFeatureProvider {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(FeatureProvider.class);
 
 	private Resource resource = null;

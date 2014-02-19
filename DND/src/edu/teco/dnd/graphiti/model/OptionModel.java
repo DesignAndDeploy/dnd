@@ -2,7 +2,11 @@ package edu.teco.dnd.graphiti.model;
 
 import org.eclipse.emf.ecore.EObject;
 
+import edu.teco.dnd.blocks.FunctionBlock;
+
 /**
+ * Represents an option of a {@link FunctionBlock}.
+ * 
  * @model
  */
 public interface OptionModel extends EObject {

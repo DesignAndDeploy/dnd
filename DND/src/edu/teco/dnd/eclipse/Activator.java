@@ -14,21 +14,25 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import edu.teco.dnd.eclipse.preferences.PreferencesNetwork;
+import edu.teco.dnd.eclipse.preferences.Preferences;
 import edu.teco.dnd.module.ModuleID;
+import edu.teco.dnd.eclipse.preferences.NetworkPreferences;
 import edu.teco.dnd.network.UDPMulticastBeacon;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.server.AddressBasedServerConfig;
 import edu.teco.dnd.server.SimpleAddressBasedServerConfig;
+import edu.teco.dnd.server.ApplicationManager;
+import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ServerManager;
+import edu.teco.dnd.server.ServerStateListener;
 import edu.teco.dnd.server.TCPUDPServerManager;
 import edu.teco.dnd.util.NetConnection;
 
+/**
+ * This is the main class for the Eclipse plugin. It is implemented as a singleton and handles global variables such as
+ * the {@link ServerManager}.
+ */
 public class Activator extends AbstractUIPlugin {
-
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(Activator.class);
 
 	private static Activator plugin;
@@ -37,6 +41,8 @@ public class Activator extends AbstractUIPlugin {
 	private ModuleID moduleID = null;
 
 	static {
+		// set Logger factory of Netty. Must be run as early as possible so that Netty has not created any Loggers
+		// before the factory is set.
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
 	}
 
@@ -64,20 +70,21 @@ public class Activator extends AbstractUIPlugin {
 		LOGGER.exit();
 	}
 
+	/**
+	 * Returns a ServerManager that should be used for registering with a {@link ModuleManager} and/or a
+	 * {@link ApplicationManager} as well as for registering as a {@link ServerStateListener} directly. You should not
+	 * call {@link ServerManager#startServer(String, String, String, int)} or {@link ServerManager#shutdownServer()}
+	 * directly. Use {@link #startServer()} and {@link #shutdownServer()} instead.
+	 * 
+	 * @return the ServerManager to use
+	 */
 	public ServerManager<AddressBasedServerConfig> getServerManager() {
 		return serverManager;
 	}
 
 	/**
-	 * Starts a server.
-	 * 
-	 * Use this method to start the server from within eclipse. Activator will get the address arguments from the
-	 * preference store and pass them to the {@link ServerManager}. The ServerManager will do the main process of
-	 * starting a server, but only Activator can access the Preferences to get the user input in eclipse.
-	 * 
-	 * When starting a server from outside of eclipse, you can't access the preferences set in eclipse. In that case,
-	 * start the server directly through the {@link ServerManager}. You will also have to get the address arguments from
-	 * somewhere else.
+	 * Starts the server used to communicate with other Modules. The configuration for the server is retrieved from the
+	 * {@link Preferences}.
 	 */
 	public void startServer() {
 		final AddressBasedServerConfig serverConfig =
@@ -92,10 +99,10 @@ public class Activator extends AbstractUIPlugin {
 
 	@Override
 	protected void initializeDefaultPreferences(IPreferenceStore store) {
-		store.setDefault(PreferencesNetwork.LISTEN_PREFERENCE, "");
-		store.setDefault(PreferencesNetwork.MULTICAST_PREFERENCE, "");
-		store.setDefault(PreferencesNetwork.ANNOUNCE_PREFERENCE, "");
-		store.setDefault(PreferencesNetwork.BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
+		store.setDefault(NetworkPreferences.LISTEN_PREFERENCE, "");
+		store.setDefault(NetworkPreferences.MULTICAST_PREFERENCE, "");
+		store.setDefault(NetworkPreferences.ANNOUNCE_PREFERENCE, "");
+		store.setDefault(NetworkPreferences.BEACON_PREFERENCE, UDPMulticastBeacon.DEFAULT_INTERVAL);
 	}
 
 	/**
@@ -104,7 +111,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the listen addresses stored in the Eclipse preferences
 	 */
 	private Collection<InetSocketAddress> getListenAddresses() {
-		return getInetSocketAddresses(getPreference(PreferencesNetwork.LISTEN_PREFERENCE).split(" "));
+		return getInetSocketAddresses(getPreference(NetworkPreferences.LISTEN_PREFERENCE).split(" "));
 	}
 
 	/**
@@ -113,7 +120,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the multicast addresses stored in the Eclipse preferences
 	 */
 	private Collection<NetConnection> getMulticastAddresses() {
-		return getNetConnections(getPreference(PreferencesNetwork.MULTICAST_PREFERENCE).split(" "));
+		return getNetConnections(getPreference(NetworkPreferences.MULTICAST_PREFERENCE).split(" "));
 	}
 
 	/**
@@ -122,7 +129,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the announce addresses stored in the Eclipse preferences
 	 */
 	private Collection<InetSocketAddress> getAnnounceAddresses() {
-		return getInetSocketAddresses(getPreference(PreferencesNetwork.ANNOUNCE_PREFERENCE).split(" "));
+		return getInetSocketAddresses(getPreference(NetworkPreferences.ANNOUNCE_PREFERENCE).split(" "));
 	}
 
 	private Collection<InetSocketAddress> getInetSocketAddresses(final String[] addresses) {
@@ -170,6 +177,6 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the announce interval stored in the Eclipse preferences
 	 */
 	private int getAnnounceInterval() {
-		return getPreferenceStore().getInt(PreferencesNetwork.BEACON_PREFERENCE);
+		return getPreferenceStore().getInt(NetworkPreferences.BEACON_PREFERENCE);
 	}
 }

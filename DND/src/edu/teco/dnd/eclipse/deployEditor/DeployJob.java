@@ -11,8 +11,12 @@ import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.DeployListener;
 import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.ModuleID;
+import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ModuleInfo;
 
+/**
+ * An Eclipse job that is used to monitor the progress of deploying an {@link Application}.
+ */
 public class DeployJob extends Job {
 
 	/**
@@ -58,12 +62,12 @@ public class DeployJob extends Job {
 		this.deploy = d;
 	}
 
-	protected boolean cancelJob(){
-		//TODO: Doesn't work.
+	protected boolean cancelJob() {
+		// TODO: Doesn't work.
 		m.setCanceled(true);
 		return cancel();
 	}
-	
+
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
 		m = monitor;
@@ -73,7 +77,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleJoined(ApplicationID applicationID, ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} joined Application {}", moduleUUID, applicationID);
+					LOGGER.debug("Module {} joined Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_JOIN_MODULE);
 				}
 			}
@@ -81,7 +85,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleLoadedClasses(ApplicationID applicationID, ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} loaded all classes for Application {}", moduleUUID, applicationID);
+					LOGGER.debug("Module {} loaded all classes for Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_LOAD_CLASSES);
 				}
 			}
@@ -89,8 +93,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleLoadedBlocks(ApplicationID applicationID, ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} loaded all FunctionBlocks for Application {}", moduleUUID,
-							applicationID);
+					LOGGER.debug("Module {} loaded all FunctionBlocks for Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_LOAD_BLOCKS);
 				}
 			}
@@ -98,7 +101,7 @@ public class DeployJob extends Job {
 			@Override
 			public void moduleStarted(final ApplicationID applicationID, final ModuleID moduleUUID) {
 				if (id.equals(moduleUUID)) {
-					LOGGER.debug("ModuleInfo {} started the Application {}", moduleUUID, applicationID);
+					LOGGER.debug("Module {} started the Application {}", moduleUUID, applicationID);
 					monitor.worked(STEPS_START_MODULE);
 				}
 			}
@@ -109,7 +112,7 @@ public class DeployJob extends Job {
 				monitor.setCanceled(true);
 			}
 		});
-		
+
 		while (!deploy.getDeployFutureNotifier().isDone()) {
 			try {
 				deploy.getDeployFutureNotifier().await();

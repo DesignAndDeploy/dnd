@@ -7,11 +7,9 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import edu.teco.dnd.eclipse.Activator;
 
 /**
- * This class manages the general Preferences for the DND eclipse plugin.
+ * The overall category for all preferences related to this plugin.
  */
-
 public class Preferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
@@ -20,7 +18,5 @@ public class Preferences extends FieldEditorPreferencePage implements IWorkbench
 
 	@Override
 	protected void createFieldEditors() {
-
 	}
-
 }

@@ -20,7 +20,7 @@ import edu.teco.dnd.network.UDPMulticastBeacon;
 /**
  * This class manages the network preferences for the DND eclipse plugin.
  */
-public class PreferencesNetwork extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class NetworkPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	/**
 	 * String defining the name of the preference that stores the beacon interval in seconds.
@@ -54,12 +54,12 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 	 */
 	public static final String ANNOUNCE_PREFERENCE = "announce";
 
-	PrefList addrAndPorts;
-	PrefList multi;
-	PrefList announce;
+	ListPreferences addrAndPorts;
+	ListPreferences multi;
+	ListPreferences announce;
 	int beaconInterval;
 
-	public PreferencesNetwork() {
+	public NetworkPreferences() {
 		super(GRID);
 
 	}
@@ -91,7 +91,7 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		return Activator.getDefault().getPreferenceStore();
 	}
 
-	private PrefList initAddrAndPorts(Composite parent) {
+	private ListPreferences initAddrAndPorts(Composite parent) {
 		GridData data1 = new GridData();
 		data1.horizontalAlignment = GridData.FILL;
 		data1.grabExcessHorizontalSpace = true;
@@ -113,13 +113,13 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		addrAndPorts.add(new TextAddress(addr));
 		addrAndPorts.add(new TextPort(port));
 
-		PrefList prefList = new PrefList(LISTEN_PREFERENCE, "", parent, addrAndPorts); //$NON-NLS-1$ //$NON-NLS-2$
+		ListPreferences prefList = new ListPreferences(LISTEN_PREFERENCE, "", parent, addrAndPorts); //$NON-NLS-1$ //$NON-NLS-2$
 		prefList.setPreferenceStore(getPreferenceStore());
 
 		return prefList;
 	}
 
-	private PrefList initMulticast(Composite parent) {
+	private ListPreferences initMulticast(Composite parent) {
 		GridData data1 = new GridData();
 		data1.horizontalAlignment = GridData.FILL;
 		data1.grabExcessHorizontalSpace = true;
@@ -151,13 +151,13 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		multi.add(new TextPort(port));
 		multi.add(new TextNetwork(network));
 
-		PrefList prefList = new PrefList(MULTICAST_PREFERENCE, "", parent, multi); //$NON-NLS-1$ //$NON-NLS-2$
+		ListPreferences prefList = new ListPreferences(MULTICAST_PREFERENCE, "", parent, multi); //$NON-NLS-1$ //$NON-NLS-2$
 		prefList.setPreferenceStore(getPreferenceStore());
 
 		return prefList;
 	}
 
-	private PrefList initMultiContent(Composite parent) {
+	private ListPreferences initMultiContent(Composite parent) {
 		GridData data1 = new GridData();
 		data1.horizontalAlignment = GridData.FILL;
 		data1.grabExcessHorizontalSpace = true;
@@ -179,7 +179,7 @@ public class PreferencesNetwork extends FieldEditorPreferencePage implements IWo
 		content.add(new TextAddress(addr));
 		content.add(new TextPort(port));
 
-		PrefList prefList = new PrefList(ANNOUNCE_PREFERENCE, "", parent, content); //$NON-NLS-1$ //$NON-NLS-2$
+		ListPreferences prefList = new ListPreferences(ANNOUNCE_PREFERENCE, "", parent, content); //$NON-NLS-1$ //$NON-NLS-2$
 		prefList.setPreferenceStore(getPreferenceStore());
 
 		return prefList;

@@ -15,7 +15,7 @@ public class BeamerActorBlock extends FunctionBlock {
 	 * 
 	 */
 	private static final long serialVersionUID = -8839932451597237481L;
-	
+
 	/**
 	 * Type of this block.
 	 */

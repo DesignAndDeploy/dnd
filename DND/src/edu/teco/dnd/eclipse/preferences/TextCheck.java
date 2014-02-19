@@ -14,8 +14,7 @@ import org.eclipse.swt.widgets.Text;
  * @author jung
  * 
  */
-public class TextCheck {
-
+public abstract class TextCheck {
 	private Text textField;
 	private String warnMessage;
 
@@ -56,9 +55,7 @@ public class TextCheck {
 	 * 
 	 * @return true if string matches valid format, false if string has wrong format
 	 */
-	public boolean check() {
-		return true;
-	}
+	public abstract boolean check();
 
 	/**
 	 * Can be used to present a warning in case check() returned "false". This opens a simple window with a warning

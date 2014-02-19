@@ -5,9 +5,8 @@ import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
- * A Constraint can be used to enforce certain attributes of a Distribution, for example to force a block
- * 
- * @author Philipp Adolf
+ * A Constraint can be used to enforce certain attributes of a Distribution, for example to force a block to be on a
+ * specific Module.
  */
 public interface Constraint {
 	/**

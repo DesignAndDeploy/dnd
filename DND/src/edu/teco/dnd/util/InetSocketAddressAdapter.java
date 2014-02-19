@@ -16,14 +16,9 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 /**
- * A Gson adapter that handles InetSocketAddresses.
- * 
- * @author Philipp Adolf
+ * A Gson adapter that handles {@link InetSocketAddress}es.
  */
 public class InetSocketAddressAdapter implements JsonSerializer<InetSocketAddress>, JsonDeserializer<InetSocketAddress> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(InetSocketAddressAdapter.class);
 
 	@Override

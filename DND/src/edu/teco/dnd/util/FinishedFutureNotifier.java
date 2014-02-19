@@ -7,23 +7,11 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * A FutureNotifier that has already finished.
- * 
- * @author Philipp Adolf
  */
 public class FinishedFutureNotifier<V> extends AbstractFutureNotifier<V> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(FinishedFutureNotifier.class);
 
-	/**
-	 * The result of the operation, null if unsuccessful.
-	 */
 	private final V result;
-
-	/**
-	 * The cause for the failure of the operation, null if successful.
-	 */
 	private final Throwable cause;
 
 	/**

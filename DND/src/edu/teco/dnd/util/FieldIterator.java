@@ -8,15 +8,18 @@ import java.util.Queue;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 
+/**
+ * Iterates over the {@link Field}s of a {@link JavaClass}.
+ */
 public class FieldIterator implements Iterator<Field> {
 	final Queue<Field> fields = new LinkedList<Field>();
-	
+
 	public FieldIterator(final JavaClass cls) throws ClassNotFoundException {
 		for (JavaClass currentClass = cls; currentClass != null; currentClass = currentClass.getSuperClass()) {
 			fields.addAll(Arrays.asList(cls.getFields()));
 		}
 	}
-	
+
 	@Override
 	public boolean hasNext() {
 		return !fields.isEmpty();

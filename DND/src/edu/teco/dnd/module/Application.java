@@ -29,15 +29,14 @@ import edu.teco.dnd.blocks.Output;
 import edu.teco.dnd.blocks.OutputTarget;
 import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
 import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
+import edu.teco.dnd.module.config.BlockTypeHolder;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.util.HashStorage;
 import edu.teco.dnd.util.ValueWithHash;
 
 /**
- * This class represents a single application running on a module.
- * 
- * @author Marvin Marx
- * 
+ * Represents an Application running on a {@link Module}. This will only contain the {@link FunctionBlock}s that are
+ * running on the local Module.
  */
 public class Application {
 	private static final Logger LOGGER = LogManager.getLogger(Application.class);
@@ -50,8 +49,6 @@ public class Application {
 	/**
 	 * Current state of the application. Can only advance to the next state: the Application starts in CREATED, then
 	 * goes to RUNNING and eventually transitions to STOPPED.
-	 * 
-	 * @author Philipp Adolf
 	 */
 	private enum State {
 		CREATED, RUNNING, STOPPED
@@ -60,7 +57,7 @@ public class Application {
 	private final ApplicationID applicationID;
 	private final String name;
 	private final ScheduledThreadPoolExecutor scheduledThreadPool;
-	private final ConnectionManager connMan;
+	private final ConnectionManager connectionManager;
 	private final ModuleBlockManager moduleBlockManager;
 	private final HashStorage<byte[]> byteCodeStorage;
 
@@ -77,47 +74,44 @@ public class Application {
 	private final ConcurrentMap<FunctionBlockID, ValueSender> valueSenders =
 			new ConcurrentHashMap<FunctionBlockID, ValueSender>();
 
-	private final ApplicationClassLoader classLoader;
+	private final ApplicationClassLoader classLoader = new ApplicationClassLoader();
 	/** mapping of active blocks to their ID, used e.g. to pass values to inputs. */
 	private final ConcurrentMap<FunctionBlockID, FunctionBlockSecurityDecorator> functionBlocksById =
 			new ConcurrentHashMap<FunctionBlockID, FunctionBlockSecurityDecorator>();
 
 	/**
+	 * Initializes a new Application. Normally this should not be called directly, use
+	 * {@link Module#joinApplication(ApplicationID, String)} instead.
 	 * 
 	 * @param applicationID
-	 *            UUID of this application
+	 *            ID of this application
 	 * @param name
-	 *            Human readable name of this application
-	 * @param scheduledThreadPool
-	 *            a ThreadPool all tasks of this application will be sheduled in. Used to limit the amount of resources
-	 *            this App can allocate.
-	 * @param connMan
-	 *            ConnectionManager to send/receive messages.
-	 * @param classloader
-	 *            Class loader that will be used by this Application. Can be used to limit the privileges of this app.
-	 *            Also used to make loading classes over network possible.
-	 * @param module
-	 *            The module ApplicationManager used for callbacks to de/increase allowedBlockmaps
-	 * 
+	 *            human readable name of this application
+	 * @param connectionManager
+	 *            ConnectionManager used to send values to FunctionBlocks running on remote Modules
+	 * @param threadFactory
+	 *            will be used to create Threads that will {@link FunctionBlock#update() update} the
+	 *            {@link FunctionBlock}s belonging to this Application
+	 * @param maxThreads
+	 *            the maximum number of Threads that will be used
+	 * @param moduleBlockManager
+	 *            this BlockManager will be checked to see if a FunctionBlock can be executed locally
+	 * @param byteCodeStorage
+	 *            a HashStorage that is used to globaly store the byte code. This can be used to cache byte code if
+	 *            multiple Applications execute the same FunctionBlock class.
 	 */
-	public Application(final ApplicationID applicationID, final String name, final ConnectionManager connMan,
-			final ThreadFactory threadFactory, final int maxThreadsPerApp, final ModuleBlockManager moduleBlockManager,
+	public Application(final ApplicationID applicationID, final String name, final ConnectionManager connectionManager,
+			final ThreadFactory threadFactory, final int maxThreads, final ModuleBlockManager moduleBlockManager,
 			final HashStorage<byte[]> byteCodeStorage) {
 		this.applicationID = applicationID;
 		this.name = name;
 		this.byteCodeStorage = byteCodeStorage;
-		this.classLoader = new ApplicationClassLoader();
 		this.scheduledThreadPool =
-				new ScheduledThreadPoolExecutor(maxThreadsPerApp, new ContextClassLoaderThreadFactory(threadFactory));
-		this.connMan = connMan;
+				new ScheduledThreadPoolExecutor(maxThreads, new ContextClassLoaderThreadFactory(threadFactory));
+		this.connectionManager = connectionManager;
 		this.moduleBlockManager = moduleBlockManager;
 	}
 
-	/**
-	 * Returns true if this Application is currently running.
-	 * 
-	 * @return true if this Application is currently running.
-	 */
 	public boolean isRunning() {
 		currentStateLock.readLock().lock();
 		try {
@@ -127,11 +121,6 @@ public class Application {
 		}
 	}
 
-	/**
-	 * Returns true if this Application has been shut down.
-	 * 
-	 * @return true if this Application has been shut down
-	 */
 	public boolean hasShutDown() {
 		currentStateLock.readLock().lock();
 		try {
@@ -142,13 +131,14 @@ public class Application {
 	}
 
 	/**
-	 * called from this app, when a value is supposed to be send to another block (potentially on another ModuleInfo).
-	 * 
+	 * This is called to send a value to a remote {@link FunctionBlock} that is either running here or on a remote
+	 * Module. The {@link FunctionBlock} must belong to the same Application (although it does not have to belong to
+	 * this object as this is only for FunctionBlocks running locally).
 	 * 
 	 * @param inputDescription
 	 *            ID of the FunctionBlock and the name of the {@link Input} the value should be sent to
 	 * @param value
-	 *            the value to be send.
+	 *            the value to send
 	 */
 	private void sendValue(final InputDescription inputDescription, final Serializable value) {
 		if (inputDescription == null) {
@@ -177,23 +167,22 @@ public class Application {
 
 	/**
 	 * Returns a ValueSender for the given target FunctionBlock. If no ValueSender for that FunctionBlock exists yet a
-	 * new one is created. When called with the same UUID it will always return the same ValueSender, even if called
-	 * concurrently in different Threads.
+	 * new one is created. When called with the same FunctionBlockID it will always return the same ValueSender, even if
+	 * called concurrently in different Threads.
 	 * 
-	 * @param funcBlock
-	 *            the UUID of the FunctionBlock for which a ValueSender should be returned
+	 * @param blockID
+	 *            the ID of the FunctionBlock for which a ValueSender should be returned
 	 * @return the ValueSender for the given FunctionBlock
 	 */
 	// FIXME: Need a way to clean up old value senders
-	private ValueSender getValueSender(final FunctionBlockID funcBlock) {
-		ValueSender valueSender = valueSenders.get(funcBlock);
+	private ValueSender getValueSender(final FunctionBlockID blockID) {
+		ValueSender valueSender = valueSenders.get(blockID);
 		if (valueSender == null) {
-			valueSender = new ValueSender(applicationID, funcBlock, connMan);
+			valueSender = new ValueSender(applicationID, blockID, connectionManager);
 			// if between the get and this call another Thread put a ValueSender into the map, this call will return the
-			// ValueSender the other
-			// Thread put into the Map. We'll use that one instead of our new one so that only one ValueSender exists
-			// per target
-			ValueSender oldValueSender = valueSenders.putIfAbsent(funcBlock, valueSender);
+			// ValueSender the other Thread put into the Map. We'll use that one instead of our new one so that only one
+			// ValueSender exists per target
+			ValueSender oldValueSender = valueSenders.putIfAbsent(blockID, valueSender);
 			if (oldValueSender != null) {
 				valueSender = oldValueSender;
 			}
@@ -202,36 +191,43 @@ public class Application {
 	}
 
 	/**
-	 * loads a class into this app.
+	 * Loads a class into the ClassLoader used by the Application. After this method is called FunctionBlocks of the
+	 * given class or depending on this class can be {@link #scheduleBlock(BlockDescription) added} (if all other
+	 * dependencies are also loaded). Also stores the byte code in the {@link HashStorage} passed to
+	 * {@link #Application(ApplicationID, String, ConnectionManager, ThreadFactory, int, ModuleBlockManager, HashStorage)}
+	 * if it is missing.
 	 * 
-	 * @param classname
+	 * @param className
 	 *            name of the class to load
-	 * @param classData
-	 *            bytecode of the class to be loaded
+	 * @param byteCode
+	 *            byte code of the class to be loaded
 	 */
-	public void loadClass(String classname, byte[] classData) {
-		if (classname == null || classData == null) {
-			throw new IllegalArgumentException("classname and classdata must not be null.");
+	public void loadClass(String className, byte[] byteCode) {
+		if (className == null || byteCode == null) {
+			throw new IllegalArgumentException("className and byteCode must not be null.");
 		}
 
-		final ValueWithHash<byte[]> byteCode = byteCodeStorage.putIfAbsent(classData);
-		classLoader.addClass(classname, byteCode.getValue());
+		final ValueWithHash<byte[]> unifiedByteCode = byteCodeStorage.putIfAbsent(byteCode);
+		classLoader.injectClass(className, unifiedByteCode.getValue());
 	}
 
 	/**
-	 * Schedules a block in this application to be executed, once Application.start() is called.
+	 * Adds a {@link FunctionBlock} to this Application. If the Application {@link #isRunning() is Running} the
+	 * FunctionBlock will immediately executed. If not, it will be stored until {@link #start()} is called.
 	 * 
 	 * @param blockDescription
-	 *            which block to schedule.
+	 *            the block to add
 	 * @throws ClassNotFoundException
-	 *             if the class given is not known by the Classloader of this application
+	 *             if the class given is not known by the ClassLoader of this Application
 	 * @throws UserSuppliedCodeException
-	 *             if some part of the code of the functionBlock (e.g. constructor) does throw an exception or otherwise
-	 *             misbehave (e.g. System.exit(),...)
+	 *             if the FunctionBlock throws any {@link Throwable}
 	 * @throws NoSuchBlockTypeHolderException
+	 *             if the {@link BlockTypeHolder} specified in <code>blockDescription</code> does not exist
 	 * @throws BlockTypeHolderFullException
+	 *             if the BlockTypeHolder specified in <code>blockDescription</code> is already full
 	 * @throws IllegalArgumentException
-	 *             if blockDescription.blockClassName is not a function block.
+	 *             if the class name specified in <code>blockDescription</code> is not a FunctionBlock
+	 * @see #loadClass(String, byte[])
 	 */
 	public void scheduleBlock(final BlockDescription blockDescription) throws ClassNotFoundException,
 			UserSuppliedCodeException, BlockTypeHolderFullException, NoSuchBlockTypeHolderException {
@@ -274,18 +270,17 @@ public class Application {
 	}
 
 	/**
-	 * Wraps a functionBlock (given by name) into a security decorator (see FunctionBlockSecurityDecorator) for the
-	 * rationale.
+	 * Instantiates a {@link FunctionBlock} and wraps it in a {@link FunctionBlockSecurityDecorator}.
 	 * 
 	 * @param className
-	 *            name of the class to wrap
-	 * @return a new FunctionBlockSecurityDecorator wrapping the given block.
+	 *            the name of the class to instantiate
+	 * @return a new FunctionBlockSecurityDecorator wrapping a FunctionBlock of the given class
 	 * @throws ClassNotFoundException
-	 *             if the classloader can not find a class with this name.
+	 *             if {@link #classLoader} cannot find the class
 	 * @throws UserSuppliedCodeException
-	 *             If the given class misbehaves during initialization (throws errors...)
+	 *             if the FunctionBlock throws any {@link Throwable}
 	 * @throws IllegalArgumentException
-	 *             inf className is not a functionBlock.
+	 *             if the given class is not a FunctionBlock
 	 */
 	@SuppressWarnings("unchecked")
 	private FunctionBlockSecurityDecorator createFunctionBlockSecurityDecorator(final String className)
@@ -299,12 +294,13 @@ public class Application {
 	}
 
 	/**
-	 * Initializes the outputs used for sending values on a functionBlock.
+	 * Initializes the {@link Output}s of {@link FunctionBlock} so that they can be used to send values to the
+	 * appropriate {@link Input}s.
 	 * 
 	 * @param securityDecorator
-	 *            the SecurityDecorator holding the block with the outputs to set.
+	 *            the SecurityDecorator holding the FunctionBlock that should be initialized
 	 * @param outputs
-	 *            the outputs to set on the Block.
+	 *            a mapping from the name of an Output to the Inputs it should send to
 	 */
 	private void initializeOutputs(final FunctionBlockSecurityDecorator securityDecorator,
 			final Map<String, Set<InputDescription>> outputs) {
@@ -319,7 +315,12 @@ public class Application {
 	}
 
 	/**
-	 * starts this application, as in: starts executing the previously scheduled blocks.
+	 * Starts the Application. This will call {@link FunctionBlock#init(Map)} on all {@link FunctionBlock}s that were
+	 * {@link #scheduleBlock(BlockDescription) added} to the Application. It will also schedule an updater to run
+	 * periodically if this is requested by the FunctionBlock (see {@link FunctionBlock#getUpdateInterval()}.
+	 * 
+	 * @throws IllegalStateException
+	 *             if the Application has already been started
 	 */
 	public void start() {
 		currentStateLock.readLock().lock();
@@ -355,10 +356,10 @@ public class Application {
 	}
 
 	/**
-	 * starts the given function block on the Module. Also triggers removing it from runnable blocks
-	 * 
-	 * @param block
-	 *            the block to be started.
+	 * Starts a single {@link FunctionBlock}. Will call {@link FunctionBlock#init(Map)} with the given options. Also
+	 * installs a Runnable that will periodically {@link FunctionBlock#update() update} the FunctionBlock if requested
+	 * (see {@link FunctionBlock#getUpdateInterval()}. If not, it will call update() once. init() is guaranteed to be
+	 * executed before the method returns, update() however is not.
 	 */
 	private void startBlock(final FunctionBlockSecurityDecorator block, final Map<String, String> options) {
 		currentStateLock.readLock().lock();
@@ -419,16 +420,18 @@ public class Application {
 	}
 
 	/**
-	 * passes a received value the given input of a local block.
+	 * Receives a value for a {@link FunctionBlock} running locally.
 	 * 
 	 * @param inputDescription
 	 *            the {@link FunctionBlockID} and {@link Input} name the value is for
 	 * @param value
-	 *            the value to give to the input.
+	 *            the value to give to the {@link Input}
+	 * @throws IllegalStateException
+	 *             if this Application is not running
 	 * @throws NonExistentFunctionblockException
-	 *             If the FunctionBlock is not being executed by this module.
+	 *             if the FunctionBlock is not being executed by this Application on this {@link Module}
 	 * @throws NonExistentInputException
-	 *             If the FunctionBlock is being executed but does not have an input of said name.
+	 *             if the FunctionBlock does not have an Input called <code>inputName</code>
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void receiveValue(final InputDescription inputDescription, Serializable value)
@@ -473,7 +476,11 @@ public class Application {
 	}
 
 	/**
-	 * Called when this application is shut down. Will call the appropriate methods on the executed functionBlocks.
+	 * Shuts down this Application. This involves calling {@link FunctionBlock#shutdown()} on all {@link FunctionBlock}
+	 * s.
+	 * 
+	 * @throws IllegalStateException
+	 *             if the Application is not currently {@link #isRunning() running}
 	 */
 	@SuppressWarnings("deprecation")
 	public void shutdown() {
@@ -534,33 +541,28 @@ public class Application {
 		}
 	}
 
-	/**
-	 * 
-	 * @return the UUID of this application
-	 */
 	public ApplicationID getApplicationID() {
 		return applicationID;
 	}
 
-	/**
-	 * 
-	 * @return the human readable name of this application.
-	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
+	 * This ClassLoader is used by this Application to load {@link FunctionBlock}s.
 	 * 
-	 * @return the classloader this application uses.
+	 * @return the ClassLoader used by the Application
+	 * @see #loadClass(String, byte[])
 	 */
-	public ApplicationClassLoader getClassLoader() {
+	public ClassLoader getClassLoader() {
 		return classLoader;
 	}
 
 	/**
+	 * This ThreadPool is used by this Application to run the {@link FunctionBlock} code.
 	 * 
-	 * @return the threadpool this application uses.
+	 * @return the ThreadPool used to run FunctionBlock code
 	 */
 	public ScheduledThreadPoolExecutor getThreadPool() {
 		return scheduledThreadPool;
@@ -572,43 +574,6 @@ public class Application {
 
 	public boolean hasFunctionBlockWithID(FunctionBlockID blockId) {
 		return functionBlocksById.containsKey(blockId);
-	}
-
-	// TODO insert javadoc here.
-	class ApplicationOutputTarget implements OutputTarget<Serializable> {
-		private final Set<InputDescription> destinations;
-
-		/**
-		 * 
-		 * @param destinations
-		 *            places connected to this output. Where values are supposed to be send when they are send.
-		 */
-		public ApplicationOutputTarget(final Collection<InputDescription> destinations) {
-			this.destinations = new HashSet<InputDescription>(destinations);
-		}
-
-		@Override
-		public void setValue(Serializable value) {
-			for (final InputDescription destination : destinations) {
-				sendValue(destination, value);
-			}
-		}
-	}
-
-	private class ContextClassLoaderThreadFactory implements ThreadFactory {
-		private final ThreadFactory internalFactory;
-
-		private ContextClassLoaderThreadFactory(final ThreadFactory internalFactory) {
-			this.internalFactory = internalFactory;
-		}
-
-		@Override
-		public Thread newThread(final Runnable r) {
-			final Thread thread = internalFactory.newThread(r);
-			thread.setContextClassLoader(classLoader);
-			return thread;
-		}
-
 	}
 
 	/**
@@ -628,6 +593,50 @@ public class Application {
 			} catch (InterruptedException e) {
 				timeLeftToSleep = sleepTill - System.currentTimeMillis();
 			}
+		}
+	}
+
+	/**
+	 * An OutputTarget that calls {@link Application#sendValue(InputDescription, Serializable)} with a given list of
+	 * target {@link InputDescription}s.
+	 */
+	private class ApplicationOutputTarget implements OutputTarget<Serializable> {
+		private final Set<InputDescription> destinations;
+
+		/**
+		 * Initializes a new ApplicationOutputTarget.
+		 * 
+		 * @param destinations
+		 *            any values received will be forwared to these Inputs (via
+		 *            {@link Application#sendValue(InputDescription, Serializable)})
+		 */
+		public ApplicationOutputTarget(final Collection<InputDescription> destinations) {
+			this.destinations = new HashSet<InputDescription>(destinations);
+		}
+
+		@Override
+		public void setValue(Serializable value) {
+			for (final InputDescription destination : destinations) {
+				sendValue(destination, value);
+			}
+		}
+	}
+
+	/**
+	 * A wrapper for ThreadFactory that sets the ContextClassLoader to {@link Application#classLoader}.
+	 */
+	private class ContextClassLoaderThreadFactory implements ThreadFactory {
+		private final ThreadFactory internalFactory;
+
+		private ContextClassLoaderThreadFactory(final ThreadFactory internalFactory) {
+			this.internalFactory = internalFactory;
+		}
+
+		@Override
+		public Thread newThread(final Runnable r) {
+			final Thread thread = internalFactory.newThread(r);
+			thread.setContextClassLoader(classLoader);
+			return thread;
 		}
 	}
 }

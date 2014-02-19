@@ -23,14 +23,12 @@ import edu.teco.dnd.network.ConnectionListener;
 import edu.teco.dnd.network.DelegatingConnectionListener;
 
 /**
- * Manages Channels that are connected to other clients.
+ * Manages {@link Channel}s that are connected to other clients.
  * 
  * This includes storing a Set of all Channels, the IDs of the clients they are connected to and whether or not the
- * Initialization phase has been completed (which makes them active).
+ * initialization phase has been completed (which makes them active).
  * 
  * All public methods in this class are thread-safe.
- * 
- * @author Philipp Adolf
  */
 public class ClientChannelManager implements RemoteIDResolver {
 	private static final Logger LOGGER = LogManager.getLogger(ClientChannelManager.class);
@@ -67,7 +65,7 @@ public class ClientChannelManager implements RemoteIDResolver {
 	 * @see ClientChannelInitializer
 	 */
 	/*
-	 * TODO: Fix race condition: If connect is called, then a shutdown is down (which uses channels) before the
+	 * TODO: Fix race condition: If connect is called, then a shutdown is done (which uses channels) before the
 	 * connection is made, the new Channel will be added to channels after the other ones have been shut down.
 	 */
 	public ChannelFuture connect(final SocketAddress address) {
@@ -75,7 +73,7 @@ public class ClientChannelManager implements RemoteIDResolver {
 	}
 
 	/**
-	 * Adds a Channel to this manager.
+	 * Adds a {@link Channel} to this manager.
 	 * 
 	 * This adds the Channel to the list of known Channels and must be called before using {@link #setActive(Channel)},
 	 * {@link #setActiveIfFirst(Channel)} and {@link #setRemoteID(Channel, ModuleID)}.
@@ -165,10 +163,10 @@ public class ClientChannelManager implements RemoteIDResolver {
 	}
 
 	/**
-	 * Sets the Channel to the active state if no other Channel with the same remote ModuleID is active.
+	 * Sets the {@link Channel} to the active state if no other Channel with the same remote {@link ModuleID} is active.
 	 * 
-	 * If there is another Channel with the same remote ModuleID that is active, nothing is done and <code>false</code> is
-	 * returned. If there is no such Channel the given one is marked active and <code>true</code> is returned. The
+	 * If there is another Channel with the same remote ModuleID that is active, nothing is done and <code>false</code>
+	 * is returned. If there is no such Channel the given one is marked active and <code>true</code> is returned. The
 	 * Channel itself is ignored in the active check, so if the given Channel is active but all other Channels with the
 	 * same ModuleID are inactive <code>true</code> is returned.
 	 * 
@@ -206,11 +204,14 @@ public class ClientChannelManager implements RemoteIDResolver {
 	}
 
 	/**
-	 * Sets the ModuleID of the client that is on the other end of the Channel.
+	 * Sets the {@link ModuleID} of the client that is on the other end of the {@link Channel}.
 	 * 
-	 * @param channel the Channel for which the ModuleID should be set
-	 * @param remoteID the ModuleID of the client on the other end of the Channel
-	 * @throws IllegalArgumentException if the Channel was not added to this manager
+	 * @param channel
+	 *            the Channel for which the ModuleID should be set
+	 * @param remoteID
+	 *            the ModuleID of the client on the other end of the Channel
+	 * @throws IllegalArgumentException
+	 *             if the Channel was not added to this manager
 	 */
 	public void setRemoteID(final Channel channel, final ModuleID remoteID) {
 		synchronized (channels) {
@@ -258,12 +259,13 @@ public class ClientChannelManager implements RemoteIDResolver {
 		final Attribute<ModuleID> remoteIDAttribute = channel.attr(REMOTE_ID_KEY);
 		return remoteIDAttribute.get();
 	}
-	
+
 	/**
-	 * Returns whether or not a Channel is active.
+	 * Returns whether or not a {@link Channel} is active.
 	 * 
-	 * @param channel the Channel to check
-	 * @return true if the Channel is active, false otherwise
+	 * @param channel
+	 *            the Channel to check
+	 * @return <code>true</code> if the Channel is active, <code>false</code> otherwise
 	 */
 	public boolean isActive(final Channel channel) {
 		final Attribute<Boolean> activeAttribute = channel.attr(ACTIVE_KEY);
@@ -275,10 +277,12 @@ public class ClientChannelManager implements RemoteIDResolver {
 	}
 
 	/**
-	 * Marks a Channel as active.
+	 * Marks a {@link Channel} as active.
 	 * 
-	 * @param channel the Channel to mark active
-	 * @throws IllegalArgumentException if the Channel was not added to this manager
+	 * @param channel
+	 *            the Channel to mark active
+	 * @throws IllegalArgumentException
+	 *             if the Channel was not added to this manager
 	 */
 	public void setActive(final Channel channel) {
 		synchronized (channels) {
@@ -305,7 +309,8 @@ public class ClientChannelManager implements RemoteIDResolver {
 	 * The listener will be informed of established Connections (Channels marked as active) as well as closed
 	 * connections.
 	 * 
-	 * @param listener the ConnectionListener to add
+	 * @param listener
+	 *            the ConnectionListener to add
 	 */
 	public void addConnectionListener(final ConnectionListener listener) {
 		// TODO: listener should be informed about all existing connections
@@ -315,10 +320,11 @@ public class ClientChannelManager implements RemoteIDResolver {
 	/**
 	 * Removes a ConnectionListener.
 	 * 
-	 * The listener will no longer be informed about new or closed connections.
-	 * No-op if the listener was not registered.
+	 * The listener will no longer be informed about new or closed connections. No-op if the listener was not
+	 * registered.
 	 * 
-	 * @param listener the ConnectionListener to remove.
+	 * @param listener
+	 *            the ConnectionListener to remove.
 	 */
 	public void removeConnectionListener(final ConnectionListener listener) {
 		delegatingConnectionListener.removeListener(listener);

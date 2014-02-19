@@ -9,7 +9,8 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
 
 /**
- * An EvaluationStrategy that rates higher the higher the number of used modules is.
+ * An EvaluationStrategy that rates higher the higher the number of used modules is. The idea is that this will minimize
+ * the load per Module.
  * 
  * @author Philipp Adolf
  */
@@ -24,7 +25,8 @@ public class MaximalModuleCountEvaluator implements EvaluationStrategy {
 	}
 
 	@Override
-	public int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks, Collection<ModuleInfo> modules) {
+	public int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks,
+			Collection<ModuleInfo> modules) {
 		return Integer.MAX_VALUE;
 	}
 }

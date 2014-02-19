@@ -18,31 +18,15 @@ import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
- * Adds a representation for a data connection.
+ * Adds the graphical representation of a connection between an {@link OutputModel} and an {@link InputModel}.
  */
 public class AddDataConnectionFeature extends AbstractAddFeature {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(AddDataConnectionFeature.class);
 
-	/**
-	 * Passes the feature provider to the super constructor.
-	 * 
-	 * @param fp
-	 *            the feature provider
-	 */
 	public AddDataConnectionFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
-	/**
-	 * Whether or not the feature can be used in the given context.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return whether or not the feature can be used
-	 */
 	@Override
 	public boolean canAdd(final IAddContext context) {
 		if (!(context instanceof IAddConnectionContext)) {
@@ -54,13 +38,6 @@ public class AddDataConnectionFeature extends AbstractAddFeature {
 		return sourceBo instanceof OutputModel && targetBo instanceof InputModel;
 	}
 
-	/**
-	 * Returns a graphical representation for the given data connection.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return a graphical representation
-	 */
 	@Override
 	public PictogramElement add(final IAddContext context) {
 		LOGGER.entry(context);

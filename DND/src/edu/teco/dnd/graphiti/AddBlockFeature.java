@@ -27,149 +27,45 @@ import edu.teco.dnd.graphiti.model.OptionModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
- * Adds a graphical representation for a FunctionBlock.
+ * Adds the graphical representation of a {@link FunctionBlockModel}.
+ * 
+ * @see CreateBlockFeature
  */
 public class AddBlockFeature extends AbstractAddShapeFeature {
-	/**
-	 * Logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(AddBlockFeature.class);
 
-	/**
-	 * Key to distinguish between text fields.
-	 */
 	public static final String TEXT_KEY = "text-id"; //$NON-NLS-1$
-
-	/**
-	 * Default width of a new block.
-	 */
-	public static final int DEFAULT_WIDTH = 100;
-
-	/**
-	 * Default height of a new block.
-	 */
-	public static final int DEFAULT_HEIGHT = 50;
-
-	/**
-	 * Corner radius for the rounded rectangle.
-	 */
-	public static final int CORNER_RADIUS = 5;
-
-	/**
-	 * Y position of the separator line.
-	 */
-	public static final int SEPARATOR_Y = 20;
-
-	/**
-	 * Vertical offset for the block name.
-	 */
-	public static final int BLOCKNAME_OFFSET = 35;
-
-	/**
-	 * Vertical size of the block name.
-	 */
-	public static final int BLOCKNAME_SIZE = 15;
-
-	/**
-	 * Vertical offset for the position.
-	 */
-	public static final int POSITION_OFFSET = 65;
-
-	/**
-	 * Vertical size of the position.
-	 */
-	public static final int POSITION_SIZE = 15;
-
-	/**
-	 * Vertical offset for the first input/output.
-	 */
-	public static final int CONNECTION_OFFSET = 105;
-
-	/**
-	 * Size of an input/output.
-	 */
-	public static final int CONNECTION_SIZE = 15;
-
-	/**
-	 * Extra space to add between inputs/outputs.
-	 */
-	public static final int CONNECTION_SPACE = 7;
-
-	/**
-	 * Extra space for in/outputs to the side of the block.
-	 */
-	public static final int CONNECTION_EXTRA = 2;
-
-	/**
-	 * Extra space for in/outputs to the side of the block.
-	 */
-	public static final int OPTION_EXTRA = 7;
-
-	/**
-	 * Used to mark texts that show the name of an in- or output.
-	 */
 	public static final String CONNECTION_KEY = "connection"; //$NON-NLS-1$
-
-	/**
-	 * Used to mark texts that show the name of an in- or output.
-	 */
 	public static final String CONNECTION_VALUE = CONNECTION_KEY;
 
-	/**
-	 * Color of the foreground.
-	 */
+	public static final int DEFAULT_WIDTH = 100;
+	public static final int DEFAULT_HEIGHT = 50;
+	public static final int CORNER_RADIUS = 5;
+	public static final int SEPARATOR_Y = 20;
+	public static final int BLOCKNAME_OFFSET = 35;
+	public static final int BLOCKNAME_SIZE = 15;
+	public static final int POSITION_OFFSET = 65;
+	public static final int POSITION_SIZE = 15;
+	public static final int CONNECTION_OFFSET = 105;
+	public static final int CONNECTION_SIZE = 15;
+	public static final int CONNECTION_SPACE = 7;
+	public static final int CONNECTION_EXTRA = 2;
+	public static final int OPTION_EXTRA = 7;
+
 	public static final IColorConstant FOREGROUND = IColorConstant.BLACK;
-
-	/**
-	 * Color of the BackgroundSensor.
-	 */
 	public static final IColorConstant BACKGROUND_SENSOR = new ColorConstant("238BC2"); //$NON-NLS-1$
-	/**
-	 * Color of the BackgroundActor.
-	 */
 	public static final IColorConstant BACKGROUND_ACTOR = new ColorConstant("BC80FF"); //$NON-NLS-1$
-	/**
-	 * Color of the other background.
-	 */
 	public static final IColorConstant BACKGROUND_OTHER = new ColorConstant("AAAAAA"); //$NON-NLS-1$
-
-	/**
-	 * Color of the text.
-	 */
 	public static final IColorConstant TEXT = IColorConstant.BLACK;
-
-	/**
-	 * Size of the font.
-	 */
-	public static final Integer FONT_SIZE = 8;
-
-	/**
-	 * Color of the inputs.
-	 */
 	public static final IColorConstant INPUT = new ColorConstant("FFFF00"); //$NON-NLS-1$
-
-	/**
-	 * Color of the outputs.
-	 */
 	public static final IColorConstant OUTPUT = new ColorConstant("41DB00"); //$NON-NLS-1$
 
-	/**
-	 * Passes the feature provider to the super constructor.
-	 * 
-	 * @param fp
-	 *            the feature provider
-	 */
+	public static final Integer FONT_SIZE = 8;
+
 	public AddBlockFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
 
-	/**
-	 * Whether or not the feature can be used in the given context.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return whether or not the feature can be used
-	 */
 	@Override
 	public final boolean canAdd(final IAddContext context) {
 		LOGGER.entry(context);
@@ -179,13 +75,6 @@ public class AddBlockFeature extends AbstractAddShapeFeature {
 		return ret;
 	}
 
-	/**
-	 * Returns a graphical representation for the given add context.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return a graphical representation
-	 */
 	@Override
 	public final PictogramElement add(final IAddContext context) {
 		LOGGER.entry(context);

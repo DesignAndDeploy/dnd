@@ -27,7 +27,8 @@ public class MinimalModuleCountEvaluator implements EvaluationStrategy {
 	}
 
 	@Override
-	public int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks, Collection<ModuleInfo> modules) {
+	public int upperBound(Distribution distribution, Collection<FunctionBlockModel> blocks,
+			Collection<ModuleInfo> modules) {
 		if (distribution.getMapping().isEmpty()) {
 			return Integer.MAX_VALUE;
 		}

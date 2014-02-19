@@ -1,5 +1,8 @@
 package edu.teco.dnd.blocks;
 
+/**
+ * A location of an {@link Input}, that is the ID of the {@link FunctionBlock} as well as the name of the Input.
+ */
 public class InputDescription {
 	private final FunctionBlockID block;
 	private final String input;

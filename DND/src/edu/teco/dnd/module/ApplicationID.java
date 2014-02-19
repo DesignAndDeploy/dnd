@@ -2,17 +2,29 @@ package edu.teco.dnd.module;
 
 import java.util.UUID;
 
+/**
+ * An ID for an {@link Application}.
+ */
 public class ApplicationID {
 	private final UUID id;
-	
+
+	/**
+	 * Creates an ApplicationID based on a given UUID.
+	 * 
+	 * @param id
+	 *            the UUID to use
+	 */
 	public ApplicationID(final UUID id) {
 		this.id = id;
 	}
-	
+
+	/**
+	 * Creates a new random ApplicationID.
+	 */
 	public ApplicationID() {
 		this(UUID.randomUUID());
 	}
-	
+
 	public UUID getUUID() {
 		return id;
 	}
@@ -41,7 +53,7 @@ public class ApplicationID {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ApplicationID[" + id + "]";

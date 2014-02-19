@@ -12,10 +12,8 @@ import edu.teco.dnd.util.FutureNotifier;
 
 /**
  * A ConnectionManager is used to create and use connections between modules. It is responsible for initiating
- * connections, accepting incoming connections, route incoming messages to the appropriate handlers and send messages to
- * the right modules.
- * 
- * @author Philipp Adolf
+ * connections, accepting incoming connections, routing incoming messages to the appropriate handlers and sending
+ * messages to the right modules.
  */
 public interface ConnectionManager {
 	/**
@@ -42,7 +40,7 @@ public interface ConnectionManager {
 	 * 
 	 * @param <T>
 	 *            type of Message that should be handled
-	 * @param appid
+	 * @param applicationID
 	 *            the ID of the application. Use {@link #APPID_DEFAULT} for non application messages
 	 * @param msgType
 	 *            the class of Messages that the handler will receive. Must be an exact match.
@@ -51,7 +49,7 @@ public interface ConnectionManager {
 	 * @param executor
 	 *            the executor that should execute {@link MessageHandler#handleMessage(Message)}. Can be null.
 	 */
-	public <T extends Message> void addHandler(ApplicationID appid, Class<? extends T> msgType,
+	public <T extends Message> void addHandler(ApplicationID applicationID, Class<? extends T> msgType,
 			MessageHandler<? super T> handler, Executor executor);
 
 	/**
@@ -66,7 +64,8 @@ public interface ConnectionManager {
 	 * @param handler
 	 *            the handler that should receive the Messages
 	 */
-	public <T extends Message> void addHandler(ApplicationID appid, Class<? extends T> msgType, MessageHandler<? super T> handler);
+	public <T extends Message> void addHandler(ApplicationID appid, Class<? extends T> msgType,
+			MessageHandler<? super T> handler);
 
 	/**
 	 * Adds an handler for the {@link #APPID_DEFAULT}. If another handler was registered for the ID it is replaced.

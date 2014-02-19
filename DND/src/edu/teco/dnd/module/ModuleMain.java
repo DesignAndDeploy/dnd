@@ -31,36 +31,40 @@ import edu.teco.dnd.module.messages.values.ValueMessageAdapter;
 import edu.teco.dnd.module.messages.values.WhoHasBlockMessage;
 import edu.teco.dnd.module.permissions.ApplicationSecurityManager;
 import edu.teco.dnd.network.ConnectionManager;
+import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.logging.Log4j2LoggerFactory;
 import edu.teco.dnd.network.tcp.TCPConnectionManager;
 import edu.teco.dnd.server.TCPUDPServerManager;
 import edu.teco.dnd.util.FutureNotifier;
 
 /**
- * The main class that is started on a ModuleInfo.
+ * Startup code for a {@link Module}.
  */
 public final class ModuleMain {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(ModuleMain.class);
 
 	/**
-	 * Default path for config file.
+	 * Default path used to load the configuration file. Can be changed by passing the name of a different configuration
+	 * file on the command line.
 	 */
 	public static final URI DEFAULT_CONFIG_URI = new File("module.cfg").getAbsoluteFile().toURI();
-	
+
 	private static final ModuleConfigFactory MODULE_CONFIG_FACTORY = new JsonConfigFactory();
 
 	/**
-	 * Should never be instantiated.
+	 * This class shouldn't be instantiated, so the constructor is private.
 	 */
 	private ModuleMain() {
 	}
 
 	/**
+	 * Starts a {@link Module}. It will load {@link JsonConfig}, start up a {@link TCPUDPServerManager} and register the
+	 * necessary {@link MessageHandler}s.
+	 * 
 	 * @param args
-	 *            ;-)
+	 *            Command line parameters. Either pass <code>-h</code> or <code>--help</code> for help or pass a single
+	 *            file name that will be used as the path to the configuration file instead of
+	 *            {@link #DEFAULT_CONFIG_PATH}.
 	 */
 	public static void main(final String[] args) {
 		InternalLoggerFactory.setDefaultFactory(new Log4j2LoggerFactory());
@@ -89,7 +93,7 @@ public final class ModuleMain {
 			LOGGER.warn("could not load configuration from {}", configURI);
 			System.exit(1);
 		}
-		
+
 		final TCPUDPServerManager serverManager = new TCPUDPServerManager();
 		final FutureNotifier<?> serverFuture =
 				serverManager.startServer(new ModuleConfigAddressBasedServerConfigAdapter(moduleConfig));
@@ -133,10 +137,28 @@ public final class ModuleMain {
 		System.out.println("Module is up and running.");
 	}
 
+	/**
+	 * Registers type adapters that are only used by {@link Module}s.
+	 * 
+	 * @param tcpConnectionManager
+	 *            the TCPConnectionManager the adapters should be registered with
+	 * @param module
+	 *            the Module that should be used
+	 */
 	private static void registerAdditionalAdapters(final TCPConnectionManager tcpConnectionManager, final Module module) {
 		tcpConnectionManager.registerTypeAdapter(ValueMessage.class, new ValueMessageAdapter(module));
 	}
 
+	/**
+	 * Registers {@link MessageHandler}s used by {@link Module}.
+	 * 
+	 * @param connectionManager
+	 *            the {@link ConnectionManager} the handlers should be registered with
+	 * @param moduleConfig
+	 *            the configuration used by the Module
+	 * @param module
+	 *            the Module
+	 */
 	private static void registerHandlers(ConnectionManager connectionManager, ModuleConfig moduleConfig, Module module) {
 		connectionManager.addHandler(JoinApplicationMessage.class, new JoinApplicationMessageHandler(module));
 		connectionManager.addHandler(RequestApplicationInformationMessage.class,

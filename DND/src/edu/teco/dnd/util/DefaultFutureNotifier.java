@@ -10,37 +10,20 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * A class that does the boilerplate work for FutureNotifiers.
- * 
- * @author Philipp Adolf
  */
 public abstract class DefaultFutureNotifier<V> extends AbstractFutureNotifier<V> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(DefaultFutureNotifier.class);
 
 	/**
 	 * Used to track the current state.
-	 * 
-	 * @author Philipp Adolf
 	 */
 	private static enum State {
 		UNFINISHED, SUCCESS, FAILURE
 	}
 
-	/**
-	 * The current state of the FutureNotifier.
-	 */
 	private State state = State.UNFINISHED;
 
-	/**
-	 * The result of the operation.
-	 */
 	private V result = null;
-
-	/**
-	 * The cause for the failure of the operation.
-	 */
 	private Throwable cause = null;
 
 	/**
@@ -156,7 +139,7 @@ public abstract class DefaultFutureNotifier<V> extends AbstractFutureNotifier<V>
 	 * 
 	 * @param result
 	 *            the result of the operation
-	 * @return false if the Future was already marked as finished, true otherwise
+	 * @return <code>false</code> if the Future was already marked as finished, <code>true</code> otherwise
 	 */
 	protected synchronized boolean setSuccess(final V result) {
 		if (isDone()) {
@@ -179,7 +162,7 @@ public abstract class DefaultFutureNotifier<V> extends AbstractFutureNotifier<V>
 	 * 
 	 * @param cause
 	 *            the cause for the failure of the operation
-	 * @return false if the Future was already marked as finished, true otherwise
+	 * @return <code>false</code> if the Future was already marked as finished, <code>true</code> otherwise
 	 */
 	protected synchronized boolean setFailure(final Throwable cause) {
 		if (isDone()) {

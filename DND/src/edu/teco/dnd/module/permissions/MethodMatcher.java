@@ -2,6 +2,9 @@ package edu.teco.dnd.module.permissions;
 
 import java.lang.reflect.Method;
 
+/**
+ * A StackTraceElementMatcher that matches a method by its name and the name of the class.
+ */
 public class MethodMatcher implements StackTraceElementMatcher {
 	private final String className;
 	private final String methodName;
@@ -10,7 +13,7 @@ public class MethodMatcher implements StackTraceElementMatcher {
 		this.className = className;
 		this.methodName = methodName;
 	}
-	
+
 	public MethodMatcher(final Class<?> cls, final String methodName) {
 		this(cls.getName(), methodName);
 	}
@@ -24,7 +27,7 @@ public class MethodMatcher implements StackTraceElementMatcher {
 		return className.equals(stackTraceElement.getClassName())
 				&& methodName.equals(stackTraceElement.getMethodName());
 	}
-	
+
 	@Override
 	public String toString() {
 		return "MethodMatcher[" + className + "." + methodName + "]";

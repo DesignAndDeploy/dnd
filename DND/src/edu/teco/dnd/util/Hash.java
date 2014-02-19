@@ -5,18 +5,17 @@ import java.util.Arrays;
 /**
  * Represents a hash value produced by a given algorithm. This is an immutable object.
  * 
- * @author Philipp Adolf
+ * @see HashAlgorithm
  */
 public class Hash {
 	private final HashAlgorithm<?> algorithm;
-	
 	private final byte[] hash;
-	
+
 	public Hash(final HashAlgorithm<?> algorithm, final byte[] hash) {
 		this.algorithm = algorithm;
 		this.hash = hash;
 	}
-	
+
 	/**
 	 * Returns the algorithm that was used to calculate this Hash.
 	 * 
@@ -25,7 +24,7 @@ public class Hash {
 	public HashAlgorithm<?> getAlgorithm() {
 		return algorithm;
 	}
-	
+
 	/**
 	 * Returns the actual hash value. The byte array is returned as a copy so that the value of this Hash cannot be
 	 * modified.

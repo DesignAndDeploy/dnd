@@ -40,8 +40,8 @@ public class TemperatureActorBlock extends FunctionBlock {
 	 */
 	private HeaterControl control;
 
-	/**w
-	 * Initializes TemperatureActorBlock.
+	/**
+	 * w Initializes TemperatureActorBlock.
 	 */
 	@Override
 	public void init(final Map<String, String> options) {

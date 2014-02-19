@@ -12,12 +12,12 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 import edu.teco.dnd.network.messages.HelloMessage;
+import edu.teco.dnd.network.messages.Message;
 
 /**
- * Handles incoming {@link HelloMessage}s. This will set the remote ID in the {@link ClientChannelManager} and, if
- * this machine is the master, determine whether or not the connection will be kept. Appropriate Messages will be sent.
- * 
- * @author Philipp Adolf
+ * Handles incoming {@link HelloMessage}s. This will set the {@link ModuleID remote ID} in the
+ * {@link ClientChannelManager} and, if this machine is the {@link ModuleID#isMasterFor(ModuleID) master}, determine
+ * whether or not the connection will be kept. Appropriate {@link Message}s will be sent.
  */
 @Sharable
 public class HelloMessageHandler extends SimpleChannelInboundHandler<HelloMessage> {
@@ -49,14 +49,15 @@ public class HelloMessageHandler extends SimpleChannelInboundHandler<HelloMessag
 			}
 			if (localID.equals(remoteID)) {
 				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("got a connection from myself/a ModuleInfo with the same ID ({} from {}, disconnecting",
+					LOGGER.info(
+							"got a connection from myself/a ModuleInfo with the same ID ({} from {}, disconnecting",
 							localID, getRemoteAddress(ctx));
 				}
 				ctx.close();
 				LOGGER.exit();
 				return;
 			}
-			
+
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("setting remote ID of {} to {}", ctx.channel(), remoteID);
 			}

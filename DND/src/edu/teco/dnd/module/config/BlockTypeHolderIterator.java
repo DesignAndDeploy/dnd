@@ -6,11 +6,9 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 
 /**
- * Does a depth first walk over a BlockTypeHolder.
- * 
- * @author Philipp Adolf
+ * Iterates over a given {@link BlockTypeHolder} and recursively all children of it. Does not support removing elements.
  */
-public class BlockTypeHolderIterator implements Iterator<BlockTypeHolder>, Iterable<BlockTypeHolder> {
+public class BlockTypeHolderIterator implements Iterator<BlockTypeHolder> {
 	/**
 	 * Queue for BlockTypeHolders that have not yet been visited.
 	 */
@@ -45,10 +43,5 @@ public class BlockTypeHolderIterator implements Iterator<BlockTypeHolder>, Itera
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Iterator<BlockTypeHolder> iterator() {
-		return this;
 	}
 }

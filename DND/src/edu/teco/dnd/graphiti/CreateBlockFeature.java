@@ -13,48 +13,26 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.impl.ModelFactoryImpl;
 
 /**
- * This feature is used to create new FunctionBlocks.
+ * Creates the model for a new {@link FunctionBlockModel}.
+ * 
+ * @see AddBlockFeature
  */
 public class CreateBlockFeature extends AbstractCreateFeature {
-	/**
-	 * The type of blocks created by this feature.
-	 */
 	private final FunctionBlockClass blockClass;
 
-	/**
-	 * Initializes a new create feature.
-	 * 
-	 * @param fp
-	 *            the feature provider
-	 * @param blockClass
-	 *            the type of FunctionBlocks to create
-	 */
 	public CreateBlockFeature(final IFeatureProvider fp, final FunctionBlockClass blockClass) {
-		super(fp, blockClass == null ? "null" : blockClass.getSimplifiedClassName(), Messages.Graphiti_createBlock_CREATE_DESCRIPTION
-				+ (blockClass == null ? "null" : blockClass.getClassName())); //$NON-NLS-1$
-		
+		super(fp, blockClass == null ? "null" : blockClass.getSimplifiedClassName(),
+				Messages.Graphiti_createBlock_CREATE_DESCRIPTION
+						+ (blockClass == null ? "null" : blockClass.getClassName())); //$NON-NLS-1$
+
 		this.blockClass = blockClass;
 	}
 
-	/**
-	 * Whether or not the create feature can be used in the given context.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return whether or not the feature can be used
-	 */
 	@Override
 	public final boolean canCreate(final ICreateContext context) {
 		return context.getTargetContainer() instanceof Diagram;
 	}
 
-	/**
-	 * Creates a new FunctionBlock.
-	 * 
-	 * @param context
-	 *            the context
-	 * @return a new FunctionBlock
-	 */
 	@Override
 	public final Object[] create(final ICreateContext context) {
 		FunctionBlockModel newBlock;
@@ -73,7 +51,7 @@ public class CreateBlockFeature extends AbstractCreateFeature {
 		Assert.isNotNull(diagram.getDiagramTypeId());
 		String providerId = GraphitiUi.getExtensionManager().getDiagramTypeProviderId(diagram.getDiagramTypeId());
 		Assert.isNotNull(providerId);
-		
+
 		return new Object[] { newBlock };
 	}
 

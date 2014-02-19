@@ -5,53 +5,65 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+
+import edu.teco.dnd.module.Application;
+import edu.teco.dnd.module.Module;
 
 /**
- * Base class function blocks. Subclasses have to implement {@link #init()} and {@link #update()}.
+ * <p>
+ * A FunctionBlock is a small piece of code that is run by a {@link Module}. FunctionBlocks should be designed so that
+ * they either read a single sensor, control a single actor or process the data of one or multiple sensor blocks. Then
+ * the blocks can be combined in an {@link Application}.
+ * </p>
  * 
- * @see Input
- * @see Output
+ * <p>
+ * For building a FunctionBlock, add the DND classes to your project’s class path and extend this class. Then add
+ * {@link Input}s, {@link Output}s and options and implement {@link #init(Map)}, {@link #update()} and
+ * {@link #shutdown()}.
+ * </p>
+ * 
+ * <p>
+ * For Inputs and Outputs it is enough to define a field that uses the desired type as its generic argument. You should
+ * never set the field yourself, this will be done by the wrapper code. The fields will not be initialized when your
+ * constructor is being run, but as soon as {@link #init(Map)} is called the Inputs and Outputs are available.
+ * </p>
+ * 
+ * <p>
+ * For options you have to define a <code>public static final String</code> field. The name must start with
+ * <code>OPTION_</code>. The value of the field will be the default value for the option.
+ * </p>
+ * 
+ * <p>
+ * There are also two fields that can be used to influence the way the FunctionBlock is updated:
+ * {@value #BLOCK_TYPE_FIELD_NAME} and {@value #BLOCK_UPDATE_INTERVAL_FIELD_NAME}. Both fields must be
+ * <code>public static final long</code> to be recognized. {@value #BLOCK_TYPE_FIELD_NAME} defines the type of the block
+ * which is used during distribution. {@value #BLOCK_UPDATE_INTERVAL_FIELD_NAME} defines an interval in milliseconds.
+ * </p>
+ * 
+ * <p>
+ * Note about using this class manually: Before calling most of the methods you'll have to call
+ * {@link #initInternal(FunctionBlockID, String)} which initializes the data returned by the other methods.<br />
+ * </p>
  */
 public abstract class FunctionBlock implements Serializable {
-	/**
-	 * Used for serialization.
-	 */
 	private static final long serialVersionUID = 7444744469990667015L;
 
-	private static final String BLOCK_TYPE_FIELD_NAME = "BLOCK_TYPE";
-
-	private static final String BLOCK_UPDATE_INTERVAL_FIELD_NAME = "BLOCK_UPDATE_INTERVAL";
+	/**
+	 * This is the name of the field that is used to set the block type.
+	 */
+	public static final String BLOCK_TYPE_FIELD_NAME = "BLOCK_TYPE";
 
 	/**
-	 * The ID of the block. Will be set in {@link #initInternal(FunctionBlockID, String)}. Is used as an indicator to see if
-	 * doInit has been called.
+	 * This is the name of the field that is used to set the update interval.
 	 */
+	public static final String BLOCK_UPDATE_INTERVAL_FIELD_NAME = "BLOCK_UPDATE_INTERVAL";
+
+	// The following block of fields is initialized by doInit
 	private FunctionBlockID blockID = null;
-
-	/**
-	 * The type of the block. Set in {@link #initInternal(UUID, String)}.
-	 */
 	private String blockType = null;
-
-	/**
-	 * The name of the block. Set in {@link #initInternal(UUID, String)}.
-	 */
 	private String blockName = null;
-
-	/**
-	 * The time between scheduled updates of the block. Set in {@link #initInternal(UUID, String)}.
-	 */
 	private Long updateInterval = null;
-
-	/**
-	 * Contains all outputs of the block mapped from their name.
-	 */
 	private Map<String, Output<? extends Serializable>> outputs = null;
-
-	/**
-	 * Contains all inputs of the block mapped from their name.
-	 */
 	private Map<String, Input<? extends Serializable>> inputs = null;
 
 	/**
@@ -64,7 +76,7 @@ public abstract class FunctionBlock implements Serializable {
 	 * @param blockName
 	 *            the Name of the block. Will be stored so that it can be queried later with {@link #getBlockName()}.
 	 * @throws IllegalAccessException
-	 *             if quering a field using reflection fails
+	 *             if querying a field using reflection fails
 	 */
 	public final synchronized void initInternal(final FunctionBlockID blockID, final String blockName)
 			throws IllegalAccessException {
@@ -149,16 +161,16 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the UUID of this block. {@link #initInternal(UUID, String)} must be called first.
+	 * Returns the ID of this block. {@link #initInternal(FunctionBlockID, String)} must be called first.
 	 * 
-	 * @return the UUID of this block or null if it hasn't been set yet
+	 * @return the ID of this block or null if it hasn't been set yet
 	 */
 	public final synchronized FunctionBlockID getBlockID() {
 		return this.blockID;
 	}
 
 	/**
-	 * Returns the name of this block. {@link #initInternal(UUID, String)} must be called first.
+	 * Returns the name of this block. {@link #initInternal(FunctionBlockID, String)} must be called first.
 	 * 
 	 * @return the name of this block or null if it hasn't been set yet.
 	 */
@@ -167,7 +179,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all Outputs of the block mapped from their name. {@link #initInternal(UUID, String)} must be called first.
+	 * Returns all Outputs of the block mapped from their name. {@link #initInternal(FunctionBlockID, String)} must be
+	 * called first.
 	 * 
 	 * @return the Outputs of the block mapped from their name
 	 */
@@ -179,7 +192,8 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns all Inputs of the block mapped from their name. {@link #initInternal(UUID, String)} must be called first.
+	 * Returns all Inputs of the block mapped from their name. {@link #initInternal(FunctionBlockID, String)} must be
+	 * called first.
 	 * 
 	 * @return the Inputs of the block mapped from their name
 	 */
@@ -191,9 +205,9 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the type of the block. {@link #initInternal(UUID, String)} must be called first.
+	 * Returns the type of the block. {@link #initInternal(FunctionBlockID, String)} must be called first.
 	 * 
-	 * @return
+	 * @return the type of the block
 	 */
 	public final synchronized String getBlockType() {
 		if (blockID == null) {
@@ -203,7 +217,7 @@ public abstract class FunctionBlock implements Serializable {
 	}
 
 	/**
-	 * Returns the update interval for the block. {@link #initInternal(UUID, String)} must be called first.
+	 * Returns the update interval for the block. {@link #initInternal(FunctionBlockID, String)} must be called first.
 	 * 
 	 * @return the update interval for the block
 	 */
@@ -273,7 +287,7 @@ public abstract class FunctionBlock implements Serializable {
 		if (blockID == null) {
 			return "FunctionBlock[class=" + getClass() + "]";
 		} else {
-			return "FunctionBlock[class=" + getClass() + ",blockUUID=" + blockID + "]";
+			return "FunctionBlock[class=" + getClass() + ",blockID=" + blockID + "]";
 		}
 	}
 }

@@ -12,16 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * multiple FutureNotifiers fail the cause is set to one of the causes of the failed FutureNotifiers without any
  * guarantee as to which one.
  * 
- * @author Philipp Adolf
- * 
  * @param <T>
  *            the type of the result of the FutureNotifiers that should be joined
  */
 public class JoinedFutureNotifier<T> extends DefaultFutureNotifier<Collection<T>> implements
 		FutureListener<FutureNotifier<T>> {
-	/**
-	 * The FutureNotifiers that are combined.
-	 */
 	private final Collection<FutureNotifier<? extends T>> futures;
 
 	/**

@@ -1,12 +1,12 @@
 package edu.teco.dnd.module;
 
 import edu.teco.dnd.module.config.BlockTypeHolder;
+import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
 
 /**
- * Represents the configuration/setup of a ModuleInfo. Used for transporting said information.
+ * Contains information describing a {@link Module}.
  * 
- * @author jung
- * 
+ * @see ModuleInfoMessage
  */
 public class ModuleInfo {
 	private ModuleID moduleID;
@@ -15,14 +15,16 @@ public class ModuleInfo {
 	private BlockTypeHolder holder;
 
 	/**
-	 * Creates a new representation of a module.
+	 * Creates a ModuleInfo that will store information about a {@link Module}.
 	 * 
 	 * @param moduleID
-	 *            the ID of the module.
+	 *            the ID of the Module
 	 * @param name
-	 *            Name of the module.
+	 *            the name of the Module
+	 * @param location
+	 *            the location of the Module
 	 * @param holder
-	 *            BlockTypeHolder of the module.
+	 *            the root BlockTypeHolder of the Module
 	 */
 	public ModuleInfo(ModuleID moduleID, String name, String location, BlockTypeHolder holder) {
 		this.moduleID = moduleID;
@@ -31,30 +33,28 @@ public class ModuleInfo {
 		this.holder = holder;
 	}
 
+	/**
+	 * Initializes a ModuleInfo with only a ModuleID. All other fields will be set to <code>null</code>.
+	 * 
+	 * @param moduleID
+	 *            the ModuleID to use
+	 */
 	public ModuleInfo(final ModuleID moduleID) {
 		this(moduleID, null, null, null);
 	}
 
-	/**
-	 * Returns the BlockTypeHolder of this module.
-	 * 
-	 * @return BlockTypeHolder of this module.
-	 */
 	public BlockTypeHolder getHolder() {
-		return this.holder;
+		return holder;
 	}
 
-	/** @return the ID of the module represented by this. */
 	public ModuleID getID() {
 		return moduleID;
 	}
 
-	/** @return human readable name of module. */
 	public String getName() {
 		return name;
 	}
 
-	/** @return location this module gives. used to limit blocks allowed to run on it. */
 	public String getLocation() {
 		return location;
 	}

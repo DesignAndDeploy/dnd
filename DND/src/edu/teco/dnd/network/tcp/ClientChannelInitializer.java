@@ -24,7 +24,7 @@ import edu.teco.dnd.network.messages.Message;
 
 /**
  * <p>
- * Initializes the Channel's pipeline, adds it to a {@link ClientChannelManager} and sends a {@link HelloMessage}.
+ * Initializes the Channel’ pipeline, adds it to a {@link ClientChannelManager} and sends a {@link HelloMessage}.
  * <p>
  * 
  * <p>
@@ -43,11 +43,6 @@ import edu.teco.dnd.network.messages.Message;
  * <li>an additional handler if set with {@link #setMessageHandler(ChannelHandler)}</li>
  * </ul>
  * </p>
- * 
- * <p>
- * The channel will also be registered at a ClientChannelManager and a HelloMessage is sent.
- * 
- * @author Philipp Adolf
  */
 public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 	/**
@@ -56,7 +51,7 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 	public static final int LENGTH_FIELD_LENGTH = 2;
 
 	/**
-	 * Maximum length a single Message can be to successfully receive it.
+	 * Maximum length a single {@link Message} can be to successfully receive it.
 	 */
 	public static final int MAX_FRAME_LENGTH = 512 * 1024;
 
@@ -143,7 +138,8 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 	/**
 	 * Sets an additional MessageHandler that will be added to the pipeline of new Channels.
 	 * 
-	 * @param messageHandler the MessageHandler to add to the pipelines
+	 * @param messageHandler
+	 *            the MessageHandler to add to the pipelines
 	 */
 	public void setMessageHandler(final ChannelHandler messageHandler) {
 		this.messageHandler.set(messageHandler);
@@ -152,7 +148,8 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 	/**
 	 * Sets the executor group that should be used to run the additional handler
 	 * 
-	 * @param handlerGroup the group to use for the additional handler
+	 * @param handlerGroup
+	 *            the group to use for the additional handler
 	 */
 	public void setHandlerGroup(final EventExecutorGroup handlerGroup) {
 		this.handlerGroup.set(handlerGroup);
@@ -163,8 +160,10 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 	 * 
 	 * This also works after a pipeline has been created as the {@link GsonCodec} is shared between all pipelines.
 	 * 
-	 * @param type the type the adapter should be used for
-	 * @param adapter the adapter to register
+	 * @param type
+	 *            the type the adapter should be used for
+	 * @param adapter
+	 *            the adapter to register
 	 * @see GsonCodec#registerTypeAdapter(Type, Object)
 	 */
 	public void registerTypeAdapter(final Type type, final Object adapter) {
@@ -177,7 +176,8 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 	 * This also works after a pipeline has been created as the {@link MessageAdapter} is shared between all pipelines.
 	 * This must be called before Messages of the given type are sent or received.
 	 * 
-	 * @param cls the Message class to register
+	 * @param cls
+	 *            the Message class to register
 	 * @see MessageAdapter#addMessageType(Class)
 	 */
 	public void addMessageType(final Class<? extends Message> cls) {

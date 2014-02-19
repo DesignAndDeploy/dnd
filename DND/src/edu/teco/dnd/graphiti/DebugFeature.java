@@ -13,33 +13,13 @@ import edu.teco.dnd.graphiti.model.InputModel;
 import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
- * This class is used for logging informations on graphiti stuff.
+ * A CustomFeature that stores information about the selected object in the log.
  */
 public class DebugFeature extends AbstractCustomFeature {
-
-	/**
-	 * Loggs the information.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(DebugFeature.class);
 
-	/**
-	 * Initializes a new DNDDebugFeature.
-	 * 
-	 * @param fp
-	 *            The FeatureProvider
-	 */
 	public DebugFeature(final IFeatureProvider fp) {
 		super(fp);
-	}
-
-	@Override
-	public String getName() {
-		return Messages.Graphiti_DEBUG;
-	}
-
-	@Override
-	public String getDescription() {
-		return Messages.Graphiti_DEBUG_DESCRIPTION;
 	}
 
 	@Override
@@ -124,5 +104,15 @@ public class DebugFeature extends AbstractCustomFeature {
 	 */
 	private void logInput(final InputModel input) {
 		LOGGER.debug("Input {} of {} of type {}", input.getName(), input.getFunctionBlock().getType(), input.getType()); //$NON-NLS-1$
+	}
+
+	@Override
+	public String getName() {
+		return Messages.Graphiti_DEBUG;
+	}
+
+	@Override
+	public String getDescription() {
+		return Messages.Graphiti_DEBUG_DESCRIPTION;
 	}
 }

@@ -2,20 +2,13 @@ package edu.teco.dnd.module;
 
 import java.io.Serializable;
 
+import edu.teco.dnd.blocks.Input;
+
 /**
- * A value together with the name of the Input it should be sent to.
- * 
- * @author Philipp Adolf
+ * A value together with the name of an {@link Input} it should be sent to.
  */
 public class TargetedValue {
-	/**
-	 * The name of the Input the value should be send to.
-	 */
 	private final String inputName;
-
-	/**
-	 * The value to be send.
-	 */
 	private final Serializable value;
 
 	/**
@@ -31,20 +24,10 @@ public class TargetedValue {
 		this.value = value;
 	}
 
-	/**
-	 * Returns the name of the Input the value should be send to.
-	 * 
-	 * @return the name of the Input the value should be send to
-	 */
 	public String getInputName() {
 		return this.inputName;
 	}
 
-	/**
-	 * Returns the value that should be send.
-	 * 
-	 * @return the value that should be send
-	 */
 	public Serializable getValue() {
 		return this.value;
 	}

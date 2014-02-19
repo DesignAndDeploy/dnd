@@ -62,10 +62,21 @@ import edu.teco.dnd.util.FutureNotifier;
 import edu.teco.dnd.util.StringUtil;
 
 /**
- * This class gives the user access to all functionality needed to deploy an application. The user can load an existing
- * data flow graph, rename its function blocks and constrain them to specific modules and / or locations. The user can
- * also create a distribution and deploy the function blocks on the modules.
+ * <p>
+ * The DeployEditor allows creating {@link Distribution}s and {@link Deploy}ing them.
+ * </p>
  * 
+ * <p>
+ * The editor is registered for <code>.blocks</code> files in the <code>plugin.xml</code> which contain a
+ * {@link FunctionBlockModel}. The blocks can be selected in a list. Afterwards a location can be specified or a single
+ * Module can be selected. This forces the block to conform to the location or Module, all Distributions that do not
+ * meet this requirement are ignored.
+ * </p>
+ * 
+ * <p>
+ * Once the user has set the desired restrictions a Distribution can be created. If this is successful the Distribution
+ * can be Deployed which will be done as an Eclise job via {@link DeployJob}.
+ * </p>
  */
 public class DeployEditor extends EditorPart implements ServerStateListener, ModuleManagerListener {
 

@@ -1,5 +1,6 @@
 package edu.teco.dnd.module.config;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -9,34 +10,57 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.annotations.SerializedName;
 
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.module.Module;
+
 /**
- * TreeElement that wraps an allowed blocktype (can have children/ parents).
+ * BlockTypeHolders are used to specify what kind of {@link FunctionBlock}s a {@link Module} can run. The
+ * BlockTypeHolders of a Module are a tree. The leaves have a {@link #getType() type} and an {@link #getAmountAllowed()
+ * amount} set. Those can be used to store the given amount of FunctionBlocks of the given type.
  * 
- * @author Marvin Marx
+ * Non-leaf nodes have a variable number of children. They can also have an amount set. This is a total amount that may
+ * not be exceeded by all children. For example, if root has an amount of 2 and two children. One which can hold two
+ * FunctionBlocks of type <code>foo</code> and one that can hold one of type <code>bar</code>, then the Module could run
+ * one FunctionBlocks of type <code>foo</code> or one or two of type <code>bar</code> (but not three as that would
+ * exceed the root) or one of type <code>foo</code> and one of type <code>bar</code> (not more as the root will be
+ * full).
  */
 public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
-	/**
-	 * logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(BlockTypeHolder.class);
 
 	/**
-	 * The type this blockTypeHolder gives the amount... for.
+	 * The types of FunctionBlocks controlled by this BlockTypeHolder. This is used as a
 	 */
 	private final String type;
-	/** allowed blocks of this type, < 0 means infinity. */
+
+	/**
+	 * Number of FunctionBlocks that can be stored in this BlockTypeHolder. Negative values mean unrestricted.
+	 */
 	@SerializedName("amount")
 	private int amountAllowed = -1;
+
+	/**
+	 * Number of slots that are left. Negative means unrestricted.
+	 */
 	private int amountLeft = -1;
-	/** used during deploy to give exact position to run block on in case of doubt. */
+
+	/**
+	 * An identifier that will be unique on a Module.
+	 */
 	private int id = -1;
-	/** null if none. */
+
+	/**
+	 * Children of this BlockTypeHolder. May be empty.
+	 */
 	private final Set<BlockTypeHolder> children = new HashSet<BlockTypeHolder>();
 
+	/**
+	 * Parent of this BlockTypeHolder. Will be <code>null</code> for the root.
+	 */
 	private transient BlockTypeHolder parent = null;
 
 	/**
-	 * For Gson.
+	 * Constructor without arguments for Gson.
 	 */
 	@SuppressWarnings("unused")
 	private BlockTypeHolder() {
@@ -44,12 +68,12 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	}
 
 	/**
-	 * constructs a new Blocktype holder as a leaf node of the tree.
+	 * Initializes a new leaf node.
 	 * 
 	 * @param type
-	 *            the type this leaf node referes to
+	 *            the type this leaf node is used for
 	 * @param amount
-	 *            the amount that must not be exceeded. (infinite if < 0)
+	 *            the amount of FunctionBlocks this BlockTypeHolder can hold. Negative values mean unrestricted.
 	 */
 	public BlockTypeHolder(String type, int amount) {
 		// leave node
@@ -59,80 +83,92 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	}
 
 	/**
-	 * constructs a new non leaf node. Can not have a type however does have children. Children can also be added later.
+	 * Initializes a new non-leaf node.
 	 * 
-	 * @param childblocks
-	 *            the children of this block
+	 * @param children
+	 *            initial children of the BlockTypeHolder
 	 * @param amount
-	 *            the maximum amount allowed of all subnodes together. ( < 0 means no limits)
+	 *            the amount of FunctionBlocks this BlockTypeHolder can hold. Negative values mean unrestricted. This is
+	 *            a total maximum for all children.
 	 */
-	public BlockTypeHolder(Set<BlockTypeHolder> childblocks, int amount) {
+	public BlockTypeHolder(Set<BlockTypeHolder> children, int amount) {
 		// non leave node
 		this.type = null;
-		if (childblocks != null) {
-			this.children.addAll(childblocks);
+		if (children != null) {
+			this.children.addAll(children);
 		}
 		this.amountAllowed = amount;
 		this.amountLeft = amount;
 	}
 
 	/**
-	 * constructs a new non leave node with a maximum amount, yet no children. children can be added later.
+	 * Initializes a new non-leaf node without any children.
 	 * 
 	 * @param amount
-	 *            the maximum amount allowed of all subnodes together. ( < 0 means no limits)
+	 *            the amount of FunctionBlocks this BlockTypeHolder can hold. Negative values mean unrestricted. This is
+	 *            a total maximum for all children.
 	 */
 	public BlockTypeHolder(final int amount) {
-		// non leave node
-		this.type = null;
-		this.amountAllowed = amount;
-		this.amountLeft = amount;
+		this(Collections.<BlockTypeHolder> emptySet(), amount);
 	}
 
+	/**
+	 * Returns the children of this BlockTypeHolder. Will be empty for leaf nodes.
+	 * 
+	 * @return the children of this BlockTypeHolder. Non-<code>null</code>, but possibly empty.
+	 */
 	public Set<BlockTypeHolder> getChildren() {
 		return children;
 	}
 
 	/**
+	 * Returns the parent of this BlockTypeHolder.
 	 * 
-	 * @return the parent of this BlockTypeHolder.
+	 * @return the parent of this BlockTypeHolder. May be <code>null</code>.
 	 */
 	public BlockTypeHolder getParent() {
 		return parent;
 	}
 
 	/**
-	 * set a new parent for this blockTypeHolder.
+	 * Sets the parent of this BlockTypeHolder. This does not change the children of <code>parent</code>.
 	 * 
 	 * @param parent
-	 *            the parent to set.
+	 *            the new parent of this BlockTypeHolder. May be <code>null</code>.
 	 */
 	public void setParent(BlockTypeHolder parent) {
 		this.parent = parent;
 	}
 
 	/**
+	 * Returns the number of {@link FunctionBlock}s that can be hold by this BlockTypeHolder. This is the total amount.
 	 * 
-	 * @return the amount that was allowed to run in when this holder was set up.
+	 * @return the number of FunctionBlocks that can be hold by this BlockTypeHolder. A negative number means that there
+	 *         is no limit.
+	 * @see #getAmountLeft()
 	 */
 	public int getAmountAllowed() {
 		return amountAllowed;
 	}
 
 	/**
+	 * Returns the number of {@link FunctionBlock}s that can still be added to this BlockTypeHolder before it is full.
 	 * 
-	 * @return the amount that is still left to run of this blocktype (after the ones already running have been
-	 *         subtracted).
+	 * @return the number of FunctionBlocks that can be added to this BlockTypeHolder before it is full. A negative
+	 *         number means that there is no limit.
+	 * @see #getAmountAllowed()
 	 */
 	public int getAmountLeft() {
 		return amountLeft;
 	}
 
 	/**
-	 * Set the amount that is left being allowed to run to the given number.
+	 * Sets the number of {@link FunctionBlock}s that can be added to this BlockTypeHolder before it is full.
 	 * 
 	 * @param amountLeft
-	 *            the amount to set this to.
+	 *            the number of FunctionBlocks that can be added to this {@link BlockTypeHolder} before it is full. A
+	 *            negative number means that there is no limit.
+	 * @see #getAmountLeft()
 	 */
 	public void setAmountLeft(int amountLeft) {
 		LOGGER.trace("setting amountLeft to {}", amountLeft);
@@ -140,23 +176,31 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	}
 
 	/**
+	 * Returns the type of {@link FunctionBlock}s this BlockTypeHolder is used for. This is used as a RegEx.
 	 * 
-	 * @return the type of the block if a leaf node, null if not.
+	 * @return a RegEx describing the types of {@link FunctionBlock}s this BlockTypeHolder is used for.
+	 *         <code>null</code> for non-leaf nodes
 	 */
 	public String getType() {
 		return this.type;
 	}
 
 	/**
-	 * @return the id
+	 * Returns the ID of this BlockTypeHolder. This should be unique per {@link Module}, however this class has no
+	 * directly control over the IDs.
+	 * 
+	 * @return the ID of this BlockTypeHolder
 	 */
 	public int getID() {
 		return id;
 	}
 
 	/**
+	 * Sets the ID of this BlockTypeHolder. Must be positive. This should be unique per {@link Module}, however no
+	 * checks for uniqueness are made in this method.
+	 * 
 	 * @param id
-	 *            the id to set >= 0
+	 *            the new ID of this BlockTypeHolder
 	 */
 	public void setID(int id) {
 		if (id < 0) {
@@ -166,13 +210,16 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	}
 
 	/**
-	 * Tries to add a block of the given type to this BlockTypeHolder. For this to succeed the type of this holder has
-	 * to match the given type and there has to be a free slot in this BlockTypeHolder and all of its parents. Can be
-	 * called concurrently, but if not all blocks can be scheduled which ones are and which are not is nondeterministic.
+	 * Tries to add a {@link FunctionBlock} of the given type to this BlockTypeHolder. This only works for leaf nodes.
+	 * 
+	 * This will fail if the given type does not match the {@link #getType()} RegEx. Also this BlockTypeHolder as well
+	 * as all its {@link #getParent() parents} have to have at least one {@link #getAmountLeft() free slot}.
+	 * 
+	 * This method can be called concurrently with itself and/or {@link #increase()}.
 	 * 
 	 * @param blockType
-	 *            the type of block to schedule
-	 * @return true if the block was succesfully added, false otherwise
+	 *            the type of FunctionBlock to add
+	 * @return true if the block was successfully added, false otherwise
 	 */
 	public synchronized boolean tryAdd(final String blockType) {
 		String normalizedBlockType = blockType;
@@ -186,15 +233,13 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	}
 
 	/**
-	 * Recursively tries to decrease the values of amountLeft up to the parent-node. Returns true if every node had at
-	 * least one allowed left (or was negative), if at any point 0 allowed are encountered reverses the whole process
-	 * and returns false. <br>
-	 * Process is atomic. If two different blocks mutually excluding each other are requested exactly one will succeed
-	 * however which one is not deterministic.<br>
-	 * (tl;dr: try decrease amount of allowed blocks up to parent node. If amount=0 --> reverse everything and return
-	 * false; else true)
+	 * Tries to decrease this BlockTypeHolder’s {@link #getAmountLeft()} and that of all its parents. Fails if any
+	 * BlockTypeHolder involved has no free slots. In that case no amount is changed.
 	 * 
-	 * @return true iff the action is possible false otherwise. see above!
+	 * If a {@link #getAmountLeft()} is negative it is not changed and interpreted as having free slots.
+	 * 
+	 * @return <code>true</code> if this BlockTypeHolder and all its parents had at least one free slot and those have
+	 *         be decreased by one.
 	 */
 	private synchronized boolean tryDecrease() {
 		LOGGER.entry();
@@ -211,8 +256,10 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 	}
 
 	/**
-	 * increase the amount left allowed to run on this block by one (not higher than amount allowed) and calls the
-	 * method recursively on it's parents.
+	 * Adds a free slot to this {@link BlockTypeHolder} and all its parents. Will not increase past
+	 * {@link #getAmountAllowed()}.
+	 * 
+	 * @see #getAmountLeft()
 	 */
 	public synchronized void increase() {
 		if (amountLeft < 0) {
@@ -231,6 +278,11 @@ public class BlockTypeHolder implements Iterable<BlockTypeHolder> {
 		}
 	}
 
+	/**
+	 * Returns <code>true</code> if this is a leaf node.
+	 * 
+	 * @return <code>true</code> if this is a leaf node
+	 */
 	public boolean isLeaf() {
 		return !children.isEmpty();
 	}

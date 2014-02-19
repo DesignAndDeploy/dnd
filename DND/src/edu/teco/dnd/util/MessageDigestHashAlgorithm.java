@@ -5,12 +5,18 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * A wrapper for {@link MessageDigest} that provides the functionality of {@link HashAlgorithm}.
- * 
- * @author Philipp Adolf
  */
 public class MessageDigestHashAlgorithm implements HashAlgorithm<byte[]> {
 	private final String algorithmName;
-	
+
+	/**
+	 * Initializes a new MessageDigestHashAlgorithm.
+	 * 
+	 * @param algorithmName
+	 *            the name of the {@link MessageDigest} algorithm to use
+	 * @throws NoSuchAlgorithmException
+	 *             if the algorithm does not exist
+	 */
 	public MessageDigestHashAlgorithm(final String algorithmName) throws NoSuchAlgorithmException {
 		MessageDigest.getInstance(algorithmName);
 		this.algorithmName = algorithmName;
@@ -25,10 +31,10 @@ public class MessageDigestHashAlgorithm implements HashAlgorithm<byte[]> {
 			// This should not happen as we test the existence of the algorithm in the constructor.
 			return null;
 		}
-        final byte[] hash = digest.digest(data);
-        return new Hash(this, hash);
+		final byte[] hash = digest.digest(data);
+		return new Hash(this, hash);
 	}
-	
+
 	public String getAlgorithm() {
 		return algorithmName;
 	}

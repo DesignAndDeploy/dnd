@@ -19,13 +19,8 @@ import com.google.gson.JsonSerializer;
 
 /**
  * A Gson adapter for {@link NetConnection}.
- * 
- * @author Philipp Adolf
  */
 public class NetConnectionAdapter implements JsonSerializer<NetConnection>, JsonDeserializer<NetConnection> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(NetConnectionAdapter.class);
 
 	@Override

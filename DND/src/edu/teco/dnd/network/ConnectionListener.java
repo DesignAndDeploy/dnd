@@ -4,8 +4,6 @@ import edu.teco.dnd.module.ModuleID;
 
 /**
  * A listener that is informed if new connections are made or if connections are closed.
- * 
- * @author Philipp Adolf
  */
 public interface ConnectionListener {
 	/**

@@ -17,22 +17,18 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
 /**
- * A GSON adapter, that translates byte-arrays into base64 encoded text.
- * 
- * @author Marvin Marx
- * 
+ * A GSON adapter for {@link Serializable} which are stored as Base64 encoded byte arrays.
  */
 public class SerializableAdapter implements JsonSerializer<Serializable>, JsonDeserializer<Serializable> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(SerializableAdapter.class);
+
 	private final ClassLoader loader;
 
 	/**
+	 * Initializes a new SerializableAdapter.
 	 * 
 	 * @param loader
-	 *            classLoader used to deserialize given classes.
+	 *            a ClassLoader that will be used to deserialize incoming objects
 	 */
 	public SerializableAdapter(ClassLoader loader) {
 		this.loader = loader;

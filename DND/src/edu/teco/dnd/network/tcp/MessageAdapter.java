@@ -22,14 +22,15 @@ import edu.teco.dnd.network.messages.Message;
 
 /**
  * A Gson adapter that adds a type field to Message objects when serializing and uses the type field to select the right
- * class when deserializing.
+ * class when deserializing. For this to work the Message classes need to define a message type. This is done by adding
+ * a <code>public static final String</code> field with a specific name. The type name can also be added manually with
+ * {@link #addMessageType(Class, String)}.
  * 
- * @author Philipp Adolf
+ * For a Message class to be successfully deserialized it has to be {@link #addMessageType(Class) added} first.
+ * 
+ * @see #MessageAdapter(String)
  */
 public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer<Message> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(MessageAdapter.class);
 
 	/**
@@ -66,7 +67,7 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 	 * Creates a new MessageAdapter.
 	 * 
 	 * @param typeFieldName
-	 *            the type name to use
+	 *            the name of the field that is used to set the message type
 	 */
 	public MessageAdapter(final String typeFieldName) {
 		LOGGER.entry(typeFieldName);
@@ -90,6 +91,7 @@ public class MessageAdapter implements JsonSerializer<Message>, JsonDeserializer
 	 *            the class to add
 	 * @param type
 	 *            the name to use when (de-)serializing this class
+	 * @see #addMessageType(Class)
 	 */
 	public void addMessageType(final Class<? extends Message> cls, final String type) {
 		LOGGER.entry(cls, type);

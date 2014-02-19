@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Combines multiple PolicyRules, returning the first result that is not null.
- * 
- * @author Philipp Adolf
+ * Combines multiple PolicyRules, returning the first result that is not <code>null</code>.
  */
 public class PolicyRuleCombiner implements PolicyRule {
 	private final List<PolicyRule> rules = new ArrayList<PolicyRule>();

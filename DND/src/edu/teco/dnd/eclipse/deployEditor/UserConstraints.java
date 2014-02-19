@@ -11,6 +11,9 @@ import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
+/**
+ * A Constraints implementation that enforces Module and location selections done by the user.
+ */
 public class UserConstraints implements Constraint {
 	private final Map<FunctionBlockModel, ModuleID> moduleConstraints;
 	private final Map<FunctionBlockModel, String> placeConstraints;
@@ -21,7 +24,8 @@ public class UserConstraints implements Constraint {
 	}
 
 	@Override
-	public boolean isAllowed(Distribution distribution, FunctionBlockModel block, ModuleInfo module, BlockTypeHolder holder) {
+	public boolean isAllowed(Distribution distribution, FunctionBlockModel block, ModuleInfo module,
+			BlockTypeHolder holder) {
 		if (moduleConstraints.containsKey(block)) {
 			ModuleID moduleID = module.getID();
 			if (!moduleConstraints.get(block).equals(moduleID)) {

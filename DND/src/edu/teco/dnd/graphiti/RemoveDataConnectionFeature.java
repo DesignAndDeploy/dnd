@@ -12,20 +12,12 @@ import edu.teco.dnd.graphiti.model.OutputModel;
 
 /**
  * Used to remove connections from inputs and outputs.
+ * 
+ * @see AddDataConnectionFeature
  */
 public class RemoveDataConnectionFeature extends DefaultRemoveFeature {
-
-	/**
-	 * Logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(RemoveDataConnectionFeature.class);
 
-	/**
-	 * Initializes a new DNDRemoveDataConnectionFeature.
-	 * 
-	 * @param fp
-	 *            IFeatureProvider.
-	 */
 	public RemoveDataConnectionFeature(final IFeatureProvider fp) {
 		super(fp);
 	}

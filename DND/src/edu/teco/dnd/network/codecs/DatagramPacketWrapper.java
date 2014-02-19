@@ -14,15 +14,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A class that wraps ByteBufs into a DatagramPacket.
- * 
- * @author Philipp Adolf
+ * A class that wraps {@link ByteBuf}s into a {@link DatagramPacket}s when sending and unwraps them when receiving. This
+ * handler needs to know the target address. It can be set via {@link #TARGET_ADDRESS}.
  */
 @Sharable
 public class DatagramPacketWrapper extends MessageToMessageCodec<DatagramPacket, ByteBuf> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(DatagramPacketWrapper.class);
 
 	/**

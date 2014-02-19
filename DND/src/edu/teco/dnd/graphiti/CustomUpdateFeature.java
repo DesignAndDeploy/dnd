@@ -21,7 +21,7 @@ import edu.teco.dnd.graphiti.model.FunctionBlockModel;
  */
 public class CustomUpdateFeature extends AbstractCustomFeature {
 	private boolean hasDoneChanges = false;
-	
+
 	public CustomUpdateFeature(IFeatureProvider fp) {
 		super(fp);
 	}

@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ApplicationID;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.messages.generalModule.MissingApplicationNak;
@@ -31,8 +32,6 @@ import edu.teco.dnd.util.JoinedFutureNotifier;
 
 /**
  * Collects information about running Applications and informs {@link ApplicationManagerListener}s about them.
- * 
- * @author Philipp Adolf
  */
 public class ApplicationManager implements ServerStateListener, ConnectionListener {
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -57,7 +56,9 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	}
 
 	/**
-	 * Adds a listener. A listener can be added multiple times, resulting in it getting all events multiple times.
+	 * Adds a listener. A listener can be added multiple times, resulting in it getting all events multiple times. The
+	 * listener will get an {@link ApplicationManagerListener#applicationsResolved(Collection)} event with all currently
+	 * known {@link Application}s immediately.
 	 * 
 	 * @param listener
 	 *            the listener to add
@@ -118,7 +119,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	}
 
 	/**
-	 * Returns a list of currently running Applications, represented by ApplicationInformation.
+	 * Returns a list of currently running {@link Application}s, represented by {@link ApplicationInformation}.
 	 * 
 	 * @return List of currently running applications.
 	 */
@@ -127,8 +128,8 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	}
 
 	/**
-	 * Kills an application. You should run an update beforehand or the information used to kill the Application may be
-	 * too old.
+	 * Kills an {@link Application}. You should run an {@link #update()} beforehand or the information used to kill the
+	 * Application may be too old for it to work properly.
 	 * 
 	 * @param applicationID
 	 *            the ID of the Application to kill. Must be known to this manager.
@@ -160,7 +161,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	}
 
 	/**
-	 * Updates the list of running Applications.
+	 * Updates the list of running {@link Application}s.
 	 * 
 	 * @return a FutureNotifier that will return the Applications that were found
 	 */
@@ -203,9 +204,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 	}
 
 	/**
-	 * A FutureNotifier that checks the Responses sent for kill requests.
-	 * 
-	 * @author Philipp Adolf
+	 * A FutureNotifier that checks the {@link Response}es sent for kill requests.
 	 */
 	private static class KillAppFutureNotifier extends DefaultFutureNotifier<Void> implements
 			FutureListener<FutureNotifier<Collection<Response>>> {
@@ -233,9 +232,7 @@ public class ApplicationManager implements ServerStateListener, ConnectionListen
 
 	/**
 	 * A FutureNotifier that combines a Collection of {@link ApplicationInformationResponse}s to a Collection of
-	 * ApplicationInformations.
-	 * 
-	 * @author Philipp Adolf
+	 * {@link ApplicationInformation}s.
 	 */
 	private class ApplicationInformationFutureNotifier extends
 			DefaultFutureNotifier<Collection<ApplicationInformation>> implements

@@ -8,13 +8,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A PolicyRun that automatically grants a given set of Permissions. The stack trace is ignored.
- * 
- * @author Philipp Adolf
+ * A PolicyRun that automatically grants a given set of Permissions. The stack trace is ignored. This class is not
+ * thread-safe.
  */
 public class GrantPermissionPolicyRule implements PolicyRule {
 	public static final Logger LOGGER = LogManager.getLogger(GrantPermissionPolicyRule.class);
-	
+
 	private final PermissionCollection permissions = new Permissions();
 
 	public void addPermission(final Permission permission) {

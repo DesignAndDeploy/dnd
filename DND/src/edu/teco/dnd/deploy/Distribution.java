@@ -17,14 +17,11 @@ import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
 
 /**
- * A Distribution of {@link FunctionBlock} to {@link BlockTypeHolder}s.
+ * A Distribution of {@link FunctionBlock}s to {@link BlockTypeHolder}s.
  * 
  * @author Philipp Adolf
  */
 public class Distribution {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(Distribution.class);
 
 	/**

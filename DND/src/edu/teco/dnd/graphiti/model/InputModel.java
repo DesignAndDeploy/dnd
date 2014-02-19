@@ -3,7 +3,13 @@ package edu.teco.dnd.graphiti.model;
 import org.apache.bcel.util.Repository;
 import org.eclipse.emf.ecore.EObject;
 
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.blocks.Input;
+import edu.teco.dnd.blocks.Output;
+
 /**
+ * Represents an {@link Input} of a {@link FunctionBlock}.
+ * 
  * @model
  */
 public interface InputModel extends EObject {
@@ -71,5 +77,15 @@ public interface InputModel extends EObject {
 	 */
 	void setType(String value);
 
+	/**
+	 * Checks if an {@link Output} is compatible with this Input. An Output is compatible if it sends the type this
+	 * Input takes or any subtype of it
+	 * 
+	 * @param repository
+	 *            the Repository used for inspecting the classes
+	 * @param output
+	 *            the Output to check
+	 * @return true if the output is compatible
+	 */
 	boolean isCompatible(Repository repository, OutputModel output);
 }

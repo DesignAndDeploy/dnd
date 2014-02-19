@@ -11,25 +11,16 @@ import org.eclipse.graphiti.mm.algorithms.GraphicsAlgorithm;
 import org.eclipse.graphiti.mm.algorithms.Text;
 import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 
+import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.graphiti.model.OptionModel;
 
 /**
- * This class is used to update options if they are changed in the underlying model.
- * 
- * @author philipp
+ * This class is used to update the graphical representations of a {@link FunctionBlockModel}’s options if they are
+ * changed in the underlying model.
  */
 public class UpdateOptionFeature extends AbstractUpdateFeature {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(UpdateOptionFeature.class);
 
-	/**
-	 * Initializes a new DNDUpdateOptionFeature.
-	 * 
-	 * @param fp
-	 *            the FeatureProvider
-	 */
 	public UpdateOptionFeature(final IFeatureProvider fp) {
 		super(fp);
 	}

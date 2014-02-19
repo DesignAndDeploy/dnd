@@ -1,11 +1,9 @@
 package edu.teco.dnd.graphiti;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.graphiti.features.IFeatureProvider;
 import org.eclipse.graphiti.features.IReason;
-import org.eclipse.graphiti.features.context.ICustomContext;
 import org.eclipse.graphiti.features.context.IUpdateContext;
 import org.eclipse.graphiti.features.impl.AbstractUpdateFeature;
 import org.eclipse.graphiti.features.impl.Reason;
@@ -16,22 +14,12 @@ import org.eclipse.graphiti.mm.pictograms.PictogramElement;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 
 /**
- * This class is used to update options if they are changed in the underlying model.
- * 
- * @author philipp
+ * This class is used to update the graphical representation of a {@link FunctionBlockModel}’s position if it has
+ * changed in the underlying model.
  */
 public class UpdatePositionFeature extends AbstractUpdateFeature {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(UpdatePositionFeature.class);
 
-	/**
-	 * Initializes a new DNDUpdateOptionFeature.
-	 * 
-	 * @param fp
-	 *            the FeatureProvider
-	 */
 	public UpdatePositionFeature(final IFeatureProvider fp) {
 		super(fp);
 	}
@@ -75,29 +63,6 @@ public class UpdatePositionFeature extends AbstractUpdateFeature {
 	public boolean update(final IUpdateContext context) {
 		LOGGER.entry(context);
 		PictogramElement pe = context.getPictogramElement();
-		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
-		Text text = (Text) pe.getGraphicsAlgorithm();
-		String value = block.getPosition();
-		if (value == null) {
-			value = "";
-		}
-		text.setValue(value);
-		LOGGER.exit(true);
-		return true;
-	}
-
-	/**
-	 * This update-method is called by the DNDCustomUpdateFeature. It offers an alternative to the previously not
-	 * working update-functionality by graphiti. This method should be obsolete by now, still leaving it in here, just
-	 * in case...
-	 * 
-	 * @param context
-	 *            Context offered by the DNDCustomUpdateFeature
-	 * @return if completed successfully.
-	 */
-	protected boolean update(final ICustomContext context) {
-		LOGGER.entry(context);
-		PictogramElement pe = context.getInnerPictogramElement();
 		FunctionBlockModel block = (FunctionBlockModel) getBusinessObjectForPictogramElement(pe);
 		Text text = (Text) pe.getGraphicsAlgorithm();
 		String value = block.getPosition();

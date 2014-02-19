@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
  * @author jung
  * 
  */
-public class PrefList extends ListEditor {
+public class ListPreferences extends ListEditor {
 	private List<TextCheck> textList;
 	private Composite parent;
 
@@ -30,7 +30,7 @@ public class PrefList extends ListEditor {
 	 * @param textList
 	 *            CheckText List containing Text fields containing values for the PrefList
 	 */
-	public PrefList(String name, String labelText, Composite parent, List<TextCheck> textList) {
+	public ListPreferences(String name, String labelText, Composite parent, List<TextCheck> textList) {
 		super(name, labelText, parent);
 		this.parent = parent;
 		this.textList = textList;

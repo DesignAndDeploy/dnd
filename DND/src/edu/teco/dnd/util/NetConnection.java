@@ -3,6 +3,9 @@ package edu.teco.dnd.util;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 
+/**
+ * An {@link InetSocketAddress} with a {@link NetworkInterface}.
+ */
 public class NetConnection {
 	private final InetSocketAddress address;
 	private final NetworkInterface interf;

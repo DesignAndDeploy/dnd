@@ -41,8 +41,6 @@ import edu.teco.dnd.network.messages.Response;
  * <p>
  * If a Response is received a {@link ResponseFutureManager} is informed about it and no handler is called.
  * </p>
- * 
- * @author Philipp Adolf
  */
 @Sharable
 public class ClientMessageDispatcher extends SimpleChannelInboundHandler<Message> {

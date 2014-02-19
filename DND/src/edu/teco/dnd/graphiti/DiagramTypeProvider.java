@@ -4,7 +4,11 @@ import org.eclipse.graphiti.dt.AbstractDiagramTypeProvider;
 import org.eclipse.graphiti.tb.IToolBehaviorProvider;
 
 /**
- * Provides a FeatureProvider and a ToolBehaviorProvider.
+ * Main class of a Graphiti diagram. Basically it just tells Graphiti which FeatureProvider and ToolBehaviorProviders to
+ * use.
+ * 
+ * @see FeatureProvider
+ * @see ToolBehaviorProvider
  */
 public class DiagramTypeProvider extends AbstractDiagramTypeProvider {
 	/**

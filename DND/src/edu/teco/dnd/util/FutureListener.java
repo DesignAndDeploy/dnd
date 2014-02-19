@@ -4,8 +4,6 @@ import java.util.EventListener;
 
 /**
  * A listener for {@link FutureNotifier}.
- * 
- * @author Philipp Adolf
  */
 public interface FutureListener<F extends FutureNotifier<?>> extends EventListener {
 	/**

@@ -1,5 +1,6 @@
 package edu.teco.dnd.network.tcp;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,11 +17,9 @@ import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
  * </p>
  * 
  * <p>
- * The handler does some sanity checks for the remote ModuleID sent with the message and if they are passed marks the
- * Channel as active.
+ * The handler does some sanity checks for the remote {@link ModuleID} sent with the message and if they are passed
+ * marks the {@link Channel} as active.
  * </p>
- * 
- * @author Philipp Adolf
  */
 @Sharable
 public class ConnectionEstablishedMessageHandler extends SimpleChannelInboundHandler<ConnectionEstablishedMessage> {

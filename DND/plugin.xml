@@ -52,7 +52,7 @@
             id="DND preferences"
             name="%pref.name"/>
       <page
-            class="edu.teco.dnd.eclipse.preferences.PreferencesNetwork"
+            class="edu.teco.dnd.eclipse.preferences.NetworkPreferences"
             id="DND network preferences"
             name="%prefnet.name.0"
             category="DND preferences"/>

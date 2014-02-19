@@ -12,7 +12,8 @@
  * 
  * <p>
  * When a new connection is established both clients send a {@link edu.teco.dnd.network.messages.HelloMessage} to inform
- * each other about their IDs. The client with the lower ID acts as a master and decides whether or not to keep the
+ * each other about their {@link edu.teco.dnd.module.ModuleID}s. The client with the lower ID acts as a
+ * {@link edu.teco.dnd.module.ModuleID#isMasterFor(edu.teco.dnd.module.ModuleID)} and decides whether or not to keep the
  * connection. If the connection should be kept a {@link edu.teco.dnd.network.messages.ConnectionEstablishedMessage} is
  * sent, otherwise the Channel is closed.
  * </p>
@@ -21,7 +22,7 @@
  * After the initialization phase Messages can be sent by classes using the
  * {@link edu.teco.dnd.network.tcp.TCPConnectionManager}. For this to work the class of the Message that will be sent
  * must be registered at the local and the remote TCPConnectionManager - this should be done as early as possible. For
- * each incoming Message matching handler is looked up. This handler can send a
+ * each incoming Message a matching handler is looked up. This handler can send a
  * {@link edu.teco.dnd.network.messages.Response} which the client that sent the original Message can easily query.
  * </p>
  * 

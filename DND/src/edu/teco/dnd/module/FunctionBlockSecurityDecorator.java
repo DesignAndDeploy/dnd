@@ -7,26 +7,24 @@ import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.blocks.FunctionBlockID;
 import edu.teco.dnd.blocks.Input;
 import edu.teco.dnd.blocks.Output;
+import edu.teco.dnd.module.permissions.ApplicationSecurityManager;
 
 /**
- * Wrapper for a FunctionBlock. The idea is, that FunctionBlock code can not be trusted to work properly, yet must still
- * be executed. Thus every code executed on aFunctionBlock is wrapped by this. Not only does this give an easy way to
- * discern untrusted code on a stacktrace (as used in securityManagers) But it also limits the entry/exit points and
- * allows for more conscious wrapping and lessens the likelihood of forgotten wrapping.
- * 
- * @author Marvin Marx
- * 
+ * A wrapper for {@link FunctionBlock} that catches any {@link Throwable}. The idea is that FunctionBlocks can be loaded
+ * via the network and are therefore untrusted. Together with the {@link ApplicationSecurityManager} this class tries to
+ * minimize possible attack vectors.
  */
 public class FunctionBlockSecurityDecorator {
-	private final FunctionBlock block;
+	private final FunctionBlock realBlock;
 
 	/**
-	 * creates a new decorator wrapping the given block.
+	 * Instantiates a new {@link FunctionBlock} and wraps it in a FunctionBlockSecurityDecorator.
 	 * 
 	 * @param blockClass
-	 *            the block to be wrapped.
+	 *            the class of the FunctionBlock that should be instantiated. Must have a constructor that takes no
+	 *            arguments.
 	 * @throws UserSuppliedCodeException
-	 *             if an error occured while trying to instantiate the FunctionBlock.
+	 *             if any {@link Throwable} is thrown
 	 */
 	public FunctionBlockSecurityDecorator(final Class<? extends FunctionBlock> blockClass)
 			throws UserSuppliedCodeException {
@@ -40,22 +38,19 @@ public class FunctionBlockSecurityDecorator {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("Could not instantiate block of class " + blockClass);
 		}
-		this.block = realBlock;
+		this.realBlock = realBlock;
 	}
 
 	/**
-	 * wrapper for doInit on FunctionBlocks. just wrapped for security.
+	 * Wrapper for {@link FunctionBlock#doInit(FunctionBlockID, String)}. Catches any {@link Throwable}.
 	 * 
-	 * @param blockID
-	 *            see {@link FunctionBlock#initInternal(FunctionBlockID, String)}
-	 * @param blockName
-	 *            see {@link FunctionBlock#initInternal(FunctionBlockID, String)}
 	 * @throws UserSuppliedCodeException
-	 *             if an error occurred in the block code.
+	 *             if any {@link Throwable} is thrown
+	 * @see FunctionBlock#doInit(FunctionBlockID, String)
 	 */
 	public void initInternal(final FunctionBlockID blockID, final String blockName) throws UserSuppliedCodeException {
 		try {
-			this.block.initInternal(blockID, blockName);
+			this.realBlock.initInternal(blockID, blockName);
 		} catch (Throwable e) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling doInit on block " + blockID);
@@ -63,108 +58,103 @@ public class FunctionBlockSecurityDecorator {
 	}
 
 	/**
-	 * wraps FunctionBlock.init() for security.
+	 * Wrapper for {@link FunctionBlock#init(Map)}. Catches any {@link Throwable}.
 	 * 
-	 * @param options
-	 *            see FunctionBlock.init()
 	 * @throws UserSuppliedCodeException
-	 *             if an error occurred in the block code.
+	 *             if any {@link Throwable} is thrown
+	 * @see FunctionBlock#init(Map)
 	 */
 	public void init(final Map<String, String> options) throws UserSuppliedCodeException {
 		try {
-			block.init(options);
+			realBlock.init(options);
 		} catch (Throwable t) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling init on block "
-					+ block.getBlockID());
+					+ realBlock.getBlockID());
 		}
 	}
 
 	/**
-	 * wraps FunctionBlock.shutdown() for security.
+	 * Wrapper for {@link FunctionBlock#shutdown()}. Catches any {@link Throwable}.
 	 * 
 	 * @throws UserSuppliedCodeException
-	 *             if an error occurred in the block code.
+	 *             if any {@link Throwable} is thrown
+	 * @see FunctionBlock#shutdown()
 	 */
 	public void shutdown() throws UserSuppliedCodeException {
 		try {
-			block.shutdown();
+			realBlock.shutdown();
 		} catch (Throwable t) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling shutdown on block "
-					+ block.getBlockID());
+					+ realBlock.getBlockID());
 		}
 	}
 
 	/**
-	 * wraps FunctionBlock.update() for security.
+	 * Wrapper for {@link FunctionBlock#update()}. Catches any {@link Throwable}.
 	 * 
 	 * @throws UserSuppliedCodeException
-	 *             if an error occurred in the block code.
+	 *             if any {@link Throwable} is thrown
+	 * @see FunctionBlock#update()
 	 */
 	public void update() throws UserSuppliedCodeException {
 		try {
-			block.update();
+			realBlock.update();
 		} catch (Throwable t) {
 			// Throwing a new exception so no user supplied Throwable will be called later on
 			throw new UserSuppliedCodeException("an exception was thrown while calling update on block "
-					+ block.getBlockID());
+					+ realBlock.getBlockID());
 		}
 	}
 
 	/**
-	 * 
-	 * @return type of the block this FunctionBlockSecurityDecorator contains.
+	 * @see FunctionBlock#getBlockType()
 	 */
 	public String getBlockType() {
-		return block.getBlockType();
-	}
-
-	public String getBlockName() {
-		return block.getBlockName();
+		return realBlock.getBlockType();
 	}
 
 	/**
-	 * 
-	 * @return UUID of the block this FunctionBlockSecurityDecorator contains.
+	 * @see FunctionBlock#getBlockName()
+	 */
+	public String getBlockName() {
+		return realBlock.getBlockName();
+	}
+
+	/**
+	 * @see FunctionBlock#getBlockID()
 	 */
 	public FunctionBlockID getBlockID() {
-		return block.getBlockID();
+		return realBlock.getBlockID();
 	}
 
 	/**
-	 * 
-	 * @return updateIntervall of the block this FunctionBlockSecurityDecorator contains.
-	 * @see FunctionBlock.getUpdateIntervall()
+	 * @see FunctionBlock#getUpdateInterval()
 	 */
 	public long getUpdateInterval() {
-
-		return block.getUpdateInterval();
+		return realBlock.getUpdateInterval();
 	}
 
 	/**
-	 * 
-	 * @return Outputs of the block this FunctionBlockSecurityDecorator contains.
-	 * @see FunctionBlock.getOutputs()
+	 * @see FunctionBlock#getOutputs()
 	 */
 	public Map<String, Output<? extends Serializable>> getOutputs() {
-		return block.getOutputs();
+		return realBlock.getOutputs();
 	}
 
 	/**
-	 * 
-	 * @return inputs of the block this FunctionBlockSecurityDecorator contains.
 	 * @see FunctionBlock.getInputs()
 	 */
 	public Map<String, Input<? extends Serializable>> getInputs() {
-		return block.getInputs();
+		return realBlock.getInputs();
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((block == null) ? 0 : block.hashCode());
+		result = prime * result + ((realBlock == null) ? 0 : realBlock.hashCode());
 		return result;
 	}
 
@@ -180,11 +170,11 @@ public class FunctionBlockSecurityDecorator {
 			return false;
 		}
 		FunctionBlockSecurityDecorator other = (FunctionBlockSecurityDecorator) obj;
-		if (block == null) {
-			if (other.block != null) {
+		if (realBlock == null) {
+			if (other.realBlock != null) {
 				return false;
 			}
-		} else if (!block.equals(other.block)) {
+		} else if (!realBlock.equals(other.realBlock)) {
 			return false;
 		}
 		return true;

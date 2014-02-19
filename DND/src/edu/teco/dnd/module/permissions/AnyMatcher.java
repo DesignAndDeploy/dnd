@@ -8,35 +8,33 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Combines multiple StackTraceElementMatchers. Matches if at least one of the submatchers matches.
- * 
- * @author Philipp Adolf
+ * Matches if any of the given {@link StackTraceElementMatcher}s matches. This class is not thread-safe.
  */
-public class CombinedMatcher implements StackTraceElementMatcher {
-	private static final Logger LOGGER = LogManager.getLogger(CombinedMatcher.class);
-	
+public class AnyMatcher implements StackTraceElementMatcher {
+	private static final Logger LOGGER = LogManager.getLogger(AnyMatcher.class);
+
 	private final Collection<StackTraceElementMatcher> matchers = new ArrayList<StackTraceElementMatcher>();
-	
-	public CombinedMatcher(final StackTraceElementMatcher... matchers) {
+
+	public AnyMatcher(final StackTraceElementMatcher... matchers) {
 		this.matchers.addAll(Arrays.asList(matchers));
 	}
-	
-	public CombinedMatcher(final Collection<StackTraceElementMatcher> matchers) {
+
+	public AnyMatcher(final Collection<StackTraceElementMatcher> matchers) {
 		this.matchers.addAll(matchers);
 	}
-	
+
 	public void add(final StackTraceElementMatcher matcher) {
 		matchers.add(matcher);
 	}
-	
+
 	public void addAll(final Collection<StackTraceElementMatcher> matchers) {
 		this.matchers.addAll(matchers);
 	}
-	
+
 	public void remove(final StackTraceElementMatcher matcher) {
 		matchers.remove(matcher);
 	}
-	
+
 	public void removeAll(final Collection<StackTraceElementMatcher> matchers) {
 		this.matchers.removeAll(matchers);
 	}
@@ -51,11 +49,11 @@ public class CombinedMatcher implements StackTraceElementMatcher {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append("CombinedMatcher[");
+		sb.append("AnyMatcher[");
 		boolean first = true;
 		for (final StackTraceElementMatcher matcher : matchers) {
 			if (first) {

@@ -1,48 +1,25 @@
 package edu.teco.dnd.module;
 
+import edu.teco.dnd.blocks.FunctionBlock;
+
 /**
- * thrown if an accessed FunctionBlock does not exist on the ModuleInfo it was accessed on.
- * 
+ * Used to indicate that a requested {@link FunctionBlock} does not exist.
  */
 public class NonExistentFunctionblockException extends Exception {
-
 	private static final long serialVersionUID = -2255346140627213512L;
 
-	/**
-	 * Initializes a new NonExistentFunctionblockException.
-	 * 
-	 * @param msg
-	 *            an error message
-	 * @param cause
-	 *            what caused this exception to be thrown.
-	 */
 	public NonExistentFunctionblockException(final String msg, final Throwable cause) {
 		super(msg, cause);
 	}
 
-	/**
-	 * Initializes a new NonExistentFunctionblockException.
-	 * 
-	 * @param msg
-	 *            an error message
-	 */
 	public NonExistentFunctionblockException(final String msg) {
 		super(msg);
 	}
 
-	/**
-	 * Initializes a new NonExistentFunctionblockException.
-	 * 
-	 * @param cause
-	 *            what caused this exception to be thrown.
-	 */
 	public NonExistentFunctionblockException(final Throwable cause) {
 		super(cause);
 	}
 
-	/**
-	 * Initializes a new NonExistentFunctionblockException.
-	 */
 	public NonExistentFunctionblockException() {
 		super();
 	}

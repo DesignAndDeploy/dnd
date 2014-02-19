@@ -9,9 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Provides utility methods for dealing with Maps.
- * 
- * @author Philipp Adolf
+ * Provides utility methods for dealing with {@link Map}s.
  */
 public class MapUtil {
 	/**
@@ -43,9 +41,10 @@ public class MapUtil {
 	}
 
 	/**
-	 * Generates a transitive Mapping. That is, given a Map from type A to Collection<B> and a Map from B to
-	 * Collection<C> it creates a Map from A to Collection<C> where the value contains all elements of all values from
-	 * the second Map where the key is in the value of the first Map for A.
+	 * Generates a transitive Mapping. That is, given a Map from type <code>A</code> to <code>Collection&lt;B&gt;</code>
+	 * and a Map from <code>B</code> to <code>Collection&lt;C&gt;</code> it creates a Map from <code>A</code> to
+	 * <code>Collection&lt;C&gt;</code> where the value contains all elements of all values from the second Map where
+	 * the key is in the value of the first Map for <code>A</code>.
 	 * 
 	 * @param mapA
 	 *            the first Map

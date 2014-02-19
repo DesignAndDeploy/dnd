@@ -17,7 +17,6 @@ import edu.teco.dnd.util.FutureNotifier;
  * 
  * @param <C>
  *            the type of configuration the implementation of this class needs
- * @see TCPUDPServerManager
  */
 public abstract class ServerManager<C extends ServerConfig> {
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -36,10 +35,11 @@ public abstract class ServerManager<C extends ServerConfig> {
 	}
 
 	/**
-	 * Starts the servers. If the servers are already running, nothing is done.
+	 * Starts the servers. If the servers are already running, nothing is done and a failed FutureNotifier is returned.
 	 * 
 	 * @param serverConfig
 	 *            a configuration that describes how the servers should be set up
+	 * @return a FutureNotifier that finished once the servers are started
 	 */
 	public FutureNotifier<?> startServer(final C serverConfig) {
 		synchronized (this) {
@@ -99,6 +99,7 @@ public abstract class ServerManager<C extends ServerConfig> {
 	 * 
 	 * @param serverConfig
 	 *            a configuration describing how the servers should be set up
+	 * @return a Future that finishes once the servers are set up
 	 */
 	protected abstract FutureNotifier<Void> initializeServer(C serverConfig);
 
@@ -125,7 +126,10 @@ public abstract class ServerManager<C extends ServerConfig> {
 	}
 
 	/**
-	 * Stops the servers. If the servers aren't running nothing is done.
+	 * Stops the servers. If the servers aren't running a failed FutureNotifier is returned.
+	 * 
+	 * @param a
+	 *            FutureNotifer that finishes once the servers are shut down
 	 */
 	public synchronized FutureNotifier<?> shutdownServer() {
 		LOGGER.entry();
@@ -178,7 +182,7 @@ public abstract class ServerManager<C extends ServerConfig> {
 	/**
 	 * This method is used to shut down the servers previously created. It should not call
 	 * {@link #setBeacon(UDPMulticastBeacon)} or {@link #setConnectionManager(ConnectionManager)}. It is called after
-	 * the listeners have been informed that the servers will be shut down and once the returned future finished, the
+	 * the listeners have been informed that the servers will be shut down and once the returned future finishes the
 	 * listeners are informed that the server is stopped.
 	 * 
 	 * @return a FutureNotifier that finishes once the servers are shut down
@@ -196,7 +200,7 @@ public abstract class ServerManager<C extends ServerConfig> {
 	}
 
 	/**
-	 * Returns the ConnectionManager currently in use. Returns null if the servers are not running.
+	 * Returns the ConnectionManager currently in use. Returns <code>null</code> if the servers are not running.
 	 * 
 	 * @return the ConnectionManager currently in use
 	 */
@@ -215,7 +219,7 @@ public abstract class ServerManager<C extends ServerConfig> {
 	}
 
 	/**
-	 * Returns the UDPMulticastBeacon currently in use. Returns null if the servers are not running.
+	 * Returns the UDPMulticastBeacon currently in use. Returns <code>null</code> if the servers are not running.
 	 * 
 	 * @return the UDPMulticastBeacon currently in use
 	 */

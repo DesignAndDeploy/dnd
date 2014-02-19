@@ -9,13 +9,17 @@ import java.util.Queue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.config.BlockTypeHolder;
-import edu.teco.dnd.module.config.BlockTypeHolderIterator;
 
 /**
- * A genarator for {@link Distribution}s. Not thread safe.
+ * <p>
+ * Used to generate (valid) {@link Distribution}s for {@link FunctionBlock}s. This is a very generic and therefore slow
+ * algorithm. It uses an {@link EvaluationStrategy} and {@link Constraint}s to determine which Distributions are valid
+ * and which is the best of them.
+ * </p>
  * 
  * @author Philipp Adolf
  */
@@ -81,7 +85,8 @@ public class DistributionGenerator {
 	 *            the available modules
 	 * @return the best Distribution found or null if none exists
 	 */
-	public Distribution getDistribution(final Collection<FunctionBlockModel> blocks, final Collection<ModuleInfo> modules) {
+	public Distribution getDistribution(final Collection<FunctionBlockModel> blocks,
+			final Collection<ModuleInfo> modules) {
 		best = null;
 		bestValue = Integer.MIN_VALUE;
 		getDistribution(new ArrayList<FunctionBlockModel>(blocks), modules, new Distribution());
@@ -120,7 +125,7 @@ public class DistributionGenerator {
 			blocks.remove(block);
 
 			for (final ModuleInfo module : modules) {
-				for (final BlockTypeHolder holder : new BlockTypeHolderIterator(module.getHolder())) {
+				for (final BlockTypeHolder holder : module.getHolder()) {
 					if (holder.isLeaf()) {
 						if (isAllowed(start, block, module, holder)) {
 							start.add(block, module, holder);

@@ -52,51 +52,18 @@ import edu.teco.dnd.util.JoinedFutureNotifier;
 import edu.teco.dnd.util.MapUtil;
 
 /**
- * This class provides functionality to deploy applications to modules. The process is this:
- * 
- * <ol>
- * <li>Send {@link JoinApplicationMessage}s to all modules involved</li>
- * <li>Once a module has responded positively to a JoinApplicationMessage, send all classes needed on the ModuleInfo via
- * {@link LoadClassMessage}</li>
- * <li>When classes have been successfully loaded, all {@link FunctionBlock}s are sent to the ModuleInfo via
- * {@link BlockMessage}s</li>
- * <li>When all Blocks have been sent to the corresponding Modules, a {@link StartApplicationMessage} is sent to every
- * ModuleInfo</li>
- * </ol>
- * 
- * If any of the steps fails the deployment is aborted and a {@link KillAppMessage} is sent to all Modules.
- * 
- * @author Philipp Adolf
+ * This class provides functionality to deploy applications to modules. If any step doing this fails, the (partially
+ * deployed) Application is killed so that a consistent state is reached again.
  */
 public class Deploy {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(Deploy.class);
 
-	/**
-	 * All listeners that want to be informed about the deployment process.
-	 */
 	private final Set<DeployListener> listeners = new HashSet<DeployListener>();
-
-	/**
-	 * Used to synchronize access to {@link #listeners}.
-	 */
 	private final ReadWriteLock listenerLock = new ReentrantReadWriteLock();
 
-	/**
-	 * The ConnectionManager that will be used to sent messages.
-	 */
 	private final ConnectionManager connectionManager;
 
-	/**
-	 * The distribution that should be deployed.
-	 */
 	private final Map<FunctionBlockModel, BlockTarget> distribution;
-
-	/**
-	 * The name of the application.
-	 */
 	private final String appName;
 
 	/**
@@ -108,37 +75,12 @@ public class Deploy {
 	 * Used to resolve dependencies.
 	 */
 	private final Dependencies dependencies;
-
-	/**
-	 * Stores the ClassFiles each ModuleInfo needs. Filled by {@link #deploy()}.
-	 */
 	private Map<ModuleInfo, Set<ClassFile>> neededFilesPerModule;
-
-	/**
-	 * Used to cache the contents of the class files.
-	 */
 	private final FileCache fileCache = new FileCache();
 
-	/**
-	 * This future represents the state of the deployment process. It is set to done once all Modules have started the
-	 * application or an error occurs.
-	 */
 	private final DeployFutureNotifier deployFutureNotifier = new DeployFutureNotifier();
-
-	/**
-	 * The number of Modules that have not received all Blocks yet. This does <em>not</em> including sending/receiving a
-	 * {@link StartApplicationMessage}.
-	 */
 	private final AtomicInteger unfinishedModules = new AtomicInteger();
-
-	/**
-	 * Stores the FunctionBlocks that are to be sent to each ModuleInfo.
-	 */
 	private final Map<ModuleInfo, Set<FunctionBlockModel>> moduleMap;
-
-	/**
-	 * Used to make sure that the deployment process is only started once.
-	 */
 	private final AtomicBoolean hasBeenStarted = new AtomicBoolean(false);
 
 	/**

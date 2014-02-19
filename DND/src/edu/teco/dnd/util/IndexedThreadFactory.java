@@ -5,18 +5,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A ThreadFactory that adds a unique number to each Thread's name. This factory is thread safe.
- * 
- * @author Philipp Adolf
  */
 public class IndexedThreadFactory implements ThreadFactory {
-	/**
-	 * The prefix of the Threads' names. {@link #index} will be appended.
-	 */
 	private final String prefix;
-
-	/**
-	 * Will be appended and increment to get the name for a new Thread.
-	 */
 	private final AtomicInteger index;
 
 	/**

@@ -15,15 +15,9 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 /**
- * A GSON adapter, that translates byte-arrays into base64 encoded text.
- * 
- * @author Marvin Marx
- * 
+ * A GSON adapter that translates byte-arrays into base64 encoded text.
  */
 public class Base64Adapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(Base64Adapter.class);
 
 	@Override
