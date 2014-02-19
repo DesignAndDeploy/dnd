@@ -40,6 +40,8 @@ import edu.teco.dnd.deploy.Constraint;
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
+import edu.teco.dnd.deploy.DistributionGenerator;
+import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.eclipse.Activator;
 import edu.teco.dnd.eclipse.DisplayUtil;
 import edu.teco.dnd.eclipse.EclipseUtil;
@@ -48,11 +50,8 @@ import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.network.UDPMulticastBeacon;
-import edu.teco.dnd.server.DistributionCreator;
 import edu.teco.dnd.server.ModuleManager;
 import edu.teco.dnd.server.ModuleManagerListener;
-import edu.teco.dnd.server.NoBlocksException;
-import edu.teco.dnd.server.NoModulesException;
 import edu.teco.dnd.server.ServerManager;
 import edu.teco.dnd.server.ServerState;
 import edu.teco.dnd.server.ServerStateListener;
@@ -316,20 +315,23 @@ public class DeployEditor extends EditorPart implements ServerStateListener, Mod
 					locationConstraints));
 		}
 
-		final Collection<ModuleInfo> modules =
-				Activator.getDefault().getServerManager().getModuleManager().getModules();
-		Distribution dist = null;
-		try {
-			dist = DistributionCreator.createDistribution(functionBlocks, constraints, modules);
-		} catch (NoBlocksException e) {
+		if (functionBlocks == null || functionBlocks.isEmpty()) {
 			warn(Messages.DEPLOY_NO_BLOCKS);
 			LOGGER.exit();
 			return;
-		} catch (NoModulesException e) {
+		}
+
+		final Collection<ModuleInfo> modules =
+				Activator.getDefault().getServerManager().getModuleManager().getModules();
+		if (modules.isEmpty()) {
 			warn(Messages.DEPLOY_NO_MODULES);
 			LOGGER.exit();
 			return;
 		}
+
+		final DistributionGenerator distributionGenerator =
+				new DistributionGenerator(new MinimalModuleCountEvaluator(), constraints);
+		Distribution dist = distributionGenerator.getDistribution(functionBlocks, modules);
 
 		if (dist == null) {
 			warn(Messages.DEPLOY_NO_VALID_DISTRIBUTION);

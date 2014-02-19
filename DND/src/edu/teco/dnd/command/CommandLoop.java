@@ -11,11 +11,10 @@ import java.util.regex.Pattern;
 import edu.teco.dnd.deploy.Deploy;
 import edu.teco.dnd.deploy.Distribution;
 import edu.teco.dnd.deploy.Distribution.BlockTarget;
+import edu.teco.dnd.deploy.DistributionGenerator;
+import edu.teco.dnd.deploy.MinimalModuleCountEvaluator;
 import edu.teco.dnd.graphiti.model.FunctionBlockModel;
 import edu.teco.dnd.module.ModuleInfo;
-import edu.teco.dnd.server.DistributionCreator;
-import edu.teco.dnd.server.NoBlocksException;
-import edu.teco.dnd.server.NoModulesException;
 import edu.teco.dnd.server.ServerManager;
 import edu.teco.dnd.util.Dependencies;
 import edu.teco.dnd.util.FutureListener;
@@ -50,6 +49,9 @@ public class CommandLoop {
 	Collection<FunctionBlockModel> blocks;
 
 	private final ServerManager<?> serverManager;
+
+	private final DistributionGenerator distributionGenerator = new DistributionGenerator(
+			new MinimalModuleCountEvaluator());
 
 	public CommandLoop(Collection<FunctionBlockModel> functionBlocks, String appName, ServerManager<?> serverManager) {
 		this.serverManager = serverManager;
@@ -88,20 +90,15 @@ public class CommandLoop {
 	 */
 	private Distribution createDistribution() {
 		Collection<ModuleInfo> modules = serverManager.getModuleManager().getModules();
-
-		Distribution dist = null;
-		try {
-			dist = DistributionCreator.createDistribution(blocks, null, modules);
-		} catch (NoBlocksException e) {
+		if (modules.isEmpty()) {
 			System.out.println("Function Block Loading not implemented yet.");
-		} catch (NoModulesException e) {
-			System.out.println("No running modules available. Wait for more modules to register.");
-			System.out.println("Currently running:");
-			for (final ModuleInfo module : modules) {
-				System.out.println(module);
-			}
+			return null;
 		}
-		return dist;
+		if (modules.isEmpty()) {
+			return null;
+		}
+
+		return distributionGenerator.getDistribution(blocks, modules);
 	}
 
 	private boolean distributionSucceeded(Distribution dist) {
