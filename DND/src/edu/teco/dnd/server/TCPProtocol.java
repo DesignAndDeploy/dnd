@@ -38,8 +38,6 @@ import edu.teco.dnd.util.NetConnectionAdapter;
 /**
  * This class is used to initialize {@link TCPConnectionManager}s. It does so by registering needed type adapters and
  * message types.
- * 
- * @author Philipp Adolf
  */
 public class TCPProtocol {
 	public void initialize(final TCPConnectionManager tcpConnectionManager) {

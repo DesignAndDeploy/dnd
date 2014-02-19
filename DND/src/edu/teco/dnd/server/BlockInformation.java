@@ -1,41 +1,47 @@
 package edu.teco.dnd.server;
 
 import edu.teco.dnd.blocks.FunctionBlockID;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleID;
 
+/**
+ * Stores information about a {@link FunctionBlockID}. This includes the {@link FunctionBlockID}, the name, class and
+ * the {@link ModuleID} of the {@link Module} it is running on.
+ */
 public class BlockInformation {
 	private final FunctionBlockID id;
 	private final String name;
 	private final String blockClass;
 	private final ModuleID moduleID;
-	
-	public BlockInformation(final FunctionBlockID id, final String name, final String blockClass, final ModuleID moduleID) {
+
+	public BlockInformation(final FunctionBlockID id, final String name, final String blockClass,
+			final ModuleID moduleID) {
 		this.id = id;
 		this.name = name;
 		this.blockClass = blockClass;
 		this.moduleID = moduleID;
 	}
-	
+
 	public BlockInformation(final FunctionBlockID blockID, final String name, final String blockClass) {
 		this(blockID, name, blockClass, null);
 	}
-	
+
 	public BlockInformation(final FunctionBlockID blockID) {
 		this(blockID, null, null, null);
 	}
-	
+
 	public FunctionBlockID getID() {
 		return id;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getBlockClass() {
 		return blockClass;
 	}
-	
+
 	public ModuleID getModuleID() {
 		return moduleID;
 	}
@@ -93,7 +99,7 @@ public class BlockInformation {
 			string += ",blockClass=" + blockClass;
 		}
 		if (moduleID != null) {
-			 string += ",moduleID=" + moduleID;
+			string += ",moduleID=" + moduleID;
 		}
 		return string + "]";
 	}

@@ -7,9 +7,9 @@ import edu.teco.dnd.module.ModuleID;
  */
 public interface ServerConfig {
 	/**
-	 * Returns the ID the server should use.
+	 * Returns the {@link ModuleID} the server should use.
 	 * 
-	 * @return the ID the server should use
+	 * @return the ModuleID the server should use
 	 */
 	ModuleID getModuleID();
 

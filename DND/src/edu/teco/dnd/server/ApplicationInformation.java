@@ -7,13 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import edu.teco.dnd.blocks.FunctionBlock;
+import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.ApplicationID;
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleID;
 
 /**
  * Stores information about a single application.
- * 
- * @author Philipp Adolf
  */
 public class ApplicationInformation {
 	private final ApplicationID id;
@@ -35,7 +36,8 @@ public class ApplicationInformation {
 		this.id = id;
 		this.name = name;
 
-		final Map<ModuleID, Collection<BlockInformation>> blockMap = new HashMap<ModuleID, Collection<BlockInformation>>();
+		final Map<ModuleID, Collection<BlockInformation>> blockMap =
+				new HashMap<ModuleID, Collection<BlockInformation>>();
 		for (final BlockInformation block : blocks) {
 			if (block != null) {
 				addToMapCollection(blockMap, block.getModuleID(), block);
@@ -92,7 +94,7 @@ public class ApplicationInformation {
 	}
 
 	/**
-	 * Returns a Map from ModuleID to all FunctionBlocks running on that particular Module.
+	 * Returns a Map from ModuleID to all {@link FunctionBlock}s running on that particular Module.
 	 * 
 	 * @return a Map from ModuleID to FunctionBlocks running on the Module
 	 */
@@ -101,7 +103,7 @@ public class ApplicationInformation {
 	}
 
 	/**
-	 * Returns all FunctionBlocks that belong to this Application.
+	 * Returns all {@link FunctionBlock}s that belong to this {@link Application}.
 	 * 
 	 * @return all FunctionBlocks belonging to this Application
 	 */
@@ -114,7 +116,7 @@ public class ApplicationInformation {
 	}
 
 	/**
-	 * Returns all FunctionBlocks belonging to this Application that run on the given Module.
+	 * Returns all {@link FunctionBlock}s belonging to this {@link Application} that run on the given {@link Module}.
 	 * 
 	 * @param moduleID
 	 *            all FunctionBlocks belonging to this Application running on this Module will be returned

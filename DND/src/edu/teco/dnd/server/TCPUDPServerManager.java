@@ -220,7 +220,7 @@ public class TCPUDPServerManager extends ServerManager<AddressBasedServerConfig>
 			LOGGER.exit();
 		}
 	}
-	
+
 	@Override
 	public TCPConnectionManager getConnectionManager() {
 		return (TCPConnectionManager) super.getConnectionManager();

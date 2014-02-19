@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.module.ModuleInfo;
 import edu.teco.dnd.module.messages.infoReq.ModuleInfoMessage;
@@ -20,7 +21,8 @@ import edu.teco.dnd.util.FutureListener;
 import edu.teco.dnd.util.FutureNotifier;
 
 /**
- * Informs listeners about Modules.
+ * Informs {@link ModuleManagerListener listeners} about connected and disconnected {@link Module}s and automatically
+ * queries information about them. If this information arrives the listeners are also informed.
  */
 public class ModuleManager implements ServerStateListener, ConnectionListener {
 	private static final Logger LOGGER = LogManager.getLogger(ModuleManager.class);
@@ -42,18 +44,20 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 	}
 
 	/**
-	 * Returns the currently known Modules. The Collection is a copy of the internal data and can be modified freely.
+	 * Returns the currently known {@link Module}s. The Collection is a copy of the internal data and can be modified
+	 * freely.
 	 * 
-	 * @return currently known Modules. Only the IDs of the Modules are guaranteed to be set, other values may be null
+	 * @return currently known Modules. Only the IDs of the Modules are guaranteed to be set, other values may be
+	 *         <code>null</code>
 	 */
 	public synchronized Collection<ModuleInfo> getModules() {
 		return new ArrayList<ModuleInfo>(modules.values());
 	}
 
 	/**
-	 * Adds a listener. The listener will be informed about all currently known Modules via
-	 * {@link ModuleManagerListener#moduleAdded(ModuleInfo)}. There are no checks made on whether the listener was
-	 * already add. If it is added multiple times, all callbacks are called multiple times and
+	 * Adds a listener. The listener will be informed about all currently known {@link Module}s via
+	 * {@link ModuleManagerListener#moduleAdded(ModuleInfo)} immediately. There are no checks made on whether the
+	 * listener was already added. If it is added multiple times, all callbacks are called multiple times and
 	 * {@link #removeListener(ModuleManagerListener)} has to be called the same number of times to remove the listener
 	 * completely.
 	 * 
@@ -71,8 +75,8 @@ public class ModuleManager implements ServerStateListener, ConnectionListener {
 	}
 
 	/**
-	 * Removes a listener. The listener will no longer be informed about Modules. If the listener was added multiple
-	 * times, it has to be removed the same number of times.
+	 * Removes a listener. The listener will no longer be informed about {@link Module}s. If the listener was added
+	 * multiple times, it has to be removed the same number of times.
 	 * 
 	 * @param listener
 	 *            the listener to remove. If it was not added, nothing is done
