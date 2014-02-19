@@ -35,7 +35,7 @@ public class FunctionBlockLoader {
 		applicationName = path.replaceAll("\\.blocks", "");
 		java.net.URI uuri = new File(path).toURI();
 		System.out.println(uuri.toASCIIString());
-		//blocks = loadBlocks();
+		// blocks = loadBlocks();
 	}
 
 	// TODO: How are the connections stored?
@@ -43,11 +43,11 @@ public class FunctionBlockLoader {
 		Collection<FunctionBlockModel> functionBlocks = new ArrayList<FunctionBlockModel>();
 
 		ModelFactory.eINSTANCE.eClass();
-		
+
 		URI uri = URI.createURI(new File(path).toURI().toASCIIString());
-		
+
 		Resource resource = new XMIResourceImpl(uri);
-		
+
 		try {
 			resource.load(null);
 		} catch (IOException e) {

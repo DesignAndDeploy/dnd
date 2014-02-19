@@ -127,8 +127,8 @@ public class CommandMain {
 		functionBlocks = blockLoader.getBlocks();
 
 		serverManager = new TCPUDPServerManager();
-		serverManager.startServer(new SimpleAddressBasedServerConfig(moduleID, Collections.singletonList(listen), Collections
-				.singletonList(multicast), Collections.singletonList(announce), announceInterval));
+		serverManager.startServer(new SimpleAddressBasedServerConfig(moduleID, Collections.singletonList(listen),
+				Collections.singletonList(multicast), Collections.singletonList(announce), announceInterval));
 
 		ModuleRegistrator moduleRegistrator = new ModuleRegistrator();
 		serverManager.getModuleManager().addListener(moduleRegistrator);
