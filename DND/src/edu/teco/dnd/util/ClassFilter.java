@@ -4,8 +4,6 @@ import org.apache.bcel.classfile.JavaClass;
 
 /**
  * Filters classes. Used by {@link ClassScanner}.
- * 
- * @author philipp
  */
 public interface ClassFilter {
 	/**
@@ -13,7 +11,7 @@ public interface ClassFilter {
 	 * 
 	 * @param cls
 	 *            the class to check
-	 * @return true if the class should be accepted
+	 * @return <code>true</code> if the class should be accepted
 	 */
 	boolean acceptClass(JavaClass cls);
 }

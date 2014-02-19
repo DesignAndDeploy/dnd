@@ -6,8 +6,6 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Implements {@link FutureNotifier#get()} and {@link FutureNotifier#get(long, TimeUnit)}.
- * 
- * @author Philipp Adolf
  */
 public abstract class AbstractFutureNotifier<V> implements FutureNotifier<V> {
 	@Override

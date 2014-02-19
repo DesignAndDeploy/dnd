@@ -19,10 +19,20 @@ public class UniqueUUIDFactory implements UUIDFactory {
 	private final UUIDFactory uuidFactory;
 	private final Set<UUID> uuids = new HashSet<UUID>();
 
+	/**
+	 * Initializes a new UniqueUUIDFactory that will use the given {@link UUIDFactory}. Note that the factory should
+	 * return a "sufficient" amount of different {@link UUID}s or {@link #createUUID()} may loop endlessly.
+	 * 
+	 * @param uuidFactory
+	 *            the UUIDFactory to use internally
+	 */
 	public UniqueUUIDFactory(final UUIDFactory uuidFactory) {
 		this.uuidFactory = uuidFactory;
 	}
 
+	/**
+	 * Initializes a new UniqueUUIDFactory that will use a default {@link UUIDFactory} internally.
+	 */
 	public UniqueUUIDFactory() {
 		this(new RandomUUIDFactory());
 	}

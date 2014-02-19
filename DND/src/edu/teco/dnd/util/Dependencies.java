@@ -27,13 +27,8 @@ import org.apache.logging.log4j.MarkerManager;
 
 /**
  * Provides methods that can be used to get the dependencies for a given class.
- * 
- * @author Philipp Adolf
  */
 public class Dependencies {
-	/**
-	 * The logger for this class.
-	 */
 	private static final Logger LOGGER = LogManager.getLogger(Dependencies.class);
 
 	/**
@@ -41,19 +36,8 @@ public class Dependencies {
 	 */
 	private static final Marker FLOW_MARKER = MarkerManager.getMarker("FLOW");
 
-	/**
-	 * Repository used to load classes.
-	 */
 	private final Repository repository;
-
-	/**
-	 * ClassPath used to search for class files.
-	 */
 	private final ClassPath classPath;
-
-	/**
-	 * Used to exclude packages or classes.
-	 */
 	private final Collection<Pattern> filter;
 
 	/**
@@ -104,6 +88,7 @@ public class Dependencies {
 	 * 
 	 * @param classPath
 	 *            the classpath to use
+	 * @see #Dependencies(ClassPath)
 	 */
 	public Dependencies(final String classPath) {
 		this(new ClassPath(classPath));
@@ -129,8 +114,8 @@ public class Dependencies {
 
 	/**
 	 * Returns a collection of all files that the given class depends on. There may be dependencies that are not
-	 * included in the returned collection, for example if the given class file is not found in the classpath. If the
-	 * class given is filtered and empty collection is returned.
+	 * included in the collection returned, for example if the given class file is not found in the classpath. If the
+	 * class given is filtered an empty collection is returned.
 	 * 
 	 * @param className
 	 *            the class to inspect

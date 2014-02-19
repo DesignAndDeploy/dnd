@@ -4,18 +4,9 @@ import java.io.File;
 
 /**
  * Represents a File that is a Java class.
- * 
- * @author Philipp Adolf
  */
 public class ClassFile {
-	/**
-	 * The File represented by this object.
-	 */
 	private final File file;
-
-	/**
-	 * The name of the class stored in the File.
-	 */
 	private final String className;
 
 	/**
@@ -31,20 +22,10 @@ public class ClassFile {
 		this.className = className;
 	}
 
-	/**
-	 * Returns the File represented by this object.
-	 * 
-	 * @return the File represented by this object
-	 */
 	public File getFile() {
 		return this.file;
 	}
 
-	/**
-	 * Returns the name of the class stored in the File.
-	 * 
-	 * @return the name of the class stored in the File
-	 */
 	public String getClassName() {
 		return this.className;
 	}

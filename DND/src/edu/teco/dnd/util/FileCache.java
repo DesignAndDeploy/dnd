@@ -11,19 +11,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * A cache for File data that uses SoftReferences to be memory friendly.
- * 
- * @author Philipp Adolf
+ * A cache for File data that uses {@link SoftReference}s to be memory friendly.
  */
 public class FileCache {
-	/**
-	 * The cache. If a File's data is loaded a SoftReference to the data is put in here.
-	 */
 	private final Map<File, SoftReference<byte[]>> cache = new HashMap<File, SoftReference<byte[]>>();
-
-	/**
-	 * Used to synchronize access to {@link #cache}.
-	 */
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
 	/**

@@ -5,21 +5,20 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * An extension of Java's Future that has the ability to notify listeners when the Future is finished.
- * 
- * @author Philipp Adolf
  */
 public interface FutureNotifier<V> extends Future<V> {
 	/**
-	 * Returns true if the Future has finished and did so successfully.
+	 * Returns <code>true</code> if the Future has finished and did so successfully.
 	 * 
-	 * @return true if the Future finished successfully
+	 * @return <code>true</code> if the Future finished successfully
+	 * @see #isDone()
 	 */
 	boolean isSuccess();
 
 	/**
-	 * If the Future did finished, but failed and the cause is known, this method can be used to get the cause.
+	 * If the Future has finished, but failed and the cause is known, this method can be used to get the cause.
 	 * 
-	 * @return the reason why the Future failed
+	 * @return the reason why the Future failed if known, <code>null</code> otherwise
 	 */
 	Throwable cause();
 
@@ -43,9 +42,9 @@ public interface FutureNotifier<V> extends Future<V> {
 	void removeListener(FutureListener<? extends FutureNotifier<? super V>> listener);
 
 	/**
-	 * Tries to return the result immediately. Returns null if the Future has not finished yet.
+	 * Tries to return the result immediately. Returns <code>null</code> if the Future has not finished yet.
 	 * 
-	 * @return the result of this Future if it has finished or null otherwise
+	 * @return the result of this Future if it has finished or <code>null</code> otherwise
 	 */
 	V getNow();
 
@@ -64,7 +63,7 @@ public interface FutureNotifier<V> extends Future<V> {
 	 *            the time to wait
 	 * @param unit
 	 *            the unit for <code>timeout</code>
-	 * @return true if the Future completed in the given time, false otherwise
+	 * @return <code>true</code> if the Future completed in the given time, false otherwise
 	 * @throws InterruptedException
 	 *             if the Thread gets interrupted
 	 */
