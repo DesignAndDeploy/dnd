@@ -17,7 +17,8 @@ import edu.teco.dnd.network.MessageHandler;
 import edu.teco.dnd.network.messages.Message;
 import edu.teco.dnd.network.tcp.MessageHandlerManager;
 import edu.teco.dnd.network.tcp.MessageHandlerWithExecutor;
-import edu.teco.dnd.util.UniqueUUIDUtil;
+import edu.teco.dnd.util.UUIDFactory;
+import edu.teco.dnd.util.UniqueUUIDFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageHandlerManagerTest {
@@ -41,9 +42,9 @@ public class MessageHandlerManagerTest {
 	
 	@BeforeClass
 	public static void setupApplicationID() {
-		final UniqueUUIDUtil util = new UniqueUUIDUtil();
-		applicationID1 = new ApplicationID(util.getNewUUID());
-		applicationID2 = new ApplicationID(util.getNewUUID());
+		final UUIDFactory uuidFactory = new UniqueUUIDFactory();
+		applicationID1 = new ApplicationID(uuidFactory.createUUID());
+		applicationID2 = new ApplicationID(uuidFactory.createUUID());
 	}
 	
 	@Before

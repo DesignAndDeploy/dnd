@@ -23,7 +23,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.network.tcp.ResponseFutureManager;
 import edu.teco.dnd.network.tcp.ResponseFutureManager.ResponseFutureNotifier;
-import edu.teco.dnd.util.UniqueUUIDUtil;
+import edu.teco.dnd.util.UUIDFactory;
+import edu.teco.dnd.util.UniqueUUIDFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResponseFutureManagerTest {
@@ -41,9 +42,9 @@ public class ResponseFutureManagerTest {
 
 	@Before
 	public void setup() {
-		final UniqueUUIDUtil util = new UniqueUUIDUtil();
-		sourceUUID1 = util.getNewUUID();
-		sourceUUID2 = util.getNewUUID();
+		final UUIDFactory uuidFactory = new UniqueUUIDFactory();
+		sourceUUID1 = uuidFactory.createUUID();
+		sourceUUID2 = uuidFactory.createUUID();
 
 		when(response1.getSourceUUID()).thenReturn(sourceUUID1);
 		when(response2.getSourceUUID()).thenReturn(sourceUUID2);

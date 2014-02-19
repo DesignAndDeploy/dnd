@@ -20,10 +20,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import edu.teco.dnd.util.UUIDFactory;
-import edu.teco.dnd.util.UniqueUUIDUtil;
+import edu.teco.dnd.util.UniqueUUIDFactory;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UniqueUUIDUtilTest {
+public class UniqueUUIDFactoryTest {
 	private final UUID uuid0 = UUID.fromString("00000000-0000-0000-0000-000000000000");
 	private final UUID uuid1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
 	private final UUID uuid2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
@@ -34,29 +34,29 @@ public class UniqueUUIDUtilTest {
 	public TestRule globalTimeout = new Timeout(1000);
 
 	@Mock
-	private UUIDFactory factory;
-	private UniqueUUIDUtil util;
+	private UUIDFactory internalFactory;
+	private UniqueUUIDFactory uniqueUUIDFactory;
 
 	@Before
 	public void setup() {
-		util = new UniqueUUIDUtil(factory);
+		uniqueUUIDFactory = new UniqueUUIDFactory(internalFactory);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testFactoryNull() {
 		// The constructor may already throw NPE, this is intended
-		final UniqueUUIDUtil nullUtil = new UniqueUUIDUtil(null);
-		nullUtil.getNewUUID();
+		final UUIDFactory nullFactory = new UniqueUUIDFactory(null);
+		nullFactory.createUUID();
 	}
 
 	@Test
 	public void testUUIDsNotNull() {
 		setFactoryToDefaultSequence();
 
-		assertNotNull(util.getNewUUID());
-		assertNotNull(util.getNewUUID());
-		assertNotNull(util.getNewUUID());
-		assertNotNull(util.getNewUUID());
+		assertNotNull(uniqueUUIDFactory.createUUID());
+		assertNotNull(uniqueUUIDFactory.createUUID());
+		assertNotNull(uniqueUUIDFactory.createUUID());
+		assertNotNull(uniqueUUIDFactory.createUUID());
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class UniqueUUIDUtilTest {
 		final Set<UUID> uuids = new HashSet<UUID>();
 
 		for (int i = 0; i < 4; i++) {
-			final UUID newUUID = util.getNewUUID();
+			final UUID newUUID = uniqueUUIDFactory.createUUID();
 			if (uuids.contains(newUUID)) {
 				fail(newUUID + " was already generated");
 			}
@@ -74,26 +74,26 @@ public class UniqueUUIDUtilTest {
 
 	@Test
 	public void testHasGeneratedUUIDFresh() {
-		assertFalse(util.hasGeneratedUUID(uuid0));
-		assertFalse(util.hasGeneratedUUID(uuid1));
-		assertFalse(util.hasGeneratedUUID(uuid2));
-		assertFalse(util.hasGeneratedUUID(uuid3));
-		assertFalse(util.hasGeneratedUUID(extraUUID));
+		assertFalse(uniqueUUIDFactory.hasGeneratedUUID(uuid0));
+		assertFalse(uniqueUUIDFactory.hasGeneratedUUID(uuid1));
+		assertFalse(uniqueUUIDFactory.hasGeneratedUUID(uuid2));
+		assertFalse(uniqueUUIDFactory.hasGeneratedUUID(uuid3));
+		assertFalse(uniqueUUIDFactory.hasGeneratedUUID(extraUUID));
 	}
 
 	@Test
 	public void testHasGeneratedUUID() {
 		setFactoryToDefaultSequence();
 
-		final UUID firstGeneratedUUID = util.getNewUUID();
-		final UUID secondGeneratedUUID = util.getNewUUID();
+		final UUID firstGeneratedUUID = uniqueUUIDFactory.createUUID();
+		final UUID secondGeneratedUUID = uniqueUUIDFactory.createUUID();
 
-		assertTrue(util.hasGeneratedUUID(firstGeneratedUUID));
-		assertTrue(util.hasGeneratedUUID(secondGeneratedUUID));
-		assertFalse(util.hasGeneratedUUID(extraUUID));
+		assertTrue(uniqueUUIDFactory.hasGeneratedUUID(firstGeneratedUUID));
+		assertTrue(uniqueUUIDFactory.hasGeneratedUUID(secondGeneratedUUID));
+		assertFalse(uniqueUUIDFactory.hasGeneratedUUID(extraUUID));
 	}
 
 	private void setFactoryToDefaultSequence() {
-		when(factory.createUUID()).thenReturn(uuid0, uuid1, uuid2, uuid3);
+		when(internalFactory.createUUID()).thenReturn(uuid0, uuid1, uuid2, uuid3);
 	}
 }

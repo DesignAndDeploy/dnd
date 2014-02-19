@@ -28,7 +28,8 @@ import edu.teco.dnd.network.messages.Response;
 import edu.teco.dnd.network.tcp.ClientMessageDispatcher;
 import edu.teco.dnd.network.tcp.RemoteIDResolver;
 import edu.teco.dnd.network.tcp.ResponseFutureManager;
-import edu.teco.dnd.util.UniqueUUIDUtil;
+import edu.teco.dnd.util.UUIDFactory;
+import edu.teco.dnd.util.UniqueUUIDFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClientMessageDispatcherTest {
@@ -64,9 +65,9 @@ public class ClientMessageDispatcherTest {
 	public static void setupIDs() {
 		remoteID = new ModuleID();
 
-		final UniqueUUIDUtil uuidUtil = new UniqueUUIDUtil();
-		applicationID1 = new ApplicationID(uuidUtil.getNewUUID());
-		applicationID2 = new ApplicationID(uuidUtil.getNewUUID());
+		final UUIDFactory uuidFactory = new UniqueUUIDFactory();
+		applicationID1 = new ApplicationID(uuidFactory.createUUID());
+		applicationID2 = new ApplicationID(uuidFactory.createUUID());
 	}
 
 	@Before
@@ -79,10 +80,10 @@ public class ClientMessageDispatcherTest {
 
 	@Before
 	public void setupMessages() {
-		final UniqueUUIDUtil uuidUtil = new UniqueUUIDUtil();
-		final UUID messageUUID1 = uuidUtil.getNewUUID();
-		final UUID messageUUID2 = uuidUtil.getNewUUID();
-		final UUID messageUUID3 = uuidUtil.getNewUUID();
+		final UUIDFactory uuidFactory = new UniqueUUIDFactory();
+		final UUID messageUUID1 = uuidFactory.createUUID();
+		final UUID messageUUID2 = uuidFactory.createUUID();
+		final UUID messageUUID3 = uuidFactory.createUUID();
 
 		when(genericMessage.getUUID()).thenReturn(messageUUID1);
 

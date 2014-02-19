@@ -27,7 +27,8 @@ import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 import edu.teco.dnd.network.messages.HelloMessage;
 import edu.teco.dnd.network.tcp.ClientChannelManager;
 import edu.teco.dnd.network.tcp.HelloMessageHandler;
-import edu.teco.dnd.util.UniqueUUIDUtil;
+import edu.teco.dnd.util.UUIDFactory;
+import edu.teco.dnd.util.UniqueUUIDFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HelloMessageHandlerTest {
@@ -49,10 +50,10 @@ public class HelloMessageHandlerTest {
 
 	@Before
 	public void setupUUIDAndHandler() {
-		final UniqueUUIDUtil util = new UniqueUUIDUtil();
+		final UUIDFactory uuidFactory = new UniqueUUIDFactory();
 		final List<UUID> uuids = new ArrayList<UUID>(3);
 		for (int i = 0; i < 3; i++) {
-			uuids.add(util.getNewUUID());
+			uuids.add(uuidFactory.createUUID());
 		}
 		Collections.sort(uuids);
 

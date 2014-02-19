@@ -18,7 +18,8 @@ import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.messages.ConnectionEstablishedMessage;
 import edu.teco.dnd.network.tcp.ClientChannelManager;
 import edu.teco.dnd.network.tcp.ConnectionEstablishedMessageHandler;
-import edu.teco.dnd.util.UniqueUUIDUtil;
+import edu.teco.dnd.util.UUIDFactory;
+import edu.teco.dnd.util.UniqueUUIDFactory;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
@@ -40,10 +41,10 @@ public class ConnectionEstablishedMessageHandlerTest {
 	
 	@Before
 	public void setup() {
-		final UniqueUUIDUtil util = new UniqueUUIDUtil();
+		final UUIDFactory uuidFactory = new UniqueUUIDFactory();
 		final List<UUID> uuids = new ArrayList<UUID>(3);
 		for (int i = 0; i < 3; i++) {
-			uuids.add(util.getNewUUID());
+			uuids.add(uuidFactory.createUUID());
 		}
 		Collections.sort(uuids);
 
