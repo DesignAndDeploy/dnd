@@ -2,23 +2,16 @@ package edu.teco.dnd.network.messages;
 
 import java.util.UUID;
 
+import edu.teco.dnd.network.ConnectionManager;
+
 /**
- * This is a marker interface for Message that will be send.
- * 
- * @author Philipp Adolf
+ * This is a marker interface for Message that can be sent and/or received with a {@link ConnectionManager}. Each
+ * Message has a {@link UUID}. This UUID must be unique (which means that no Message may be sent twice) or things will
+ * break.
  */
 public abstract class Message {
-	/**
-	 * The UUID of this Message.
-	 */
 	private final UUID uuid;
 
-	/**
-	 * Initializes a new Message with a given UUID.
-	 * 
-	 * @param uuid
-	 *            the UUID to use for this Message
-	 */
 	public Message(final UUID uuid) {
 		this.uuid = uuid;
 	}
@@ -30,11 +23,6 @@ public abstract class Message {
 		this.uuid = UUID.randomUUID();
 	}
 
-	/**
-	 * Returns the UUID of the Message.
-	 * 
-	 * @return
-	 */
 	public UUID getUUID() {
 		return this.uuid;
 	}
@@ -88,5 +76,4 @@ public abstract class Message {
 	public String toString() {
 		return "Message [uuid=" + uuid + "]";
 	}
-
 }

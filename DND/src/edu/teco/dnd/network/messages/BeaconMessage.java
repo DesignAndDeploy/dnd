@@ -6,21 +6,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleID;
+import edu.teco.dnd.network.UDPMulticastBeacon;
 
+/**
+ * This Message is sent out by {@link UDPMulticastBeacon} to announce a {@link Module} to other Modules.
+ */
 public class BeaconMessage extends Message {
-	/**
-	 * The type of this message.
-	 */
 	public static final String MESSAGE_TYPE = "beacon";
 
 	/**
-	 * The UUID of the module that send this message.
+	 * The UUID of the module that sent this message.
 	 */
 	private final ModuleID moduleID;
 
 	/**
-	 * The addresses of the module that send this message.
+	 * The addresses of the module that sent this message.
 	 */
 	private final List<InetSocketAddress> addresses;
 
@@ -30,10 +32,10 @@ public class BeaconMessage extends Message {
 	 * @param uuid
 	 *            the UUID of this Message
 	 * @param moduleID
-	 *            the ID of the module
+	 *            the ID of the {@link Module}
 	 * @param addresses
-	 *            the addresses the module that can be used to initiate a connection. The list is copied to make it
-	 *            unmodifiable. Can be null to use an empty list.
+	 *            the addresses of the Module that can be used to initiate a connection. The list is copied to make it
+	 *            unmodifiable. Can be <code>null</code> to use an empty list.
 	 */
 	public BeaconMessage(final UUID uuid, final ModuleID moduleID, final List<InetSocketAddress> addresses) {
 		super(uuid);
@@ -78,7 +80,7 @@ public class BeaconMessage extends Message {
 	/**
 	 * Returns the addresses that can be used to initiate a connection.
 	 * 
-	 * @return the addresses of the module
+	 * @return the addresses of the {@link Module}
 	 */
 	public List<InetSocketAddress> getAddresses() {
 		return addresses;

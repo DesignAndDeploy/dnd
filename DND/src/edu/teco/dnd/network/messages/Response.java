@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * A Message that is sent as a Response for another Message.
+ * A Message that is sent as a Response for another {@link Message}.
  * 
  * @author Philipp Adolf
  */
@@ -20,7 +20,7 @@ public abstract class Response extends Message {
 	 * Initializes a new Response.
 	 * 
 	 * @param sourceUUID
-	 *            the UUID of the Message this is a response to
+	 *            the UUID of the {@link Message} this is a response to
 	 * @param uuid
 	 *            the UUID for this Message
 	 */
@@ -30,10 +30,10 @@ public abstract class Response extends Message {
 	}
 
 	/**
-	 * Initializes a new Response.
+	 * Initializes a new Response with a random Message UUID.
 	 * 
 	 * @param sourceUUID
-	 *            the UUID of the Message this is a response to
+	 *            the UUID of the {@link Message} this is a response to
 	 */
 	public Response(final UUID sourceUUID) {
 		super();
@@ -41,7 +41,7 @@ public abstract class Response extends Message {
 	}
 
 	/**
-	 * Initializes a new Response without a UUID.
+	 * Initializes a new Response without a source UUID and a random {@link Message} UUID.
 	 */
 	public Response() {
 		super();

@@ -1,21 +1,14 @@
 package edu.teco.dnd.network.messages;
 
+import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleID;
 
 /**
- * This message is sent if a new connection was made to inform the other end who we are.
- * 
- * @author Philipp Adolf
+ * This message is sent when a new connection is created to tell the other {@link Module} about the {@link ModuleID}.
  */
 public class HelloMessage extends Message {
-	/**
-	 * The type of this message.
-	 */
 	public static final String MESSAGE_TYPE = "hello";
 
-	/**
-	 * The ID of the module sending the message.
-	 */
 	private final ModuleID moduleID;
 
 	/**
@@ -27,9 +20,9 @@ public class HelloMessage extends Message {
 	 * Initializes a new HelloMessage.
 	 * 
 	 * @param moduleID
-	 *            the ID of the sending ModuleInfo
+	 *            the ID of the sending {@link Module}
 	 * @param framesize
-	 *            the maximum frame size the ModuleInfo can receive
+	 *            the maximum frame size the Module can receive
 	 */
 	public HelloMessage(final ModuleID moduleID, final int framesize) {
 		this.moduleID = moduleID;

@@ -17,8 +17,6 @@ import edu.teco.dnd.module.ModuleID;
 /**
  * A deserializer for {@link BeaconMessage}s that uses the public constructor so that <code>addresses</code> is kept
  * unmodifiable.
- * 
- * @author Philipp Adolf
  */
 public class BeaconMessageDeserializer implements JsonDeserializer<BeaconMessage> {
 	@Override

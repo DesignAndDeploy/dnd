@@ -7,21 +7,18 @@ import edu.teco.dnd.module.ApplicationID;
 /**
  * A Message that is specific to an application running on the module.
  * 
- * @author Philipp Adolf
+ * @see Message
  */
 public abstract class ApplicationSpecificMessage extends Message {
-	/**
-	 * The UUID of the Application this Message is intended for.
-	 */
 	private final ApplicationID applicationID;
 
 	/**
-	 * Initializes a new ApplicationSpecificMessage with a given Message UUID and an Application UUID.
+	 * Initializes a new ApplicationSpecificMessage with a given {@link Message} UUID and ApplicationID.
 	 * 
 	 * @param uuid
 	 *            the Message UUID
 	 * @param applicationID
-	 *            the Application UUID
+	 *            the ApplicationID
 	 */
 	public ApplicationSpecificMessage(final UUID uuid, final ApplicationID applicationID) {
 		super(uuid);
@@ -29,10 +26,10 @@ public abstract class ApplicationSpecificMessage extends Message {
 	}
 
 	/**
-	 * Initializes a new ApplicationSpecificMessage with a given Application UUID.
+	 * Initializes a new ApplicationSpecificMessage with a given {@link ApplicationID} and a random Message UUID.
 	 * 
 	 * @param applicationID
-	 *            the Application UUID
+	 *            the ApplicationID
 	 */
 	public ApplicationSpecificMessage(final ApplicationID applicationID) {
 		super();
@@ -40,9 +37,9 @@ public abstract class ApplicationSpecificMessage extends Message {
 	}
 
 	/**
-	 * Returns the ID of the application this message should be delivered to
+	 * Returns the ID of the application this Message should be delivered to
 	 * 
-	 * @return the ID of the application this message should be delivered to
+	 * @return the ID of the application this Message should be delivered to
 	 */
 	public ApplicationID getApplicationID() {
 		return applicationID;
@@ -97,5 +94,4 @@ public abstract class ApplicationSpecificMessage extends Message {
 	public String toString() {
 		return "ApplicationSpecificMessage [applicationUUID=" + applicationID + ", getUUID()=" + getUUID() + "]";
 	}
-
 }
