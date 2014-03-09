@@ -517,6 +517,7 @@ public class Application {
 					}
 				}
 			};
+			shutdownThread.setContextClassLoader(classLoader);
 			shutdownThread.start();
 
 			sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
