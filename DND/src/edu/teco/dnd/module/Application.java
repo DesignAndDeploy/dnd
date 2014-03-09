@@ -487,7 +487,7 @@ public class Application {
 		currentStateLock.readLock().lock();
 		try {
 			if (currentState != State.RUNNING) {
-				throw LOGGER.throwing(new IllegalArgumentException(this + " is not currently running"));
+				throw LOGGER.throwing(new IllegalStateException(this + " is not currently running"));
 			}
 		} finally {
 			currentStateLock.readLock().unlock();
@@ -496,7 +496,7 @@ public class Application {
 		currentStateLock.writeLock().lock();
 		try {
 			if (currentState != State.RUNNING) {
-				throw LOGGER.throwing(new IllegalArgumentException(this + " is not currently running"));
+				throw LOGGER.throwing(new IllegalStateException(this + " is not currently running"));
 			}
 
 			scheduledThreadPool.shutdown();

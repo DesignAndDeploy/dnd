@@ -273,7 +273,7 @@ public class Module {
 
 			try {
 				app.shutdown();
-			} catch (final IllegalArgumentException e) {
+			} catch (final IllegalStateException e) {
 				LOGGER.catching(Level.DEBUG, e);
 				// Application had not been started, ignoring
 			}
