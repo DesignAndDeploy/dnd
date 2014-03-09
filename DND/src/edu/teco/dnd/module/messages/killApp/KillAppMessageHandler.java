@@ -1,5 +1,6 @@
 package edu.teco.dnd.module.messages.killApp;
 
+import edu.teco.dnd.module.Application;
 import edu.teco.dnd.module.Module;
 import edu.teco.dnd.module.ModuleID;
 import edu.teco.dnd.network.MessageHandler;
@@ -29,12 +30,17 @@ public class KillAppMessageHandler implements MessageHandler<KillAppMessage> {
 
 	@Override
 	public Response handleMessage(ModuleID remoteUUID, KillAppMessage message) {
-		try {
-			module.stopApplication(message.getApplicationID());
-		} catch (Exception e) {
+		final Application application = module.getApplication(message.getApplicationID());
+		if (application == null) {
 			return new KillAppNak(message.getApplicationID());
-
 		}
+
+		try {
+			application.shutdown();
+		} catch (final IllegalStateException e) {
+			return new KillAppNak(message.getApplicationID());
+		}
+
 		return new KillAppAck(message.getApplicationID());
 	}
 

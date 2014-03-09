@@ -30,6 +30,7 @@ import edu.teco.dnd.blocks.OutputTarget;
 import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
 import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
 import edu.teco.dnd.module.config.BlockTypeHolder;
+import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
 import edu.teco.dnd.network.ConnectionManager;
 import edu.teco.dnd.util.HashStorage;
 import edu.teco.dnd.util.ValueWithHash;
@@ -79,6 +80,8 @@ public class Application {
 	private final ConcurrentMap<FunctionBlockID, FunctionBlockSecurityDecorator> functionBlocksById =
 			new ConcurrentHashMap<FunctionBlockID, FunctionBlockSecurityDecorator>();
 
+	private final Module module;
+
 	/**
 	 * Initializes a new Application. Normally this should not be called directly, use
 	 * {@link Module#joinApplication(ApplicationID, String)} instead.
@@ -99,10 +102,12 @@ public class Application {
 	 * @param byteCodeStorage
 	 *            a HashStorage that is used to globaly store the byte code. This can be used to cache byte code if
 	 *            multiple Applications execute the same FunctionBlock class.
+	 * @param module
+	 *            the Module this Application is running on
 	 */
 	public Application(final ApplicationID applicationID, final String name, final ConnectionManager connectionManager,
 			final ThreadFactory threadFactory, final int maxThreads, final ModuleBlockManager moduleBlockManager,
-			final HashStorage<byte[]> byteCodeStorage) {
+			final HashStorage<byte[]> byteCodeStorage, final Module module) {
 		this.applicationID = applicationID;
 		this.name = name;
 		this.byteCodeStorage = byteCodeStorage;
@@ -110,6 +115,7 @@ public class Application {
 				new ScheduledThreadPoolExecutor(maxThreads, new ContextClassLoaderThreadFactory(threadFactory));
 		this.connectionManager = connectionManager;
 		this.moduleBlockManager = moduleBlockManager;
+		this.module = module;
 	}
 
 	public boolean isRunning() {
@@ -482,7 +488,6 @@ public class Application {
 	 * @throws IllegalStateException
 	 *             if the Application is not currently {@link #isRunning() running}
 	 */
-	@SuppressWarnings("deprecation")
 	public void shutdown() {
 		currentStateLock.readLock().lock();
 		try {
@@ -501,44 +506,61 @@ public class Application {
 
 			scheduledThreadPool.shutdown();
 
-			final Thread shutdownThread = new Thread() {
-				@Override
-				public void run() {
-					for (final FunctionBlockSecurityDecorator block : functionBlocksById.values()) {
-						if (Thread.interrupted()) {
-							LOGGER.warn("shutdownThread got interrupted, not shutting down remaining FunctionBlocks");
-							break;
-						}
-						try {
-							block.shutdown();
-						} catch (UserSuppliedCodeException e) {
-							LOGGER.catching(e);
-						}
+			shutdownFunctionBlocks();
+
+			removeFunctionBlocksFromManager();
+			
+			module.removeApplication(applicationID);
+		} finally {
+			currentStateLock.writeLock().unlock();
+		}
+	}
+
+	// must be run while currentStateLock.writeLock() is held
+	@SuppressWarnings("deprecation")
+	private void shutdownFunctionBlocks() {
+		// We use a second thread so we can interrupt/kill it in case a FunctionBlock misbehaves
+		final Thread shutdownThread = new Thread() {
+			@Override
+			public void run() {
+				for (final FunctionBlockSecurityDecorator block : functionBlocksById.values()) {
+					if (Thread.interrupted()) {
+						LOGGER.warn("shutdownThread got interrupted, not shutting down remaining FunctionBlocks");
+						break;
+					}
+					try {
+						block.shutdown();
+					} catch (UserSuppliedCodeException e) {
+						LOGGER.catching(e);
 					}
 				}
-			};
-			shutdownThread.setContextClassLoader(classLoader);
-			shutdownThread.start();
-
-			sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
-			if (!shutdownThread.isAlive()) {
-				LOGGER.debug("shutdownThread finished in time");
-				return;
 			}
-			LOGGER.info("shutdownThread is taking too long. Interrupting it.");
-			shutdownThread.interrupt();
+		};
+		shutdownThread.setContextClassLoader(classLoader);
+		shutdownThread.start();
 
-			sleepUninterrupted(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
-			if (!shutdownThread.isAlive()) {
-				LOGGER.debug("shutdownThread finished in time after interrupting");
-				return;
-			}
+		sleepUninterrupted(TIME_BEFORE_ATTEMPTED_SHUTDOWNHOOK_KILL);
+		if (!shutdownThread.isAlive()) {
+			LOGGER.debug("shutdownThread finished in time");
+			return;
+		}
+		LOGGER.info("shutdownThread is taking too long. Interrupting it.");
+		shutdownThread.interrupt();
+
+		sleepUninterrupted(ADDITIONAL_TIME_BEFORE_FORCEFULL_KILL);
+		if (!shutdownThread.isAlive()) {
 			LOGGER.warn("Shutdown thread hanging. Killing it.");
 			shutdownThread.stop();
 			// It's deprecated and dangerous to stop a thread like this, because it forcefully releases all locks,
 			// yet there is no alternative to it if the victim is refusing to cooperate.
-		} finally {
-			currentStateLock.writeLock().unlock();
+		} else {
+			LOGGER.debug("shutdownThread finished in time after interrupting");
+		}
+	}
+
+	private void removeFunctionBlocksFromManager() {
+		for (final FunctionBlockID blockID : functionBlocksById.keySet()) {
+			moduleBlockManager.removeBlock(new ApplicationBlockID(blockID, applicationID));
 		}
 	}
 

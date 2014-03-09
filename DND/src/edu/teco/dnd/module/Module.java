@@ -15,9 +15,8 @@ import org.apache.logging.log4j.Logger;
 import edu.teco.dnd.blocks.FunctionBlock;
 import edu.teco.dnd.module.ModuleBlockManager.BlockTypeHolderFullException;
 import edu.teco.dnd.module.ModuleBlockManager.NoSuchBlockTypeHolderException;
-import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.module.config.BlockTypeHolder;
-import edu.teco.dnd.module.messages.infoReq.ApplicationBlockID;
+import edu.teco.dnd.module.config.ModuleConfig;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessage;
 import edu.teco.dnd.module.messages.joinStartApp.StartApplicationMessageHandler;
 import edu.teco.dnd.module.messages.killApp.KillAppMessage;
@@ -128,7 +127,7 @@ public class Module {
 	private Application instantiateApplication(final ApplicationID applicationID, final String name) {
 		final IndexedThreadFactory threadFactory = new IndexedThreadFactory("app-" + applicationID.getUUID() + "-");
 		return new Application(applicationID, name, connectionManager, threadFactory,
-				moduleConfig.getMaxThreadsPerApp(), moduleBlockManager, byteCodeStorage);
+				moduleConfig.getMaxThreadsPerApp(), moduleBlockManager, byteCodeStorage, this);
 	}
 
 	/**
@@ -244,47 +243,19 @@ public class Module {
 				moduleShutdownHook.run();
 			}
 			synchronized (runningApps) {
-				for (ApplicationID applicationID : runningApps.keySet()) {
-					stopApplication(applicationID);
+				for (Application application : runningApps.values()) {
+					application.shutdown();
 				}
 			}
 		} finally {
 			shutdownLock.writeLock().unlock();
 		}
 	}
-
-	/**
-	 * Stops a single Application. If the {@link Application} is running it is shutdown, all used
-	 * {@link BlockTypeHolder}s are freed and the {@link ApplicationID} is freed so a new Application with that ID can
-	 * be {@link #startApp(ApplicationID) started}.
-	 * 
-	 * @param applicationID
-	 *            the ID of the Application that should be stopped
-	 */
-	public void stopApplication(ApplicationID applicationID) {
-		// TODO deregister Message handlers
-		LOGGER.entry(applicationID);
+	
+	void removeApplication(final ApplicationID applicationID) {
 		synchronized (runningApps) {
-			Application app = runningApps.get(applicationID);
-			if (app == null) {
-				throw LOGGER.throwing(new IllegalArgumentException("Tried to stop non-existant Application "
-						+ applicationID));
-			}
-
-			try {
-				app.shutdown();
-			} catch (final IllegalStateException e) {
-				LOGGER.catching(Level.DEBUG, e);
-				// Application had not been started, ignoring
-			}
-
-			for (final FunctionBlockSecurityDecorator block : app.getFunctionBlocksById().values()) {
-				moduleBlockManager.removeBlock(new ApplicationBlockID(block.getBlockID(), applicationID));
-			}
-
 			runningApps.remove(applicationID);
 		}
-		LOGGER.exit();
 	}
 
 	/**
